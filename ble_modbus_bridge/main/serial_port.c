@@ -39,7 +39,7 @@ uart_config_t uart_config = {
     .flow_ctrl = UART_HW_FLOWCTRL_DISABLE
 };
 
-static void uart1_deinit()
+static void deinit_uart()
 {
     close(uart_fd);
     uart_fd = -1;
@@ -56,33 +56,57 @@ static void init_uart()
     printf(" INFO : Opening Serial Port 2 \n");
     if ((uart_fd = open("/dev/uart/2", O_RDWR | O_NONBLOCK)) == -1) {
         ESP_LOGE(TAG, "Cannot open UART1");
-        uart1_deinit();
+        deinit_uart();
     }
 
     esp_vfs_dev_uart_use_driver(1);
 }
 
+static void check_and_uart_data(int fd, const fd_set *rfds, const char *src_msg)
+{
+    char buf[100];
+    int read_bytes;
+
+    if (FD_ISSET(fd, rfds)) {
+        if ((read_bytes = read(fd, buf, sizeof(buf)-1)) > 0) {
+            buf[read_bytes] = '\0';
+            ESP_LOGI(TAG, "%d bytes were received through %s: %s", read_bytes, src_msg, buf);
+        } else {
+            ESP_LOGE(TAG, "%s read error", src_msg);
+        }
+    }
+}
+
 void uart_modbus_task(void *param)
 {
-    char buf[20];
+    char    buf[20];
+    int     s;
+    fd_set  rfds;
+    struct timeval tv;
 
     init_uart();
 
-    for (uint8_t i = 1;; ++i) 
-    {
+    while (1) {
 
-        vTaskDelay(4000 / portTICK_PERIOD_MS);
+        tv.tv_sec = 1,
+        tv.tv_usec = 0,
 
-        snprintf(buf, sizeof(buf), "UART message U%d", i);
-        int write_bytes = write(uart_fd, buf, strlen(buf));
-        if (write_bytes < 0) {
-            ESP_LOGE(TAG, "UART1 write error");
+        FD_ZERO(&rfds);
+        FD_SET(uart_fd, &rfds);
+
+        s = select((uart_fd + 1), &rfds, NULL, NULL, &tv);
+
+        if (s < 0) {
+            ESP_LOGE(TAG, "Select failed: errno %d", errno);
+        } else if (s == 0) {
+            ESP_LOGI(TAG, "Timeout has been reached and nothing has been received");
         } else {
-            ESP_LOGI(TAG, "%d bytes were sent to UART1: %s", write_bytes, buf);
+            check_and_uart_data(socket_fd, &rfds, "socket");
+            check_and_uart_data(uart_fd, &rfds, "UART1");
         }
     }
 
-    uart1_deinit(uart_fd);
+    deinit_uart(uart_fd);
     vTaskDelete(NULL);
 }
 
