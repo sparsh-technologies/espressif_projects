@@ -24,8 +24,10 @@
 
 static const char* TAG = "uart_select_example";
 
-static int uart_fd = -1;
 static int socket_fd = -1;
+extern int uart_fd;
+
+extern void uart_modbus_task(void *param);
 
 static void socket_deinit()
 {
@@ -79,57 +81,6 @@ static void socket_init()
     }
 
     freeaddrinfo(res);
-}
-
-static void uart1_deinit()
-{
-    close(uart_fd);
-    uart_fd = -1;
-    uart_driver_delete(UART_NUM_1);
-    UART1.conf0.loopback = 0;
-}
-
-static void uart1_init()
-{
-    uart_config_t uart_config = {
-        .baud_rate = 115200,
-        .data_bits = UART_DATA_8_BITS,
-        .parity    = UART_PARITY_DISABLE,
-        .stop_bits = UART_STOP_BITS_1,
-        .flow_ctrl = UART_HW_FLOWCTRL_DISABLE
-    };
-    uart_param_config(UART_NUM_1, &uart_config);
-    uart_driver_install(UART_NUM_1, 256, 0, 0, NULL, 0);
-    UART1.conf0.loopback = 1;
-
-    if ((uart_fd = open("/dev/uart/1", O_RDWR | O_NONBLOCK)) == -1) {
-        ESP_LOGE(TAG, "Cannot open UART1");
-        uart1_deinit();
-    }
-
-    esp_vfs_dev_uart_use_driver(1);
-}
-
-static void uart1_write_task(void *param)
-{
-    char buf[20];
-
-    uart1_init();
-
-    for (uint8_t i = 1;; ++i) {
-        vTaskDelay(4000 / portTICK_PERIOD_MS);
-
-        snprintf(buf, sizeof(buf), "UART message U%d", i);
-        int write_bytes = write(uart_fd, buf, strlen(buf));
-        if (write_bytes < 0) {
-            ESP_LOGE(TAG, "UART1 write error");
-        } else {
-            ESP_LOGI(TAG, "%d bytes were sent to UART1: %s", write_bytes, buf);
-        }
-    }
-
-    uart1_deinit(uart_fd);
-    vTaskDelete(NULL);
 }
 
 static void socket_write_task(void *param)
@@ -200,7 +151,7 @@ static void select_task(void *param)
 
 void app_main()
 {
-    xTaskCreate(uart1_write_task, "uart1_write_task", 4*1024, NULL, 5, NULL);
+    xTaskCreate(uart_modbus_task, "uart_modbus_task", 4*1024, NULL, 5, NULL);
     xTaskCreate(socket_write_task, "socket_write_task", 4*1024, NULL, 5, NULL);
     vTaskDelay(1000 / portTICK_PERIOD_MS);
     xTaskCreate(select_task, "select_task", 4*1024, NULL, 5, NULL);
