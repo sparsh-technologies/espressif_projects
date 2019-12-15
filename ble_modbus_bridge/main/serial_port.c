@@ -27,6 +27,12 @@
 #include "lwip/sockets.h"
 #include "lwip/netdb.h"
 
+#define ECHO_TEST_TXD  (GPIO_NUM_17)
+#define ECHO_TEST_RXD  (GPIO_NUM_16)
+
+#define ECHO_TEST_RTS  (UART_PIN_NO_CHANGE)
+#define ECHO_TEST_CTS  (UART_PIN_NO_CHANGE)
+
 static const char* TAG = "uart_select_example";
 
 int uart_fd = -1;
@@ -44,22 +50,26 @@ static void deinit_uart()
     close(uart_fd);
     uart_fd = -1;
     uart_driver_delete(UART_NUM_2);
-    UART1.conf0.loopback = 0;
 }
 
-static void init_uart()
+static int init_uart()
 {
     uart_param_config(UART_NUM_2, &uart_config);
+    uart_set_pin(UART_NUM_2, ECHO_TEST_TXD, ECHO_TEST_RXD, 
+                 ECHO_TEST_RTS, ECHO_TEST_CTS);
     uart_driver_install(UART_NUM_2, 256, 0, 0, NULL, 0);
-    UART1.conf0.loopback = 1;
 
     printf(" INFO : Opening Serial Port 2 \n");
+
     if ((uart_fd = open("/dev/uart/2", O_RDWR | O_NONBLOCK)) == -1) {
         ESP_LOGE(TAG, "Cannot open UART1");
         deinit_uart();
+        return (1);
     }
 
-    esp_vfs_dev_uart_use_driver(1);
+    printf(" Opened serial port successfully. FD(%d) \n", uart_fd);
+    esp_vfs_dev_uart_use_driver(2);
+    return (0);
 }
 
 static void check_and_uart_data(int fd, const fd_set *rfds, const char *src_msg)
@@ -79,16 +89,18 @@ static void check_and_uart_data(int fd, const fd_set *rfds, const char *src_msg)
 
 void uart_modbus_task(void *param)
 {
-    char    buf[20];
     int     s;
     fd_set  rfds;
     struct timeval tv;
 
-    init_uart();
+    if(init_uart() != 0) {
+        printf(" ERROR : Unable to open serial port \n");
+        return;
+    }
 
     while (1) {
 
-        tv.tv_sec = 1,
+        tv.tv_sec = 5,
         tv.tv_usec = 0,
 
         FD_ZERO(&rfds);
@@ -97,12 +109,9 @@ void uart_modbus_task(void *param)
         s = select((uart_fd + 1), &rfds, NULL, NULL, &tv);
 
         if (s < 0) {
-            ESP_LOGE(TAG, "Select failed: errno %d", errno);
-        } else if (s == 0) {
-            ESP_LOGI(TAG, "Timeout has been reached and nothing has been received");
+            printf(" Select failed. \n");
         } else {
-            check_and_uart_data(socket_fd, &rfds, "socket");
-            check_and_uart_data(uart_fd, &rfds, "UART1");
+            check_and_uart_data(uart_fd, &rfds, "UART2");
         }
     }
 
