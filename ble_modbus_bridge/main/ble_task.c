@@ -1,6 +1,6 @@
 /*
  ****************************************************************************************
- * main.c
+ * ble_task.c
  *
  * Author    : Biju Nair
  * Ver       : 1.0
@@ -21,13 +21,19 @@
 #include "freertos/task.h"
 #include "esp_log.h"
 #include "esp_vfs.h"
+#include "esp_vfs_dev.h"
+#include "driver/uart.h"
+#include "tcpip_adapter.h"
+#include "lwip/sockets.h"
+#include "lwip/netdb.h"
 
-/*
- * This is the first function that gets invoked as part of ESP32 initialization.
- */
-void app_main()
+void ble_config_task(void *param)
 {
-    xTaskCreate(uart_modbus_task, "uart_modbus_task", 4*1024, NULL, 5, NULL);
-    xTaskCreate(ble_config_task, "ble_config_task", 4*1024, NULL, 5, NULL);
-    vTaskDelay(1000 / portTICK_PERIOD_MS);
+
+    while(1) {
+
+
+    }
+
 }
+
