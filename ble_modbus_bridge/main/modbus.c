@@ -1,4 +1,4 @@
-/*
+﻿/*
  * Copyright © 2001-2011 Stéphane Raimbault <stephane.raimbault@gmail.com>
  *
  * SPDX-License-Identifier: LGPL-2.1+
@@ -6,22 +6,18 @@
  * This library implements the Modbus protocol.
  * http://libmodbus.org/
  */
-#if 0
 
 #include <stdio.h>
 #include <string.h>
-#include <stdlib.h>
+#include <sys/fcntl.h>
+#include <sys/errno.h>
+#include <sys/unistd.h>
+#include <sys/param.h>
 #include <stdarg.h>
-#include <errno.h>
-#include <limits.h>
-#include <time.h>
-#ifndef _MSC_VER
-#include <unistd.h>
-#endif
-#include <config.h>
-
-#endif
-
+#include <sys/time.h>
+#include "freertos/FreeRTOS.h"
+#include "freertos/task.h"
+#include "modbus_types.h"
 #include "modbus.h"
 #include "modbus-private.h"
 
@@ -76,7 +72,7 @@ const char *modbus_strerror(int errnum) {
     case EMBBADSLAVE:
         return "Response not from requested slave";
     default:
-        return strerror(errnum);
+        return "Unknown error";
     }
 }
 
@@ -99,9 +95,14 @@ static void _sleep_response_timeout(modbus_t *ctx)
     struct timespec request, remaining;
     request.tv_sec = ctx->response_timeout.tv_sec;
     request.tv_nsec = ((long int)ctx->response_timeout.tv_usec) * 1000;
+	
+	// ICOS - This needs to be changed.
+#if 0
     while (nanosleep(&request, &remaining) == -1 && errno == EINTR) {
         request = remaining;
     }
+#endif
+    vTaskDelay(request.tv_sec);
 }
 
 int modbus_flush(modbus_t *ctx)

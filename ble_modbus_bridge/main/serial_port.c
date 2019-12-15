@@ -28,8 +28,6 @@
 #include "lwip/netdb.h"
 #include "peripheral.h"
 
-static const char* TAG = "uart_select_example";
-
 int uart_fd = -1;
 
 uart_config_t uart_config = {

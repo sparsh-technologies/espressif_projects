@@ -1,21 +1,23 @@
-/*
+﻿/*
  * Copyright © 2001-2011 Stéphane Raimbault <stephane.raimbault@gmail.com>
  *
  * SPDX-License-Identifier: LGPL-2.1+
  */
-#if 0
 
 #include <stdio.h>
-#include <stdlib.h>
-#include <errno.h>
-#include <fcntl.h>
 #include <string.h>
-#ifndef _MSC_VER
-#include <unistd.h>
-#endif
-
-#endif
-
+#include <sys/fcntl.h>
+#include <sys/errno.h>
+#include <sys/unistd.h>
+#include <sys/param.h>
+#include <stdarg.h>
+#include <sys/time.h>
+#include <sys/termios.h>
+#include <sys/select.h>
+#include "freertos/FreeRTOS.h"
+#include "freertos/task.h"
+#include "modbus_types.h"
+#include "modbus.h"
 #include "modbus-private.h"
 #include "modbus-rtu.h"
 #include "modbus-rtu-private.h"
@@ -285,7 +287,13 @@ static int _modbus_rtu_connect(modbus_t *ctx)
 
        Timeouts are ignored in canonical input mode or when the
        NDELAY option is set on the file via open or fcntl */
+	   
+    // ICOS - Change
+#if 0
     flags = O_RDWR | O_NOCTTY | O_NDELAY | O_EXCL;
+#endif
+    flags = O_RDWR | O_NOCTTY | O_EXCL;
+	
 #ifdef O_CLOEXEC
     flags |= O_CLOEXEC;
 #endif

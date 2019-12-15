@@ -22,6 +22,9 @@
 #include "esp_log.h"
 #include "esp_vfs.h"
 
+extern void ble_config_task(void *param);
+extern void uart_modbus_task(void *param);
+
 /*
  * This is the first function that gets invoked as part of ESP32 initialization.
  */

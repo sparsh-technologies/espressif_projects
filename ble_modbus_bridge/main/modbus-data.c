@@ -1,9 +1,22 @@
-/*
+﻿/*
  * Copyright © 2010-2014 Stéphane Raimbault <stephane.raimbault@gmail.com>
  *
  * SPDX-License-Identifier: LGPL-2.1+
  */
 
+#include <stdio.h>
+#include <string.h>
+#include <sys/fcntl.h>
+#include <sys/errno.h>
+#include <sys/unistd.h>
+#include <sys/param.h>
+#include <stdarg.h>
+#include <sys/time.h>
+#include "freertos/FreeRTOS.h"
+#include "freertos/task.h"
+#include "modbus_types.h"
+#include "modbus.h"
+#include "modbus-private.h"
 
 #include "modbus.h"
 
