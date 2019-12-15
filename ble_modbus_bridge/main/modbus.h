@@ -7,17 +7,6 @@
 #ifndef MODBUS_H
 #define MODBUS_H
 
-/* Add this for macros that defined unix flavor */
-#if (defined(__unix__) || defined(unix)) && !defined(USG)
-#include <sys/param.h>
-#endif
-
-#ifndef _MSC_VER
-#include <stdint.h>
-#else
-#include "stdint.h"
-#endif
-
 #include "modbus-version.h"
 
 #if defined(_MSC_VER)

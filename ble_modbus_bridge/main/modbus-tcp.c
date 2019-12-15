@@ -3,6 +3,7 @@
  *
  * SPDX-License-Identifier: LGPL-2.1+
  */
+#if 0
 
 #if defined(_WIN32)
 # define OS_WIN32
@@ -927,3 +928,5 @@ modbus_t* modbus_new_tcp_pi(const char *node, const char *service)
 
     return ctx;
 }
+
+#endif

@@ -3,6 +3,7 @@
  *
  * SPDX-License-Identifier: LGPL-2.1+
  */
+#if 0
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -12,20 +13,12 @@
 #ifndef _MSC_VER
 #include <unistd.h>
 #endif
-#include <assert.h>
+
+#endif
 
 #include "modbus-private.h"
-
 #include "modbus-rtu.h"
 #include "modbus-rtu-private.h"
-
-#if HAVE_DECL_TIOCSRS485 || HAVE_DECL_TIOCM_RTS
-#include <sys/ioctl.h>
-#endif
-
-#if HAVE_DECL_TIOCSRS485
-#include <linux/serial.h>
-#endif
 
 /* Table of CRC values for high-order byte */
 static const uint8_t table_crc_hi[] = {
@@ -107,7 +100,6 @@ static int _modbus_rtu_build_request_basis(modbus_t *ctx, int function,
                                            int addr, int nb,
                                            uint8_t *req)
 {
-    assert(ctx->slave != -1);
     req[0] = ctx->slave;
     req[1] = function;
     req[2] = addr >> 8;
@@ -161,96 +153,6 @@ static int _modbus_rtu_send_msg_pre(uint8_t *req, int req_length)
     return req_length;
 }
 
-#if defined(_WIN32)
-
-/* This simple implementation is sort of a substitute of the select() call,
- * working this way: the win32_ser_select() call tries to read some data from
- * the serial port, setting the timeout as the select() call would. Data read is
- * stored into the receive buffer, that is then consumed by the win32_ser_read()
- * call.  So win32_ser_select() does both the event waiting and the reading,
- * while win32_ser_read() only consumes the receive buffer.
- */
-
-static void win32_ser_init(struct win32_ser *ws)
-{
-    /* Clear everything */
-    memset(ws, 0x00, sizeof(struct win32_ser));
-
-    /* Set file handle to invalid */
-    ws->fd = INVALID_HANDLE_VALUE;
-}
-
-/* FIXME Try to remove length_to_read -> max_len argument, only used by win32 */
-static int win32_ser_select(struct win32_ser *ws, int max_len,
-                            const struct timeval *tv)
-{
-    COMMTIMEOUTS comm_to;
-    unsigned int msec = 0;
-
-    /* Check if some data still in the buffer to be consumed */
-    if (ws->n_bytes > 0) {
-        return 1;
-    }
-
-    /* Setup timeouts like select() would do.
-       FIXME Please someone on Windows can look at this?
-       Does it possible to use WaitCommEvent?
-       When tv is NULL, MAXDWORD isn't infinite!
-     */
-    if (tv == NULL) {
-        msec = MAXDWORD;
-    } else {
-        msec = tv->tv_sec * 1000 + tv->tv_usec / 1000;
-        if (msec < 1)
-            msec = 1;
-    }
-
-    comm_to.ReadIntervalTimeout = msec;
-    comm_to.ReadTotalTimeoutMultiplier = 0;
-    comm_to.ReadTotalTimeoutConstant = msec;
-    comm_to.WriteTotalTimeoutMultiplier = 0;
-    comm_to.WriteTotalTimeoutConstant = 1000;
-    SetCommTimeouts(ws->fd, &comm_to);
-
-    /* Read some bytes */
-    if ((max_len > PY_BUF_SIZE) || (max_len < 0)) {
-        max_len = PY_BUF_SIZE;
-    }
-
-    if (ReadFile(ws->fd, &ws->buf, max_len, &ws->n_bytes, NULL)) {
-        /* Check if some bytes available */
-        if (ws->n_bytes > 0) {
-            /* Some bytes read */
-            return 1;
-        } else {
-            /* Just timed out */
-            return 0;
-        }
-    } else {
-        /* Some kind of error */
-        return -1;
-    }
-}
-
-static int win32_ser_read(struct win32_ser *ws, uint8_t *p_msg,
-                          unsigned int max_len)
-{
-    unsigned int n = ws->n_bytes;
-
-    if (max_len < n) {
-        n = max_len;
-    }
-
-    if (n > 0) {
-        memcpy(p_msg, ws->buf, n);
-    }
-
-    ws->n_bytes -= n;
-
-    return n;
-}
-#endif
-
 #if HAVE_DECL_TIOCM_RTS
 static void _modbus_rtu_ioctl_rts(modbus_t *ctx, int on)
 {
@@ -269,36 +171,7 @@ static void _modbus_rtu_ioctl_rts(modbus_t *ctx, int on)
 
 static ssize_t _modbus_rtu_send(modbus_t *ctx, const uint8_t *req, int req_length)
 {
-#if defined(_WIN32)
-    modbus_rtu_t *ctx_rtu = ctx->backend_data;
-    DWORD n_bytes = 0;
-    return (WriteFile(ctx_rtu->w_ser.fd, req, req_length, &n_bytes, NULL)) ? (ssize_t)n_bytes : -1;
-#else
-#if HAVE_DECL_TIOCM_RTS
-    modbus_rtu_t *ctx_rtu = ctx->backend_data;
-    if (ctx_rtu->rts != MODBUS_RTU_RTS_NONE) {
-        ssize_t size;
-
-        if (ctx->debug) {
-            fprintf(stderr, "Sending request using RTS signal\n");
-        }
-
-        ctx_rtu->set_rts(ctx, ctx_rtu->rts == MODBUS_RTU_RTS_UP);
-        usleep(ctx_rtu->rts_delay);
-
-        size = write(ctx->s, req, req_length);
-
-        usleep(ctx_rtu->onebyte_time * req_length + ctx_rtu->rts_delay);
-        ctx_rtu->set_rts(ctx, ctx_rtu->rts != MODBUS_RTU_RTS_UP);
-
-        return size;
-    } else {
-#endif
-        return write(ctx->s, req, req_length);
-#if HAVE_DECL_TIOCM_RTS
-    }
-#endif
-#endif
+    return write(ctx->s, req, req_length);
 }
 
 static int _modbus_rtu_receive(modbus_t *ctx, uint8_t *req)
@@ -326,11 +199,7 @@ static int _modbus_rtu_receive(modbus_t *ctx, uint8_t *req)
 
 static ssize_t _modbus_rtu_recv(modbus_t *ctx, uint8_t *rsp, int rsp_length)
 {
-#if defined(_WIN32)
-    return win32_ser_read(&((modbus_rtu_t *)ctx->backend_data)->w_ser, rsp, rsp_length);
-#else
     return read(ctx->s, rsp, rsp_length);
-#endif
 }
 
 static int _modbus_rtu_flush(modbus_t *);
@@ -342,8 +211,7 @@ static int _modbus_rtu_pre_check_confirmation(modbus_t *ctx, const uint8_t *req,
      * request) */
     if (req[0] != rsp[0] && req[0] != MODBUS_BROADCAST_ADDRESS) {
         if (ctx->debug) {
-            fprintf(stderr,
-                    "The responding slave %d isn't the requested slave %d\n",
+            printf( "The responding slave %d isn't the requested slave %d\n",
                     rsp[0], req[0]);
         }
         errno = EMBBADSLAVE;
@@ -381,7 +249,7 @@ static int _modbus_rtu_check_integrity(modbus_t *ctx, uint8_t *msg,
         return msg_length;
     } else {
         if (ctx->debug) {
-            fprintf(stderr, "ERROR CRC received 0x%0X != CRC calculated 0x%0X\n",
+            printf("ERROR CRC received 0x%0X != CRC calculated 0x%0X\n",
                     crc_received, crc_calculated);
         }
 
@@ -396,13 +264,9 @@ static int _modbus_rtu_check_integrity(modbus_t *ctx, uint8_t *msg,
 /* Sets up a serial port for RTU communications */
 static int _modbus_rtu_connect(modbus_t *ctx)
 {
-#if defined(_WIN32)
-    DCB dcb;
-#else
     struct termios tios;
     speed_t speed;
     int flags;
-#endif
     modbus_rtu_t *ctx_rtu = ctx->backend_data;
 
     if (ctx->debug) {
@@ -412,169 +276,7 @@ static int _modbus_rtu_connect(modbus_t *ctx)
     }
 
 #if defined(_WIN32)
-    /* Some references here:
-     * http://msdn.microsoft.com/en-us/library/aa450602.aspx
-     */
-    win32_ser_init(&ctx_rtu->w_ser);
 
-    /* ctx_rtu->device should contain a string like "COMxx:" xx being a decimal
-     * number */
-    ctx_rtu->w_ser.fd = CreateFileA(ctx_rtu->device,
-                                    GENERIC_READ | GENERIC_WRITE,
-                                    0,
-                                    NULL,
-                                    OPEN_EXISTING,
-                                    0,
-                                    NULL);
-
-    /* Error checking */
-    if (ctx_rtu->w_ser.fd == INVALID_HANDLE_VALUE) {
-        if (ctx->debug) {
-            fprintf(stderr, "ERROR Can't open the device %s (LastError %d)\n",
-                    ctx_rtu->device, (int)GetLastError());
-        }
-        return -1;
-    }
-
-    /* Save params */
-    ctx_rtu->old_dcb.DCBlength = sizeof(DCB);
-    if (!GetCommState(ctx_rtu->w_ser.fd, &ctx_rtu->old_dcb)) {
-        if (ctx->debug) {
-            fprintf(stderr, "ERROR Error getting configuration (LastError %d)\n",
-                    (int)GetLastError());
-        }
-        CloseHandle(ctx_rtu->w_ser.fd);
-        ctx_rtu->w_ser.fd = INVALID_HANDLE_VALUE;
-        return -1;
-    }
-
-    /* Build new configuration (starting from current settings) */
-    dcb = ctx_rtu->old_dcb;
-
-    /* Speed setting */
-    switch (ctx_rtu->baud) {
-    case 110:
-        dcb.BaudRate = CBR_110;
-        break;
-    case 300:
-        dcb.BaudRate = CBR_300;
-        break;
-    case 600:
-        dcb.BaudRate = CBR_600;
-        break;
-    case 1200:
-        dcb.BaudRate = CBR_1200;
-        break;
-    case 2400:
-        dcb.BaudRate = CBR_2400;
-        break;
-    case 4800:
-        dcb.BaudRate = CBR_4800;
-        break;
-    case 9600:
-        dcb.BaudRate = CBR_9600;
-        break;
-    case 14400:
-        dcb.BaudRate = CBR_14400;
-        break;
-    case 19200:
-        dcb.BaudRate = CBR_19200;
-        break;
-    case 38400:
-        dcb.BaudRate = CBR_38400;
-        break;
-    case 57600:
-        dcb.BaudRate = CBR_57600;
-        break;
-    case 115200:
-        dcb.BaudRate = CBR_115200;
-        break;
-    case 230400:
-        /* CBR_230400 - not defined */
-        dcb.BaudRate = 230400;
-        break;
-    case 250000:
-        dcb.BaudRate = 250000;
-        break;
-    case 460800:
-        dcb.BaudRate = 460800;
-        break;
-    case 500000:
-        dcb.BaudRate = 500000;
-        break;
-    case 921600:
-        dcb.BaudRate = 921600;
-        break;
-    case 1000000:
-        dcb.BaudRate = 1000000;
-        break;
-    default:
-        dcb.BaudRate = CBR_9600;
-        if (ctx->debug) {
-            fprintf(stderr, "WARNING Unknown baud rate %d for %s (B9600 used)\n",
-                    ctx_rtu->baud, ctx_rtu->device);
-        }
-    }
-
-    /* Data bits */
-    switch (ctx_rtu->data_bit) {
-    case 5:
-        dcb.ByteSize = 5;
-        break;
-    case 6:
-        dcb.ByteSize = 6;
-        break;
-    case 7:
-        dcb.ByteSize = 7;
-        break;
-    case 8:
-    default:
-        dcb.ByteSize = 8;
-        break;
-    }
-
-    /* Stop bits */
-    if (ctx_rtu->stop_bit == 1)
-        dcb.StopBits = ONESTOPBIT;
-    else /* 2 */
-        dcb.StopBits = TWOSTOPBITS;
-
-    /* Parity */
-    if (ctx_rtu->parity == 'N') {
-        dcb.Parity = NOPARITY;
-        dcb.fParity = FALSE;
-    } else if (ctx_rtu->parity == 'E') {
-        dcb.Parity = EVENPARITY;
-        dcb.fParity = TRUE;
-    } else {
-        /* odd */
-        dcb.Parity = ODDPARITY;
-        dcb.fParity = TRUE;
-    }
-
-    /* Hardware handshaking left as default settings retrieved */
-
-    /* No software handshaking */
-    dcb.fTXContinueOnXoff = TRUE;
-    dcb.fOutX = FALSE;
-    dcb.fInX = FALSE;
-
-    /* Binary mode (it's the only supported on Windows anyway) */
-    dcb.fBinary = TRUE;
-
-    /* Don't want errors to be blocking */
-    dcb.fAbortOnError = FALSE;
-
-    /* Setup port */
-    if (!SetCommState(ctx_rtu->w_ser.fd, &dcb)) {
-        if (ctx->debug) {
-            fprintf(stderr, "ERROR Error setting new configuration (LastError %d)\n",
-                    (int)GetLastError());
-        }
-        CloseHandle(ctx_rtu->w_ser.fd);
-        ctx_rtu->w_ser.fd = INVALID_HANDLE_VALUE;
-        return -1;
-    }
 #else
     /* The O_NOCTTY flag tells UNIX that this program doesn't want
        to be the "controlling terminal" for that port. If you
@@ -591,7 +293,7 @@ static int _modbus_rtu_connect(modbus_t *ctx)
     ctx->s = open(ctx_rtu->device, flags);
     if (ctx->s == -1) {
         if (ctx->debug) {
-            fprintf(stderr, "ERROR Can't open the device %s (%s)\n",
+            printf("ERROR Can't open the device %s (%s)\n",
                     ctx_rtu->device, strerror(errno));
         }
         return -1;
@@ -706,8 +408,7 @@ static int _modbus_rtu_connect(modbus_t *ctx)
     default:
         speed = B9600;
         if (ctx->debug) {
-            fprintf(stderr,
-                    "WARNING Unknown baud rate %d for %s (B9600 used)\n",
+            printf( "WARNING Unknown baud rate %d for %s (B9600 used)\n",
                     ctx_rtu->baud, ctx_rtu->device);
         }
     }
@@ -906,45 +607,11 @@ int modbus_rtu_set_serial_mode(modbus_t *ctx, int mode)
     }
 
     if (ctx->backend->backend_type == _MODBUS_BACKEND_TYPE_RTU) {
-#if HAVE_DECL_TIOCSRS485
-        modbus_rtu_t *ctx_rtu = ctx->backend_data;
-        struct serial_rs485 rs485conf;
-
-        if (mode == MODBUS_RTU_RS485) {
-            // Get
-            if (ioctl(ctx->s, TIOCGRS485, &rs485conf) < 0) {
-                return -1;
-            }
-            // Set
-            rs485conf.flags |= SER_RS485_ENABLED;
-            if (ioctl(ctx->s, TIOCSRS485, &rs485conf) < 0) {
-                return -1;
-            }
-
-            ctx_rtu->serial_mode = MODBUS_RTU_RS485;
-            return 0;
-        } else if (mode == MODBUS_RTU_RS232) {
-            /* Turn off RS485 mode only if required */
-            if (ctx_rtu->serial_mode == MODBUS_RTU_RS485) {
-                /* The ioctl call is avoided because it can fail on some RS232 ports */
-                if (ioctl(ctx->s, TIOCGRS485, &rs485conf) < 0) {
-                    return -1;
-                }
-                rs485conf.flags &= ~SER_RS485_ENABLED;
-                if (ioctl(ctx->s, TIOCSRS485, &rs485conf) < 0) {
-                    return -1;
-                }
-            }
-            ctx_rtu->serial_mode = MODBUS_RTU_RS232;
-            return 0;
-        }
-#else
         if (ctx->debug) {
-            fprintf(stderr, "This function isn't supported on your platform\n");
+            printf("This function isn't supported on your platform\n");
         }
         errno = ENOTSUP;
         return -1;
-#endif
     }
 
     /* Wrong backend and invalid mode specified */
@@ -965,7 +632,7 @@ int modbus_rtu_get_serial_mode(modbus_t *ctx)
         return ctx_rtu->serial_mode;
 #else
         if (ctx->debug) {
-            fprintf(stderr, "This function isn't supported on your platform\n");
+            printf("This function isn't supported on your platform\n");
         }
         errno = ENOTSUP;
         return -1;
@@ -989,7 +656,7 @@ int modbus_rtu_get_rts(modbus_t *ctx)
         return ctx_rtu->rts;
 #else
         if (ctx->debug) {
-            fprintf(stderr, "This function isn't supported on your platform\n");
+            printf("This function isn't supported on your platform\n");
         }
         errno = ENOTSUP;
         return -1;
@@ -1025,7 +692,7 @@ int modbus_rtu_set_rts(modbus_t *ctx, int mode)
         }
 #else
         if (ctx->debug) {
-            fprintf(stderr, "This function isn't supported on your platform\n");
+            printf("This function isn't supported on your platform\n");
         }
         errno = ENOTSUP;
         return -1;
@@ -1050,7 +717,7 @@ int modbus_rtu_set_custom_rts(modbus_t *ctx, void (*set_rts) (modbus_t *ctx, int
         return 0;
 #else
         if (ctx->debug) {
-            fprintf(stderr, "This function isn't supported on your platform\n");
+            printf("This function isn't supported on your platform\n");
         }
         errno = ENOTSUP;
         return -1;
@@ -1075,7 +742,7 @@ int modbus_rtu_get_rts_delay(modbus_t *ctx)
         return ctx_rtu->rts_delay;
 #else
         if (ctx->debug) {
-            fprintf(stderr, "This function isn't supported on your platform\n");
+            printf("This function isn't supported on your platform\n");
         }
         errno = ENOTSUP;
         return -1;
@@ -1101,7 +768,7 @@ int modbus_rtu_set_rts_delay(modbus_t *ctx, int us)
         return 0;
 #else
         if (ctx->debug) {
-            fprintf(stderr, "This function isn't supported on your platform\n");
+            printf("This function isn't supported on your platform\n");
         }
         errno = ENOTSUP;
         return -1;
@@ -1120,12 +787,12 @@ static void _modbus_rtu_close(modbus_t *ctx)
 #if defined(_WIN32)
     /* Revert settings */
     if (!SetCommState(ctx_rtu->w_ser.fd, &ctx_rtu->old_dcb) && ctx->debug) {
-        fprintf(stderr, "ERROR Couldn't revert to configuration (LastError %d)\n",
+        printf("ERROR Couldn't revert to configuration (LastError %d)\n",
                 (int)GetLastError());
     }
 
     if (!CloseHandle(ctx_rtu->w_ser.fd) && ctx->debug) {
-        fprintf(stderr, "ERROR Error while closing handle (LastError %d)\n",
+        printf("ERROR Error while closing handle (LastError %d)\n",
                 (int)GetLastError());
     }
 #else
@@ -1167,7 +834,7 @@ static int _modbus_rtu_select(modbus_t *ctx, fd_set *rset,
     while ((s_rc = select(ctx->s+1, rset, NULL, NULL, tv)) == -1) {
         if (errno == EINTR) {
             if (ctx->debug) {
-                fprintf(stderr, "A non blocked signal was caught\n");
+                printf("A non blocked signal was caught\n");
             }
             /* Necessary after an error */
             FD_ZERO(rset);
@@ -1227,14 +894,14 @@ modbus_t* modbus_new_rtu(const char *device,
 
     /* Check device argument */
     if (device == NULL || *device == 0) {
-        fprintf(stderr, "The device string is empty\n");
+        printf("The device string is empty\n");
         errno = EINVAL;
         return NULL;
     }
 
     /* Check baud argument */
     if (baud == 0) {
-        fprintf(stderr, "The baud rate value must not be zero\n");
+        printf("The baud rate value must not be zero\n");
         errno = EINVAL;
         return NULL;
     }
