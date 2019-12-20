@@ -555,7 +555,7 @@ void ble_config_task(void *param)
   pin_code[1] = '2';
   pin_code[2] = '3';
   pin_code[3] = '4';
-  esp_bt_gap_set_pin(pin_type, 4, pin_code);
+  //esp_bt_gap_set_pin(pin_type, 4, pin_code);//-------------------commented for testing
 
   //gatt server init
   ble_gatts_init();
