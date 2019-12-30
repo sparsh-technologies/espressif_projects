@@ -64,9 +64,9 @@ const int  ERROR_UNRECOGNIZED_COMMAND     = 0x22;
 const int  ERROR_UNRECOGNIZED_DATA        = 0x23;
 
 #define JSON_REGISTER_CCU_HEAD    "{\"data_type\":\"%s\",\"s_time\":\"%ld\","
-#define JSON_REGISTER_CCU_CCU     "\"ccu\":{\"sno\":\"%s\",\"make\":\"AKBI\",\"model\":\"Guardian\",\"name\":\"Smart Security\",\"password\":\"%s\",\"fwversion\":\"%s\"},"
-#define JSON_REGISTER_CCU_INSTALL "\"installation\":{\"date\":\"%s\",\"latitude\":\"%s\",\"longitude\":\"%s\"},"
-#define JSON_REGISTER_CCU_MOB1    "\"mob1\":{\"version\":\"%s\",\"imei\":\"%s\",\"num\":\"%s\",\"name\":\"%s\"}"
+#define JSON_REGISTER_CCU_CCU     "\"ccu\":[{\"sno\":\"%s\",\"make\":\"AKBI\",\"model\":\"Guardian\",\"name\":\"Smart Security\",\"password\":\"%s\",\"fwversion\":\"%s\"}],"
+#define JSON_REGISTER_CCU_INSTALL "\"installation\":[{\"date\":\"%s\",\"latitude\":\"%s\",\"longitude\":\"%s\"}],"
+#define JSON_REGISTER_CCU_MOB1    "\"mob1\":[{\"version\":\"%s\",\"imei\":\"%s\",\"num\":\"%s\",\"name\":\"%s\"}]"
 #define JSON_REGISTER_CCU_TAIL    "}"
 
 #define REGISTER_MSG1_TEST        "\x4D\xCC\xAA\x01\x01\x08password"
