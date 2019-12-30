@@ -1,4 +1,4 @@
-/*
+﻿/*
  ****************************************************************************************
  * ble_task.c
  *
@@ -32,6 +32,8 @@
 #include "nvs.h"
 #include "nvs_flash.h"
 #include "esp_system.h"
+
+#if 0
 
 #include "esp_bt.h"
 #include "bt_app_core.h"
@@ -500,10 +502,12 @@ void bt_app_gap_cb(esp_bt_gap_cb_event_t event, esp_bt_gap_cb_param_t *param)
     return;
 }
 
-
+#endif
 
 void ble_config_task(void *param)
 {
+
+#if 0
 
   /* Initialize NVS — it is used to store PHY calibration data */
   esp_err_t err = nvs_flash_init();
@@ -559,4 +563,9 @@ void ble_config_task(void *param)
 
   //gatt server init
   ble_gatts_init();
+#endif
+    while(1) {
+        printf("Hello world \n");
+        vTaskDelay(100);
+    }
 }

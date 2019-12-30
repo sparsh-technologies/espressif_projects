@@ -53,8 +53,7 @@ static int init_uart()
      */
 
     uart_param_config(UART_NUM_2, &uart_config);
-    uart_set_pin(UART_NUM_2, ECHO_TEST_TXD, ECHO_TEST_RXD, 
-                 ECHO_TEST_RTS, ECHO_TEST_CTS);
+    uart_set_pin(UART_NUM_2, 17, 16, ECHO_TEST_RTS, ECHO_TEST_CTS);
     uart_driver_install(UART_NUM_2, 256, 0, 0, NULL, 0);
 
     printf(" INFO : Opening Serial Port 2 \n");

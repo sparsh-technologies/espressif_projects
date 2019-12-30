@@ -12,25 +12,34 @@
  */
 
 #include <stdio.h>
-#include <sys/fcntl.h>
-#include <sys/errno.h>
-#include <sys/unistd.h>
-#include <sys/param.h>
-#include <sys/select.h>
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
-#include "esp_log.h"
-#include "esp_vfs.h"
+#include "esp_system.h"
+#include "esp_spi_flash.h"
+
+typedef struct {
+    int handle;
+    bool finished;
+} task_context_t;
+
+task_context_t context1={};
+task_context_t context2={};
+task_context_t context3={};
+task_context_t context4={};
+
+TaskHandle_t ble_task, uart_task;
 
 extern void ble_config_task(void *param);
 extern void uart_modbus_task(void *param);
 
-/*
- * This is the first function that gets invoked as part of ESP32 initialization.
- */
-void app_main()
+void app_main(void)
 {
-    xTaskCreate(uart_modbus_task, "uart_modbus_task", 4*1024, NULL, 5, NULL);
-    xTaskCreate(ble_config_task, "ble_config_task", 4*1024, NULL, 5, NULL);
-    vTaskDelay(1000 / portTICK_PERIOD_MS);
+
+    xTaskCreate(ble_config_task, "ble_config_task", 4*1024, &context1, 0, &ble_task);
+    xTaskCreate(uart_modbus_task, "uart_modbus_task", 8*1024, &context2, 0, &uart_task);
+
+    while(1) {
+        printf(" Main Task output \n");
+        vTaskDelay(100);
+    }
 }
