@@ -19,11 +19,16 @@
 typedef enum {UNAUTHENTICATED = 0, AUTHENTICATED} AUTH_STATUS;
 
 typedef struct _mob1_ {
-    char        id[BLE_APP_ID_SIZE];
-    char        mobile_number[MOB_NO_SIZE];
-    char        mobile_name[MOB_NAME_SIZE];
-    char        android_id_or_uuid[ANDROID_ID_OR_UUID_SIZE];
-    AUTH_STATUS authentication_status;
+    unsigned char id[BLE_APP_ID_SIZE];
+    unsigned char mobile_number[MOB_NO_SIZE];
+    unsigned char mobile_name[MOB_NAME_SIZE];
+    unsigned char android_id_or_uuid[ANDROID_ID_OR_UUID_SIZE];
+    AUTH_STATUS   authentication_status;
+    /*
+     * bitmap used to indicate which all data is set as part of registration. lsb (1st bit) will be set for id. That is 0x01.
+     * 2nd bit will be set for mobile number (0x02), 3rd bit (0x04) for mobile name and 4th bit (0x08) for android id/ uuid.
+     */
+    unsigned char data_status;
 } MOB1;
 
 typedef struct _personal_voice_message_ {
@@ -98,6 +103,7 @@ typedef struct ccu {
     ACTIVATION_LOG           activations[ACTIVATIONS_COUNT];
     RESCUE_TERMINATION_LOG   rescue_terminations[ACTIVATIONS_COUNT];
     WIFI_CONNECTIONS_LOG     wifi_connections[WIFI_CONNECTIONS_COUNT];
+    unsigned short           data_status;
 } CCU;
 
 CCU this_ccu;
@@ -117,24 +123,28 @@ int execute_register(char *i_cmd, char *i_ret_msg) {
             printf("Password length is #%d#\n",data_len_in_ble);
             memcpy(this_ccu.password,&i_cmd[BLE_CMD_REG_DATA_VALUE_OFFSET],data_len_in_ble);
             memcpy(&i_ret_msg[BLE_RET_MSG_RC_OFFSET],&SUCCESS,BLE_RETURN_RC_SIZE);
+            this_ccu.data_status = this_ccu.data_status | FLAG_DATA_SET_CCU_PASSWORD;
             //TODO-Store password in EEPROM and populate error code
             break;
         }
         case DID_REGISTER_MOB_NO : {
             memcpy(this_ccu.paired_mob1.mobile_number,&i_cmd[BLE_CMD_REG_DATA_VALUE_OFFSET],data_len_in_ble);
             memcpy(&i_ret_msg[BLE_RET_MSG_RC_OFFSET],&SUCCESS,BLE_RETURN_RC_SIZE);
+            this_ccu.paired_mob1.data_status = this_ccu.paired_mob1.data_status | FLAG_DATA_SET_MOB1_NUM;
             //TODO-Store mobile number in EEPROM and populate error code
             break;
         }
         case DID_REGISTER_MOB_NAME : {
             memcpy(this_ccu.paired_mob1.mobile_name,&i_cmd[BLE_CMD_REG_DATA_VALUE_OFFSET],data_len_in_ble);
             memcpy(&i_ret_msg[BLE_RET_MSG_RC_OFFSET],&SUCCESS,BLE_RETURN_RC_SIZE);
+            this_ccu.paired_mob1.data_status = this_ccu.paired_mob1.data_status | FLAG_DATA_SET_MOB1_NAME;
             //TODO-Store mobile name in EEPROM and populate error code
             break;
         }
         case DID_REGISTER_ANDROID_ID_OR_UUID : {
             memcpy(this_ccu.paired_mob1.android_id_or_uuid,&i_cmd[BLE_CMD_REG_DATA_VALUE_OFFSET],data_len_in_ble);
             memcpy(&i_ret_msg[BLE_RET_MSG_RC_OFFSET],&SUCCESS,BLE_RETURN_RC_SIZE);
+            this_ccu.paired_mob1.data_status = this_ccu.paired_mob1.data_status | FLAG_DATA_SET_ANDROID_ID_OR_UUID;
             //TODO-Store Android ID or UUID in EEPROM and populate error code
             break;
         }
@@ -142,6 +152,16 @@ int execute_register(char *i_cmd, char *i_ret_msg) {
             memcpy(&i_ret_msg[BLE_RET_MSG_RC_OFFSET],&ERROR_UNRECOGNIZED_DATA,BLE_RETURN_RC_SIZE);
             break;
         }
+    }
+    /*
+     * If all information is obtained from the mobile for registration, register the CCU with the Web Application. mob1.data_status will be set to the
+     * bit value [00001111] if all mob1 data is set. also the 2nd bit of ccu.data_status will be set if password is set.
+     */
+    #ifdef BLE_DEBUG
+    printf("Data Status #%x#%x#\n", this_ccu.paired_mob1.data_status, this_ccu.data_status);
+    #endif
+    if ((this_ccu.paired_mob1.data_status == FLAG_DATA_SET_MOB1_ALL) && ((this_ccu.data_status & FLAG_DATA_SET_CCU_PASSWORD) == FLAG_DATA_SET_CCU_PASSWORD)) {
+        //TODO - register with the web application to get the user id.
     }
     return i_ret_msg[BLE_RET_MSG_RC_OFFSET];
 }
@@ -182,6 +202,7 @@ int read_ble_message(char *i_msg, char *i_ret_msg) {
     memcpy(&source_app_type_identifier,&i_msg[BLE_APP_TYPE_OFFSET],BLE_APP_TYPE_ID_SIZE);
     memcpy(source_app_identifier,&i_msg[BLE_APP_OFFSET],BLE_APP_ID_SIZE);
     memcpy(this_ccu.paired_mob1.id,&i_msg[BLE_APP_OFFSET],BLE_APP_ID_SIZE);
+    this_ccu.paired_mob1.data_status = this_ccu.paired_mob1.data_status | 0x01;
     //TODO: Store the Mob1 ID onto EEPROM
 
     memcpy(&ble_cmd_id,&i_msg[BLE_CMD_OFFSET],BLE_COMMAND_ID_SIZE);
@@ -256,6 +277,7 @@ int populate_serial_no_from_eeprom(char *i_ser) {
 int main(int argc, char** argv) {
     char ble_message[BLE_MESSAGE_SIZE];
     char ble_return_message[BLE_RETURN_SIZE];
+    this_ccu.paired_mob1.data_status = 0x00;
 
     memset(ble_message,0x00,BLE_MESSAGE_SIZE);
     memset(ble_return_message,0x00,BLE_RETURN_SIZE);
