@@ -16,12 +16,14 @@
 #include <string.h>
 #include <time.h>
 
+typedef enum {UNAUTHENTICATED = 0, AUTHENTICATED} AUTH_STATUS;
+
 typedef struct _mob1_ {
-    char id[BLE_APP_ID_SIZE];
-    char mobile_number[MOB_NO_SIZE];
-    char mobile_name[MOB_NAME_SIZE];
-    char android_id_or_uuid[ANDROID_ID_OR_UUID_SIZE];;
-    char auth_token[BLE_APP_AUTH_TOKEN_SIZE];
+    char        id[BLE_APP_ID_SIZE];
+    char        mobile_number[MOB_NO_SIZE];
+    char        mobile_name[MOB_NAME_SIZE];
+    char        android_id_or_uuid[ANDROID_ID_OR_UUID_SIZE];
+    AUTH_STATUS authentication_status;
 } MOB1;
 
 typedef struct _personal_voice_message_ {
@@ -152,7 +154,6 @@ int execute_register(char *i_cmd, char *i_ret_msg) {
 int execute_login(char *i_cmd, char *i_ret_msg) {
     int data_len_in_ble  = (int)i_cmd[BLE_CMD_DATA_LEN_OFFSET];
     char i_pwd[data_len_in_ble];
-    unsigned short auth_token;
 
     memcpy(i_pwd,&i_cmd[BLE_CMD_DATA_VALUE_OFFSET],data_len_in_ble);
     #ifdef BLE_DEBUG
@@ -160,11 +161,8 @@ int execute_login(char *i_cmd, char *i_ret_msg) {
     #endif
     //memcmp is used as the strings are not exactly strings ending in \0.
     if (0 == memcmp(i_pwd,this_ccu.password,data_len_in_ble)) {
-        srand(time(NULL));
-        auth_token = rand();
+        this_ccu.paired_mob1.authentication_status = AUTHENTICATED;
         memcpy(&i_ret_msg[BLE_RET_MSG_RC_OFFSET],&SUCCESS,BLE_RETURN_RC_SIZE);
-        memcpy(&i_ret_msg[BLE_RET_MSG_AUTH_TKN_OFFSET], &auth_token, BLE_APP_AUTH_TOKEN_SIZE);
-        memcpy(&this_ccu.paired_mob1.auth_token, &auth_token, BLE_APP_AUTH_TOKEN_SIZE);
         //TODO: Auth Token to be stored in EEPROM
     }
     else {
