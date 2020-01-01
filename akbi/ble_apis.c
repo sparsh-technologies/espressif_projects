@@ -114,21 +114,25 @@ int execute_register(char *i_cmd, char *i_ret_msg) {
         case DID_REGISTER_PASSWORD : {
             printf("Password length is #%d#\n",data_len_in_ble);
             memcpy(this_ccu.password,&i_cmd[BLE_CMD_REG_DATA_VALUE_OFFSET],data_len_in_ble);
+            memcpy(&i_ret_msg[BLE_RET_MSG_RC_OFFSET],&SUCCESS,BLE_RETURN_RC_SIZE);
             //TODO-Store password in EEPROM and populate error code
             break;
         }
         case DID_REGISTER_MOB_NO : {
             memcpy(this_ccu.paired_mob1.mobile_number,&i_cmd[BLE_CMD_REG_DATA_VALUE_OFFSET],data_len_in_ble);
+            memcpy(&i_ret_msg[BLE_RET_MSG_RC_OFFSET],&SUCCESS,BLE_RETURN_RC_SIZE);
             //TODO-Store mobile number in EEPROM and populate error code
             break;
         }
         case DID_REGISTER_MOB_NAME : {
             memcpy(this_ccu.paired_mob1.mobile_name,&i_cmd[BLE_CMD_REG_DATA_VALUE_OFFSET],data_len_in_ble);
+            memcpy(&i_ret_msg[BLE_RET_MSG_RC_OFFSET],&SUCCESS,BLE_RETURN_RC_SIZE);
             //TODO-Store mobile name in EEPROM and populate error code
             break;
         }
         case DID_REGISTER_ANDROID_ID_OR_UUID : {
             memcpy(this_ccu.paired_mob1.android_id_or_uuid,&i_cmd[BLE_CMD_REG_DATA_VALUE_OFFSET],data_len_in_ble);
+            memcpy(&i_ret_msg[BLE_RET_MSG_RC_OFFSET],&SUCCESS,BLE_RETURN_RC_SIZE);
             //TODO-Store Android ID or UUID in EEPROM and populate error code
             break;
         }
