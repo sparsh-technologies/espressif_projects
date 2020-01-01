@@ -20,7 +20,7 @@ typedef struct _mob1_ {
     char id[BLE_APP_ID_SIZE];
     char mobile_number[MOB_NO_SIZE];
     char mobile_name[MOB_NAME_SIZE];
-    char imei[IMEI_NO_SIZE];;
+    char android_id_or_uuid[ANDROID_ID_OR_UUID_SIZE];;
     char auth_token[BLE_APP_AUTH_TOKEN_SIZE];
 } MOB1;
 
@@ -127,9 +127,9 @@ int execute_register(char *i_cmd, char *i_ret_msg) {
             //TODO-Store mobile name in EEPROM and populate error code
             break;
         }
-        case DID_REGISTER_IMEI : {
-            memcpy(this_ccu.paired_mob1.imei,&i_cmd[BLE_CMD_REG_DATA_VALUE_OFFSET],data_len_in_ble);
-            //TODO-Store imei in EEPROM and populate error code
+        case DID_REGISTER_ANDROID_ID_OR_UUID : {
+            memcpy(this_ccu.paired_mob1.android_id_or_uuid,&i_cmd[BLE_CMD_REG_DATA_VALUE_OFFSET],data_len_in_ble);
+            //TODO-Store Android ID or UUID in EEPROM and populate error code
             break;
         }
         default : {
