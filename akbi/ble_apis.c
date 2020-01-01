@@ -162,7 +162,7 @@ int execute_register(char *i_cmd, char *i_ret_msg) {
     #endif
     //The below if condition and processing needs to be moved to 'Select A WiFi' and 'Connect to WiFi' sections.
     if ((this_ccu.paired_mob1.data_status == FLAG_DATA_SET_MOB1_ALL) && ((this_ccu.data_status & FLAG_DATA_SET_CCU_PASSWORD) == FLAG_DATA_SET_CCU_PASSWORD)) {
-        //TODO - register with the web application to get the user id.
+        //TODO - register with the web application to get the user id. Send the data via serial interface
     }
     return i_ret_msg[BLE_RET_MSG_RC_OFFSET];
 }
@@ -190,6 +190,33 @@ int execute_login(char *i_cmd, char *i_ret_msg) {
         this_ccu.paired_mob1.authentication_status = UNAUTHENTICATED;
         printf("Password MISMATCH\n");
         memcpy(&i_ret_msg[BLE_RET_MSG_RC_OFFSET],&ERROR_LOGIN_PASSWORD_MISMATCH,BLE_RETURN_RC_SIZE);
+    }
+}
+
+int generate_password(char *i_pass) {
+    int i;
+    srand(time(NULL));
+    for(i = 0; i < 12; i++) {
+        i_pass[i] = 33 + rand() % 94;
+    }
+    i_pass[i] = '\0';
+    return 0;
+}
+/*
+ * forgot password command execution
+ * i_ret_msg: pointer to the return message
+ */
+int execute_forgot_password(char *i_ret_msg) {
+    /*
+     * Set a generic password.
+     * Send that password to the configured phone number.
+     */
+    unsigned char pass[DEFAULT_PASSWORD_SIZE];
+    memset(pass,0x00,DEFAULT_PASSWORD_SIZE);
+    if (0 == generate_password(pass)) {
+        memcpy(this_ccu.password,pass,DEFAULT_PASSWORD_SIZE);
+        //send the password and mobile number over the serial interface to the processor - connection manager.
+        printf("Password reset #%s#\n", pass);
     }
 }
 
@@ -232,13 +259,13 @@ int read_ble_message(char *i_msg, char *i_ret_msg) {
 
     //TODO: Store the Mob1 ID onto EEPROM
 
-    memcpy(ble_command,&i_msg[BLE_CMD_OFFSET + BLE_COMMAND_ID_SIZE],BLE_COMMAND_SIZE);
 
     memcpy(&i_ret_msg[BLE_RET_MSG_CMD_ID_OFFSET],&ble_cmd_id,BLE_COMMAND_ID_SIZE);
 
     if (is_valid_ble_msg) {
         switch (ble_cmd_id) {
             case CID_REGISTER : {
+                memcpy(ble_command,&i_msg[BLE_CMD_OFFSET + BLE_COMMAND_ID_SIZE],BLE_COMMAND_SIZE);
                 execute_register(ble_command,i_ret_msg);
                 break;
             }
@@ -246,7 +273,15 @@ int read_ble_message(char *i_msg, char *i_ret_msg) {
                 #ifdef BLE_DEBUG
                 printf("Going to call execute login\n");
                 #endif
+                memcpy(ble_command,&i_msg[BLE_CMD_OFFSET + BLE_COMMAND_ID_SIZE],BLE_COMMAND_SIZE);
                 execute_login(ble_command,i_ret_msg);
+                break;
+            }
+            case CID_FORGOT_PASSWORD : {
+                #ifdef BLE_DEBUG
+                printf("Going to call execute forgot password\n");
+                #endif
+                execute_forgot_password(i_ret_msg);
                 break;
             }
             default : {
@@ -339,5 +374,16 @@ int main(int argc, char** argv) {
     printf("BLE Return Message after processing #%s#%x#%x%x#\n", ble_return_message, ble_return_message[6],ble_return_message[7],ble_return_message[8]);
     #endif
 
+    memset(ble_message,0x00,BLE_MESSAGE_SIZE);
+    strcpy(ble_message, FORGOT_PASSWORD_MSG_TEST);
+    ble_return_message[BLE_RET_MSG_RC_OFFSET] = 0x00;
+    #ifdef BLE_DEBUG
+    printf("BLE Message #%s#\n",ble_message);
+    printf("BLE Return Message #%s#\n", ble_return_message);
+    #endif
+    read_ble_message(ble_message, ble_return_message);
+    #ifdef BLE_DEBUG
+    printf("BLE Return Message after processing #%s#%x#%x%x#\n", ble_return_message, ble_return_message[6],ble_return_message[7],ble_return_message[8]);
+    #endif
 
 }
