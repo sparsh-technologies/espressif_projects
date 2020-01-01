@@ -154,12 +154,13 @@ int execute_register(char *i_cmd, char *i_ret_msg) {
         }
     }
     /*
-     * If all information is obtained from the mobile for registration, register the CCU with the Web Application. mob1.data_status will be set to the
-     * bit value [00001111] if all mob1 data is set. also the 2nd bit of ccu.data_status will be set if password is set.
+     * If all information is obtained from the mobile for registration, register the CCU with the Web Application once when the SSID gets configured.
+     * mob1.data_status will be set to the bit value [00001111] if all mob1 data is saved. Also the 2nd bit of ccu.data_status will be set if password is set.
      */
     #ifdef BLE_DEBUG
     printf("Data Status #%x#%x#\n", this_ccu.paired_mob1.data_status, this_ccu.data_status);
     #endif
+    //The below if condition and processing needs to be moved to 'Select A WiFi' and 'Connect to WiFi' sections.
     if ((this_ccu.paired_mob1.data_status == FLAG_DATA_SET_MOB1_ALL) && ((this_ccu.data_status & FLAG_DATA_SET_CCU_PASSWORD) == FLAG_DATA_SET_CCU_PASSWORD)) {
         //TODO - register with the web application to get the user id.
     }
@@ -193,55 +194,48 @@ int execute_login(char *i_cmd, char *i_ret_msg) {
 }
 
 int read_ble_message(char *i_msg, char *i_ret_msg) {
-    int  is_valid_ble_msg;
-    char source_app_type_identifier;
-    char source_app_identifier[BLE_APP_ID_SIZE];
-    char ble_cmd_id;
-    char ble_command[BLE_COMMAND_SIZE];
+    unsigned int  is_valid_ble_msg;
+    unsigned char source_app_type_identifier;
+    unsigned char source_app_identifier[BLE_APP_ID_SIZE];
+    unsigned char ble_cmd_id;
+    unsigned char ble_command[BLE_COMMAND_SIZE];
 
     memcpy(&source_app_type_identifier,&i_msg[BLE_APP_TYPE_OFFSET],BLE_APP_TYPE_ID_SIZE);
     memcpy(source_app_identifier,&i_msg[BLE_APP_OFFSET],BLE_APP_ID_SIZE);
-    memcpy(this_ccu.paired_mob1.id,&i_msg[BLE_APP_OFFSET],BLE_APP_ID_SIZE);
-    this_ccu.paired_mob1.data_status = this_ccu.paired_mob1.data_status | 0x01;
-    //TODO: Store the Mob1 ID onto EEPROM
 
-    memcpy(&ble_cmd_id,&i_msg[BLE_CMD_OFFSET],BLE_COMMAND_ID_SIZE);
-    memcpy(ble_command,&i_msg[BLE_CMD_OFFSET + BLE_COMMAND_ID_SIZE],BLE_COMMAND_SIZE);
-
-    memcpy(&i_ret_msg[BLE_RET_MSG_CMD_ID_OFFSET],&ble_cmd_id,BLE_COMMAND_ID_SIZE);
-
-#ifdef BLE_DEBUG
-    printf("In read_ble_message#%s#%x#%x#%x#%x#\n",i_msg,source_app_type_identifier, source_app_identifier[0],source_app_identifier[1],ble_cmd_id);
-#endif
     if (source_app_type_identifier == MOB1_APP_TYPE_ID) {
         is_valid_ble_msg = 1;
     } else {
         is_valid_ble_msg = 0;
         i_ret_msg[BLE_RET_MSG_RC_OFFSET] = ERROR_SOURCE_APP_TYPE_MISMATCH;
+        return (ERROR_SOURCE_APP_TYPE_MISMATCH);
     }
-    if (is_valid_ble_msg && (CID_REGISTER != ble_cmd_id)) {
-        #ifdef BLE_DEBUG
-        printf("Source App comparison #%x%x#%x%x#\n",source_app_identifier[0],source_app_identifier[1],this_ccu.paired_mob1.id[0],this_ccu.paired_mob1.id[1]);
-        #endif
-        //use memcmp, as the compared items are not exactly strings ending with \0.
-        if (0 == memcmp(source_app_identifier, this_ccu.paired_mob1.id, BLE_APP_ID_SIZE)) {
-            #ifdef BLE_DEBUG
-            printf("Strings Equal\n");
-            #endif
+    memcpy(&ble_cmd_id,&i_msg[BLE_CMD_OFFSET],BLE_COMMAND_ID_SIZE);
+     /*
+     * If this is the first register packet, set the app id in the data structure.
+     */
+    if ((CID_REGISTER == ble_cmd_id) && ((this_ccu.paired_mob1.data_status & FLAG_DATA_SET_MOB1_ID) == 0x00)) {
+        memcpy(this_ccu.paired_mob1.id,&i_msg[BLE_APP_OFFSET],BLE_APP_ID_SIZE);
+        this_ccu.paired_mob1.data_status = this_ccu.paired_mob1.data_status | FLAG_DATA_SET_MOB1_ID;
+        is_valid_ble_msg = 1;
+    }
+    else {
+        if (0 == memcmp(source_app_identifier,this_ccu.paired_mob1.id,BLE_APP_ID_SIZE)) {
             is_valid_ble_msg = 1;
         }
         else {
-            #ifdef BLE_DEBUG
-            printf("Strings Not Equal\n");
-            #endif
             is_valid_ble_msg = 0;
             memcpy(&i_ret_msg[BLE_RET_MSG_RC_OFFSET],&ERROR_SOURCE_APP_MISMATCH,BLE_RETURN_RC_SIZE);
+            return (ERROR_SOURCE_APP_MISMATCH);
         }
     }
 
-    #ifdef BLE_DEBUG
-    printf("Going to switch #%x#%x#%d#\n",ble_cmd_id, CID_LOGIN, is_valid_ble_msg);
-    #endif
+    //TODO: Store the Mob1 ID onto EEPROM
+
+    memcpy(ble_command,&i_msg[BLE_CMD_OFFSET + BLE_COMMAND_ID_SIZE],BLE_COMMAND_SIZE);
+
+    memcpy(&i_ret_msg[BLE_RET_MSG_CMD_ID_OFFSET],&ble_cmd_id,BLE_COMMAND_ID_SIZE);
+
     if (is_valid_ble_msg) {
         switch (ble_cmd_id) {
             case CID_REGISTER : {
