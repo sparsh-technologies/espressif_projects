@@ -3,6 +3,7 @@
 
 #define SER_NO_SIZE                      8
 #define PASS_SIZE                        15
+#define DEFAULT_PASSWORD_SIZE            12
 #define MOB_NO_SIZE                      10
 #define MOB_NAME_SIZE                    15
 #define ANDROID_ID_OR_UUID_SIZE          15
@@ -27,6 +28,7 @@
 
 #define CID_REGISTER                     0x01
 #define CID_LOGIN                        0x02
+#define CID_FORGOT_PASSWORD              0x03
 
 #define DID_REGISTER_PASSWORD            0x01
 #define DID_REGISTER_MOB_NO              0x02
@@ -84,3 +86,4 @@ const int  ERROR_UNRECOGNIZED_DATA        = 0x23;
 #define REGISTER_MSG4_TEST        "\x4D\xCC\x01\x04\x0Fw12345678901234"
 #define SOURCE_APP_ID_TEST        "\xCC"
 #define LOGIN_MSG_TEST            "\x4D\xCC\x02\x08password"
+#define FORGOT_PASSWORD_MSG_TEST  "\x4D\xCC\x03"
