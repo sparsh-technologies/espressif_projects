@@ -166,6 +166,7 @@ int execute_login(char *i_cmd, char *i_ret_msg) {
         //TODO: Auth Token to be stored in EEPROM
     }
     else {
+        this_ccu.paired_mob1.authentication_status = UNAUTHENTICATED;
         printf("Password MISMATCH\n");
         memcpy(&i_ret_msg[BLE_RET_MSG_RC_OFFSET],&ERROR_LOGIN_PASSWORD_MISMATCH,BLE_RETURN_RC_SIZE);
     }
