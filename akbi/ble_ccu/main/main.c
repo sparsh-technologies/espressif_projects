@@ -41,7 +41,7 @@
 #include "esp_bt_defs.h"
 #include "esp_gatt_common_api.h"
 
-#include "ble_apis.h"//---------------need change-----
+#include "../../ble_apis.h"//---------------need change-----
 
 #define BT_BLE_COEX_TAG             "BT_BLE_COEX"
 #define BT_DEVICE_NAME              "ESP_COEX_A2DP_DEMO"

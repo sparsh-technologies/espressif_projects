@@ -36,13 +36,12 @@ const short BLE_RET_MSG_CMD_ID_OFFSET         = 5;
 const short BLE_RET_MSG_RC_OFFSET             = 6;
 const short BLE_RET_MSG_DATA_TYPE_OFFSET      = 7;
 const short BLE_RET_MSG_AUTH_TKN_OFFSET       = 7;
-const short BLE_RET_MSG_CCU_ID_OFFSET         = 0;
 
 
 const char  MOB1_APP_TYPE_ID                  = 0x4D;
 const char  CCU_TYPE_ID                       = 0x47;
 const short CCU_ID_SER_NO_SUFFIX_SIZE         = 4;
-const short  BLE_RET_MSG_CCU_ID_OFFSET          = 0;
+const short  BLE_RET_MSG_CCU_ID_OFFSET        = 0;
 
 const short SUCCESS                           = 0x00;
 const short ERROR_LOGIN_PASSWORD_MISMATCH     = 0x01;
@@ -62,8 +61,8 @@ const short ERROR_CHANGE_PASSWORD_MISMATCH    = 0x01;
 
 #define REGISTER_MSG1_TEST        "\x4D\xCC\x01\x01\x08password"
 #define REGISTER_MSG2_TEST        "\x4D\xCC\x01\x02\x0Aq123456789"
-#define REGISTER_MSG3_TEST        "\x4D\xCC\x01\x03\x0Fgbcdefghijklmno"
-#define REGISTER_MSG4_TEST        "\x4D\xCC\x01\x04\x0Fw12345678901234"
+#define REGISTER_MSG3_TEST        "\x4D\xCC\x01\x03\x0Fgbcdefghijklmn"
+#define REGISTER_MSG4_TEST        "\x4D\xCC\x01\x04\x0Fw1234567890123"
 #define SOURCE_APP_ID_TEST        "\xCC"
 #define LOGIN_MSG1_TEST           "\x4D\xCC\x02\x08password"
 #define LOGIN_MSG2_TEST           "\x4D\xCC\x02\x08passw0rd"

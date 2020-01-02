@@ -10,7 +10,7 @@
  *
  ****************************************************************************************
  */
-#include <akbi_msg.h>
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -71,7 +71,7 @@ int execute_register(char *i_cmd, char *i_ret_msg) {
      */
     #ifdef BLE_DEBUG
     printf("Data Status #%x#%x#\n", this_ccu.paired_mob1.data_status, this_ccu.data_status);
-    
+
     #endif
     //The below if condition and processing needs to be moved to 'Select A WiFi' and 'Connect to WiFi' sections.
     if ((this_ccu.paired_mob1.data_status == FLAG_DATA_SET_MOB1_ALL) && ((this_ccu.data_status & FLAG_DATA_SET_CCU_PASSWORD) == FLAG_DATA_SET_CCU_PASSWORD)) {
@@ -104,6 +104,7 @@ int execute_login(char *i_cmd, char *i_ret_msg) {
         printf("Password MISMATCH\n");
         memcpy(&i_ret_msg[BLE_RET_MSG_RC_OFFSET],&ERROR_LOGIN_PASSWORD_MISMATCH,BLE_RETURN_RC_SIZE);
     }
+    return 0;
 }
 
 int generate_password(char *i_pass) {
@@ -124,7 +125,7 @@ int execute_forgot_password(char *i_ret_msg) {
      * Set a generic password.
      * Send that password to the configured phone number.
      */
-    unsigned char pass[DEFAULT_PASSWORD_SIZE];
+    char pass[DEFAULT_PASSWORD_SIZE];
     memset(pass,0x00,DEFAULT_PASSWORD_SIZE);
     if (0 == generate_password(pass)) {
         memcpy(this_ccu.password,pass,DEFAULT_PASSWORD_SIZE);
@@ -138,6 +139,7 @@ int execute_forgot_password(char *i_ret_msg) {
          */
         printf("Password reset #%s#\n", pass);
     }
+    return 0;
 }
 
 /*
@@ -189,11 +191,11 @@ int execute_change_password(char *i_cmd, char *i_ret_msg) {
 }
 
 int read_ble_message(char *i_msg, char *i_ret_msg) {
-    unsigned int  is_valid_ble_msg;
-    unsigned char source_app_type_identifier;
-    unsigned char source_app_identifier[BLE_APP_ID_SIZE];
-    unsigned char ble_cmd_id;
-    unsigned char ble_command[BLE_COMMAND_SIZE];
+    int  is_valid_ble_msg;
+    char source_app_type_identifier;
+    char source_app_identifier[BLE_APP_ID_SIZE];
+    char ble_cmd_id;
+    char ble_command[BLE_COMMAND_SIZE];
 
     memcpy(&source_app_type_identifier,&i_msg[BLE_APP_TYPE_OFFSET],BLE_APP_TYPE_ID_SIZE);
     memcpy(source_app_identifier,&i_msg[BLE_APP_OFFSET],BLE_APP_ID_SIZE);
