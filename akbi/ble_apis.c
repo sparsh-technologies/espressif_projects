@@ -92,6 +92,7 @@ typedef enum {OFFLINE = 0, MONITOR, RESCUE, RESCUE_TERMINATION} CCU_MODE;
 typedef struct ccu {
     char                     serial_number[SER_NO_SIZE];
     char                     password[PASS_SIZE];
+    char                     new_password_to_be_set[PASS_SIZE];
     MOB1                     paired_mob1;
     PERSONAL_VOICE_MESSAGE   personal_voice_messages[PERSONAL_VOICE_MESSAGES_COUNT];
     EMERGENCY_NUMBERS        conf_emergency_nos;
@@ -114,35 +115,35 @@ CCU this_ccu;
  * i_ret_msg: pointer to the return message
  */
 int execute_register(char *i_cmd, char *i_ret_msg) {
-    char data_type                          = i_cmd[BLE_CMD_REG_DATA_TYPE_OFFSET];
-    int  data_len_in_ble                    = (int)i_cmd[BLE_CMD_REG_DATA_LEN_OFFSET];
-    i_ret_msg[BLE_RET_MSG_DATA_TYPE_OFFSET] = data_type;
+    char data_type                          = i_cmd[BLE_CMD_MULTI_DATA_TYPE_OFFSET];
+    int  data_len_in_ble                    = (int)i_cmd[BLE_CMD_MULTI_DATA_LEN_OFFSET];
+    memcpy(&i_ret_msg[BLE_RET_MSG_DATA_TYPE_OFFSET],&data_type,BLE_COMMAND_DATA_TYPE_SIZE);
 
     switch (data_type) {
         case DID_REGISTER_PASSWORD : {
             printf("Password length is #%d#\n",data_len_in_ble);
-            memcpy(this_ccu.password,&i_cmd[BLE_CMD_REG_DATA_VALUE_OFFSET],data_len_in_ble);
+            memcpy(this_ccu.password,&i_cmd[BLE_CMD_MULTI_DATA_VALUE_OFFSET],data_len_in_ble);
             memcpy(&i_ret_msg[BLE_RET_MSG_RC_OFFSET],&SUCCESS,BLE_RETURN_RC_SIZE);
             this_ccu.data_status = this_ccu.data_status | FLAG_DATA_SET_CCU_PASSWORD;
             //TODO-Store password in EEPROM and populate error code
             break;
         }
         case DID_REGISTER_MOB_NO : {
-            memcpy(this_ccu.paired_mob1.mobile_number,&i_cmd[BLE_CMD_REG_DATA_VALUE_OFFSET],data_len_in_ble);
+            memcpy(this_ccu.paired_mob1.mobile_number,&i_cmd[BLE_CMD_MULTI_DATA_VALUE_OFFSET],data_len_in_ble);
             memcpy(&i_ret_msg[BLE_RET_MSG_RC_OFFSET],&SUCCESS,BLE_RETURN_RC_SIZE);
             this_ccu.paired_mob1.data_status = this_ccu.paired_mob1.data_status | FLAG_DATA_SET_MOB1_NUM;
             //TODO-Store mobile number in EEPROM and populate error code
             break;
         }
         case DID_REGISTER_MOB_NAME : {
-            memcpy(this_ccu.paired_mob1.mobile_name,&i_cmd[BLE_CMD_REG_DATA_VALUE_OFFSET],data_len_in_ble);
+            memcpy(this_ccu.paired_mob1.mobile_name,&i_cmd[BLE_CMD_MULTI_DATA_VALUE_OFFSET],data_len_in_ble);
             memcpy(&i_ret_msg[BLE_RET_MSG_RC_OFFSET],&SUCCESS,BLE_RETURN_RC_SIZE);
             this_ccu.paired_mob1.data_status = this_ccu.paired_mob1.data_status | FLAG_DATA_SET_MOB1_NAME;
             //TODO-Store mobile name in EEPROM and populate error code
             break;
         }
         case DID_REGISTER_ANDROID_ID_OR_UUID : {
-            memcpy(this_ccu.paired_mob1.android_id_or_uuid,&i_cmd[BLE_CMD_REG_DATA_VALUE_OFFSET],data_len_in_ble);
+            memcpy(this_ccu.paired_mob1.android_id_or_uuid,&i_cmd[BLE_CMD_MULTI_DATA_VALUE_OFFSET],data_len_in_ble);
             memcpy(&i_ret_msg[BLE_RET_MSG_RC_OFFSET],&SUCCESS,BLE_RETURN_RC_SIZE);
             this_ccu.paired_mob1.data_status = this_ccu.paired_mob1.data_status | FLAG_DATA_SET_ANDROID_ID_OR_UUID;
             //TODO-Store Android ID or UUID in EEPROM and populate error code
@@ -173,12 +174,12 @@ int execute_register(char *i_cmd, char *i_ret_msg) {
  * i_ret_msg: pointer to the return message
  */
 int execute_login(char *i_cmd, char *i_ret_msg) {
-    int data_len_in_ble  = (int)i_cmd[BLE_CMD_DATA_LEN_OFFSET];
+    int data_len_in_ble  = (int)i_cmd[BLE_CMD_SINGLE_DATA_LEN_OFFSET];
     char i_pwd[data_len_in_ble];
 
-    memcpy(i_pwd,&i_cmd[BLE_CMD_DATA_VALUE_OFFSET],data_len_in_ble);
+    memcpy(i_pwd,&i_cmd[BLE_CMD_SINGLE_DATA_VALUE_OFFSET],data_len_in_ble);
     #ifdef BLE_DEBUG
-    printf("In execute login #%s#%s#\n",i_pwd, this_ccu.password);
+    printf("In execute login #%s#%s#%d#\n",i_pwd, this_ccu.password,data_len_in_ble);
     #endif
     //memcmp is used as the strings are not exactly strings ending in \0.
     if (0 == memcmp(i_pwd,this_ccu.password,data_len_in_ble)) {
@@ -215,9 +216,64 @@ int execute_forgot_password(char *i_ret_msg) {
     memset(pass,0x00,DEFAULT_PASSWORD_SIZE);
     if (0 == generate_password(pass)) {
         memcpy(this_ccu.password,pass,DEFAULT_PASSWORD_SIZE);
-        //send the password and mobile number over the serial interface to the processor - connection manager.
+        if ((this_ccu.paired_mob1.data_status & FLAG_DATA_SET_MOB1_NUM) == 0x00) {
+            memcpy(&i_ret_msg[BLE_RET_MSG_RC_OFFSET],&ERROR_MOB1_NO_NOT_CONFIGURED,BLE_RETURN_RC_SIZE);
+            return ERROR_MOB1_NO_NOT_CONFIGURED;
+        }
+        /*
+         * TODO - send the password and mobile number over the serial interface to the processor - connection manager.
+         * Return 0x00 if text message is sent successfully. 01 if problem sending text, 02 if mobile number not configured.
+         */
         printf("Password reset #%s#\n", pass);
     }
+}
+
+/*
+ * change password command execution
+ * i_cmd: The command parameters of change password
+ * i_ret_msg: pointer to the return message
+ */
+int execute_change_password(char *i_cmd, char *i_ret_msg) {
+    char data_type       = i_cmd[BLE_CMD_MULTI_DATA_TYPE_OFFSET];
+    int data_len_in_ble  = (int)i_cmd[BLE_CMD_MULTI_DATA_LEN_OFFSET];
+    char i_pwd[data_len_in_ble];
+
+    memcpy(i_pwd,&i_cmd[BLE_CMD_MULTI_DATA_VALUE_OFFSET],data_len_in_ble);
+    memcpy(&i_ret_msg[BLE_RET_MSG_DATA_TYPE_OFFSET],&data_type,BLE_COMMAND_DATA_TYPE_SIZE);
+
+    switch (data_type) {
+        case DID_CHANGE_PASSWORD_CURRENT: {
+            if (0 == memcmp(this_ccu.password, &i_cmd[BLE_CMD_MULTI_DATA_VALUE_OFFSET],data_len_in_ble)) {
+                this_ccu.data_status = this_ccu.data_status | FLAG_DATA_SET_CCU_PWD_MATCH;
+                memcpy(&i_ret_msg[BLE_RET_MSG_RC_OFFSET],&SUCCESS,BLE_RETURN_RC_SIZE);
+            }
+            else {
+                memcpy(&i_ret_msg[BLE_RET_MSG_RC_OFFSET],&ERROR_CHANGE_PASSWORD_MISMATCH,BLE_RETURN_RC_SIZE);
+                return ERROR_CHANGE_PASSWORD_MISMATCH;
+            }
+            break;
+        }
+        case DID_CHANGE_PASSWORD_NEW: {
+            memcpy(this_ccu.new_password_to_be_set,&i_cmd[BLE_CMD_MULTI_DATA_VALUE_OFFSET],data_len_in_ble);
+            this_ccu.data_status = this_ccu.data_status | FLAG_DATA_SET_CCU_NEW_PASSWORD;
+            memcpy(&i_ret_msg[BLE_RET_MSG_RC_OFFSET],&SUCCESS,BLE_RETURN_RC_SIZE);
+            break;
+        }
+        default: {
+            memcpy(&i_ret_msg[BLE_RET_MSG_RC_OFFSET],&ERROR_UNRECOGNIZED_DATA,BLE_RETURN_RC_SIZE);
+            break;
+        }
+    }
+    /*
+     * Check if current password is matching and we received the new password. If both are done, replace the password.
+     */
+    if ((this_ccu.data_status & (FLAG_DATA_SET_CCU_PWD_MATCH | FLAG_DATA_SET_CCU_NEW_PASSWORD)) == (FLAG_DATA_SET_CCU_PWD_MATCH | FLAG_DATA_SET_CCU_NEW_PASSWORD)) {
+        memcpy(this_ccu.password,this_ccu.new_password_to_be_set, PASS_SIZE);
+        memcpy(&i_ret_msg[BLE_RET_MSG_RC_OFFSET],&SUCCESS,BLE_RETURN_RC_SIZE);
+        //Once copied, reset the flags.
+        this_ccu.data_status = this_ccu.data_status & (~(FLAG_DATA_SET_CCU_PWD_MATCH | FLAG_DATA_SET_CCU_NEW_PASSWORD));
+    }
+    return (int)i_ret_msg[BLE_RET_MSG_RC_OFFSET];
 }
 
 int read_ble_message(char *i_msg, char *i_ret_msg) {
@@ -234,7 +290,7 @@ int read_ble_message(char *i_msg, char *i_ret_msg) {
         is_valid_ble_msg = 1;
     } else {
         is_valid_ble_msg = 0;
-        i_ret_msg[BLE_RET_MSG_RC_OFFSET] = ERROR_SOURCE_APP_TYPE_MISMATCH;
+        memcpy(&i_ret_msg[BLE_RET_MSG_RC_OFFSET],&ERROR_SOURCE_APP_TYPE_MISMATCH,BLE_RETURN_RC_SIZE);
         return (ERROR_SOURCE_APP_TYPE_MISMATCH);
     }
     memcpy(&ble_cmd_id,&i_msg[BLE_CMD_OFFSET],BLE_COMMAND_ID_SIZE);
@@ -284,8 +340,20 @@ int read_ble_message(char *i_msg, char *i_ret_msg) {
                 execute_forgot_password(i_ret_msg);
                 break;
             }
+            case CID_CHANGE_PASSWORD : {
+                #ifdef BLE_DEBUG
+                printf("Going to call execute change password\n");
+                #endif
+                if (this_ccu.paired_mob1.authentication_status != AUTHENTICATED) {
+                    memcpy(&i_ret_msg[BLE_RET_MSG_RC_OFFSET],&ERROR_AUTHENTICATION,BLE_RETURN_RC_SIZE);
+                    return ERROR_AUTHENTICATION;
+                }
+                memcpy(ble_command,&i_msg[BLE_CMD_OFFSET + BLE_COMMAND_ID_SIZE],BLE_COMMAND_SIZE);
+                execute_change_password(ble_command,i_ret_msg);
+                break;
+            }
             default : {
-                i_ret_msg[BLE_RET_MSG_RC_OFFSET] = ERROR_UNRECOGNIZED_COMMAND;
+                memcpy(&i_ret_msg[BLE_RET_MSG_RC_OFFSET],&ERROR_UNRECOGNIZED_COMMAND,BLE_RETURN_RC_SIZE);
                 #ifdef BLE_DEBUG
                 printf("Unrecognized Command #%x#\n",ble_cmd_id);
                 #endif
@@ -299,7 +367,7 @@ int read_ble_message(char *i_msg, char *i_ret_msg) {
 int populate_serial_no_from_eeprom(char *i_ser) {
     //TODO - access EEPROM
     memset(i_ser,0x00,SER_NO_SIZE);
-    strcpy(i_ser,"ABCDEFGH");
+    memcpy(i_ser,&SER_NO_TEST,SER_NO_SIZE);
     return 0;
 }
 
@@ -312,78 +380,357 @@ int main(int argc, char** argv) {
     memset(ble_return_message,0x00,BLE_RETURN_SIZE);
     populate_serial_no_from_eeprom(this_ccu.serial_number);
 
-    memcpy(ble_message, REGISTER_MSG1_TEST, 14);
+    memcpy(ble_message, REGISTER_MSG1_TEST, 13);
     memcpy(&ble_return_message[0],&CCU_TYPE_ID,1);
     memcpy(&ble_return_message[1],&this_ccu.serial_number[SER_NO_SIZE - CCU_ID_SER_NO_SUFFIX_SIZE],CCU_ID_SER_NO_SUFFIX_SIZE);
     #ifdef BLE_DEBUG
-    printf("BLE Message #%s#\n",ble_message);
-    printf("BLE Return Message #%s#\n", ble_return_message);
+    printf("BLE Message REGISTER MSG 1#");
+    for (int i = 0; i<20; i++) {
+        printf("%c",ble_message[i]);
+    }
+    printf("#\n");
+
+    printf("BLE Return Message REGISTER MSG 1#");
+    for (int i = 0; i<8; i++) {
+        printf("%c",ble_return_message[i]);
+    }
+    printf("#\n");
+
     #endif
 
     read_ble_message(ble_message, ble_return_message);
 
     #ifdef BLE_DEBUG
-    printf("BLE Return Message after processing #%s#%x#\n", ble_return_message, ble_return_message[6]);
+    printf("BLE Return Message after processing REGISTER MSG 1#");
+    for (int i = 0; i<8; i++) {
+        printf("%c",ble_return_message[i]);
+    }
+    printf("#%x#\n",ble_return_message[6]);
+
     #endif
 
     memset(ble_message,0x00,BLE_MESSAGE_SIZE);
     strcpy(ble_message, REGISTER_MSG2_TEST);
     ble_return_message[BLE_RET_MSG_RC_OFFSET] = 0x00;
     #ifdef BLE_DEBUG
-    printf("BLE Message #%s#\n",ble_message);
-    printf("BLE Return Message #%s#\n", ble_return_message);
+    printf("BLE Message REGISTER MSG 2#");
+    for (int i = 0; i<20; i++) {
+        printf("%c",ble_message[i]);
+    }
+    printf("#\n");
+
+    printf("BLE Return Message REGISTER MSG 2#");
+    for (int i = 0; i<8; i++) {
+        printf("%c",ble_return_message[i]);
+    }
+    printf("#\n");
+
     #endif
     read_ble_message(ble_message, ble_return_message);
     #ifdef BLE_DEBUG
-    printf("BLE Return Message after processing #%s#%x#\n", ble_return_message, ble_return_message[6]);
+    printf("BLE Return Message after processing REGISTER MSG 2#");
+    for (int i = 0; i<8; i++) {
+        printf("%c",ble_return_message[i]);
+    }
+    printf("#%x#\n",ble_return_message[6]);
+
     #endif
 
     memset(ble_message,0x00,BLE_MESSAGE_SIZE);
     strcpy(ble_message, REGISTER_MSG3_TEST);
     ble_return_message[BLE_RET_MSG_RC_OFFSET] = 0x00;
     #ifdef BLE_DEBUG
-    printf("BLE Message #%s#\n",ble_message);
-    printf("BLE Return Message #%s#\n", ble_return_message);
+    printf("BLE Message REGISTER MSG 3#");
+    for (int i = 0; i<20; i++) {
+        printf("%c",ble_message[i]);
+    }
+    printf("#\n");
+
+    printf("BLE Return Message REGISTER MSG 3#");
+    for (int i = 0; i<8; i++) {
+        printf("%c",ble_return_message[i]);
+    }
+    printf("#\n");
+
     #endif
     read_ble_message(ble_message, ble_return_message);
     #ifdef BLE_DEBUG
-    printf("BLE Return Message after processing #%s#%x#\n", ble_return_message, ble_return_message[6]);
+    printf("BLE Return Message after processing REGISTER MSG 3#");
+    for (int i = 0; i<8; i++) {
+        printf("%c",ble_return_message[i]);
+    }
+    printf("#%x#\n",ble_return_message[6]);
+
     #endif
 
     memset(ble_message,0x00,BLE_MESSAGE_SIZE);
     strcpy(ble_message, REGISTER_MSG4_TEST);
     ble_return_message[BLE_RET_MSG_RC_OFFSET] = 0x00;
     #ifdef BLE_DEBUG
-    printf("BLE Message #%s#\n",ble_message);
-    printf("BLE Return Message #%s#\n", ble_return_message);
+    printf("BLE Message REGISTER MSG 4#");
+    for (int i = 0; i<20; i++) {
+        printf("%c",ble_message[i]);
+    }
+    printf("#\n");
+
+    printf("BLE Return Message REGISTER MSG 4#");
+    for (int i = 0; i<8; i++) {
+        printf("%c",ble_return_message[i]);
+    }
+    printf("#\n");
+
     #endif
     read_ble_message(ble_message, ble_return_message);
     #ifdef BLE_DEBUG
-    printf("BLE Return Message after processing #%s#%x#\n", ble_return_message, ble_return_message[6]);
+    printf("BLE Return Message after processing REGISTER MSG 4#");
+    for (int i = 0; i<8; i++) {
+        printf("%c",ble_return_message[i]);
+    }
+    printf("#%x#\n",ble_return_message[6]);
+
     #endif
 
     memset(ble_message,0x00,BLE_MESSAGE_SIZE);
-    strcpy(ble_message, LOGIN_MSG_TEST);
+    strcpy(ble_message, LOGIN_MSG1_TEST);
     ble_return_message[BLE_RET_MSG_RC_OFFSET] = 0x00;
     #ifdef BLE_DEBUG
-    printf("BLE Message #%s#\n",ble_message);
-    printf("BLE Return Message #%s#\n", ble_return_message);
+    printf("BLE Message LOGIN MSG 1#");
+    for (int i = 0; i<20; i++) {
+        printf("%c",ble_message[i]);
+    }
+    printf("#\n");
+
+    printf("BLE Return Message LOGIN MSG 1#");
+    for (int i = 0; i<8; i++) {
+        printf("%c",ble_return_message[i]);
+    }
+    printf("#\n");
+
     #endif
     read_ble_message(ble_message, ble_return_message);
     #ifdef BLE_DEBUG
-    printf("BLE Return Message after processing #%s#%x#%x%x#\n", ble_return_message, ble_return_message[6],ble_return_message[7],ble_return_message[8]);
+    printf("BLE Return Message after processing LOGIN MSG 1#");
+    for (int i = 0; i<8; i++) {
+        printf("%c",ble_return_message[i]);
+    }
+    printf("#%x#%d#\n",ble_return_message[6],this_ccu.paired_mob1.authentication_status);
+
     #endif
 
-    memset(ble_message,0x00,BLE_MESSAGE_SIZE);
+/*    memset(ble_message,0x00,BLE_MESSAGE_SIZE);
     strcpy(ble_message, FORGOT_PASSWORD_MSG_TEST);
     ble_return_message[BLE_RET_MSG_RC_OFFSET] = 0x00;
     #ifdef BLE_DEBUG
-    printf("BLE Message #%s#\n",ble_message);
-    printf("BLE Return Message #%s#\n", ble_return_message);
+    printf("BLE Message FORGOT PASS MSG#");
+    for (int i = 0; i<20; i++) {
+        printf("%c",ble_message[i]);
+    }
+    printf("#\n");
+
+    printf("BLE Return Message FORGOT PASS MSG#");
+    for (int i = 0; i<8; i++) {
+        printf("%c",ble_return_message[i]);
+    }
+    printf("#\n");
+
     #endif
     read_ble_message(ble_message, ble_return_message);
     #ifdef BLE_DEBUG
-    printf("BLE Return Message after processing #%s#%x#%x%x#\n", ble_return_message, ble_return_message[6],ble_return_message[7],ble_return_message[8]);
+    printf("BLE Return Message after processing FORGOT PASS MSG#");
+    for (int i = 0; i<8; i++) {
+        printf("%c",ble_return_message[i]);
+    }
+    printf("#%x#\n",ble_return_message[6]);
+
+    #endif
+*/
+    memset(ble_message,0x00,BLE_MESSAGE_SIZE);
+    strcpy(ble_message, CHANGE_PASSWORD_MSG1_TEST);
+    ble_return_message[BLE_RET_MSG_RC_OFFSET] = 0x00;
+    #ifdef BLE_DEBUG
+    printf("BLE Message Chg password msg 1#");
+    for (int i = 0; i<20; i++) {
+        printf("%c",ble_message[i]);
+    }
+    printf("#\n");
+
+    printf("BLE Return Message Chg password msg 1#");
+    for (int i = 0; i<8; i++) {
+        printf("%c",ble_return_message[i]);
+    }
+    printf("#\n");
+
+    #endif
+    read_ble_message(ble_message, ble_return_message);
+    #ifdef BLE_DEBUG
+    printf("BLE Return Message after processing Chg password msg 1#");
+    for (int i = 0; i<8; i++) {
+        printf("%c",ble_return_message[i]);
+    }
+    printf("#%x#\n",ble_return_message[6]);
+
+    #endif
+
+    memset(ble_message,0x00,BLE_MESSAGE_SIZE);
+    strcpy(ble_message, CHANGE_PASSWORD_MSG2_TEST);
+    ble_return_message[BLE_RET_MSG_RC_OFFSET] = 0x00;
+    #ifdef BLE_DEBUG
+    printf("BLE Message Chg password msg 2#");
+    for (int i = 0; i<20; i++) {
+        printf("%c",ble_message[i]);
+    }
+    printf("#\n");
+
+    printf("BLE Return Message Chg password msg 2#");
+    for (int i = 0; i<8; i++) {
+        printf("%c",ble_return_message[i]);
+    }
+    printf("#\n");
+
+    #endif
+    read_ble_message(ble_message, ble_return_message);
+    #ifdef BLE_DEBUG
+    printf("BLE Return Message after processing Chg password msg 2#");
+    for (int i = 0; i<8; i++) {
+        printf("%c",ble_return_message[i]);
+    }
+    printf("#%x#\n",ble_return_message[6]);
+
+    #endif
+
+    memset(ble_message,0x00,BLE_MESSAGE_SIZE);
+    strcpy(ble_message, LOGIN_MSG1_TEST);
+    ble_return_message[BLE_RET_MSG_RC_OFFSET] = 0x00;
+    #ifdef BLE_DEBUG
+    printf("BLE Message LOGIN MSG 1#");
+    for (int i = 0; i<20; i++) {
+        printf("%c",ble_message[i]);
+    }
+    printf("#\n");
+
+    printf("BLE Return Message LOGIN MSG 1#");
+    for (int i = 0; i<8; i++) {
+        printf("%c",ble_return_message[i]);
+    }
+    printf("#\n");
+
+    #endif
+    read_ble_message(ble_message, ble_return_message);
+    #ifdef BLE_DEBUG
+    printf("BLE Return Message after processing LOGIN MSG 1#");
+    for (int i = 0; i<8; i++) {
+        printf("%c",ble_return_message[i]);
+    }
+    printf("#%x#\n",ble_return_message[6]);
+
+    #endif
+
+    memset(ble_message,0x00,BLE_MESSAGE_SIZE);
+    strcpy(ble_message, LOGIN_MSG2_TEST);
+    ble_return_message[BLE_RET_MSG_RC_OFFSET] = 0x00;
+    #ifdef BLE_DEBUG
+    printf("BLE Message LOGIN MSG 2#");
+    for (int i = 0; i<20; i++) {
+        printf("%c",ble_message[i]);
+    }
+    printf("#\n");
+
+    printf("BLE Return Message LOGIN MSG 2#");
+    for (int i = 0; i<8; i++) {
+        printf("%c",ble_return_message[i]);
+    }
+    printf("#\n");
+
+    #endif
+    read_ble_message(ble_message, ble_return_message);
+    #ifdef BLE_DEBUG
+    printf("BLE Return Message after processing LOGIN MSG 2#");
+    for (int i = 0; i<8; i++) {
+        printf("%c",ble_return_message[i]);
+    }
+    printf("#%x#\n",ble_return_message[6]);
+
+    #endif
+
+    memset(ble_message,0x00,BLE_MESSAGE_SIZE);
+    strcpy(ble_message, CHANGE_PASSWORD_MSG3_TEST);
+    ble_return_message[BLE_RET_MSG_RC_OFFSET] = 0x00;
+    #ifdef BLE_DEBUG
+    printf("BLE Message Change Password Msg 3#");
+    for (int i = 0; i<20; i++) {
+        printf("%c",ble_message[i]);
+    }
+    printf("#\n");
+
+    printf("BLE Return Message Change Password Msg 3#");
+    for (int i = 0; i<8; i++) {
+        printf("%c",ble_return_message[i]);
+    }
+    printf("#\n");
+
+    #endif
+    read_ble_message(ble_message, ble_return_message);
+    #ifdef BLE_DEBUG
+    printf("BLE Return Message after processing Change Password Msg 3#");
+    for (int i = 0; i<8; i++) {
+        printf("%c",ble_return_message[i]);
+    }
+    printf("#%x#\n",ble_return_message[6]);
+
+    #endif
+
+    memset(ble_message,0x00,BLE_MESSAGE_SIZE);
+    strcpy(ble_message, CHANGE_PASSWORD_MSG4_TEST);
+    ble_return_message[BLE_RET_MSG_RC_OFFSET] = 0x00;
+    #ifdef BLE_DEBUG
+    printf("BLE Message Change Password Msg 4#");
+    for (int i = 0; i<20; i++) {
+        printf("%c",ble_message[i]);
+    }
+    printf("#\n");
+
+    printf("BLE Return Message Change Password Msg 4#");
+    for (int i = 0; i<8; i++) {
+        printf("%c",ble_return_message[i]);
+    }
+    printf("#\n");
+
+    #endif
+    read_ble_message(ble_message, ble_return_message);
+    #ifdef BLE_DEBUG
+    printf("BLE Return Message after processing Change Password Msg 4#");
+    for (int i = 0; i<8; i++) {
+        printf("%c",ble_return_message[i]);
+    }
+    printf("#%x#\n",ble_return_message[6]);
+
+    #endif
+
+    memset(ble_message,0x00,BLE_MESSAGE_SIZE);
+    strcpy(ble_message, LOGIN_MSG1_TEST);
+    ble_return_message[BLE_RET_MSG_RC_OFFSET] = 0x00;
+    #ifdef BLE_DEBUG
+    printf("BLE Message LOGIN Msg 1#");
+    for (int i = 0; i<20; i++) {
+        printf("%c",ble_message[i]);
+    }
+    printf("#\n");
+
+    printf("BLE Return Message LOGIN Msg 1#");
+    for (int i = 0; i<8; i++) {
+        printf("%c",ble_return_message[i]);
+    }
+    printf("#\n");
+
+    #endif
+    read_ble_message(ble_message, ble_return_message);
+    #ifdef BLE_DEBUG
+    printf("BLE Return Message after processing LOGIN Msg 1#");
+    for (int i = 0; i<8; i++) {
+        printf("%c",ble_return_message[i]);
+    }
+    printf("#%x#\n",ble_return_message[6]);
+
     #endif
 
 }
