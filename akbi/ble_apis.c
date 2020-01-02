@@ -71,6 +71,7 @@ int execute_register(char *i_cmd, char *i_ret_msg) {
      */
     #ifdef BLE_DEBUG
     printf("Data Status #%x#%x#\n", this_ccu.paired_mob1.data_status, this_ccu.data_status);
+    
     #endif
     //The below if condition and processing needs to be moved to 'Select A WiFi' and 'Connect to WiFi' sections.
     if ((this_ccu.paired_mob1.data_status == FLAG_DATA_SET_MOB1_ALL) && ((this_ccu.data_status & FLAG_DATA_SET_CCU_PASSWORD) == FLAG_DATA_SET_CCU_PASSWORD)) {
@@ -233,6 +234,7 @@ int read_ble_message(char *i_msg, char *i_ret_msg) {
         switch (ble_cmd_id) {
             case CID_REGISTER : {
                 memcpy(ble_command,&i_msg[BLE_CMD_OFFSET + BLE_COMMAND_ID_SIZE],BLE_COMMAND_SIZE);
+                i_ret_msg[BLE_RET_MSG_CCU_ID_OFFSET] = CCU_TYPE_ID;
                 execute_register(ble_command,i_ret_msg);
                 break;
             }

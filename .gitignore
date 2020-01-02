@@ -1626,3 +1626,4 @@ ble_modbus_bridge/build/modbridge.map
 ble_modbus_bridge/build/partition_table/partition-table.bin
 ble_modbus_bridge/build/project_description.json
 ble_modbus_bridge/build/rules.ninja
+akbi/ble_ccu/build/
