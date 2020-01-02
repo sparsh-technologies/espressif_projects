@@ -40,7 +40,6 @@ const short BLE_RET_MSG_AUTH_TKN_OFFSET       = 7;
 const char  MOB1_APP_TYPE_ID                  = 0x4D;
 const char  CCU_TYPE_ID                       = 0x47;
 const short CCU_ID_SER_NO_SUFFIX_SIZE         = 4;
-const char  SER_NO_TEST[SER_NO_SIZE]          = {0x41,0x42,0x43,0x44,0x45,0x46,0x47,0x48};
 
 const short SUCCESS                           = 0x00;
 const short ERROR_LOGIN_PASSWORD_MISMATCH     = 0x01;
