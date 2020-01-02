@@ -1,53 +1,21 @@
+/*
+ ****************************************************************************************
+ * akbi_msg.h
+ *
+ * Author    : Sathish Chandran
+ * Ver       : 1.0
+ * Date      : 31-Dec-2019
+ *
+ * Copyright Infinicomm Solutions India Pvt Ltd, 2019-20
+ *
+ ****************************************************************************************
+ */
+
+#ifndef _AKBI_MSG_H_
+#define _AKBI_MSG_H_
+
 #define CURRENT_FIRMWARE_VERSION "1.0(1)"
 #define BLE_DEBUG
-
-#define SER_NO_SIZE                      8
-#define PASS_SIZE                        15
-#define DEFAULT_PASSWORD_SIZE            12
-#define MOB_NO_SIZE                      10
-#define MOB_NAME_SIZE                    15
-#define ANDROID_ID_OR_UUID_SIZE          15
-#define BLE_APP_TYPE_ID_SIZE             1
-#define BLE_APP_ID_SIZE                  1
-#define BLE_APP_AUTH_TOKEN_SIZE          2
-#define FILE_NAME_SIZE                   30
-#define PERSONAL_VOICE_MESSAGES_COUNT    6
-#define DEFAULT_EMERGENCY_NUMBER         911
-#define DEFAULT_EMERGENCY_NUMBER_SIZE    3
-#define SSID_SIZE                        15
-#define NETWORK_KEY_SIZE                 15
-#define LOCATION_COUNT                   10
-#define LAT_LONG_SIZE                    11
-#define TIMESTAMP_SIZE                   10
-#define FW_UPGRADE_COUNT                 10
-#define FW_VERSION_STRING_SIZE           10
-#define DATE_SIZE                        10
-#define MOB1_VER_SIZE                    10
-#define ACTIVATIONS_COUNT                10
-#define WIFI_CONNECTIONS_COUNT           10
-
-#define CID_REGISTER                     0x01
-#define CID_LOGIN                        0x02
-#define CID_FORGOT_PASSWORD              0x03
-#define CID_CHANGE_PASSWORD              0x04
-
-#define DID_REGISTER_PASSWORD            0x01
-#define DID_REGISTER_MOB_NO              0x02
-#define DID_REGISTER_MOB_NAME            0x03
-#define DID_REGISTER_ANDROID_ID_OR_UUID  0x04
-#define DID_CHANGE_PASSWORD_CURRENT      0x01
-#define DID_CHANGE_PASSWORD_NEW          0x02
-
-#define FLAG_DATA_SET_CCU_PASSWORD       0x02
-#define FLAG_DATA_SET_CCU_NEW_PASSWORD   0x04
-#define FLAG_DATA_SET_CCU_PWD_MATCH      0x08
-
-#define FLAG_DATA_SET_MOB1_ID            0x01
-#define FLAG_DATA_SET_MOB1_NUM           0x02
-#define FLAG_DATA_SET_MOB1_NAME          0x04
-#define FLAG_DATA_SET_ANDROID_ID_OR_UUID 0x08
-#define FLAG_DATA_SET_MOB1_ALL           0x0F
-
 
 const short BLE_MESSAGE_SIZE                  = 20;
 const short BLE_COMMAND_SIZE                  = 17; //BLE_MESSAGE SIZE - Source App Type (1) - Source App ID (1) - Command Id (1)
@@ -102,3 +70,5 @@ const short ERROR_CHANGE_PASSWORD_MISMATCH    = 0x01;
 #define CHANGE_PASSWORD_MSG2_TEST "\x4D\xCC\x04\x02\x08passw0rd"
 #define CHANGE_PASSWORD_MSG3_TEST "\x4D\xCC\x04\x01\x08passw0rd"
 #define CHANGE_PASSWORD_MSG4_TEST "\x4D\xCC\x04\x02\x08password"
+
+#endif
