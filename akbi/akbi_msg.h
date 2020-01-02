@@ -29,13 +29,18 @@
 #define CID_REGISTER                     0x01
 #define CID_LOGIN                        0x02
 #define CID_FORGOT_PASSWORD              0x03
+#define CID_CHANGE_PASSWORD              0x04
 
 #define DID_REGISTER_PASSWORD            0x01
 #define DID_REGISTER_MOB_NO              0x02
 #define DID_REGISTER_MOB_NAME            0x03
 #define DID_REGISTER_ANDROID_ID_OR_UUID  0x04
+#define DID_CHANGE_PASSWORD_CURRENT      0x01
+#define DID_CHANGE_PASSWORD_NEW          0x02
 
 #define FLAG_DATA_SET_CCU_PASSWORD       0x02
+#define FLAG_DATA_SET_CCU_NEW_PASSWORD   0x04
+#define FLAG_DATA_SET_CCU_PWD_MATCH      0x08
 
 #define FLAG_DATA_SET_MOB1_ID            0x01
 #define FLAG_DATA_SET_MOB1_NUM           0x02
@@ -44,35 +49,40 @@
 #define FLAG_DATA_SET_MOB1_ALL           0x0F
 
 
-const int  BLE_MESSAGE_SIZE               = 30;
-const int  BLE_COMMAND_SIZE               = 26; //BLE_MESSAGE SIZE - Source App Type (1) - Source App ID (2) - Command Id (1)
-const int  BLE_COMMAND_ID_SIZE            = 1;
-const int  BLE_RETURN_SIZE                = 8;
-const int  BLE_RETURN_RC_SIZE             = 1;
+const short BLE_MESSAGE_SIZE                  = 20;
+const short BLE_COMMAND_SIZE                  = 17; //BLE_MESSAGE SIZE - Source App Type (1) - Source App ID (1) - Command Id (1)
+const short BLE_COMMAND_ID_SIZE               = 1;
+const short BLE_RETURN_SIZE                   = 8;
+const short BLE_RETURN_RC_SIZE                = 1;
+const short BLE_COMMAND_DATA_TYPE_SIZE        = 1;
 
-const int  BLE_APP_TYPE_OFFSET            = 0;
-const int  BLE_APP_OFFSET                 = 1;
-const int  BLE_CMD_OFFSET                 = 2;
-const int  BLE_CMD_REG_DATA_TYPE_OFFSET   = 0; //for commands with multiple data types sent as multiple messages
-const int  BLE_CMD_REG_DATA_LEN_OFFSET    = 1; //for commands with multiple data types sent as multiple messages
-const int  BLE_CMD_REG_DATA_VALUE_OFFSET  = 2; //for commands with multiple data types sent as multiple messages
-const int  BLE_CMD_DATA_LEN_OFFSET        = 0; //for commands that are sent in a single message
-const int  BLE_CMD_DATA_VALUE_OFFSET      = 1; //for commands that are sent in a single message
-const int  BLE_RET_MSG_CMD_ID_OFFSET      = 5;
-const int  BLE_RET_MSG_RC_OFFSET          = 6;
-const int  BLE_RET_MSG_DATA_TYPE_OFFSET   = 7;
-const int  BLE_RET_MSG_AUTH_TKN_OFFSET    = 7;
+const short BLE_APP_TYPE_OFFSET               = 0;
+const short BLE_APP_OFFSET                    = 1;
+const short BLE_CMD_OFFSET                    = 2;
+const short BLE_CMD_MULTI_DATA_TYPE_OFFSET    = 0; //for commands with multiple data types sent as multiple messages
+const short BLE_CMD_MULTI_DATA_LEN_OFFSET     = 1; //for commands with multiple data types sent as multiple messages
+const short BLE_CMD_MULTI_DATA_VALUE_OFFSET   = 2; //for commands with multiple data types sent as multiple messages
+const short BLE_CMD_SINGLE_DATA_LEN_OFFSET    = 0; //for commands that are sent in a single message
+const short BLE_CMD_SINGLE_DATA_VALUE_OFFSET  = 1; //for commands that are sent in a single message
+const short BLE_RET_MSG_CMD_ID_OFFSET         = 5;
+const short BLE_RET_MSG_RC_OFFSET             = 6;
+const short BLE_RET_MSG_DATA_TYPE_OFFSET      = 7;
+const short BLE_RET_MSG_AUTH_TKN_OFFSET       = 7;
 
-const char MOB1_APP_TYPE_ID               = 0x4D;
-const char CCU_TYPE_ID                    = 0x47;
-const int  CCU_ID_SER_NO_SUFFIX_SIZE      = 4;
+const char  MOB1_APP_TYPE_ID                  = 0x4D;
+const char  CCU_TYPE_ID                       = 0x47;
+const short CCU_ID_SER_NO_SUFFIX_SIZE         = 4;
+const char  SER_NO_TEST[SER_NO_SIZE]          = {0x41,0x42,0x43,0x44,0x45,0x46,0x47,0x48};
 
-const int  SUCCESS                        = 0x00;
-const int  ERROR_LOGIN_PASSWORD_MISMATCH  = 0x01;
-const int  ERROR_SOURCE_APP_TYPE_MISMATCH = 0x20;
-const int  ERROR_SOURCE_APP_MISMATCH      = 0x21;
-const int  ERROR_UNRECOGNIZED_COMMAND     = 0x22;
-const int  ERROR_UNRECOGNIZED_DATA        = 0x23;
+const short SUCCESS                           = 0x00;
+const short ERROR_LOGIN_PASSWORD_MISMATCH     = 0x01;
+const short ERROR_SOURCE_APP_TYPE_MISMATCH    = 0x20;
+const short ERROR_SOURCE_APP_MISMATCH         = 0x21;
+const short ERROR_UNRECOGNIZED_COMMAND        = 0x22;
+const short ERROR_UNRECOGNIZED_DATA           = 0x23;
+const short ERROR_AUTHENTICATION              = 0x24;
+const short ERROR_MOB1_NO_NOT_CONFIGURED      = 0x01;
+const short ERROR_CHANGE_PASSWORD_MISMATCH    = 0x01;
 
 #define JSON_REGISTER_CCU_HEAD    "{\"data_type\":\"%s\",\"s_time\":\"%ld\","
 #define JSON_REGISTER_CCU_CCU     "\"ccu\":[{\"sno\":\"%s\",\"make\":\"AKBI\",\"model\":\"Guardian\",\"name\":\"Smart Security\",\"password\":\"%s\",\"fwversion\":\"%s\"}],"
@@ -85,5 +95,10 @@ const int  ERROR_UNRECOGNIZED_DATA        = 0x23;
 #define REGISTER_MSG3_TEST        "\x4D\xCC\x01\x03\x0Fgbcdefghijklmno"
 #define REGISTER_MSG4_TEST        "\x4D\xCC\x01\x04\x0Fw12345678901234"
 #define SOURCE_APP_ID_TEST        "\xCC"
-#define LOGIN_MSG_TEST            "\x4D\xCC\x02\x08password"
+#define LOGIN_MSG1_TEST           "\x4D\xCC\x02\x08password"
+#define LOGIN_MSG2_TEST           "\x4D\xCC\x02\x08passw0rd"
 #define FORGOT_PASSWORD_MSG_TEST  "\x4D\xCC\x03"
+#define CHANGE_PASSWORD_MSG1_TEST "\x4D\xCC\x04\x01\x08password"
+#define CHANGE_PASSWORD_MSG2_TEST "\x4D\xCC\x04\x02\x08passw0rd"
+#define CHANGE_PASSWORD_MSG3_TEST "\x4D\xCC\x04\x01\x08passw0rd"
+#define CHANGE_PASSWORD_MSG4_TEST "\x4D\xCC\x04\x02\x08password"
