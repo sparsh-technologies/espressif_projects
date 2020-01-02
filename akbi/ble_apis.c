@@ -16,6 +16,7 @@
 #include <string.h>
 #include <time.h>
 #include "akbi_bt_msg.h"
+#include "akbi_msg.h"
 
 CCU this_ccu;
 
