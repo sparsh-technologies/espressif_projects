@@ -63,6 +63,8 @@
 #define FLAG_DATA_SET_ANDROID_ID_OR_UUID 0x08
 #define FLAG_DATA_SET_MOB1_ALL           0x0F
 
+const char  SER_NO_TEST[SER_NO_SIZE]          = {0x41,0x42,0x43,0x44,0x45,0x46,0x47,0x48};
+
 typedef enum {UNAUTHENTICATED = 0, AUTHENTICATED} AUTH_STATUS;
 
 typedef struct _mob1_ {
@@ -74,9 +76,9 @@ typedef struct _mob1_ {
     AUTH_STATUS   authentication_status;
 
     /*
-     * bitmap used to indicate which all data is set as part of 
+     * bitmap used to indicate which all data is set as part of
      * registration. lsb (1st bit) will be set for id. That is 0x01.
-     * 2nd bit will be set for mobile number (0x02), 3rd bit (0x04) 
+     * 2nd bit will be set for mobile number (0x02), 3rd bit (0x04)
      * for mobile name and 4th bit (0x08) for android id/ uuid.
      */
     unsigned char data_status;
