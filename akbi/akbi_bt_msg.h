@@ -63,8 +63,6 @@
 #define FLAG_DATA_SET_ANDROID_ID_OR_UUID 0x08
 #define FLAG_DATA_SET_MOB1_ALL           0x0F
 
-const char  SER_NO_TEST[SER_NO_SIZE]          = {0x41,0x42,0x43,0x44,0x45,0x46,0x47,0x48};
-
 typedef enum {UNAUTHENTICATED = 0, AUTHENTICATED} AUTH_STATUS;
 
 typedef struct _mob1_ {
@@ -76,9 +74,9 @@ typedef struct _mob1_ {
     AUTH_STATUS   authentication_status;
 
     /*
-     * bitmap used to indicate which all data is set as part of
+     * bitmap used to indicate which all data is set as part of 
      * registration. lsb (1st bit) will be set for id. That is 0x01.
-     * 2nd bit will be set for mobile number (0x02), 3rd bit (0x04)
+     * 2nd bit will be set for mobile number (0x02), 3rd bit (0x04) 
      * for mobile name and 4th bit (0x08) for android id/ uuid.
      */
     unsigned char data_status;
@@ -180,5 +178,49 @@ typedef struct ccu {
     unsigned short           data_status;
 
 } CCU;
+
+typedef struct _mob_cloud_register_info_ {
+
+    unsigned char    mobile_number[MOB_NO_SIZE];
+    unsigned char    mobile_name[MOB_NAME_SIZE];
+    unsigned char    unique_id[ANDROID_ID_OR_UUID_SIZE];
+    char             serial_number[SER_NO_SIZE];
+    char             passwd[SER_NO_SIZE];
+
+} MOB_CLOUD_REGISTER_INFO;
+
+/*
+ * The following structure is used to exchange the data between BT and CP
+ */
+
+#define PROTO_TYPE_SEND                                           0x01
+#define PROTO_TYPE_SEND_ACK                                       0x02
+
+typedef struct _bt_cp_protocol_hdr_ {
+
+    unsigned char       opcode;
+    unsigned short int  trans_id;
+    unsigned char       type;
+
+} BT_CP_PROTOCOL_HDR;
+
+/*
+ * Various Opcodes are defined here.
+ */
+#define BT_CP_OPCODE_MOB1_REGISTER                                0x01
+
+
+/*
+ * All TVL Types are defined here.
+ */
+
+/*
+ * TLV Types for BT_CP_OPCODE_MOB1_REGISTER Opcode
+ */
+
+#define TLV_TYPE_REGISTER_MOB_NUM                                 0x01
+#define TLV_TYPE_REGISTER_MOB_NAME                                0x02
+#define TLV_TYPE_REGISTER_UNIQUE_ID                               0x03
+#define TLV_TYPE_REGISTER_PASSWORD                                0x04
 
 #endif
