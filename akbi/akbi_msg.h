@@ -37,7 +37,6 @@ const short BLE_RET_MSG_RC_OFFSET             = 6;
 const short BLE_RET_MSG_DATA_TYPE_OFFSET      = 7;
 const short BLE_RET_MSG_AUTH_TKN_OFFSET       = 7;
 
-
 const char  MOB1_APP_TYPE_ID                  = 0x4D;
 const char  CCU_TYPE_ID                       = 0x47;
 const short CCU_ID_SER_NO_SUFFIX_SIZE         = 4;
