@@ -32,6 +32,8 @@
 #define DEFAULT_EMERGENCY_NUMBER_SIZE    3
 #define SSID_SIZE                        15
 #define NETWORK_KEY_SIZE                 15
+#define MY_SSID_SIZE                     6
+#define MY_NETWORK_KEY_SIZE              6
 #define LOCATION_COUNT                   10
 #define LAT_LONG_SIZE                    11
 #define TIMESTAMP_SIZE                   10
@@ -46,6 +48,7 @@
 #define CID_LOGIN                        0x02
 #define CID_FORGOT_PASSWORD              0x03
 #define CID_CHANGE_PASSWORD              0x04
+#define CID_RECORD_PERSONAL_VOICE_MSG    0x05
 
 #define DID_REGISTER_PASSWORD            0x01
 #define DID_REGISTER_MOB_NO              0x02
@@ -74,9 +77,9 @@ typedef struct _mob1_ {
     AUTH_STATUS   authentication_status;
 
     /*
-     * bitmap used to indicate which all data is set as part of 
+     * bitmap used to indicate which all data is set as part of
      * registration. lsb (1st bit) will be set for id. That is 0x01.
-     * 2nd bit will be set for mobile number (0x02), 3rd bit (0x04) 
+     * 2nd bit will be set for mobile number (0x02), 3rd bit (0x04)
      * for mobile name and 4th bit (0x08) for android id/ uuid.
      */
     unsigned char data_status;
@@ -105,12 +108,15 @@ typedef struct _personal_numbers_ {
 
 } PERSONAL_NUMBERS;
 
+typedef enum {STATION = 0, ACCESS_POINT} WIFI_MODE;
+
 typedef enum {NOT_CONNECTED = 0, WIFI_CONNECTED, INET_CONNECTED, SERVER_CONNECTED} WIFI_STATUS;
 
 typedef struct _wifi_ {
 
     char ssid[SSID_SIZE];
     char network_key[NETWORK_KEY_SIZE];
+    WIFI_MODE   mode;
     WIFI_STATUS status;
 
 } WIFI;
@@ -168,7 +174,8 @@ typedef struct ccu {
     PERSONAL_VOICE_MESSAGE   personal_voice_messages[PERSONAL_VOICE_MESSAGES_COUNT];
     EMERGENCY_NUMBERS        conf_emergency_nos;
     PERSONAL_NUMBERS         conf_personal_nos;
-    WIFI                     conf_wifi;
+    WIFI                     interface_wifi; //this is CCU's wifi interface that can be configured as STN or AP
+    WIFI                     conf_wifi; //this is the wifi SSID to which CCU gets connected to.
     SITE                     visited_locations[LOCATION_COUNT];
     CCU_MODE                 mode;
     FW_UPGRADE_LOG           fw_upgrades[FW_UPGRADE_COUNT];
