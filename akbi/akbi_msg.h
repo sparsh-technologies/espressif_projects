@@ -20,7 +20,7 @@
 const short BLE_MESSAGE_SIZE                  = 20;
 const short BLE_COMMAND_SIZE                  = 17; //BLE_MESSAGE SIZE - Source App Type (1) - Source App ID (1) - Command Id (1)
 const short BLE_COMMAND_ID_SIZE               = 1;
-const short BLE_RETURN_SIZE                   = 8;
+const short BLE_RETURN_SIZE                   = 20;
 const short BLE_RETURN_RC_SIZE                = 1;
 const short BLE_COMMAND_DATA_TYPE_SIZE        = 1;
 
@@ -36,6 +36,8 @@ const short BLE_RET_MSG_CMD_ID_OFFSET         = 5;
 const short BLE_RET_MSG_RC_OFFSET             = 6;
 const short BLE_RET_MSG_DATA_TYPE_OFFSET      = 7;
 const short BLE_RET_MSG_AUTH_TKN_OFFSET       = 7;
+const short BLE_RET_MSG_MY_SSID_OFFSET        = 7;
+const short BLE_RET_MSG_MY_NETWORK_KEY_OFFSET = 13;
 
 const char  MOB1_APP_TYPE_ID                  = 0x4D;
 const char  CCU_TYPE_ID                       = 0x47;
@@ -51,6 +53,7 @@ const short ERROR_UNRECOGNIZED_DATA           = 0x23;
 const short ERROR_AUTHENTICATION              = 0x24;
 const short ERROR_MOB1_NO_NOT_CONFIGURED      = 0x01;
 const short ERROR_CHANGE_PASSWORD_MISMATCH    = 0x01;
+const short ERROR_MY_AP_START                 = 0x01;
 
 #define JSON_REGISTER_CCU_HEAD    "{\"data_type\":\"%s\",\"s_time\":\"%ld\","
 #define JSON_REGISTER_CCU_CCU     "\"ccu\":[{\"sno\":\"%s\",\"make\":\"AKBI\",\"model\":\"Guardian\",\"name\":\"Smart Security\",\"password\":\"%s\",\"fwversion\":\"%s\"}],"
