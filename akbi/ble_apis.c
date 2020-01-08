@@ -324,7 +324,7 @@ int populate_serial_no_from_eeprom(char *i_ser) {
 void print_bytes(char *const_text, char *message, int size_of_msg) {
     printf("%s",const_text);
     for (int i = 0; i<size_of_msg; i++) {
-        printf("%c",message[i]);
+        printf("_%2x_",message[i]);
     }
     printf("#\n");
 }
@@ -527,6 +527,22 @@ int main(int argc, char** argv) {
 
     #ifdef BLE_DEBUG
     print_bytes("BLE Return Message after processing LOGIN Msg 1#",ble_return_message,BLE_RETURN_SIZE);
+    #endif
+
+    memset(ble_message,0x00,BLE_MESSAGE_SIZE);
+    memset(ble_return_message,0x00,BLE_MESSAGE_SIZE);
+    strcpy(ble_message, RECORD_PERSONAL_VOICE_MSG_TEST);
+    ble_return_message[BLE_RET_MSG_RC_OFFSET] = 0x00;
+
+    #ifdef BLE_DEBUG
+    print_bytes("BLE Message RECORD PERSONAL VOICE MESSAGE#",ble_message,BLE_MESSAGE_SIZE);
+    print_bytes("BLE Return Message RECORD PERSONAL VOICE MESSAGE#",ble_return_message,BLE_RETURN_SIZE);
+    #endif
+
+    read_ble_message(ble_message, ble_return_message);
+
+    #ifdef BLE_DEBUG
+    print_bytes("BLE Return Message after processing RECORD PERSONAL VOICE MESSAGE#",ble_return_message,BLE_RETURN_SIZE);
     #endif
 
 }
