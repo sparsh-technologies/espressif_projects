@@ -28,7 +28,7 @@
 #define BLE_APP_AUTH_TOKEN_SIZE          2
 #define FILE_NAME_SIZE                   30
 #define PERSONAL_VOICE_MESSAGES_COUNT    6
-#define DEFAULT_EMERGENCY_NUMBER         911
+#define DEFAULT_EMERGENCY_NUMBER         "911"
 #define DEFAULT_EMERGENCY_NUMBER_SIZE    3
 #define SSID_SIZE                        15
 #define NETWORK_KEY_SIZE                 15
@@ -49,6 +49,8 @@
 #define CID_FORGOT_PASSWORD              0x03
 #define CID_CHANGE_PASSWORD              0x04
 #define CID_RECORD_PERSONAL_VOICE_MSG    0x05
+#define CID_STORE_EMERGENCY_NUMBERS      0x06
+#define CID_STORE_PERSONAL_NUMBERS       0x07
 
 #define DID_REGISTER_PASSWORD            0x01
 #define DID_REGISTER_MOB_NO              0x02
@@ -56,10 +58,14 @@
 #define DID_REGISTER_ANDROID_ID_OR_UUID  0x04
 #define DID_CHANGE_PASSWORD_CURRENT      0x01
 #define DID_CHANGE_PASSWORD_NEW          0x02
+#define DID_EMERGENCY_FIRST_RESPONDER    0x01
+#define DID_EMERGENCY_CLOSE_RELATIVE     0x02
+#define DID_PERSONAL_SECOND_NUMBER       0x01
+#define DID_PERSONAL_THIRD_NUMBER        0x02
+
 #define FLAG_DATA_SET_CCU_PASSWORD       0x02
 #define FLAG_DATA_SET_CCU_NEW_PASSWORD   0x04
 #define FLAG_DATA_SET_CCU_PWD_MATCH      0x08
-
 #define FLAG_DATA_SET_MOB1_ID            0x01
 #define FLAG_DATA_SET_MOB1_NUM           0x02
 #define FLAG_DATA_SET_MOB1_NAME          0x04
