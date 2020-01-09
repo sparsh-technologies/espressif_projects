@@ -196,8 +196,15 @@ int execute_change_password(char *i_cmd, char *i_ret_msg) {
 
 int enable_ccu_access_point() {
     //TODO: send the AP start request to the processor over serial interface
+    this_ccu.interface_wifi.mode = ACCESS_POINT;
     memcpy(this_ccu.interface_wifi.ssid,&MY_SSID_TEST,MY_SSID_SIZE);
     memcpy(this_ccu.interface_wifi.network_key,&MY_NETWORK_KEY_TEST,MY_NETWORK_KEY_SIZE);
+    return 0;
+}
+
+int enable_ccu_wifi_station() {
+    //TODO: send the AP start request to the processor over serial interface
+    this_ccu.interface_wifi.mode = STATION;
     return 0;
 }
 
@@ -271,6 +278,76 @@ int execute_store_personal_number(char *i_cmd, char *i_ret_msg) {
             break;
         }
 
+    }
+    return (int)i_ret_msg[BLE_RET_MSG_RC_OFFSET];
+}
+
+int get_scanned_wifis() {
+    //get the SSIDs from the serial response from the processor and populate the CCU data strucure.
+    char ssids[MAX_WIFI_SCAN_COUNT][SSID_SIZE] = {
+        {"First WiFi"},
+        {"Second WiFi"},
+        {"Third WiFi"}
+    };
+    int i;
+    for (i = 0; i < 3; i++) {
+        strcpy(this_ccu.scanned_wifis[i].ssid, ssids[i]);
+    }
+    return i;
+}
+
+int execute_scan_wifis(char *i_ret_msg) {
+    if (this_ccu.interface_wifi.mode != STATION) {
+        if (0 != enable_ccu_wifi_station()) {
+            memcpy(&i_ret_msg[BLE_RET_MSG_RC_OFFSET],&ERROR_MY_WIFI_STN_START,BLE_RETURN_RC_SIZE);
+            return (int)i_ret_msg[BLE_RET_MSG_RC_OFFSET];
+        }
+    }
+    //TODO: Send the command to scan WiFis to the processor and get response.
+    int count = get_scanned_wifis();
+    this_ccu.scanned_wifi_count = count;
+    memcpy(&i_ret_msg[BLE_RET_MSG_RC_OFFSET],&SUCCESS,BLE_RETURN_RC_SIZE);
+    memcpy(&i_ret_msg[BLE_RET_MSG_DATA_TYPE_OFFSET],&BLE_RET_MSG_SCANNED_WIFI_COUNT_TYPE,BLE_COMMAND_DATA_TYPE_SIZE);
+    memcpy(&i_ret_msg[BLE_RET_MSG_SCANNED_SSID_COUNT_OFFSET],&count,SCANNED_WIFI_COUNT_SIZE);
+
+    return (int)i_ret_msg[BLE_RET_MSG_RC_OFFSET];
+}
+
+int get_wifi_status() {
+    //TODO: Pass on the request to connect wifi to the processor.
+    return 1;
+}
+int execute_select_a_wifi(char *i_cmd, char *i_ret_msg) {
+    char data_type       = i_cmd[BLE_CMD_MULTI_DATA_TYPE_OFFSET];
+    int  data_len_in_ble = (int)i_cmd[BLE_CMD_MULTI_DATA_LEN_OFFSET];
+    char i_data_value[data_len_in_ble];
+
+    memcpy(i_data_value,&i_cmd[BLE_CMD_MULTI_DATA_VALUE_OFFSET],data_len_in_ble);
+    memcpy(&i_ret_msg[BLE_RET_MSG_DATA_TYPE_OFFSET],&data_type,BLE_COMMAND_DATA_TYPE_SIZE);
+
+    switch (data_type) {
+        case DID_SELECT_A_WIFI_SSID : {
+            memcpy(this_ccu.conf_wifi.ssid,i_data_value,data_len_in_ble);
+            memcpy(&i_ret_msg[BLE_RET_MSG_RC_OFFSET],&SUCCESS,BLE_RETURN_RC_SIZE);
+            this_ccu.conf_wifi.data_status |= FLAG_DATA_SET_SEL_WIFI_SSID;
+            break;
+        }
+        case DID_SELECT_A_WIFI_NETWORK_KEY : {
+            memcpy(this_ccu.conf_wifi.network_key,i_data_value,data_len_in_ble);
+            memcpy(&i_ret_msg[BLE_RET_MSG_RC_OFFSET],&SUCCESS,BLE_RETURN_RC_SIZE);
+            this_ccu.conf_wifi.data_status |= FLAG_DATA_SET_SEL_WIFI_NETWORK_KEY;
+            break;
+        }
+        default: {
+            memcpy(&i_ret_msg[BLE_RET_MSG_RC_OFFSET],&ERROR_UNRECOGNIZED_DATA,BLE_RETURN_RC_SIZE);
+            break;
+        }
+    }
+
+    if (FLAG_DATA_SET_SEL_WIFI_ALL == (FLAG_DATA_SET_SEL_WIFI_ALL & this_ccu.conf_wifi.data_status)) {
+        //TODO: Get the wifi status from the processor
+        this_ccu.conf_wifi.status = get_wifi_status();
+        memcpy(&i_ret_msg[BLE_RET_MSG_RC_OFFSET],&this_ccu.conf_wifi.status,BLE_RETURN_RC_SIZE);
     }
     return (int)i_ret_msg[BLE_RET_MSG_RC_OFFSET];
 }
@@ -387,6 +464,29 @@ int read_ble_message(char *i_msg, char *i_ret_msg) {
                 execute_store_personal_number(ble_command,i_ret_msg);
                 break;
             }
+            case CID_SCAN_WIFIS : {
+                #ifdef BLE_DEBUG
+                printf("Going to call execute_scan_wifis\n");
+                #endif
+                if (this_ccu.paired_mob1.authentication_status != AUTHENTICATED) {
+                    memcpy(&i_ret_msg[BLE_RET_MSG_RC_OFFSET],&ERROR_AUTHENTICATION,BLE_RETURN_RC_SIZE);
+                    return ERROR_AUTHENTICATION;
+                }
+                execute_scan_wifis(i_ret_msg);
+                break;
+            }
+            case CID_SELECT_A_WIFI : {
+                #ifdef BLE_DEBUG
+                printf("Going to call execute_select_a_wifi\n");
+                #endif
+                if (this_ccu.paired_mob1.authentication_status != AUTHENTICATED) {
+                    memcpy(&i_ret_msg[BLE_RET_MSG_RC_OFFSET],&ERROR_AUTHENTICATION,BLE_RETURN_RC_SIZE);
+                    return ERROR_AUTHENTICATION;
+                }
+                memcpy(ble_command,&i_msg[BLE_CMD_OFFSET + BLE_COMMAND_ID_SIZE],BLE_COMMAND_SIZE);
+                execute_select_a_wifi(ble_command,i_ret_msg);
+                break;
+            }
             default : {
                 memcpy(&i_ret_msg[BLE_RET_MSG_RC_OFFSET],&ERROR_UNRECOGNIZED_COMMAND,BLE_RETURN_RC_SIZE);
                 #ifdef BLE_DEBUG
@@ -443,12 +543,28 @@ void print_ccu() {
     print_chars("Configured Personal Default #",this_ccu.conf_personal_nos.mob1_mobile_number,MOB_NO_SIZE);
     print_chars("Configured Personal Second #",this_ccu.conf_personal_nos.second_number,MOB_NO_SIZE);
     print_chars("Configured Personal Third #",this_ccu.conf_personal_nos.third_number,MOB_NO_SIZE);
+    printf("\nInterface Wifi Mode #%d#\n",this_ccu.interface_wifi.mode);
+    printf("Interface Wifi Status #%d#\n",this_ccu.interface_wifi.status);
+    print_chars("Interface WiFi SSID#",this_ccu.interface_wifi.ssid, SSID_SIZE);
+    print_chars("Interface WiFi Network Key#",this_ccu.interface_wifi.network_key, NETWORK_KEY_SIZE);
+    printf("\nConfigured Wifi Mode #%d#\n",this_ccu.conf_wifi.mode);
+    printf("Configured Wifi Status #%d#\n",this_ccu.conf_wifi.status);
+    print_chars("Configured WiFi SSID#",this_ccu.conf_wifi.ssid, SSID_SIZE);
+    print_chars("Configured WiFi Network Key#",this_ccu.conf_wifi.network_key, NETWORK_KEY_SIZE);
+    for (int i = 0; i < MAX_WIFI_SCAN_COUNT; i++) {
+        sprintf(buf,"%d #",i);
+        printf("\nScanned Wifi No. %d Mode #%d#\n",i,this_ccu.scanned_wifis[i].mode);
+        printf("Scanned Wifi No. %d Status #%d#\n",i,this_ccu.scanned_wifis[i].status);
+        print_chars("Scanned WiFi SSID#",this_ccu.scanned_wifis[i].ssid, SSID_SIZE);
+        print_chars("Scanned WiFi Network Key#",this_ccu.scanned_wifis[i].network_key, NETWORK_KEY_SIZE);
+    }
     printf("\n\n******** CCU DATA END ********\n");
 }
 
 int main(int argc, char** argv) {
     char ble_message[BLE_MESSAGE_SIZE];
     char ble_return_message[BLE_RETURN_SIZE];
+    char ble_return_message_with_scanned_wifis[MAX_WIFI_SCAN_COUNT][BLE_RETURN_SIZE];
     this_ccu.paired_mob1.data_status = 0x00;
 
     memset(ble_message,0x00,BLE_MESSAGE_SIZE);
@@ -649,6 +765,8 @@ int main(int argc, char** argv) {
     memset(ble_message,0x00,BLE_MESSAGE_SIZE);
     memset(ble_return_message,0x00,BLE_RETURN_SIZE);
     strcpy(ble_message, RECORD_PERSONAL_VOICE_MSG_TEST);
+    memcpy(&ble_return_message[0],&CCU_TYPE_ID,1);
+    memcpy(&ble_return_message[1],&this_ccu.serial_number[SER_NO_SIZE - CCU_ID_SER_NO_SUFFIX_SIZE],CCU_ID_SER_NO_SUFFIX_SIZE);
     ble_return_message[BLE_RET_MSG_RC_OFFSET] = 0x00;
 
     #ifdef BLE_DEBUG
@@ -665,6 +783,8 @@ int main(int argc, char** argv) {
     memset(ble_message,0x00,BLE_MESSAGE_SIZE);
     memset(ble_return_message,0x00,BLE_RETURN_SIZE);
     strcpy(ble_message, STORE_EMERGENCY_NOS_MSG1_TEST);
+    memcpy(&ble_return_message[0],&CCU_TYPE_ID,1);
+    memcpy(&ble_return_message[1],&this_ccu.serial_number[SER_NO_SIZE - CCU_ID_SER_NO_SUFFIX_SIZE],CCU_ID_SER_NO_SUFFIX_SIZE);
     ble_return_message[BLE_RET_MSG_RC_OFFSET] = 0x00;
 
     #ifdef BLE_DEBUG
@@ -681,6 +801,8 @@ int main(int argc, char** argv) {
     memset(ble_message,0x00,BLE_MESSAGE_SIZE);
     memset(ble_return_message,0x00,BLE_RETURN_SIZE);
     strcpy(ble_message, STORE_EMERGENCY_NOS_MSG2_TEST);
+    memcpy(&ble_return_message[0],&CCU_TYPE_ID,1);
+    memcpy(&ble_return_message[1],&this_ccu.serial_number[SER_NO_SIZE - CCU_ID_SER_NO_SUFFIX_SIZE],CCU_ID_SER_NO_SUFFIX_SIZE);
     ble_return_message[BLE_RET_MSG_RC_OFFSET] = 0x00;
 
     #ifdef BLE_DEBUG
@@ -697,6 +819,8 @@ int main(int argc, char** argv) {
     memset(ble_message,0x00,BLE_MESSAGE_SIZE);
     memset(ble_return_message,0x00,BLE_RETURN_SIZE);
     strcpy(ble_message, STORE_PERSONAL_NOS_MSG1_TEST);
+    memcpy(&ble_return_message[0],&CCU_TYPE_ID,1);
+    memcpy(&ble_return_message[1],&this_ccu.serial_number[SER_NO_SIZE - CCU_ID_SER_NO_SUFFIX_SIZE],CCU_ID_SER_NO_SUFFIX_SIZE);
     ble_return_message[BLE_RET_MSG_RC_OFFSET] = 0x00;
 
     #ifdef BLE_DEBUG
@@ -713,6 +837,8 @@ int main(int argc, char** argv) {
     memset(ble_message,0x00,BLE_MESSAGE_SIZE);
     memset(ble_return_message,0x00,BLE_RETURN_SIZE);
     strcpy(ble_message, STORE_PERSONAL_NOS_MSG2_TEST);
+    memcpy(&ble_return_message[0],&CCU_TYPE_ID,1);
+    memcpy(&ble_return_message[1],&this_ccu.serial_number[SER_NO_SIZE - CCU_ID_SER_NO_SUFFIX_SIZE],CCU_ID_SER_NO_SUFFIX_SIZE);
     ble_return_message[BLE_RET_MSG_RC_OFFSET] = 0x00;
 
     #ifdef BLE_DEBUG
@@ -724,6 +850,76 @@ int main(int argc, char** argv) {
 
     #ifdef BLE_DEBUG
     print_bytes("BLE Return Message after processing STORE PERSONAL NOS MESSAGE 2#",ble_return_message,BLE_RETURN_SIZE);
+    #endif
+
+    memset(ble_message,0x00,BLE_MESSAGE_SIZE);
+    memset(ble_return_message,0x00,BLE_RETURN_SIZE);
+    strcpy(ble_message, SCAN_WIFIS_MSG_TEST);
+    memcpy(&ble_return_message[0],&CCU_TYPE_ID,1);
+    memcpy(&ble_return_message[1],&this_ccu.serial_number[SER_NO_SIZE - CCU_ID_SER_NO_SUFFIX_SIZE],CCU_ID_SER_NO_SUFFIX_SIZE);
+    ble_return_message[BLE_RET_MSG_RC_OFFSET] = 0x00;
+
+    #ifdef BLE_DEBUG
+    print_bytes("BLE Message SCAN WIFIS MESSAGE#",ble_message,BLE_MESSAGE_SIZE);
+    print_bytes("BLE Return Message SCAN WIFIS MESSAGE#",ble_return_message,BLE_RETURN_SIZE);
+    #endif
+
+    read_ble_message(ble_message, ble_return_message);
+
+    #ifdef BLE_DEBUG
+    print_bytes("BLE Return Message after processing SCAN WIFIS MESSAGE#",ble_return_message,BLE_RETURN_SIZE);
+    #endif
+
+    for (int i = 0; i <this_ccu.scanned_wifi_count; i++) {
+        memcpy(&ble_return_message_with_scanned_wifis[i][0],&CCU_TYPE_ID,1);
+        memcpy(&ble_return_message_with_scanned_wifis[i][1],&this_ccu.serial_number[SER_NO_SIZE - CCU_ID_SER_NO_SUFFIX_SIZE],CCU_ID_SER_NO_SUFFIX_SIZE);
+        memcpy(&ble_return_message_with_scanned_wifis[i][BLE_RET_MSG_RC_OFFSET],&ble_return_message[BLE_RET_MSG_RC_OFFSET],BLE_RETURN_RC_SIZE);
+        ble_return_message_with_scanned_wifis[i][BLE_RET_MSG_DATA_TYPE_OFFSET] = BLE_RET_MSG_SCANNED_WIFI_SSID_TYPE;
+        memcpy(&ble_return_message_with_scanned_wifis[i][BLE_RET_MSG_DATA_TYPE_OFFSET+BLE_CMD_SINGLE_DATA_VALUE_OFFSET],&this_ccu.scanned_wifis[i].ssid,SSID_SIZE);
+    }
+    #ifdef BLE_DEBUG
+        printf("BLE Return Message after populating SCAN WIFIS\n");
+    for (int i = 0; i <this_ccu.scanned_wifi_count; i++) {
+        char buf[BLE_RETURN_SIZE];
+        memcpy(&buf,&ble_return_message_with_scanned_wifis[i][0],BLE_RETURN_SIZE);
+        print_chars("SSID No. #",buf,BLE_RETURN_SIZE);
+    }
+    #endif
+
+    memset(ble_message,0x00,BLE_MESSAGE_SIZE);
+    memset(ble_return_message,0x00,BLE_RETURN_SIZE);
+    strcpy(ble_message, SELECT_A_WIFI_MSG1_TEST);
+    memcpy(&ble_return_message[0],&CCU_TYPE_ID,1);
+    memcpy(&ble_return_message[1],&this_ccu.serial_number[SER_NO_SIZE - CCU_ID_SER_NO_SUFFIX_SIZE],CCU_ID_SER_NO_SUFFIX_SIZE);
+    ble_return_message[BLE_RET_MSG_RC_OFFSET] = 0x00;
+
+    #ifdef BLE_DEBUG
+    print_bytes("BLE Message SELECT A WIFI MESSAGE 1#",ble_message,BLE_MESSAGE_SIZE);
+    print_bytes("BLE Return Message SELECT A WIFI MESSAGE 1#",ble_return_message,BLE_RETURN_SIZE);
+    #endif
+
+    read_ble_message(ble_message, ble_return_message);
+
+    #ifdef BLE_DEBUG
+    print_bytes("BLE Return Message after processing SELECT A WIFI MESSAGE 1#",ble_return_message,BLE_RETURN_SIZE);
+    #endif
+
+    memset(ble_message,0x00,BLE_MESSAGE_SIZE);
+    memset(ble_return_message,0x00,BLE_RETURN_SIZE);
+    strcpy(ble_message, SELECT_A_WIFI_MSG2_TEST);
+    memcpy(&ble_return_message[0],&CCU_TYPE_ID,1);
+    memcpy(&ble_return_message[1],&this_ccu.serial_number[SER_NO_SIZE - CCU_ID_SER_NO_SUFFIX_SIZE],CCU_ID_SER_NO_SUFFIX_SIZE);
+    ble_return_message[BLE_RET_MSG_RC_OFFSET] = 0x00;
+
+    #ifdef BLE_DEBUG
+    print_bytes("BLE Message SELECT A WIFI MESSAGE 2#",ble_message,BLE_MESSAGE_SIZE);
+    print_bytes("BLE Return Message SELECT A WIFI MESSAGE 2#",ble_return_message,BLE_RETURN_SIZE);
+    #endif
+
+    read_ble_message(ble_message, ble_return_message);
+
+    #ifdef BLE_DEBUG
+    print_bytes("BLE Return Message after processing SELECT A WIFI MESSAGE 2#",ble_return_message,BLE_RETURN_SIZE);
     #endif
 
     print_ccu();
