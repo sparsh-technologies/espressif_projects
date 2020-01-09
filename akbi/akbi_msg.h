@@ -39,11 +39,14 @@ const short BLE_RET_MSG_DATA_TYPE_OFFSET              = 7;
 const short BLE_RET_MSG_AUTH_TKN_OFFSET               = 7;
 const short BLE_RET_MSG_MY_SSID_OFFSET                = 7;
 const short BLE_RET_MSG_MY_NETWORK_KEY_OFFSET         = 13;
+const short BLE_RET_MSG_SCANNED_SSID_COUNT_OFFSET     = 8;
 
 const char  MOB1_APP_TYPE_ID                          = 0x4D;
 const char  CCU_TYPE_ID                               = 0x47;
 const short CCU_ID_SER_NO_SUFFIX_SIZE                 = 4;
 const short BLE_RET_MSG_CCU_ID_OFFSET                 = 0;
+const char  BLE_RET_MSG_SCANNED_WIFI_COUNT_TYPE       = 0x01;
+const char  BLE_RET_MSG_SCANNED_WIFI_SSID_TYPE        = 0x02;
 
 const short SUCCESS                                   = 0x00;
 const short ERROR_LOGIN_PASSWORD_MISMATCH             = 0x01;
@@ -55,6 +58,7 @@ const short ERROR_AUTHENTICATION                      = 0x24;
 const short ERROR_MOB1_NO_NOT_CONFIGURED              = 0x01;
 const short ERROR_CHANGE_PASSWORD_MISMATCH            = 0x01;
 const short ERROR_MY_AP_START                         = 0x01;
+const short ERROR_MY_WIFI_STN_START                   = 0x05;
 
 #define JSON_REGISTER_CCU_HEAD         "{\"data_type\":\"%s\",\"s_time\":\"%ld\","
 #define JSON_REGISTER_CCU_CCU          "\"ccu\":[{\"sno\":\"%s\",\"make\":\"AKBI\",\"model\":\"Guardian\",\"name\":\"Smart Security\",\"password\":\"%s\",\"fwversion\":\"%s\"}],"
@@ -79,5 +83,8 @@ const short ERROR_MY_AP_START                         = 0x01;
 #define STORE_EMERGENCY_NOS_MSG2_TEST  "\x4D\xCC\x06\x02g555555555"
 #define STORE_PERSONAL_NOS_MSG1_TEST   "\x4D\xCC\x07\x01g777777777"
 #define STORE_PERSONAL_NOS_MSG2_TEST   "\x4D\xCC\x07\x02g666666666"
+#define SCAN_WIFIS_MSG_TEST            "\x4D\xCC\x08"
+#define SELECT_A_WIFI_MSG1_TEST        "\x4D\xCC\x09\x01\x0BSecond WiFi"
+#define SELECT_A_WIFI_MSG2_TEST        "\x4D\xCC\x09\x02\x08guardian"
 
 #endif
