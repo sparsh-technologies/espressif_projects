@@ -60,6 +60,9 @@
 #define CID_SCAN_WIFIS                     0x08
 #define CID_SELECT_A_WIFI                  0x09
 #define CID_ADDRESS_VISITING               0x0A
+#define CID_ENTER_LOCAL_HELP_NUMBERS       0x0B
+#define CID_CCU_ACTIVATE                   0x0C
+#define CID_CONNECT_TO_WIFI                0x0D
 
 #define DID_REGISTER_PASSWORD              0x01
 #define DID_REGISTER_MOB_NO                0x02
@@ -73,6 +76,8 @@
 #define DID_PERSONAL_THIRD_NUMBER          0x02
 #define DID_SELECT_A_WIFI_SSID             0x01
 #define DID_SELECT_A_WIFI_NETWORK_KEY      0x02
+#define DID_LOCAL_HELP_FOURTH_NUMBER       0x01
+#define DID_LOCAL_HELP_FIFTH_NUMBER        0x02
 
 #define FLAG_DATA_SET_CCU_PASSWORD         0x02
 #define FLAG_DATA_SET_CCU_NEW_PASSWORD     0x04
@@ -132,7 +137,7 @@ typedef struct _personal_numbers_ {
 
 typedef enum {STATION = 0, ACCESS_POINT} WIFI_MODE;
 
-typedef enum {NOT_CONNECTED = 0, WIFI_CONNECTED, INET_CONNECTED, SERVER_CONNECTED} WIFI_STATUS;
+typedef enum {NOT_CONNECTED = 3, WIFI_CONNECTED = 2, INET_CONNECTED = 1, SERVER_CONNECTED = 0} WIFI_STATUS;
 
 typedef struct _wifi_ {
 
@@ -165,7 +170,7 @@ typedef struct _site_ {
     LATITUDE_DIRECTION lat_dir;
     GPSCOORDINATE longitude;
     LONGITUDE_DIRECTION long_dir;
-    char location_time[TIMESTAMP_SIZE];
+    unsigned int location_time;
     char address_audio_file_name[FILE_NAME_SIZE];
     char audio_time[TIMESTAMP_SIZE];
     char fourth_phone_number[MOB_NO_SIZE];
@@ -183,8 +188,11 @@ typedef struct _fw_upgrade_log_ {
 
 typedef struct _activation_log_ {
 
-    char date[DATE_SIZE];
     char time[TIMESTAMP_SIZE];
+    GPSCOORDINATE latitude;
+    LATITUDE_DIRECTION lat_dir;
+    GPSCOORDINATE longitude;
+    LONGITUDE_DIRECTION long_dir;
 
 } ACTIVATION_LOG;
 
@@ -221,8 +229,9 @@ typedef struct ccu {
     SITE                     visited_locations[LOCATION_COUNT];
     unsigned char            visited_locations_count;
     CCU_MODE                 mode;
-    FW_UPGRADE_LOG           fw_upgrades[FW_UPGRADE_COUNT];
     ACTIVATION_LOG           activations[ACTIVATIONS_COUNT];
+    unsigned char            activations_count;
+    FW_UPGRADE_LOG           fw_upgrades[FW_UPGRADE_COUNT];
     RESCUE_TERMINATION_LOG   rescue_terminations[ACTIVATIONS_COUNT];
     WIFI_CONNECTIONS_LOG     wifi_connections[WIFI_CONNECTIONS_COUNT];
     unsigned short           data_status;
