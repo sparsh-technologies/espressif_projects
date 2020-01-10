@@ -67,9 +67,9 @@ const short ERROR_MY_WIFI_STN_START                   = 0x05;
 #define JSON_REGISTER_CCU_TAIL         "}"
 
 #define REGISTER_MSG1_TEST             "\x4D\xCC\x01\x01\x08password"
-#define REGISTER_MSG2_TEST             "\x4D\xCC\x01\x02\x0Aq123456789"
-#define REGISTER_MSG3_TEST             "\x4D\xCC\x01\x03\x0Fgbcdefghijklmno"
-#define REGISTER_MSG4_TEST             "\x4D\xCC\x01\x04\x0Fw1234567890123"
+#define REGISTER_MSG2_TEST             "\x4D\xCC\x01\x02\x0A""0123456789"
+#define REGISTER_MSG3_TEST             "\x4D\xCC\x01\x03\x0F""abcdefghijklmno"
+#define REGISTER_MSG4_TEST             "\x4D\xCC\x01\x04\x0F""01234567890123"
 #define SOURCE_APP_ID_TEST             "\xCC"
 #define LOGIN_MSG1_TEST                "\x4D\xCC\x02\x08password"
 #define LOGIN_MSG2_TEST                "\x4D\xCC\x02\x08passw0rd"
@@ -86,5 +86,6 @@ const short ERROR_MY_WIFI_STN_START                   = 0x05;
 #define SCAN_WIFIS_MSG_TEST            "\x4D\xCC\x08"
 #define SELECT_A_WIFI_MSG1_TEST        "\x4D\xCC\x09\x01\x0BSecond WiFi"
 #define SELECT_A_WIFI_MSG2_TEST        "\x4D\xCC\x09\x02\x08guardian"
+#define ADDRESS_VISITING_MSG_TEST      "\x4D\xCC\x0A""0400656N0892338W"
 
 #endif
