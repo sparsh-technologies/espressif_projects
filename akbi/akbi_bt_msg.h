@@ -145,6 +145,7 @@ typedef struct _wifi_ {
 
     char ssid[SSID_SIZE];
     char network_key[NETWORK_KEY_SIZE];
+    WIFI_MODE   mode;
     WIFI_STATUS status;
     /*
      * bitmap to indicate whether both ssid and network key are configured
@@ -214,7 +215,6 @@ typedef struct _wifi_connections_log_ {
 
 typedef enum {OFFLINE = 0, MONITOR, RESCUE, RESCUE_TERMINATION} CCU_MODE;
 
-
 typedef struct ccu {
 
     unsigned char            serial_number[SER_NO_SIZE];
@@ -237,7 +237,6 @@ typedef struct ccu {
     RESCUE_TERMINATION_LOG   rescue_terminations[ACTIVATIONS_COUNT];
     WIFI_CONNECTIONS_LOG     wifi_connections[WIFI_CONNECTIONS_COUNT];
     unsigned short           data_status;
-    WIFI                     interface_wifi;
 
 } CCU;
 
