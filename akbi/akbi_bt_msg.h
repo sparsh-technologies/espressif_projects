@@ -93,14 +93,16 @@
 #define FLAG_DATA_SET_SEL_WIFI_NETWORK_KEY 0x02
 #define FLAG_DATA_SET_SEL_WIFI_ALL         0x03
 
+//const char  SER_NO_TEST[SER_NO_SIZE]          = {0x41,0x42,0x43,0x44,0x45,0x46,0x47,0x48};
+
 typedef enum {UNAUTHENTICATED = 0, AUTHENTICATED} AUTH_STATUS;
 
 typedef struct _mob1_ {
 
-    unsigned char id[BLE_APP_ID_SIZE];
-    unsigned char mobile_number[MOB_NO_SIZE];
-    unsigned char mobile_name[MOB_NAME_SIZE];
-    unsigned char android_id_or_uuid[ANDROID_ID_OR_UUID_SIZE];
+    char id[BLE_APP_ID_SIZE];
+    char mobile_number[MOB_NO_SIZE];
+    char mobile_name[MOB_NAME_SIZE];
+    char android_id_or_uuid[ANDROID_ID_OR_UUID_SIZE];
     AUTH_STATUS   authentication_status;
 
     /*
@@ -143,7 +145,6 @@ typedef struct _wifi_ {
 
     char ssid[SSID_SIZE];
     char network_key[NETWORK_KEY_SIZE];
-    WIFI_MODE   mode;
     WIFI_STATUS status;
     /*
      * bitmap to indicate whether both ssid and network key are configured
@@ -213,6 +214,7 @@ typedef struct _wifi_connections_log_ {
 
 typedef enum {OFFLINE = 0, MONITOR, RESCUE, RESCUE_TERMINATION} CCU_MODE;
 
+
 typedef struct ccu {
 
     unsigned char            serial_number[SER_NO_SIZE];
@@ -235,6 +237,7 @@ typedef struct ccu {
     RESCUE_TERMINATION_LOG   rescue_terminations[ACTIVATIONS_COUNT];
     WIFI_CONNECTIONS_LOG     wifi_connections[WIFI_CONNECTIONS_COUNT];
     unsigned short           data_status;
+    WIFI                     interface_wifi;
 
 } CCU;
 

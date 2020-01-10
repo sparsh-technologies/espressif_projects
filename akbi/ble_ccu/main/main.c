@@ -41,27 +41,28 @@
 #include "esp_bt_defs.h"
 #include "esp_gatt_common_api.h"
 
-#include "../../ble_apis.h"//---------------need change-----
+#include "../../ble_apis.h"
 
 #define BT_BLE_COEX_TAG             "BT_BLE_COEX"
-#define BT_DEVICE_NAME              "ESP_COEX_A2DP_DEMO"
+//#define BT_DEVICE_NAME              "ESP_COEX_A2DP_DEMO"
 #define BLE_ADV_NAME                "ESP_COEX_BLE_DEMO"
+#define BLE_LOCAL_NAME              "lcln"
 
 #define GATTS_SERVICE_UUID_A        0x00FF
 #define GATTS_CHAR_UUID_A           0xFF01
 #define GATTS_DESCR_UUID_A          0x3333
 #define GATTS_NUM_HANDLE_A          4
 
-#define GATTS_SERVICE_UUID_B        0x00EE
-#define GATTS_CHAR_UUID_B           0xEE01
-#define GATTS_DESCR_UUID_B          0x2222
-#define GATTS_NUM_HANDLE_B          4
+// #define GATTS_SERVICE_UUID_B        0x00EE
+// #define GATTS_CHAR_UUID_B           0xEE01
+// #define GATTS_DESCR_UUID_B          0x2222
+// #define GATTS_NUM_HANDLE_B          4
 
 #define GATTS_DEMO_CHAR_VAL_LEN_MAX 0x40
 #define PREPARE_BUF_MAX_SIZE        1024
-#define PROFILE_NUM                 2
+#define PROFILE_NUM                 1
 #define PROFILE_A_APP_ID            0
-#define PROFILE_B_APP_ID            1
+//#define PROFILE_B_APP_ID            1
 #define RETURN_MSG_LENGTH           8
 
 extern uint8_t return_data[15];
@@ -91,9 +92,6 @@ enum {
 static uint8_t ble_char_value_str[] = {0x11, 0x22, 0x33};
 esp_gatt_char_prop_t a_property = 0;
 esp_gatt_char_prop_t b_property = 0;
-
-static int increment_add_value = 0 ;
-
 
 esp_attr_value_t gatts_initial_char_val = {
     .attr_max_len = GATTS_DEMO_CHAR_VAL_LEN_MAX,
@@ -139,8 +137,10 @@ static struct gatts_profile_inst gl_profile_tab[PROFILE_NUM] = {
 };
 static void ble_init_adv_data(const char *name)
 {
+    const char *local_name = BLE_LOCAL_NAME;
+    int local_name_len = strlen(BLE_LOCAL_NAME);
     int len = strlen(name);
-    uint8_t raw_adv_data[len+5];
+    uint8_t raw_adv_data[len+5+local_name_len+2+3];
     //flag
     raw_adv_data[0] = 2;
     raw_adv_data[1] = ESP_BT_EIR_TYPE_FLAGS;
@@ -152,6 +152,19 @@ static void ble_init_adv_data(const char *name)
     {
         raw_adv_data[i+5] = *(name++);
     }
+    //shortened local name
+    raw_adv_data[len+5] = local_name_len + 1;
+    raw_adv_data[len+6] = 0x09;//shortened local name flag
+
+    for (int i = 0;i < local_name_len;i++)
+    {
+        raw_adv_data[i+5+len+2] = *(local_name++);
+    }
+    //manufacturer specific data
+    raw_adv_data[local_name_len+5+len+2]   = 2;
+    raw_adv_data[local_name_len+5+len+2+1] = 0x47;
+    raw_adv_data[local_name_len+5+len+2+2] = 75;
+
     //The length of adv data must be less than 31 bytes
     esp_err_t raw_adv_ret = esp_ble_gap_config_adv_data_raw(raw_adv_data, sizeof(raw_adv_data));
     if (raw_adv_ret){
@@ -167,10 +180,10 @@ static void gap_event_handler(esp_gap_ble_cb_event_t event, esp_ble_gap_cb_param
 {
     switch (event) {
     case ESP_GAP_BLE_ADV_DATA_RAW_SET_COMPLETE_EVT:
-        //esp_ble_gap_start_advertising(&adv_params);
+        esp_ble_gap_start_advertising(&adv_params);
         break;
     case ESP_GAP_BLE_SCAN_RSP_DATA_RAW_SET_COMPLETE_EVT:
-        esp_ble_gap_start_advertising(&adv_params);
+        //esp_ble_gap_start_advertising(&adv_params);
         break;
     case ESP_GAP_BLE_ADV_START_COMPLETE_EVT:
         //advertising start complete event to indicate advertising start successfully or failed
@@ -263,13 +276,13 @@ void example_exec_write_event_env(prepare_type_env_t *prepare_write_env, esp_ble
     prepare_write_env->prepare_len = 0;
 }
 
-void test_function(esp_ble_gatts_cb_param_t *param)
-{
-    esp_log_buffer_hex(BT_BLE_COEX_TAG, param->write.value, param->write.len);
-    ESP_LOGI(BT_BLE_COEX_TAG, "Source app type id 0x%x%x\n",param->write.value[0], param->write.value[1]);
-    ESP_LOGI(BT_BLE_COEX_TAG, "Source app authentication id : 0x%x%x%x%x",param->write.value[2],param->write.value[3],param->write.value[4],param->write.value[5]);
-
-}
+// void test_function(esp_ble_gatts_cb_param_t *param)
+// {
+//     esp_log_buffer_hex(BT_BLE_COEX_TAG, param->write.value, param->write.len);
+//     ESP_LOGI(BT_BLE_COEX_TAG, "Source app type id 0x%x%x\n",param->write.value[0], param->write.value[1]);
+//     ESP_LOGI(BT_BLE_COEX_TAG, "Source app authentication id : 0x%x%x%x%x",param->write.value[2],param->write.value[3],param->write.value[4],param->write.value[5]);
+//
+// }
 
 
 static void gatts_profile_a_event_handler(esp_gatts_cb_event_t event, esp_gatt_if_t gatts_if, esp_ble_gatts_cb_param_t *param) {
@@ -281,6 +294,7 @@ static void gatts_profile_a_event_handler(esp_gatts_cb_event_t event, esp_gatt_i
         gl_profile_tab[PROFILE_A_APP_ID].service_id.id.inst_id = 0x00;
         gl_profile_tab[PROFILE_A_APP_ID].service_id.id.uuid.len = ESP_UUID_LEN_16;
         gl_profile_tab[PROFILE_A_APP_ID].service_id.id.uuid.uuid.uuid16 = GATTS_SERVICE_UUID_A;
+        //TODO: get serial number from processor and append with BLE_ADV_NAME
         //init BLE adv data and scan response data
         ble_init_adv_data(BLE_ADV_NAME);
         esp_ble_gatts_create_service(gatts_if, &gl_profile_tab[PROFILE_A_APP_ID].service_id, GATTS_NUM_HANDLE_A);
@@ -292,6 +306,7 @@ static void gatts_profile_a_event_handler(esp_gatts_cb_event_t event, esp_gatt_i
         memset(&rsp, 0, sizeof(esp_gatt_rsp_t));
         rsp.attr_value.handle = param->read.handle;
         rsp.attr_value.len = RETURN_MSG_LENGTH;
+
 
         for(int i = 0 ;i < RETURN_MSG_LENGTH; i++){
             rsp.attr_value.value[i] = ep_return_message[i];
@@ -305,7 +320,6 @@ static void gatts_profile_a_event_handler(esp_gatts_cb_event_t event, esp_gatt_i
         esp_ble_gatts_send_response(gatts_if, param->read.conn_id, param->read.trans_id,
                                     ESP_GATT_OK, &rsp);
 
-        increment_add_value++;
         break;
     }
     case ESP_GATTS_WRITE_EVT: {
@@ -315,27 +329,16 @@ static void gatts_profile_a_event_handler(esp_gatts_cb_event_t event, esp_gatt_i
             esp_log_buffer_char(BT_BLE_COEX_TAG, param->write.value, param->write.len);
             esp_log_buffer_hex(BT_BLE_COEX_TAG, param->write.value, param->write.len);
 
+            char received_value_buffer[30];
 
-            //test_function(param);
-            uint8_t montr0 = 1;
-            uint8_t montr1 = 0;
-            printf("%d %d %d %d\n",montr0, montr1, param->write.value[0], param->write.value[1] );
-            printf("montr  %02x  value %02x\n",montr0,param->write.value[0]);
-
-            if(param->write.value[0]==montr0 && param->write.value[1] == montr1){
-              printf("Inside if \n" );
-              // break;
-            }
-
-            char value_buff[30];
-
-            //copying received string to value_buff
-            memcpy(value_buff,"\0",param->write.len+1);
-            memcpy(value_buff,param->write.value,param->write.len);
-            //printf("value buff %s\n",value_buff );
+            //copying received string to received_value_buffer
+            memcpy(received_value_buffer,"\0",param->write.len+1);
+            memcpy(received_value_buffer,param->write.value,param->write.len);
+            //printf("value buff %s\n",received_value_buffer );
 
             //getting return message
-            read_ble_message(value_buff, ep_return_message);
+            read_ble_message(received_value_buffer, ep_return_message);
+            //memcpy(return_msg_array[param->write.value[3]],ep_return_message,RETURN_MSG_LENGTH);
 
 
             printf("BLE Return Message after processing 0x");
@@ -345,46 +348,46 @@ static void gatts_profile_a_event_handler(esp_gatts_cb_event_t event, esp_gatt_i
             printf("\n");
 
 
-            if (gl_profile_tab[PROFILE_A_APP_ID].descr_handle == param->write.handle && param->write.len == 2){
-                uint16_t descr_value = param->write.value[1]<<8 | param->write.value[0];
-                if (descr_value == 0x0001){
-                    if (a_property & ESP_GATT_CHAR_PROP_BIT_NOTIFY){
-                        ESP_LOGI(BT_BLE_COEX_TAG, "notify enable");
-                        uint8_t notify_data[5];
-                        for (int i = 65; i < sizeof(notify_data)+65; ++i)
-                        {
-                            notify_data[i-65] = i%0xff;
-                        }
-                        notify_data[0] = param->write.value[0];
-                        notify_data[1] = param->write.value[1];
-                        esp_log_buffer_char(BT_BLE_COEX_TAG, notify_data, 15);
-                        esp_log_buffer_hex(BT_BLE_COEX_TAG, notify_data, 15);
-
-                        //the size of notify_data[] need less than MTU size
-                        esp_ble_gatts_send_indicate(gatts_if, param->write.conn_id, gl_profile_tab[PROFILE_A_APP_ID].char_handle,
-                                                sizeof(notify_data), notify_data, false);
-                    }
-                }else if (descr_value == 0x0002){
-                    if (a_property & ESP_GATT_CHAR_PROP_BIT_INDICATE){
-                        ESP_LOGI(BT_BLE_COEX_TAG, "indicate enable");
-                        uint8_t indicate_data[15];
-                        for (int i = 0; i < sizeof(indicate_data); ++i)
-                        {
-                            indicate_data[i] = i%0xff;
-                        }
-                        //the size of indicate_data[] need less than MTU size
-                        esp_ble_gatts_send_indicate(gatts_if, param->write.conn_id, gl_profile_tab[PROFILE_A_APP_ID].char_handle,
-                                                sizeof(indicate_data), indicate_data, true);
-                    }
-                }
-                else if (descr_value == 0x0000){
-                    ESP_LOGI(BT_BLE_COEX_TAG, "notify/indicate disable ");
-                }else{
-                    ESP_LOGE(BT_BLE_COEX_TAG, "unknown descr value");
-                    esp_log_buffer_hex(BT_BLE_COEX_TAG, param->write.value, param->write.len);
-                }
-
-            }
+            // if (gl_profile_tab[PROFILE_A_APP_ID].descr_handle == param->write.handle && param->write.len == 2){
+            //     uint16_t descr_value = param->write.value[1]<<8 | param->write.value[0];
+            //     if (descr_value == 0x0001){
+            //         if (a_property & ESP_GATT_CHAR_PROP_BIT_NOTIFY){
+            //             ESP_LOGI(BT_BLE_COEX_TAG, "notify enable");
+            //             uint8_t notify_data[5];
+            //             for (int i = 65; i < sizeof(notify_data)+65; ++i)
+            //             {
+            //                 notify_data[i-65] = i%0xff;
+            //             }
+            //             notify_data[0] = param->write.value[0];
+            //             notify_data[1] = param->write.value[1];
+            //             esp_log_buffer_char(BT_BLE_COEX_TAG, notify_data, 15);
+            //             esp_log_buffer_hex(BT_BLE_COEX_TAG, notify_data, 15);
+            //
+            //             //the size of notify_data[] need less than MTU size
+            //             esp_ble_gatts_send_indicate(gatts_if, param->write.conn_id, gl_profile_tab[PROFILE_A_APP_ID].char_handle,
+            //                                     sizeof(notify_data), notify_data, false);
+            //         }
+            //     }else if (descr_value == 0x0002){
+            //         if (a_property & ESP_GATT_CHAR_PROP_BIT_INDICATE){
+            //             ESP_LOGI(BT_BLE_COEX_TAG, "indicate enable");
+            //             uint8_t indicate_data[15];
+            //             for (int i = 0; i < sizeof(indicate_data); ++i)
+            //             {
+            //                 indicate_data[i] = i%0xff;
+            //             }
+            //             //the size of indicate_data[] need less than MTU size
+            //             esp_ble_gatts_send_indicate(gatts_if, param->write.conn_id, gl_profile_tab[PROFILE_A_APP_ID].char_handle,
+            //                                     sizeof(indicate_data), indicate_data, true);
+            //         }
+            //     }
+            //     else if (descr_value == 0x0000){
+            //         ESP_LOGI(BT_BLE_COEX_TAG, "notify/indicate disable ");
+            //     }else{
+            //         ESP_LOGE(BT_BLE_COEX_TAG, "unknown descr value");
+            //         esp_log_buffer_hex(BT_BLE_COEX_TAG, param->write.value, param->write.len);
+            //     }
+            //
+            // }
         }
 
         // example_write_event_env(gatts_if, &a_prepare_write_env, param);
@@ -407,7 +410,7 @@ static void gatts_profile_a_event_handler(esp_gatts_cb_event_t event, esp_gatt_i
         gl_profile_tab[PROFILE_A_APP_ID].char_uuid.uuid.uuid16 = GATTS_CHAR_UUID_A;
 
         esp_ble_gatts_start_service(gl_profile_tab[PROFILE_A_APP_ID].service_handle);
-        a_property = ESP_GATT_CHAR_PROP_BIT_READ | ESP_GATT_CHAR_PROP_BIT_WRITE | ESP_GATT_CHAR_PROP_BIT_NOTIFY;
+        a_property = ESP_GATT_CHAR_PROP_BIT_READ | ESP_GATT_CHAR_PROP_BIT_WRITE ;
         esp_err_t add_char_ret = esp_ble_gatts_add_char(gl_profile_tab[PROFILE_A_APP_ID].service_handle, &gl_profile_tab[PROFILE_A_APP_ID].char_uuid,
                                                         ESP_GATT_PERM_READ | ESP_GATT_PERM_WRITE,
                                                         a_property,
@@ -423,7 +426,7 @@ static void gatts_profile_a_event_handler(esp_gatts_cb_event_t event, esp_gatt_i
                 param->add_char.status, param->add_char.attr_handle, param->add_char.service_handle);
         gl_profile_tab[PROFILE_A_APP_ID].char_handle = param->add_char.attr_handle;
         gl_profile_tab[PROFILE_A_APP_ID].descr_uuid.len = ESP_UUID_LEN_16;
-        gl_profile_tab[PROFILE_A_APP_ID].descr_uuid.uuid.uuid16 = ESP_GATT_UUID_CHAR_CLIENT_CONFIG;
+        gl_profile_tab[PROFILE_A_APP_ID].descr_uuid.uuid.uuid16 = GATTS_DESCR_UUID_A;//ESP_GATT_UUID_CHAR_CLIENT_CONFIG;
         esp_err_t add_descr_ret = esp_ble_gatts_add_char_descr(gl_profile_tab[PROFILE_A_APP_ID].service_handle, &gl_profile_tab[PROFILE_A_APP_ID].descr_uuid,
                                                                 ESP_GATT_PERM_READ | ESP_GATT_PERM_WRITE, NULL, NULL);
         if (add_descr_ret){
@@ -577,7 +580,7 @@ void app_main(void)
         return;
     }
 
-    if ((err = esp_bt_controller_enable(ESP_BT_MODE_BTDM)) != ESP_OK) {
+    if ((err = esp_bt_controller_enable(ESP_BT_MODE_BLE)) != ESP_OK) {
         ESP_LOGE(BT_BLE_COEX_TAG, "%s enable controller failed: %s\n", __func__, esp_err_to_name(err));
         return;
     }

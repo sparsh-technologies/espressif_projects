@@ -21,8 +21,8 @@
 CCU this_ccu;
 
 const char  SER_NO_TEST[SER_NO_SIZE]                 = {0x41,0x42,0x43,0x44,0x45,0x46,0x47,0x48};
-const char  MY_SSID_TEST[MY_SSID_SIZE]               = {0x41,0x42,0x43,0x44,0x45,0x46};
-const char  MY_NETWORK_KEY_TEST[MY_NETWORK_KEY_SIZE] = {0x41,0x42,0x43,0x44,0x45,0x46};
+const char  MY_SSID_TEST[SSID_SIZE]               = {0x41,0x42,0x43,0x44,0x45,0x46};
+const char  MY_NETWORK_KEY_TEST[NETWORK_KEY_SIZE] = {0x41,0x42,0x43,0x44,0x45,0x46};
 
 /*
  * Register command execution
@@ -32,40 +32,40 @@ const char  MY_NETWORK_KEY_TEST[MY_NETWORK_KEY_SIZE] = {0x41,0x42,0x43,0x44,0x45
 int execute_register(char *i_cmd, char *i_ret_msg) {
     char data_type                          = i_cmd[BLE_CMD_MULTI_DATA_TYPE_OFFSET];
     int  data_len_in_ble                    = (int)i_cmd[BLE_CMD_MULTI_DATA_LEN_OFFSET];
-    memcpy(&i_ret_msg[BLE_RET_MSG_DATA_TYPE_OFFSET],&data_type,BLE_COMMAND_DATA_TYPE_SIZE);
+    i_ret_msg[BLE_RET_MSG_DATA_TYPE_OFFSET] = data_type;
 
     switch (data_type) {
         case DID_REGISTER_PASSWORD : {
             printf("Password length is #%d#\n",data_len_in_ble);
             memcpy(this_ccu.password,&i_cmd[BLE_CMD_MULTI_DATA_VALUE_OFFSET],data_len_in_ble);
-            memcpy(&i_ret_msg[BLE_RET_MSG_RC_OFFSET],&SUCCESS,BLE_RETURN_RC_SIZE);
+            i_ret_msg[BLE_RET_MSG_RC_OFFSET] = SUCCESS;
             this_ccu.data_status = this_ccu.data_status | FLAG_DATA_SET_CCU_PASSWORD;
             //TODO-Store password in EEPROM and populate error code
             break;
         }
         case DID_REGISTER_MOB_NO : {
             memcpy(this_ccu.paired_mob1.mobile_number,&i_cmd[BLE_CMD_MULTI_DATA_VALUE_OFFSET],data_len_in_ble);
-            memcpy(&i_ret_msg[BLE_RET_MSG_RC_OFFSET],&SUCCESS,BLE_RETURN_RC_SIZE);
+            i_ret_msg[BLE_RET_MSG_RC_OFFSET] = SUCCESS;
             this_ccu.paired_mob1.data_status = this_ccu.paired_mob1.data_status | FLAG_DATA_SET_MOB1_NUM;
             //TODO-Store mobile number in EEPROM and populate error code
             break;
         }
         case DID_REGISTER_MOB_NAME : {
             memcpy(this_ccu.paired_mob1.mobile_name,&i_cmd[BLE_CMD_MULTI_DATA_VALUE_OFFSET],data_len_in_ble);
-            memcpy(&i_ret_msg[BLE_RET_MSG_RC_OFFSET],&SUCCESS,BLE_RETURN_RC_SIZE);
+            i_ret_msg[BLE_RET_MSG_RC_OFFSET] = SUCCESS;
             this_ccu.paired_mob1.data_status = this_ccu.paired_mob1.data_status | FLAG_DATA_SET_MOB1_NAME;
             //TODO-Store mobile name in EEPROM and populate error code
             break;
         }
         case DID_REGISTER_ANDROID_ID_OR_UUID : {
             memcpy(this_ccu.paired_mob1.android_id_or_uuid,&i_cmd[BLE_CMD_MULTI_DATA_VALUE_OFFSET],data_len_in_ble);
-            memcpy(&i_ret_msg[BLE_RET_MSG_RC_OFFSET],&SUCCESS,BLE_RETURN_RC_SIZE);
+            i_ret_msg[BLE_RET_MSG_RC_OFFSET] = SUCCESS;
             this_ccu.paired_mob1.data_status = this_ccu.paired_mob1.data_status | FLAG_DATA_SET_ANDROID_ID_OR_UUID;
             //TODO-Store Android ID or UUID in EEPROM and populate error code
             break;
         }
         default : {
-            memcpy(&i_ret_msg[BLE_RET_MSG_RC_OFFSET],&ERROR_UNRECOGNIZED_DATA,BLE_RETURN_RC_SIZE);
+            i_ret_msg[BLE_RET_MSG_RC_OFFSET] = ERROR_UNRECOGNIZED_DATA;
             break;
         }
     }
@@ -94,19 +94,20 @@ int execute_login(char *i_cmd, char *i_ret_msg) {
     char i_pwd[data_len_in_ble];
 
     memcpy(i_pwd,&i_cmd[BLE_CMD_SINGLE_DATA_VALUE_OFFSET],data_len_in_ble);
+    printf("data %s\n",i_pwd);
     #ifdef BLE_DEBUG
     printf("In execute login #%s#%s#%d#\n",i_pwd, this_ccu.password,data_len_in_ble);
     #endif
     //memcmp is used as the strings are not exactly strings ending in \0.
     if (0 == memcmp(i_pwd,this_ccu.password,data_len_in_ble)) {
         this_ccu.paired_mob1.authentication_status = AUTHENTICATED;
-        memcpy(&i_ret_msg[BLE_RET_MSG_RC_OFFSET],&SUCCESS,BLE_RETURN_RC_SIZE);
+        i_ret_msg[BLE_RET_MSG_RC_OFFSET] = SUCCESS;
         //TODO: Auth Token to be stored in EEPROM
     }
     else {
         this_ccu.paired_mob1.authentication_status = UNAUTHENTICATED;
         printf("Password MISMATCH\n");
-        memcpy(&i_ret_msg[BLE_RET_MSG_RC_OFFSET],&ERROR_LOGIN_PASSWORD_MISMATCH,BLE_RETURN_RC_SIZE);
+        i_ret_msg[BLE_RET_MSG_RC_OFFSET] = ERROR_LOGIN_PASSWORD_MISMATCH;
     }
     return 0;
 }
@@ -134,7 +135,7 @@ int execute_forgot_password(char *i_ret_msg) {
     if (0 == generate_password(pass)) {
         memcpy(this_ccu.password,pass,DEFAULT_PASSWORD_SIZE);
         if ((this_ccu.paired_mob1.data_status & FLAG_DATA_SET_MOB1_NUM) == 0x00) {
-            memcpy(&i_ret_msg[BLE_RET_MSG_RC_OFFSET],&ERROR_MOB1_NO_NOT_CONFIGURED,BLE_RETURN_RC_SIZE);
+            i_ret_msg[BLE_RET_MSG_RC_OFFSET] = ERROR_MOB1_NO_NOT_CONFIGURED;
             return ERROR_MOB1_NO_NOT_CONFIGURED;
         }
         /*
@@ -157,16 +158,16 @@ int execute_change_password(char *i_cmd, char *i_ret_msg) {
     char i_pwd[data_len_in_ble];
 
     memcpy(i_pwd,&i_cmd[BLE_CMD_MULTI_DATA_VALUE_OFFSET],data_len_in_ble);
-    memcpy(&i_ret_msg[BLE_RET_MSG_DATA_TYPE_OFFSET],&data_type,BLE_COMMAND_DATA_TYPE_SIZE);
+    i_ret_msg[BLE_RET_MSG_DATA_TYPE_OFFSET] = data_type;
 
     switch (data_type) {
         case DID_CHANGE_PASSWORD_CURRENT: {
             if (0 == memcmp(this_ccu.password, &i_cmd[BLE_CMD_MULTI_DATA_VALUE_OFFSET],data_len_in_ble)) {
                 this_ccu.data_status = this_ccu.data_status | FLAG_DATA_SET_CCU_PWD_MATCH;
-                memcpy(&i_ret_msg[BLE_RET_MSG_RC_OFFSET],&SUCCESS,BLE_RETURN_RC_SIZE);
+                i_ret_msg[BLE_RET_MSG_RC_OFFSET] = SUCCESS;
             }
             else {
-                memcpy(&i_ret_msg[BLE_RET_MSG_RC_OFFSET],&ERROR_CHANGE_PASSWORD_MISMATCH,BLE_RETURN_RC_SIZE);
+                i_ret_msg[BLE_RET_MSG_RC_OFFSET] = ERROR_CHANGE_PASSWORD_MISMATCH;
                 return ERROR_CHANGE_PASSWORD_MISMATCH;
             }
             break;
@@ -174,11 +175,11 @@ int execute_change_password(char *i_cmd, char *i_ret_msg) {
         case DID_CHANGE_PASSWORD_NEW: {
             memcpy(this_ccu.new_password_to_be_set,&i_cmd[BLE_CMD_MULTI_DATA_VALUE_OFFSET],data_len_in_ble);
             this_ccu.data_status = this_ccu.data_status | FLAG_DATA_SET_CCU_NEW_PASSWORD;
-            memcpy(&i_ret_msg[BLE_RET_MSG_RC_OFFSET],&SUCCESS,BLE_RETURN_RC_SIZE);
+            i_ret_msg[BLE_RET_MSG_RC_OFFSET] = SUCCESS;
             break;
         }
         default: {
-            memcpy(&i_ret_msg[BLE_RET_MSG_RC_OFFSET],&ERROR_UNRECOGNIZED_DATA,BLE_RETURN_RC_SIZE);
+            i_ret_msg[BLE_RET_MSG_RC_OFFSET] = ERROR_UNRECOGNIZED_DATA;
             break;
         }
     }
@@ -187,7 +188,7 @@ int execute_change_password(char *i_cmd, char *i_ret_msg) {
      */
     if ((this_ccu.data_status & (FLAG_DATA_SET_CCU_PWD_MATCH | FLAG_DATA_SET_CCU_NEW_PASSWORD)) == (FLAG_DATA_SET_CCU_PWD_MATCH | FLAG_DATA_SET_CCU_NEW_PASSWORD)) {
         memcpy(this_ccu.password,this_ccu.new_password_to_be_set, PASS_SIZE);
-        memcpy(&i_ret_msg[BLE_RET_MSG_RC_OFFSET],&SUCCESS,BLE_RETURN_RC_SIZE);
+        i_ret_msg[BLE_RET_MSG_RC_OFFSET] = SUCCESS;
         //Once copied, reset the flags.
         this_ccu.data_status = this_ccu.data_status & (~(FLAG_DATA_SET_CCU_PWD_MATCH | FLAG_DATA_SET_CCU_NEW_PASSWORD));
     }
@@ -196,9 +197,14 @@ int execute_change_password(char *i_cmd, char *i_ret_msg) {
 
 int enable_ccu_access_point() {
     //TODO: send the AP start request to the processor over serial interface
+<<<<<<< HEAD
+    memcpy(this_ccu.interface_wifi.ssid,&MY_SSID_TEST,SSID_SIZE);
+    memcpy(this_ccu.interface_wifi.network_key,&MY_NETWORK_KEY_TEST,NETWORK_KEY_SIZE);
+=======
     this_ccu.interface_wifi.mode = ACCESS_POINT;
     memcpy(this_ccu.interface_wifi.ssid,&MY_SSID_TEST,MY_SSID_SIZE);
     memcpy(this_ccu.interface_wifi.network_key,&MY_NETWORK_KEY_TEST,MY_NETWORK_KEY_SIZE);
+>>>>>>> 383da72629bd923bef72537bee9a7287d30c7fcf
     return 0;
 }
 
@@ -216,8 +222,8 @@ int execute_record_personal_voice_msg(char *i_ret_msg) {
         }
     }
     memcpy(&i_ret_msg[BLE_RET_MSG_RC_OFFSET],&SUCCESS,BLE_RETURN_RC_SIZE);
-    memcpy(&i_ret_msg[BLE_RET_MSG_MY_SSID_OFFSET],this_ccu.interface_wifi.ssid,MY_SSID_SIZE);
-    memcpy(&i_ret_msg[BLE_RET_MSG_MY_NETWORK_KEY_OFFSET],this_ccu.interface_wifi.network_key,MY_NETWORK_KEY_SIZE);
+    memcpy(&i_ret_msg[BLE_RET_MSG_MY_SSID_OFFSET],this_ccu.interface_wifi.ssid,SSID_SIZE);
+  //  memcpy(&i_ret_msg[BLE_RET_MSG_MY_NETWORK_KEY_OFFSET],this_ccu.interface_wifi.network_key,NETWORK_KEY_SIZE);
 
     return (int)i_ret_msg[BLE_RET_MSG_RC_OFFSET];
 }
@@ -230,7 +236,7 @@ int execute_store_emergency_number(char *i_cmd, char *i_ret_msg) {
     memcpy(i_emergency_number,&i_cmd[BLE_CMD_MULTI_DATA_VALUE_FIXED_LEN_OFFSET],data_len_in_ble);
     memcpy(&i_ret_msg[BLE_RET_MSG_DATA_TYPE_OFFSET],&data_type,BLE_COMMAND_DATA_TYPE_SIZE);
 
-    memcpy(this_ccu.conf_emergency_nos.default_emergency_number,DEFAULT_EMERGENCY_NUMBER,DEFAULT_EMERGENCY_NUMBER_SIZE);
+    memcpy(&this_ccu.conf_emergency_nos.default_emergency_number,DEFAULT_EMERGENCY_NUMBER,DEFAULT_EMERGENCY_NUMBER_SIZE);
 
     switch (data_type) {
         case DID_EMERGENCY_FIRST_RESPONDER : {
@@ -547,21 +553,25 @@ int execute_connect_to_wifi(char *i_cmd, char *i_ret_msg) {
 int read_ble_message(char *i_msg, char *i_ret_msg) {
     int  is_valid_ble_msg;
     char source_app_type_identifier;
-    char source_app_identifier[BLE_APP_ID_SIZE];
+    char source_app_identifier;
     char ble_cmd_id;
     char ble_command[BLE_COMMAND_SIZE];
 
-    memcpy(&source_app_type_identifier,&i_msg[BLE_APP_TYPE_OFFSET],BLE_APP_TYPE_ID_SIZE);
-    memcpy(source_app_identifier,&i_msg[BLE_APP_OFFSET],BLE_APP_ID_SIZE);
+    source_app_type_identifier = i_msg[BLE_APP_TYPE_OFFSET];
+    source_app_identifier = i_msg[BLE_APP_OFFSET];
 
     if (source_app_type_identifier == MOB1_APP_TYPE_ID) {
         is_valid_ble_msg = 1;
     } else {
         is_valid_ble_msg = 0;
-        memcpy(&i_ret_msg[BLE_RET_MSG_RC_OFFSET],&ERROR_SOURCE_APP_TYPE_MISMATCH,BLE_RETURN_RC_SIZE);
+        i_ret_msg[BLE_RET_MSG_RC_OFFSET] = ERROR_SOURCE_APP_TYPE_MISMATCH;
         return (ERROR_SOURCE_APP_TYPE_MISMATCH);
     }
-    memcpy(&ble_cmd_id,&i_msg[BLE_CMD_OFFSET],BLE_COMMAND_ID_SIZE);
+
+    ble_cmd_id                           = i_msg[BLE_CMD_OFFSET];
+    i_ret_msg[BLE_RET_MSG_CCU_ID_OFFSET] = CCU_TYPE_ID;
+    i_ret_msg[BLE_RET_MSG_CMD_ID_OFFSET] = ble_cmd_id;
+
      /*
      * If this is the first register packet, set the app id in the data structure.
      */
@@ -571,12 +581,12 @@ int read_ble_message(char *i_msg, char *i_ret_msg) {
         is_valid_ble_msg = 1;
     }
     else {
-        if (0 == memcmp(source_app_identifier,this_ccu.paired_mob1.id,BLE_APP_ID_SIZE)) {
+        if (source_app_identifier == this_ccu.paired_mob1.id[0]) {
             is_valid_ble_msg = 1;
         }
         else {
             is_valid_ble_msg = 0;
-            memcpy(&i_ret_msg[BLE_RET_MSG_RC_OFFSET],&ERROR_SOURCE_APP_MISMATCH,BLE_RETURN_RC_SIZE);
+            i_ret_msg[BLE_RET_MSG_RC_OFFSET] = ERROR_SOURCE_APP_MISMATCH;
             return (ERROR_SOURCE_APP_MISMATCH);
         }
     }
@@ -584,13 +594,10 @@ int read_ble_message(char *i_msg, char *i_ret_msg) {
     //TODO: Store the Mob1 ID onto EEPROM
 
 
-    memcpy(&i_ret_msg[BLE_RET_MSG_CMD_ID_OFFSET],&ble_cmd_id,BLE_COMMAND_ID_SIZE);
-
     if (is_valid_ble_msg) {
         switch (ble_cmd_id) {
             case CID_REGISTER : {
                 memcpy(ble_command,&i_msg[BLE_CMD_OFFSET + BLE_COMMAND_ID_SIZE],BLE_COMMAND_SIZE);
-                i_ret_msg[BLE_RET_MSG_CCU_ID_OFFSET] = CCU_TYPE_ID;
                 execute_register(ble_command,i_ret_msg);
                 break;
             }
@@ -614,7 +621,7 @@ int read_ble_message(char *i_msg, char *i_ret_msg) {
                 printf("Going to call execute change password\n");
                 #endif
                 if (this_ccu.paired_mob1.authentication_status != AUTHENTICATED) {
-                    memcpy(&i_ret_msg[BLE_RET_MSG_RC_OFFSET],&ERROR_AUTHENTICATION,BLE_RETURN_RC_SIZE);
+                    i_ret_msg[BLE_RET_MSG_RC_OFFSET] = ERROR_AUTHENTICATION;
                     return ERROR_AUTHENTICATION;
                 }
                 memcpy(ble_command,&i_msg[BLE_CMD_OFFSET + BLE_COMMAND_ID_SIZE],BLE_COMMAND_SIZE);
@@ -728,7 +735,7 @@ int read_ble_message(char *i_msg, char *i_ret_msg) {
                 break;
             }
             default : {
-                memcpy(&i_ret_msg[BLE_RET_MSG_RC_OFFSET],&ERROR_UNRECOGNIZED_COMMAND,BLE_RETURN_RC_SIZE);
+                i_ret_msg[BLE_RET_MSG_RC_OFFSET] = ERROR_UNRECOGNIZED_COMMAND;
                 #ifdef BLE_DEBUG
                 printf("Unrecognized Command #%x#\n",ble_cmd_id);
                 #endif
@@ -754,7 +761,7 @@ void print_bytes(char *const_text, char *message, int size_of_msg) {
     printf("#\n");
 }
 
-void print_chars(char *const_text, char *message, int size_of_msg) {
+void print_chars(char *const_text,char *message, int size_of_msg) {
     printf("%s",const_text);
     for (int i = 0; i<size_of_msg; i++) {
         printf("_%c_",message[i]);
@@ -763,7 +770,7 @@ void print_chars(char *const_text, char *message, int size_of_msg) {
 }
 
 void print_ccu() {
-    char buf[5];
+    char buf[20];
     printf("******** CCU DATA START ********\n\n\n");
     print_chars("Serial Number #",this_ccu.serial_number, SER_NO_SIZE);
     print_chars("Password #",this_ccu.password, PASS_SIZE);
@@ -902,20 +909,20 @@ int main(int argc, char** argv) {
     print_bytes("BLE Return Message after processing LOGIN MSG 1#",ble_return_message,BLE_RETURN_SIZE);
     #endif
 
-/*    memset(ble_message,0x00,BLE_MESSAGE_SIZE);
-    strcpy(ble_message, FORGOT_PASSWORD_MSG_TEST);
-    ble_return_message[BLE_RET_MSG_RC_OFFSET] = 0x00;
+    // memset(ble_message,0x00,BLE_MESSAGE_SIZE);
+    // strcpy(ble_message, FORGOT_PASSWORD_MSG_TEST);
+    // ble_return_message[BLE_RET_MSG_RC_OFFSET] = 0x00;
+    //
+    // #ifdef BLE_DEBUG
+    // print_bytes("BLE Message FORGOT PASS MSG#",ble_message,BLE_MESSAGE_SIZE);
+    // print_bytes("BLE Return Message FORGOT PASS MSG#",ble_return_message,BLE_RETURN_SIZE);
+    // #endif
+    //
+    // read_ble_message(ble_message, ble_return_message);
+    // #ifdef BLE_DEBUG
+    // print_bytes("BLE Return Message after processing FORGOT PASS MSG#",ble_return_message,BLE_RETURN_SIZE);
+    // #endif
 
-    #ifdef BLE_DEBUG
-    print_bytes("BLE Message FORGOT PASS MSG#",ble_message,BLE_MESSAGE_SIZE);
-    print_bytes("BLE Return Message FORGOT PASS MSG#",ble_return_message,BLE_RETURN_SIZE);
-    #endif
-
-    read_ble_message(ble_message, ble_return_message);
-    #ifdef BLE_DEBUG
-    print_bytes("BLE Return Message after processing FORGOT PASS MSG#",ble_return_message,BLE_RETURN_SIZE);
-    #endif
-*/
     memset(ble_message,0x00,BLE_MESSAGE_SIZE);
     strcpy(ble_message, CHANGE_PASSWORD_MSG1_TEST);
     ble_return_message[BLE_RET_MSG_RC_OFFSET] = 0x00;
