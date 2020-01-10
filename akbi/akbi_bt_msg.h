@@ -28,7 +28,7 @@
 #define BLE_APP_AUTH_TOKEN_SIZE          2
 #define FILE_NAME_SIZE                   30
 #define PERSONAL_VOICE_MESSAGES_COUNT    6
-#define DEFAULT_EMERGENCY_NUMBER         911
+#define DEFAULT_EMERGENCY_NUMBER         "911"
 #define DEFAULT_EMERGENCY_NUMBER_SIZE    3
 #define SSID_SIZE                        15
 #define NETWORK_KEY_SIZE                 15
@@ -56,6 +56,13 @@
 #define FLAG_DATA_SET_CCU_PASSWORD       0x02
 #define FLAG_DATA_SET_CCU_NEW_PASSWORD   0x04
 #define FLAG_DATA_SET_CCU_PWD_MATCH      0x08
+#define DID_EMERGENCY_FIRST_RESPONDER    0x09
+#define DID_EMERGENCY_CLOSE_RELATIVE     0x0A
+#define DID_PERSONAL_SECOND_NUMBER       0x0B
+#define DID_PERSONAL_THIRD_NUMBER        0x0C
+#define CID_RECORD_PERSONAL_VOICE_MSG    0x0D
+#define CID_STORE_EMERGENCY_NUMBERS      0x0E
+#define CID_STORE_PERSONAL_NUMBERS       0x0F
 
 #define FLAG_DATA_SET_MOB1_ID            0x01
 #define FLAG_DATA_SET_MOB1_NUM           0x02
@@ -63,16 +70,16 @@
 #define FLAG_DATA_SET_ANDROID_ID_OR_UUID 0x08
 #define FLAG_DATA_SET_MOB1_ALL           0x0F
 
-const char  SER_NO_TEST[SER_NO_SIZE]          = {0x41,0x42,0x43,0x44,0x45,0x46,0x47,0x48};
+//const char  SER_NO_TEST[SER_NO_SIZE]          = {0x41,0x42,0x43,0x44,0x45,0x46,0x47,0x48};
 
 typedef enum {UNAUTHENTICATED = 0, AUTHENTICATED} AUTH_STATUS;
 
 typedef struct _mob1_ {
 
-    unsigned char id[BLE_APP_ID_SIZE];
-    unsigned char mobile_number[MOB_NO_SIZE];
-    unsigned char mobile_name[MOB_NAME_SIZE];
-    unsigned char android_id_or_uuid[ANDROID_ID_OR_UUID_SIZE];
+    char id[BLE_APP_ID_SIZE];
+    char mobile_number[MOB_NO_SIZE];
+    char mobile_name[MOB_NAME_SIZE];
+    char android_id_or_uuid[ANDROID_ID_OR_UUID_SIZE];
     AUTH_STATUS   authentication_status;
 
     /*
@@ -114,6 +121,7 @@ typedef struct _wifi_ {
     char ssid[SSID_SIZE];
     char network_key[NETWORK_KEY_SIZE];
     WIFI_STATUS status;
+    char mode;
 
 } WIFI;
 
@@ -161,6 +169,7 @@ typedef struct _wifi_connections_log_ {
 
 typedef enum {OFFLINE = 0, MONITOR, RESCUE, RESCUE_TERMINATION} CCU_MODE;
 
+
 typedef struct ccu {
 
     char                     serial_number[SER_NO_SIZE];
@@ -172,12 +181,13 @@ typedef struct ccu {
     PERSONAL_NUMBERS         conf_personal_nos;
     WIFI                     conf_wifi;
     SITE                     visited_locations[LOCATION_COUNT];
-    CCU_MODE                 mode;
+    short                    mode;
     FW_UPGRADE_LOG           fw_upgrades[FW_UPGRADE_COUNT];
     ACTIVATION_LOG           activations[ACTIVATIONS_COUNT];
     RESCUE_TERMINATION_LOG   rescue_terminations[ACTIVATIONS_COUNT];
     WIFI_CONNECTIONS_LOG     wifi_connections[WIFI_CONNECTIONS_COUNT];
     unsigned short           data_status;
+    WIFI                     interface_wifi;
 
 } CCU;
 

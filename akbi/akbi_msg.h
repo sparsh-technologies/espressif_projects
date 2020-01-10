@@ -36,11 +36,15 @@ const short BLE_RET_MSG_CMD_ID_OFFSET         = 5;
 const short BLE_RET_MSG_RC_OFFSET             = 6;
 const short BLE_RET_MSG_DATA_TYPE_OFFSET      = 7;
 const short BLE_RET_MSG_AUTH_TKN_OFFSET       = 7;
+const short BLE_CMD_MULTI_DATA_VALUE_FIXED_LEN_OFFSET = 2;
+const short BLE_RET_MSG_MY_SSID_OFFSET        = 0;//-------------------to be updated
+const short BLE_RET_MSG_CCU_ID_OFFSET         = 0;//-------------------tbu
 
 const char  MOB1_APP_TYPE_ID                  = 0x4D;
 const char  CCU_TYPE_ID                       = 0x47;
 const short CCU_ID_SER_NO_SUFFIX_SIZE         = 4;
-const short  BLE_RET_MSG_CCU_ID_OFFSET        = 0;
+const char ACCESS_POINT                      = 1;//-----------------tbu
+
 
 const short SUCCESS                           = 0x00;
 const short ERROR_LOGIN_PASSWORD_MISMATCH     = 0x01;
@@ -51,6 +55,7 @@ const short ERROR_UNRECOGNIZED_DATA           = 0x23;
 const short ERROR_AUTHENTICATION              = 0x24;
 const short ERROR_MOB1_NO_NOT_CONFIGURED      = 0x01;
 const short ERROR_CHANGE_PASSWORD_MISMATCH    = 0x01;
+const short ERROR_MY_AP_START                 = 0x00;//------------------------tbu
 
 #define JSON_REGISTER_CCU_HEAD    "{\"data_type\":\"%s\",\"s_time\":\"%ld\","
 #define JSON_REGISTER_CCU_CCU     "\"ccu\":[{\"sno\":\"%s\",\"make\":\"AKBI\",\"model\":\"Guardian\",\"name\":\"Smart Security\",\"password\":\"%s\",\"fwversion\":\"%s\"}],"
@@ -70,5 +75,12 @@ const short ERROR_CHANGE_PASSWORD_MISMATCH    = 0x01;
 #define CHANGE_PASSWORD_MSG2_TEST "\x4D\xCC\x04\x02\x08passw0rd"
 #define CHANGE_PASSWORD_MSG3_TEST "\x4D\xCC\x04\x01\x08passw0rd"
 #define CHANGE_PASSWORD_MSG4_TEST "\x4D\xCC\x04\x02\x08password"
+#define RECORD_PERSONAL_VOICE_MSG_TEST "\x4D\xCC\x05"
+#define STORE_EMERGENCY_NOS_MSG1_TEST  "\x4D\xCC\x06\x01p123456789"
+#define STORE_EMERGENCY_NOS_MSG2_TEST  "\x4D\xCC\x06\x02p123456789"
+#define STORE_PERSONAL_NOS_MSG1_TEST   "\x4D\xCC\x07\x01p123456789"
+#define STORE_PERSONAL_NOS_MSG2_TEST   "\x4D\xCC\x07\x02p123456789"
+
+
 
 #endif
