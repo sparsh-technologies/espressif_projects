@@ -37,7 +37,11 @@
 #define SCANNED_WIFI_COUNT_SIZE            1
 #define MAX_WIFI_SCAN_COUNT                10
 #define LOCATION_COUNT                     10
-#define LAT_LONG_SIZE                      11
+#define LAT_LONG_SIZE                      8
+#define LAT_LONG_DEGREE_SIZE               3
+#define LAT_LONG_MINUTE_SIZE               2
+#define LAT_LONG_SECOND_SIZE               2
+#define LAT_LONG_DIRECTION_SIZE            1
 #define TIMESTAMP_SIZE                     10
 #define FW_UPGRADE_COUNT                   10
 #define FW_VERSION_STRING_SIZE             10
@@ -55,6 +59,7 @@
 #define CID_STORE_PERSONAL_NUMBERS         0x07
 #define CID_SCAN_WIFIS                     0x08
 #define CID_SELECT_A_WIFI                  0x09
+#define CID_ADDRESS_VISITING               0x0A
 
 #define DID_REGISTER_PASSWORD              0x01
 #define DID_REGISTER_MOB_NO                0x02
@@ -142,10 +147,24 @@ typedef struct _wifi_ {
 
 } WIFI;
 
+typedef struct _gpscoordinate_ {
+
+    unsigned char degree;
+    unsigned char minute;
+    unsigned char second;
+
+} GPSCOORDINATE;
+
+typedef enum {SOUTH = -1, NORTH = 1} LATITUDE_DIRECTION;
+
+typedef enum {WEST = -1, EAST = 1} LONGITUDE_DIRECTION;
+
 typedef struct _site_ {
 
-    char latitude[LAT_LONG_SIZE];
-    char longitude[LAT_LONG_SIZE];
+    GPSCOORDINATE latitude;
+    LATITUDE_DIRECTION lat_dir;
+    GPSCOORDINATE longitude;
+    LONGITUDE_DIRECTION long_dir;
     char location_time[TIMESTAMP_SIZE];
     char address_audio_file_name[FILE_NAME_SIZE];
     char audio_time[TIMESTAMP_SIZE];
@@ -200,6 +219,7 @@ typedef struct ccu {
     WIFI                     scanned_wifis[MAX_WIFI_SCAN_COUNT]; //this is the list of WiFis scanned by the CCU.
     unsigned char            scanned_wifi_count;
     SITE                     visited_locations[LOCATION_COUNT];
+    unsigned char            visited_locations_count;
     CCU_MODE                 mode;
     FW_UPGRADE_LOG           fw_upgrades[FW_UPGRADE_COUNT];
     ACTIVATION_LOG           activations[ACTIVATIONS_COUNT];
