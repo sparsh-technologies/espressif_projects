@@ -197,14 +197,9 @@ int execute_change_password(char *i_cmd, char *i_ret_msg) {
 
 int enable_ccu_access_point() {
     //TODO: send the AP start request to the processor over serial interface
-<<<<<<< HEAD
-    memcpy(this_ccu.interface_wifi.ssid,&MY_SSID_TEST,SSID_SIZE);
-    memcpy(this_ccu.interface_wifi.network_key,&MY_NETWORK_KEY_TEST,NETWORK_KEY_SIZE);
-=======
     this_ccu.interface_wifi.mode = ACCESS_POINT;
     memcpy(this_ccu.interface_wifi.ssid,&MY_SSID_TEST,MY_SSID_SIZE);
     memcpy(this_ccu.interface_wifi.network_key,&MY_NETWORK_KEY_TEST,MY_NETWORK_KEY_SIZE);
->>>>>>> 383da72629bd923bef72537bee9a7287d30c7fcf
     return 0;
 }
 
