@@ -283,6 +283,36 @@ int execute_store_personal_number(char *i_cmd, char *i_ret_msg) {
     return (int)i_ret_msg[BLE_RET_MSG_RC_OFFSET];
 }
 
+int execute_enter_local_help_number(char *i_cmd, char *i_ret_msg) {
+    char data_type       = i_cmd[BLE_CMD_MULTI_DATA_TYPE_OFFSET];
+    int  data_len_in_ble = MOB_NO_SIZE;
+    char i_local_help_number[data_len_in_ble];
+    unsigned char i_visited_locations_count = this_ccu.visited_locations_count;
+
+    memcpy(i_local_help_number,&i_cmd[BLE_CMD_MULTI_DATA_VALUE_FIXED_LEN_OFFSET],data_len_in_ble);
+    memcpy(&i_ret_msg[BLE_RET_MSG_DATA_TYPE_OFFSET],&data_type,BLE_COMMAND_DATA_TYPE_SIZE);
+
+    switch (data_type) {
+        case DID_LOCAL_HELP_FOURTH_NUMBER : {
+            memcpy(this_ccu.visited_locations[i_visited_locations_count].fourth_phone_number,i_local_help_number,data_len_in_ble);
+            memcpy(&i_ret_msg[BLE_RET_MSG_RC_OFFSET],&SUCCESS,BLE_RETURN_RC_SIZE);
+            break;
+        }
+        case DID_LOCAL_HELP_FIFTH_NUMBER : {
+            memcpy(this_ccu.visited_locations[i_visited_locations_count].fifth_phone_number,i_local_help_number,data_len_in_ble);
+            memcpy(&i_ret_msg[BLE_RET_MSG_RC_OFFSET],&SUCCESS,BLE_RETURN_RC_SIZE);
+            break;
+        }
+        default: {
+            memcpy(&i_ret_msg[BLE_RET_MSG_RC_OFFSET],&ERROR_UNRECOGNIZED_DATA,BLE_RETURN_RC_SIZE);
+            break;
+        }
+
+    }
+    //this_ccu.visited_locations_count++;
+    return (int)i_ret_msg[BLE_RET_MSG_RC_OFFSET];
+}
+
 int get_scanned_wifis() {
     //get the SSIDs from the serial response from the processor and populate the CCU data strucure.
     char ssids[MAX_WIFI_SCAN_COUNT][SSID_SIZE] = {
@@ -316,7 +346,7 @@ int execute_scan_wifis(char *i_ret_msg) {
 
 int get_wifi_status() {
     //TODO: Pass on the request to connect wifi to the processor.
-    return 1;
+    return SERVER_CONNECTED;
 }
 
 int execute_select_a_wifi(char *i_cmd, char *i_ret_msg) {
@@ -426,11 +456,92 @@ int execute_store_address_visiting(char *i_cmd, char *i_ret_msg) {
         }
     }
 
-    this_ccu.visited_locations_count++;
+    //this_ccu.visited_locations_count++;
     memcpy(&i_ret_msg[BLE_RET_MSG_RC_OFFSET],&SUCCESS,BLE_RETURN_RC_SIZE);
     memcpy(&i_ret_msg[BLE_RET_MSG_MY_SSID_OFFSET],this_ccu.interface_wifi.ssid,MY_SSID_SIZE);
     memcpy(&i_ret_msg[BLE_RET_MSG_MY_NETWORK_KEY_OFFSET],this_ccu.interface_wifi.network_key,MY_NETWORK_KEY_SIZE);
 
+    return (int)i_ret_msg[BLE_RET_MSG_RC_OFFSET];
+}
+
+int execute_ccu_activate(char *i_cmd, char *i_ret_msg) {
+    unsigned char degree[LAT_LONG_DEGREE_SIZE];
+    unsigned char minute[LAT_LONG_MINUTE_SIZE];
+    unsigned char second[LAT_LONG_SECOND_SIZE];
+    char direction;
+    unsigned char byte_offset = 0;
+    unsigned char i_activations_count = this_ccu.activations_count;
+
+    //TODO: Send message to the processor to switch mode.
+    this_ccu.mode = MONITOR;
+    memcpy(degree,&i_cmd[byte_offset],LAT_LONG_DEGREE_SIZE);
+    byte_offset += LAT_LONG_DEGREE_SIZE;
+    memcpy(minute,&i_cmd[byte_offset],LAT_LONG_MINUTE_SIZE);
+    byte_offset += LAT_LONG_MINUTE_SIZE;
+    memcpy(second,&i_cmd[byte_offset],LAT_LONG_SECOND_SIZE);
+    byte_offset += LAT_LONG_SECOND_SIZE;
+    direction = i_cmd[byte_offset];
+    byte_offset += 1;
+
+    this_ccu.activations[i_activations_count].latitude.degree = atoi(degree);
+    this_ccu.activations[i_activations_count].latitude.minute = atoi(minute);
+    this_ccu.activations[i_activations_count].latitude.second = atoi(second);
+
+    switch (direction) {
+        case 'N' : {
+            this_ccu.activations[i_activations_count].lat_dir = NORTH;
+            break;
+        }
+        case 'S' : {
+            this_ccu.activations[i_activations_count].lat_dir = SOUTH;
+            break;
+        }
+        default : {
+            printf("Direction Parsing Error #%c#\n",direction);
+            break;
+        }
+    }
+
+    memcpy(degree,&i_cmd[byte_offset],LAT_LONG_DEGREE_SIZE);
+    byte_offset += LAT_LONG_DEGREE_SIZE;
+    memcpy(minute,&i_cmd[byte_offset],LAT_LONG_MINUTE_SIZE);
+    byte_offset += LAT_LONG_MINUTE_SIZE;
+    memcpy(second,&i_cmd[byte_offset],LAT_LONG_SECOND_SIZE);
+    byte_offset += LAT_LONG_SECOND_SIZE;
+    direction = i_cmd[byte_offset];
+    byte_offset += 1;
+
+    //TODO: get the next vacant location in the visited_locations array
+    this_ccu.activations[i_activations_count].longitude.degree = atoi(degree);
+    this_ccu.activations[i_activations_count].longitude.minute = atoi(minute);
+    this_ccu.activations[i_activations_count].longitude.second = atoi(second);
+
+    switch (direction) {
+        case 'E' : {
+            this_ccu.activations[i_activations_count].long_dir = EAST;
+            break;
+        }
+        case 'W' : {
+            this_ccu.activations[i_activations_count].long_dir = WEST;
+            break;
+        }
+        default : {
+            printf("Direction Parsing Error #%c#\n",direction);
+            break;
+        }
+    }
+
+    //this_ccu.visited_locations_count++;
+    sprintf(this_ccu.activations[i_activations_count].time,"%d",time(NULL));
+    memcpy(&i_ret_msg[BLE_RET_MSG_RC_OFFSET],&SUCCESS,BLE_RETURN_RC_SIZE);
+
+    return (int)i_ret_msg[BLE_RET_MSG_RC_OFFSET];
+}
+
+int execute_connect_to_wifi(char *i_cmd, char *i_ret_msg) {
+    //TODO: Get the wifi status from the processor
+    this_ccu.conf_wifi.status = get_wifi_status();
+    memcpy(&i_ret_msg[BLE_RET_MSG_RC_OFFSET],&this_ccu.conf_wifi.status,BLE_RETURN_RC_SIZE);
     return (int)i_ret_msg[BLE_RET_MSG_RC_OFFSET];
 }
 
@@ -582,6 +693,42 @@ int read_ble_message(char *i_msg, char *i_ret_msg) {
                 execute_store_address_visiting(ble_command,i_ret_msg);
                 break;
             }
+            case CID_ENTER_LOCAL_HELP_NUMBERS : {
+                #ifdef BLE_DEBUG
+                printf("Going to call execute_enter_local_help_number\n");
+                #endif
+                if (this_ccu.paired_mob1.authentication_status != AUTHENTICATED) {
+                    memcpy(&i_ret_msg[BLE_RET_MSG_RC_OFFSET],&ERROR_AUTHENTICATION,BLE_RETURN_RC_SIZE);
+                    return ERROR_AUTHENTICATION;
+                }
+                memcpy(ble_command,&i_msg[BLE_CMD_OFFSET + BLE_COMMAND_ID_SIZE],BLE_COMMAND_SIZE);
+                execute_enter_local_help_number(ble_command,i_ret_msg);
+                break;
+            }
+            case CID_CCU_ACTIVATE : {
+                #ifdef BLE_DEBUG
+                printf("Going to call execute ccu activate\n");
+                #endif
+                if (this_ccu.paired_mob1.authentication_status != AUTHENTICATED) {
+                    memcpy(&i_ret_msg[BLE_RET_MSG_RC_OFFSET],&ERROR_AUTHENTICATION,BLE_RETURN_RC_SIZE);
+                    return ERROR_AUTHENTICATION;
+                }
+                memcpy(ble_command,&i_msg[BLE_CMD_OFFSET + BLE_COMMAND_ID_SIZE],BLE_COMMAND_SIZE);
+                execute_ccu_activate(ble_command,i_ret_msg);
+                break;
+            }
+            case CID_CONNECT_TO_WIFI : {
+                #ifdef BLE_DEBUG
+                printf("Going to call execute_connect_to_wifi\n");
+                #endif
+                if (this_ccu.paired_mob1.authentication_status != AUTHENTICATED) {
+                    memcpy(&i_ret_msg[BLE_RET_MSG_RC_OFFSET],&ERROR_AUTHENTICATION,BLE_RETURN_RC_SIZE);
+                    return ERROR_AUTHENTICATION;
+                }
+                memcpy(ble_command,&i_msg[BLE_CMD_OFFSET + BLE_COMMAND_ID_SIZE],BLE_COMMAND_SIZE);
+                execute_connect_to_wifi(ble_command,i_ret_msg);
+                break;
+            }
             default : {
                 i_ret_msg[BLE_RET_MSG_RC_OFFSET] = ERROR_UNRECOGNIZED_COMMAND;
                 #ifdef BLE_DEBUG
@@ -655,10 +802,22 @@ void print_ccu() {
         print_chars("Scanned WiFi Network Key#",this_ccu.scanned_wifis[i].network_key, NETWORK_KEY_SIZE);
     }
     printf("Visited locations #%d#\n",this_ccu.visited_locations_count);
-    for (int i = 0; i < this_ccu.visited_locations_count; i++) {
+    for (int i = 0; i < this_ccu.visited_locations_count + 1; i++) {
         printf("Location #%d# Latitude is #%d#%d#%d#%d#\n",i,this_ccu.visited_locations[i].latitude.degree,this_ccu.visited_locations[i].latitude.minute,this_ccu.visited_locations[i].latitude.second,this_ccu.visited_locations[i].lat_dir);
         printf("Location #%d# Longitude is #%d#%d#%d#%d#\n",i,this_ccu.visited_locations[i].longitude.degree,this_ccu.visited_locations[i].longitude.minute,this_ccu.visited_locations[i].longitude.second,this_ccu.visited_locations[i].long_dir);
+        print_chars("Fourth Number is #",this_ccu.visited_locations[i].fourth_phone_number, MOB_NO_SIZE);
+        print_chars("Fifth Number is #",this_ccu.visited_locations[i].fifth_phone_number, MOB_NO_SIZE);
     }
+    printf("CCU mode is #%d#\n", this_ccu.mode);
+    printf("Activations #%d#\n",this_ccu.activations_count);
+    for (int i = 0; i < this_ccu.activations_count + 1; i++) {
+        printf("Location #%d# Latitude is #%d#%d#%d#%d#\n",i,this_ccu.activations[i].latitude.degree,this_ccu.activations[i].latitude.minute,this_ccu.activations[i].latitude.second,this_ccu.activations[i].lat_dir);
+        printf("Location #%d# Longitude is #%d#%d#%d#%d#\n",i,this_ccu.activations[i].longitude.degree,this_ccu.activations[i].longitude.minute,this_ccu.activations[i].longitude.second,this_ccu.activations[i].long_dir);
+        printf("Activated time is #%s#\n",this_ccu.activations[i].time);
+    }
+    time_t time_value = time(NULL);
+    struct tm tv = *gmtime(&time_value);
+    printf("Time #%d#%d#%d#%d#%d#%d#%d#\n",time_value,tv.tm_year+1900,tv.tm_mon+1,tv.tm_mday,tv.tm_hour,tv.tm_min,tv.tm_sec);
 
     printf("\n\n******** CCU DATA END ********\n");
 }
@@ -1040,6 +1199,78 @@ int main(int argc, char** argv) {
 
     #ifdef BLE_DEBUG
     print_bytes("BLE Return Message after processing ADDRESS VISITING MESSAGE#",ble_return_message,BLE_RETURN_SIZE);
+    #endif
+
+    memset(ble_message,0x00,BLE_MESSAGE_SIZE);
+    memset(ble_return_message,0x00,BLE_RETURN_SIZE);
+    strcpy(ble_message, ENTER_LOCAL_HELP_NOS_MSG1_TEST);
+    memcpy(&ble_return_message[0],&CCU_TYPE_ID,1);
+    memcpy(&ble_return_message[1],&this_ccu.serial_number[SER_NO_SIZE - CCU_ID_SER_NO_SUFFIX_SIZE],CCU_ID_SER_NO_SUFFIX_SIZE);
+    ble_return_message[BLE_RET_MSG_RC_OFFSET] = 0x00;
+
+    #ifdef BLE_DEBUG
+    print_bytes("BLE Message ENTER LOCAL HELP NOS MESSAGE 1#",ble_message,BLE_MESSAGE_SIZE);
+    print_bytes("BLE Return Message ENTER LOCAL HELP NOS MESSAGE 1#",ble_return_message,BLE_RETURN_SIZE);
+    #endif
+
+    read_ble_message(ble_message, ble_return_message);
+
+    #ifdef BLE_DEBUG
+    print_bytes("BLE Return Message after processing ENTER LOCAL HELP NOS MESSAGE 1#",ble_return_message,BLE_RETURN_SIZE);
+    #endif
+
+    memset(ble_message,0x00,BLE_MESSAGE_SIZE);
+    memset(ble_return_message,0x00,BLE_RETURN_SIZE);
+    strcpy(ble_message, ENTER_LOCAL_HELP_NOS_MSG2_TEST);
+    memcpy(&ble_return_message[0],&CCU_TYPE_ID,1);
+    memcpy(&ble_return_message[1],&this_ccu.serial_number[SER_NO_SIZE - CCU_ID_SER_NO_SUFFIX_SIZE],CCU_ID_SER_NO_SUFFIX_SIZE);
+    ble_return_message[BLE_RET_MSG_RC_OFFSET] = 0x00;
+
+    #ifdef BLE_DEBUG
+    print_bytes("BLE Message ENTER LOCAL HELP NOS MESSAGE 2#",ble_message,BLE_MESSAGE_SIZE);
+    print_bytes("BLE Return Message ENTER LOCAL HELP NOS MESSAGE 2#",ble_return_message,BLE_RETURN_SIZE);
+    #endif
+
+    read_ble_message(ble_message, ble_return_message);
+
+    #ifdef BLE_DEBUG
+    print_bytes("BLE Return Message after processing ENTER LOCAL HELP NOS MESSAGE 2#",ble_return_message,BLE_RETURN_SIZE);
+    #endif
+
+    memset(ble_message,0x00,BLE_MESSAGE_SIZE);
+    memset(ble_return_message,0x00,BLE_RETURN_SIZE);
+    strcpy(ble_message, CCU_ACTIVATE_MSG_TEST);
+    memcpy(&ble_return_message[0],&CCU_TYPE_ID,1);
+    memcpy(&ble_return_message[1],&this_ccu.serial_number[SER_NO_SIZE - CCU_ID_SER_NO_SUFFIX_SIZE],CCU_ID_SER_NO_SUFFIX_SIZE);
+    ble_return_message[BLE_RET_MSG_RC_OFFSET] = 0x00;
+
+    #ifdef BLE_DEBUG
+    print_bytes("BLE Message CCU ACTIVATE#",ble_message,BLE_MESSAGE_SIZE);
+    print_bytes("BLE Return Message CCU ACTIVATE#",ble_return_message,BLE_RETURN_SIZE);
+    #endif
+
+    read_ble_message(ble_message, ble_return_message);
+
+    #ifdef BLE_DEBUG
+    print_bytes("BLE Return Message after processing CCU ACTIVATE#",ble_return_message,BLE_RETURN_SIZE);
+    #endif
+
+    memset(ble_message,0x00,BLE_MESSAGE_SIZE);
+    memset(ble_return_message,0x00,BLE_RETURN_SIZE);
+    strcpy(ble_message, CONNECT_TO_WIFI_MSG_TEST);
+    memcpy(&ble_return_message[0],&CCU_TYPE_ID,1);
+    memcpy(&ble_return_message[1],&this_ccu.serial_number[SER_NO_SIZE - CCU_ID_SER_NO_SUFFIX_SIZE],CCU_ID_SER_NO_SUFFIX_SIZE);
+    ble_return_message[BLE_RET_MSG_RC_OFFSET] = 0x00;
+
+    #ifdef BLE_DEBUG
+    print_bytes("BLE Message CONNECT TO WIFI MESSAGE#",ble_message,BLE_MESSAGE_SIZE);
+    print_bytes("BLE Return Message CONNECT TO WIFI MESSAGE#",ble_return_message,BLE_RETURN_SIZE);
+    #endif
+
+    read_ble_message(ble_message, ble_return_message);
+
+    #ifdef BLE_DEBUG
+    print_bytes("BLE Return Message after processing CONNECT TO WIFI MESSAGE#",ble_return_message,BLE_RETURN_SIZE);
     #endif
 
     print_ccu();
