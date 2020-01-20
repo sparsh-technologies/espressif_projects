@@ -263,6 +263,7 @@ typedef struct _bt_cp_protocol_hdr_ {
     unsigned char       opcode;
     unsigned short int  trans_id;
     unsigned char       type;
+    unsigned char       length;
 
 } BT_CP_PROTOCOL_HDR;
 

@@ -17,6 +17,38 @@
 #define CURRENT_FIRMWARE_VERSION "1.0(1)"
 #define BLE_DEBUG
 
+#define SER_NO_SIZE                   8
+#define PASS_SIZE                     15
+#define MOB_NO_SIZE                   10
+#define MOB_NAME_SIZE                 15
+#define IMEI_NO_SIZE                  15
+#define BLE_APP_TYPE_ID_SIZE          1
+#define BLE_APP_ID_SIZE               2
+#define BLE_APP_AUTH_TOKEN_SIZE       2
+#define FILE_NAME_SIZE                30
+#define PERSONAL_VOICE_MESSAGES_COUNT 6
+#define DEFAULT_EMERGENCY_NUMBER      911
+#define DEFAULT_EMERGENCY_NUMBER_SIZE 3
+#define SSID_SIZE                     15
+#define NETWORK_KEY_SIZE              15
+#define LOCATION_COUNT                10
+#define LAT_LONG_SIZE                 11
+#define TIMESTAMP_SIZE                10
+#define FW_UPGRADE_COUNT              10
+#define FW_VERSION_STRING_SIZE        10
+#define DATE_SIZE                     10
+#define MOB1_VER_SIZE                 10
+#define ACTIVATIONS_COUNT             10
+#define WIFI_CONNECTIONS_COUNT        10
+
+#define CID_REGISTER                  0x01
+#define CID_LOGIN                     0x02
+
+#define DID_REGISTER_PASSWORD         0x01
+#define DID_REGISTER_MOB_NO           0x02
+#define DID_REGISTER_MOB_NAME         0x03
+#define DID_REGISTER_IMEI             0x04
+
 const char  NEWLINE                                   = '\n';
 const char  END_OF_STRING                             = 0;
 const char  *WEBAPP_RETURN_DELIMITER_STRING           = ",";
