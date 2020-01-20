@@ -43,6 +43,8 @@
 
 #include "../../ble_apis.h"
 
+#include "uart_async_rxtxtasks_main.h"
+
 #define BT_BLE_COEX_TAG             "BT_BLE_COEX"
 //#define BT_DEVICE_NAME              "ESP_COEX_A2DP_DEMO"
 #define BLE_ADV_NAME                "ESP_COEX_BLE_DEMO"
@@ -63,11 +65,10 @@
 #define PROFILE_NUM                 1
 #define PROFILE_A_APP_ID            0
 //#define PROFILE_B_APP_ID            1
-#define RETURN_MSG_LENGTH           8
+#define MAX_RETURN_MSG_LENGTH       20
 
 extern uint8_t return_data[15];
-char ep_return_message[RETURN_MSG_LENGTH];
-
+char ep_return_message[MAX_RETURN_MSG_LENGTH];
 
 typedef struct {
     uint8_t  *prepare_buf;
@@ -276,14 +277,6 @@ void example_exec_write_event_env(prepare_type_env_t *prepare_write_env, esp_ble
     prepare_write_env->prepare_len = 0;
 }
 
-// void test_function(esp_ble_gatts_cb_param_t *param)
-// {
-//     esp_log_buffer_hex(BT_BLE_COEX_TAG, param->write.value, param->write.len);
-//     ESP_LOGI(BT_BLE_COEX_TAG, "Source app type id 0x%x%x\n",param->write.value[0], param->write.value[1]);
-//     ESP_LOGI(BT_BLE_COEX_TAG, "Source app authentication id : 0x%x%x%x%x",param->write.value[2],param->write.value[3],param->write.value[4],param->write.value[5]);
-//
-// }
-
 
 static void gatts_profile_a_event_handler(esp_gatts_cb_event_t event, esp_gatt_if_t gatts_if, esp_ble_gatts_cb_param_t *param) {
     switch (event) {
@@ -305,10 +298,10 @@ static void gatts_profile_a_event_handler(esp_gatts_cb_event_t event, esp_gatt_i
         //static int increment_add_value = 0 ;
         memset(&rsp, 0, sizeof(esp_gatt_rsp_t));
         rsp.attr_value.handle = param->read.handle;
-        rsp.attr_value.len = RETURN_MSG_LENGTH;
+        rsp.attr_value.len = MAX_RETURN_MSG_LENGTH;
 
 
-        for(int i = 0 ;i < RETURN_MSG_LENGTH; i++){
+        for(int i = 0 ;i < MAX_RETURN_MSG_LENGTH; i++){
             rsp.attr_value.value[i] = ep_return_message[i];
         }
 
@@ -336,14 +329,15 @@ static void gatts_profile_a_event_handler(esp_gatts_cb_event_t event, esp_gatt_i
             memcpy(received_value_buffer,param->write.value,param->write.len);
             //printf("value buff %s\n",received_value_buffer );
 
+            memset(ep_return_message,0,MAX_RETURN_MSG_LENGTH);
             //getting return message
             read_ble_message(received_value_buffer, ep_return_message);
-            //memcpy(return_msg_array[param->write.value[3]],ep_return_message,RETURN_MSG_LENGTH);
-
+            //memcpy(return_msg_array[param->write.value[3]],ep_return_message,return_msg_length);
+            send_uart_message(received_value_buffer);
 
             printf("BLE Return Message after processing 0x");
-            for(int i = 0; i < RETURN_MSG_LENGTH ;i++){
-              printf("%02x",ep_return_message[i]);
+            for(int i = 0; i < MAX_RETURN_MSG_LENGTH ;i++){
+              printf("%02x ",ep_return_message[i]);
             }
             printf("\n");
 
@@ -620,4 +614,5 @@ void app_main(void)
 
     //gatt server init
     ble_gatts_init();
+    uart_app_main();
 }

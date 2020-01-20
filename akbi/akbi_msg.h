@@ -20,13 +20,14 @@
 const short BLE_MESSAGE_SIZE                  = 20;
 const short BLE_COMMAND_SIZE                  = 17; //BLE_MESSAGE SIZE - Source App Type (1) - Source App ID (1) - Command Id (1)
 const short BLE_COMMAND_ID_SIZE               = 1;
-const short BLE_RETURN_SIZE                   = 8;
+const short BLE_RETURN_MAX_SIZE               = 20;
 const short BLE_RETURN_RC_SIZE                = 1;
 const short BLE_COMMAND_DATA_TYPE_SIZE        = 1;
 
 const short BLE_APP_TYPE_OFFSET                       = 0;
 const short BLE_APP_OFFSET                            = 1;
 const short BLE_CMD_OFFSET                            = 2;
+const short BLE_MSG_MULTI_DATA_TYPE_OFFSET            = 3; //datatype offset in a full message
 const short BLE_CMD_MULTI_DATA_TYPE_OFFSET            = 0; //for commands with multiple data types sent as multiple messages
 const short BLE_CMD_MULTI_DATA_LEN_OFFSET             = 1; //for commands with multiple data types sent as multiple messages
 const short BLE_CMD_MULTI_DATA_VALUE_OFFSET           = 2; //for commands with multiple data types sent as multiple messages
@@ -40,7 +41,6 @@ const short BLE_RET_MSG_AUTH_TKN_OFFSET               = 7;
 const short BLE_RET_MSG_MY_SSID_OFFSET                = 7;
 const short BLE_RET_MSG_MY_NETWORK_KEY_OFFSET         = 13;
 const short BLE_RET_MSG_SCANNED_SSID_COUNT_OFFSET     = 8;
-const short ACCESS_POINT                              = 1;//----------not defined
 
 const char  MOB1_APP_TYPE_ID                          = 0x4D;
 const char  CCU_TYPE_ID                               = 0x47;
@@ -61,20 +61,9 @@ const short ERROR_CHANGE_PASSWORD_MISMATCH            = 0x01;
 const short ERROR_MY_AP_START                         = 0x01;
 const short ERROR_MY_WIFI_STN_START                   = 0x05;
 
-const short SUCCESS                           = 0x00;
-const short ERROR_LOGIN_PASSWORD_MISMATCH     = 0x01;
-const short ERROR_SOURCE_APP_TYPE_MISMATCH    = 0x20;
-const short ERROR_SOURCE_APP_MISMATCH         = 0x21;
-const short ERROR_UNRECOGNIZED_COMMAND        = 0x22;
-const short ERROR_UNRECOGNIZED_DATA           = 0x23;
-const short ERROR_AUTHENTICATION              = 0x24;
-const short ERROR_MOB1_NO_NOT_CONFIGURED      = 0x01;
-const short ERROR_CHANGE_PASSWORD_MISMATCH    = 0x01;
-const short ERROR_MY_AP_START                 = 0x00;//------------------------tbu
-
 #define REGISTER_MSG1_TEST             "\x4D\xCC\x01\x01\x08password"
 #define REGISTER_MSG2_TEST             "\x4D\xCC\x01\x02\x0A""0123456789"
-#define REGISTER_MSG3_TEST             "\x4D\xCC\x01\x03\x0F""abcdefghijklmno"
+#define REGISTER_MSG3_TEST             "\x4D\xCC\x01\x03\x0F""abcdefghijklmn"
 #define REGISTER_MSG4_TEST             "\x4D\xCC\x01\x04\x0F""01234567890123"
 #define SOURCE_APP_ID_TEST             "\xCC"
 #define LOGIN_MSG1_TEST                "\x4D\xCC\x02\x08password"

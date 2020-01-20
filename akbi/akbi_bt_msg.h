@@ -35,6 +35,7 @@
 #define MY_SSID_SIZE                       6
 #define MY_NETWORK_KEY_SIZE                6
 #define SCANNED_WIFI_COUNT_SIZE            1
+#define SCANNED_WIFI_NAME_SIZE             12
 #define MAX_WIFI_SCAN_COUNT                10
 #define LOCATION_COUNT                     10
 #define LAT_LONG_SIZE                      8
@@ -217,8 +218,8 @@ typedef enum {OFFLINE = 0, MONITOR, RESCUE, RESCUE_TERMINATION} CCU_MODE;
 
 typedef struct ccu {
 
-    unsigned char            serial_number[SER_NO_SIZE];
-    unsigned char            password[PASS_SIZE];
+    char                     serial_number[SER_NO_SIZE];
+    char                     password[PASS_SIZE];
     unsigned char            new_password_to_be_set[PASS_SIZE];
     MOB1                     paired_mob1;
     PERSONAL_VOICE_MESSAGE   personal_voice_messages[PERSONAL_VOICE_MESSAGES_COUNT];
