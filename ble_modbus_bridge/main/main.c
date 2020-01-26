@@ -39,7 +39,9 @@ void app_main(void)
     xTaskCreate(uart_modbus_task, "uart_modbus_task", 8*1024, &context2, 0, &uart_task);
 
     while(1) {
+#if 0
         printf(" Main Task output \n");
+#endif
         vTaskDelay(100);
     }
 }

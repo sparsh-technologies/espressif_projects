@@ -565,7 +565,9 @@ void ble_config_task(void *param)
   ble_gatts_init();
 #endif
     while(1) {
+#if 0
         printf("Hello world \n");
+#endif
         vTaskDelay(100);
     }
 }

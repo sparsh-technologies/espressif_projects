@@ -1647,3 +1647,9 @@ ble_modbus_bridge/build/modbridge.bin
 ble_modbus_bridge/build/modbridge.elf
 ble_modbus_bridge/build/modbridge.map
 ble_modbus_bridge/build/project_elf_src.c
+ble_modbus_bridge/build/modbridge.bin
+ble_modbus_bridge/build/modbridge.elf
+ble_modbus_bridge/build/modbridge.map
+ble_modbus_bridge/build/partition_table/partition-table.bin
+ble_modbus_bridge/build/project_description.json
+ble_modbus_bridge/build/rules.ninja
