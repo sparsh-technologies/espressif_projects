@@ -173,22 +173,22 @@ static void ble_init_adv_data(const char *name)
 
 static void gap_event_handler(esp_gap_ble_cb_event_t event, esp_ble_gap_cb_param_t *param)
 {
-    printf(" INFO : GAP-EVENT-HANDLER : Received Event(%d) \n", event);
+    printf(" %s : GAP-EVENT-HANDLER : Received Event(%d) \n", __FUNCTION__, event);
 
     switch (event) {
 
     case ESP_GAP_BLE_ADV_DATA_RAW_SET_COMPLETE_EVT:
-        printf(" INFO : GAP-EVENT-HANDLER : Received  ADV_DATA_RAW_SET \n");
+        printf(" %s : GAP-EVENT-HANDLER : Received  ADV_DATA_RAW_SET \n", __FUNCTION__);
         esp_ble_gap_start_advertising(&adv_params);
         break;
 
     case ESP_GAP_BLE_SCAN_RSP_DATA_RAW_SET_COMPLETE_EVT:
-        printf(" INFO : GAP-EVENT-HANDLER : Received  SCAN_RSP_DATA_RAW_SET \n");
+        printf(" %s : GAP-EVENT-HANDLER : Received  SCAN_RSP_DATA_RAW_SET \n", __FUNCTION__);
         //esp_ble_gap_start_advertising(&adv_params);
         break;
 
     case ESP_GAP_BLE_ADV_START_COMPLETE_EVT:
-        printf(" INFO : GAP-EVENT-HANDLER : Received  ADV_START \n");
+        printf(" %s : GAP-EVENT-HANDLER : Received  ADV_START \n", __FUNCTION__);
         //advertising start complete event to indicate advertising start successfully or failed
         if (param->adv_start_cmpl.status != ESP_BT_STATUS_SUCCESS) {
             ESP_LOGE(BT_BLE_COEX_TAG, "Advertising start failed\n");
@@ -198,7 +198,7 @@ static void gap_event_handler(esp_gap_ble_cb_event_t event, esp_ble_gap_cb_param
         break;
 
     case ESP_GAP_BLE_ADV_STOP_COMPLETE_EVT:
-        printf(" INFO : GAP-EVENT-HANDLER : Received  ADV_STOP \n");
+        printf(" %s : GAP-EVENT-HANDLER : Received  ADV_STOP \n", __FUNCTION__);
         if (param->adv_stop_cmpl.status != ESP_BT_STATUS_SUCCESS) {
             ESP_LOGE(BT_BLE_COEX_TAG, "Advertising stop failed\n");
         }
@@ -208,7 +208,7 @@ static void gap_event_handler(esp_gap_ble_cb_event_t event, esp_ble_gap_cb_param
         break;
 
     case ESP_GAP_BLE_UPDATE_CONN_PARAMS_EVT:
-        printf(" INFO : GAP-EVENT-HANDLER : Received  UPDATE_CONN_PARAMS \n");
+        printf(" %s : GAP-EVENT-HANDLER : Received  UPDATE_CONN_PARAMS \n", __FUNCTION__);
         ESP_LOGI(BT_BLE_COEX_TAG, "update connection params status = %d, min_int = %d, max_int = %d,conn_int = %d,latency = %d, timeout = %d",
                   param->update_conn_params.status,
                   param->update_conn_params.min_int,
@@ -315,7 +315,7 @@ void example_exec_write_event_env(prepare_type_env_t *prepare_write_env, esp_ble
 static void gatts_profile_a_event_handler(esp_gatts_cb_event_t event, esp_gatt_if_t gatts_if, 
                                           esp_ble_gatts_cb_param_t *param) 
 {
-    printf(" INFO : Invoked gatts_profile_a_event_handler \n");
+    printf(" %s : Invoked gatts_profile_a_event_handler \n", __FUNCTION__);
 
     switch (event) {
 
@@ -547,14 +547,14 @@ static void gatts_event_handler(esp_gatts_cb_event_t event, esp_gatt_if_t gatts_
                                 esp_ble_gatts_cb_param_t *param)
 {
 
-    printf(" INFO : GATT-EVENT-HANDLER : Received Event(%d) \n", event);
+    printf(" %s : GATT-EVENT-HANDLER : Received Event(%d) \n", __FUNCTION__, event);
 
     /* 
      * If event is register event, store the gatts_if for each profile 
      */
     if (event == ESP_GATTS_REG_EVT) {
 
-        printf(" INFO : GATT-EVENT-HANDLER : Received GATTS_REG Event \n");
+        printf(" %s : GATT-EVENT-HANDLER : Received GATTS_REG Event \n", __FUNCTION__);
 
         if (param->reg.status == ESP_GATT_OK) {
 
@@ -599,16 +599,21 @@ static void gatts_event_handler(esp_gatts_cb_event_t event, esp_gatt_if_t gatts_
 
 static void ble_gatts_init(void)
 {
+    printf(" %s : Invoking esp_ble_gatts_register_callback \n", __FUNCTION__);
     esp_err_t ret = esp_ble_gatts_register_callback(gatts_event_handler);
     if (ret){
         ESP_LOGE(BT_BLE_COEX_TAG, "gatts register error, error code = 0x%x", ret);
         return;
     }
+
+    printf(" %s : Invoking esp_ble_gap_register_callback \n", __FUNCTION__);
     ret = esp_ble_gap_register_callback(gap_event_handler);
     if (ret){
         ESP_LOGE(BT_BLE_COEX_TAG, "gap register error, error code = 0x%x", ret);
         return;
     }
+
+    printf(" %s : Invoking esp_ble_gatts_app_register \n", __FUNCTION__);
     ret = esp_ble_gatts_app_register(PROFILE_A_APP_ID);
     if (ret){
         ESP_LOGE(BT_BLE_COEX_TAG, "gatts app register error, error code = 0x%x", ret);
@@ -619,6 +624,8 @@ static void ble_gatts_init(void)
     //     ESP_LOGE(BT_BLE_COEX_TAG, "gatts app register error, error code = 0x%x", ret);
     //     return;
     // }
+
+    printf(" %s : Invoking esp_ble_gatt_set_local_mtu  \n", __FUNCTION__);
     esp_err_t local_mtu_ret = esp_ble_gatt_set_local_mtu(500);
     if (local_mtu_ret){
         ESP_LOGE(BT_BLE_COEX_TAG, "set local  MTU failed, error code = 0x%x", local_mtu_ret);
@@ -627,7 +634,7 @@ static void ble_gatts_init(void)
 
 void bt_app_gap_cb(esp_bt_gap_cb_event_t event, esp_bt_gap_cb_param_t *param)
 {
-    printf(" INFO : bt_app_gap_cb : Received Event(%d) \n", event);
+    printf(" %s : bt_app_gap_cb : Received Event(%d) \n", __FUNCTION__, event);
 
     switch (event) {
 
@@ -671,12 +678,12 @@ void bt_app_gap_cb(esp_bt_gap_cb_event_t event, esp_bt_gap_cb_param_t *param)
 void app_main(void)
 {
 
-    printf("AKBI Security Systems Application Initialization \n");
+    printf(" AKBI Security Systems Application Initialization \n");
 
     /* 
      * Initialize NVS — it is used to store PHY calibration data 
      */
-    printf(" INFO : Flash Init in progress \n");
+    printf(" %s : Flash Init in progress \n", __FUNCTION__);
 
     esp_err_t err = nvs_flash_init();
     if (err == ESP_ERR_NVS_NO_FREE_PAGES || err == ESP_ERR_NVS_NEW_VERSION_FOUND) {
@@ -685,7 +692,7 @@ void app_main(void)
     }
     ESP_ERROR_CHECK(err);
 
-    printf(" INFO : Initing BT Controller \n");
+    printf(" %s : Initing BT Controller \n", __FUNCTION__);
 
     esp_bt_controller_config_t bt_cfg = BT_CONTROLLER_INIT_CONFIG_DEFAULT();
     if ((err = esp_bt_controller_init(&bt_cfg)) != ESP_OK) {
@@ -693,21 +700,21 @@ void app_main(void)
         return;
     }
 
-    printf(" INFO : Enabling BT Module \n");
+    printf(" %s : Enabling BT Module \n", __FUNCTION__);
 
     if ((err = esp_bt_controller_enable(ESP_BT_MODE_BLE)) != ESP_OK) {
         ESP_LOGE(BT_BLE_COEX_TAG, "%s enable controller failed: %s\n", __func__, esp_err_to_name(err));
         return;
     }
 
-    printf(" INFO : Initing Blueroid \n");
+    printf(" %s : Initing Blueroid \n", __FUNCTION__);
 
     if ((err = esp_bluedroid_init()) != ESP_OK) {
         ESP_LOGE(BT_BLE_COEX_TAG, "%s initialize bluedroid failed: %s\n", __func__, esp_err_to_name(err));
         return;
     }
 
-    printf(" INFO : Initing Blueroid \n");
+    printf(" %s : Initing Blueroid \n", __FUNCTION__);
 
     if ((err = esp_bluedroid_enable()) != ESP_OK) {
         ESP_LOGE(BT_BLE_COEX_TAG, "%s enable bluedroid failed: %s\n", __func__, esp_err_to_name(err));
@@ -715,13 +722,13 @@ void app_main(void)
     }
 
     /* create application task */
-    printf(" INFO : Invoking APP Startup \n");
+    printf(" %s : Invoking APP Startup \n", __FUNCTION__);
 
     bt_app_task_start_up();
 
 
 #if (CONFIG_BT_SSP_ENABLED == true)
-    printf(" INFO : Setting Default Values \n");
+    printf(" %s : Setting Default Values \n", __FUNCTION__);
 
     /* Set default parameters for Secure Simple Pairing */
     esp_bt_sp_param_t param_type = ESP_BT_SP_IOCAP_MODE;
@@ -740,16 +747,16 @@ void app_main(void)
     pin_code[2] = '3';
     pin_code[3] = '4';
 
-    printf(" INFO : Setting PIN's \n");
+    printf(" %s : Setting PIN's \n", __FUNCTION__);
 
     esp_bt_gap_set_pin(pin_type, 4, pin_code);
 
-    printf(" INFO : Starting GATT Init \n");
+    printf(" %s : Starting GATT Init \n", __FUNCTION__);
 
     //gatt server init
     ble_gatts_init();
 
-    printf(" INFO : Starting UART App \n");
+    printf(" %s : Starting UART App \n", __FUNCTION__);
 
     uart_app_main();
 }
