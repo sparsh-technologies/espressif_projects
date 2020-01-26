@@ -619,11 +619,6 @@ static void ble_gatts_init(void)
         ESP_LOGE(BT_BLE_COEX_TAG, "gatts app register error, error code = 0x%x", ret);
         return;
     }
-    // ret = esp_ble_gatts_app_register(PROFILE_B_APP_ID);
-    // if (ret){
-    //     ESP_LOGE(BT_BLE_COEX_TAG, "gatts app register error, error code = 0x%x", ret);
-    //     return;
-    // }
 
     printf(" %s : Invoking esp_ble_gatt_set_local_mtu  \n", __FUNCTION__);
     esp_err_t local_mtu_ret = esp_ble_gatt_set_local_mtu(500);
