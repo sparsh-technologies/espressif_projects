@@ -1,4 +1,4 @@
-/*
+﻿/*
  ****************************************************************************************
  * main.c
  *
@@ -381,7 +381,7 @@ static void gatts_profile_a_event_handler(esp_gatts_cb_event_t event, esp_gatt_i
             //getting return message
             read_ble_message(received_value_buffer, ep_return_message);
             //memcpy(return_msg_array[param->write.value[3]],ep_return_message,return_msg_length);
-            send_uart_message(received_value_buffer);
+            send_uart_message(received_value_buffer, param->write.len);
 
             printf("BLE Return Message after processing 0x");
             for(int i = 0; i < MAX_RETURN_MSG_LENGTH ;i++){
