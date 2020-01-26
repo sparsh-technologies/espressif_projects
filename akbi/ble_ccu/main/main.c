@@ -1,22 +1,15 @@
 /*
-   This example code is in the Public Domain (or CC0 licensed, at your option.)
-
-   Unless required by applicable law or agreed to in writing, this
-   software is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR
-   CONDITIONS OF ANY KIND, either express or implied.
-*/
-
-/****************************************************************************
-* The demo shows BLE and classic Bluetooth coexistence. You can use BLE GATT server and classic bluetooth A2DP together.
-* The BLE GATT server part of the demo creates a GATT service and then starts advertising, waiting to be connected by a GATT client.
-* After the program is started, a GATT client can discover the device named "ESP_COEX_BLE_DEMO". Once the connection is established,
-* GATT client can read or write data to the device. It can also receive notification or indication data.
-* Attention: If you test the demo with iPhone, BLE GATT server adv name will change to "ESP_COEX_A2DP_DEMO" after you connect it.
-* The classic bluetooth A2DP part of the demo implements Advanced Audio Distribution Profile to receive an audio stream.
-* After the program is started, other bluetooth devices such as smart phones can discover the device named "ESP_COEX_A2DP_DEMO".
-* Once the connection is established, audio data can be transmitted. This will be visible in the application log including a count
-* of audio data packets.
-****************************************************************************/
+ ****************************************************************************************
+ * main.c
+ *
+ * Author    : Shikhil
+ * Ver       : 1.0
+ * Date      : 26-Jan-2020
+ *
+ * Copyright Infinicomm Solutions Pvt Ltd, 2020
+ *
+ ****************************************************************************************
+ */
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -28,26 +21,21 @@
 #include "nvs_flash.h"
 #include "esp_system.h"
 #include "esp_log.h"
-
 #include "esp_bt.h"
 #include "bt_app_core.h"
 #include "esp_bt_main.h"
 #include "esp_bt_device.h"
 #include "esp_gap_bt_api.h"
 #include "esp_avrc_api.h"
-
 #include "esp_gap_ble_api.h"
 #include "esp_gatts_api.h"
 #include "esp_bt_defs.h"
 #include "esp_gatt_common_api.h"
-
-#include "../../ble_apis.h"
-
+#include "ble_apis.h"
 #include "uart_async_rxtxtasks_main.h"
 
 #define BT_BLE_COEX_TAG             "BT_BLE_COEX"
-//#define BT_DEVICE_NAME              "ESP_COEX_A2DP_DEMO"
-#define BLE_ADV_NAME                "ESP_COEX_BLE_DEMO"
+#define BLE_ADV_NAME                "AKBI-CCU"
 #define BLE_LOCAL_NAME              "lcln"
 
 #define GATTS_SERVICE_UUID_A        0x00FF
@@ -560,7 +548,14 @@ void bt_app_gap_cb(esp_bt_gap_cb_event_t event, esp_bt_gap_cb_param_t *param)
 
 void app_main(void)
 {
-    /* Initialize NVS — it is used to store PHY calibration data */
+
+    printf("AKBI Security Systems Application Initialization \n");
+
+    /* 
+     * Initialize NVS — it is used to store PHY calibration data 
+     */
+    printf(" INFO : Flash Init in progress \n");
+
     esp_err_t err = nvs_flash_init();
     if (err == ESP_ERR_NVS_NO_FREE_PAGES || err == ESP_ERR_NVS_NEW_VERSION_FOUND) {
         ESP_ERROR_CHECK(nvs_flash_erase());
@@ -568,21 +563,29 @@ void app_main(void)
     }
     ESP_ERROR_CHECK(err);
 
+    printf(" INFO : Initing BT Controller \n");
+
     esp_bt_controller_config_t bt_cfg = BT_CONTROLLER_INIT_CONFIG_DEFAULT();
     if ((err = esp_bt_controller_init(&bt_cfg)) != ESP_OK) {
         ESP_LOGE(BT_BLE_COEX_TAG, "%s initialize controller failed: %s\n", __func__, esp_err_to_name(err));
         return;
     }
 
+    printf(" INFO : Enabling BT Module \n");
+
     if ((err = esp_bt_controller_enable(ESP_BT_MODE_BLE)) != ESP_OK) {
         ESP_LOGE(BT_BLE_COEX_TAG, "%s enable controller failed: %s\n", __func__, esp_err_to_name(err));
         return;
     }
 
+    printf(" INFO : Initing Blueroid \n");
+
     if ((err = esp_bluedroid_init()) != ESP_OK) {
         ESP_LOGE(BT_BLE_COEX_TAG, "%s initialize bluedroid failed: %s\n", __func__, esp_err_to_name(err));
         return;
     }
+
+    printf(" INFO : Initing Blueroid \n");
 
     if ((err = esp_bluedroid_enable()) != ESP_OK) {
         ESP_LOGE(BT_BLE_COEX_TAG, "%s enable bluedroid failed: %s\n", __func__, esp_err_to_name(err));
@@ -590,10 +593,14 @@ void app_main(void)
     }
 
     /* create application task */
+    printf(" INFO : Invoking APP Startup \n");
+
     bt_app_task_start_up();
 
 
 #if (CONFIG_BT_SSP_ENABLED == true)
+    printf(" INFO : Setting Default Values \n");
+
     /* Set default parameters for Secure Simple Pairing */
     esp_bt_sp_param_t param_type = ESP_BT_SP_IOCAP_MODE;
     esp_bt_io_cap_t iocap = ESP_BT_IO_CAP_IO;
@@ -610,9 +617,17 @@ void app_main(void)
     pin_code[1] = '2';
     pin_code[2] = '3';
     pin_code[3] = '4';
+
+    printf(" INFO : Setting PIN's \n");
+
     esp_bt_gap_set_pin(pin_type, 4, pin_code);
+
+    printf(" INFO : Starting GATT Init \n");
 
     //gatt server init
     ble_gatts_init();
+
+    printf(" INFO : Starting UART App \n");
+
     uart_app_main();
 }
