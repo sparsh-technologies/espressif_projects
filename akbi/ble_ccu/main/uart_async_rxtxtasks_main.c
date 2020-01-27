@@ -85,7 +85,7 @@ static void check_and_uart_data(int fd, const fd_set *rfds, const char *src_msg)
 
 void send_uart_message(const char* p_data, int length)
 {
-    write(uart_fd, p_data, strlen(p_data));
+    write(uart_fd, p_data, length);
 }
 
 void uart_app_main(void *param)
