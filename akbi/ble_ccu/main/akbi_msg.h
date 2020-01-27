@@ -24,7 +24,6 @@ const char  *WEBAPP_RETURN_DELIMITER_STRING           = ",";
 const short BLE_MESSAGE_SIZE                          = 20;
 const short BLE_COMMAND_SIZE                          = 17; //BLE_MESSAGE SIZE - Source App Type (1) - Source App ID (1) - Command Id (1)
 const short BLE_COMMAND_ID_SIZE                       = 1;
-const short BLE_RETURN_MAX_SIZE                       = 20;
 const short BLE_RETURN_RC_SIZE                        = 1;
 const short BLE_COMMAND_DATA_TYPE_SIZE                = 1;
 
@@ -64,32 +63,31 @@ const short ERROR_MOB1_NO_NOT_CONFIGURED              = 0x08;
 const short ERROR_CHANGE_PASSWORD_MISMATCH            = 0x09;
 const short ERROR_MY_AP_START                         = 0x0A;
 const short ERROR_MY_WIFI_STN_START                   = 0x0D;
-const short NONE                                      = 0xEE;
-const short WIFI_INTERNET_AVAILABLE                   = 0x30;
-const short WIFI_CONNECTED_INET_UNAVAILABLE           = 0x31;
-const short WIFI_NOT_CONNECTED                        = 0x32;
-const short WIFI_NOT_CONNECTED_KEY_ERROR              = 0x33;
-const short WIFI_NOT_CONNECTED_SSID_ERROR             = 0x34;
-const short WIFI_STILL_CONNECTED                      = 0x35;
-const short ALL_OTHER_ERRORS                          = 0xFF;
 
+#define BLE_RETURN_MAX_SIZE                       20
+#define SER_NO_SIZE                               8
+#define PASS_SIZE                                 15
+#define MOB_NO_SIZE                               10
+#define MOB_NAME_SIZE                             15
+#define IMEI_NO_SIZE                              15
+#define BLE_APP_TYPE_ID_SIZE                      1
 
-#define SER_NO_SIZE                   8
-#define PASS_SIZE                     15
-#define MOB_NO_SIZE                   10
-#define MOB_NAME_SIZE                 15
-#define IMEI_NO_SIZE                  15
-#define BLE_APP_TYPE_ID_SIZE          1
+#if 0
 #define BLE_APP_ID_SIZE               2
+#define DEFAULT_EMERGENCY_NUMBER      911
+#define LAT_LONG_SIZE                 11
+#endif
+
 #define BLE_APP_AUTH_TOKEN_SIZE       2
 #define FILE_NAME_SIZE                30
 #define PERSONAL_VOICE_MESSAGES_COUNT 6
-#define DEFAULT_EMERGENCY_NUMBER      911
+
+
 #define DEFAULT_EMERGENCY_NUMBER_SIZE 3
 #define SSID_SIZE                     15
 #define NETWORK_KEY_SIZE              15
 #define LOCATION_COUNT                10
-#define LAT_LONG_SIZE                 11
+
 #define TIMESTAMP_SIZE                10
 #define FW_UPGRADE_COUNT              10
 #define FW_VERSION_STRING_SIZE        10
