@@ -64,6 +64,9 @@
 #define CID_ENTER_LOCAL_HELP_NUMBERS       0x0B
 #define CID_CCU_ACTIVATE                   0x0C
 #define CID_CONNECT_TO_WIFI                0x0D
+#define CID_DISCONNECT_WIFI                0x0E
+#define CID_UPDATE_CCU_SOFTWARE            0x0F
+#define CID_UPLOAD_TRIP_INFO               0x10
 
 #define DID_REGISTER_PASSWORD              0x01
 #define DID_REGISTER_MOB_NO                0x02

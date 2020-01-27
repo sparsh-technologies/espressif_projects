@@ -42,12 +42,11 @@
 #include "esp_gatt_common_api.h"
 
 #include "../../ble_apis.h"
-
 #include "uart_async_rxtxtasks_main.h"
 
 #define BT_BLE_COEX_TAG             "BT_BLE_COEX"
 //#define BT_DEVICE_NAME              "ESP_COEX_A2DP_DEMO"
-#define BLE_ADV_NAME                "ESP_COEX_BLE_DEMO"
+#define BLE_ADV_NAME                "Guardian_test"
 #define BLE_LOCAL_NAME              "lcln"
 
 #define GATTS_SERVICE_UUID_A        0x00FF
