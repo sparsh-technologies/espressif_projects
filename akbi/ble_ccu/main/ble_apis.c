@@ -34,7 +34,7 @@ int execute_register(char *i_cmd, char *i_ret_msg) {
     char data_type                          = i_cmd[BLE_CMD_MULTI_DATA_TYPE_OFFSET];
     int  data_len_in_ble                    = (int)i_cmd[BLE_CMD_MULTI_DATA_LEN_OFFSET];
     i_ret_msg[BLE_RET_MSG_DATA_TYPE_OFFSET] = data_type;
-    //return_msg_len = 8;
+
 
     switch (data_type) {
         case DID_REGISTER_PASSWORD : {
@@ -78,6 +78,10 @@ int execute_register(char *i_cmd, char *i_ret_msg) {
     #ifdef BLE_DEBUG
     printf("Data Status #%x#%x#\n", this_ccu.paired_mob1.data_status, this_ccu.data_status);
     #endif
+
+   if (this_ccu.paired_mob1.data_status == FLAG_DATA_SET_MOB1_ALL){
+       return READY_TO_SEND_REG_DATA_TO_SERIAL;
+   }
 
     //The below if condition and processing needs to be moved to 'Select A WiFi' and 'Connect to WiFi' sections.
     if ((this_ccu.paired_mob1.data_status == FLAG_DATA_SET_MOB1_ALL) && ((this_ccu.data_status & FLAG_DATA_SET_CCU_PASSWORD) == FLAG_DATA_SET_CCU_PASSWORD)) {
@@ -759,7 +763,7 @@ int read_ble_message(char *i_msg, char *i_ret_msg) {
             }
         }
     }
-    return return_msg_len;//(int)i_ret_msg[BLE_RET_MSG_RC_OFFSET];
+    return i_ret_msg[BLE_RET_MSG_RC_OFFSET];
 }
 
 int populate_serial_no_from_eeprom(char *i_ser) {
@@ -841,6 +845,46 @@ void print_ccu() {
     printf("Time #%ld#%d#%d#%d#%d#%d#%d#\n",time_value,tv.tm_year+1900,tv.tm_mon+1,tv.tm_mday,tv.tm_hour,tv.tm_min,tv.tm_sec);
 
     printf("\n\n******** CCU DATA END ********\n");
+}
+
+int populate_bt_msg_to_serial(char *received_value_buffer,char *msg_to_ccu, int *msg_length){
+
+    BT_CP_PROTOCOL_HDR  *p_protocol_hdr;
+    char                *p;
+
+    printf("in populate recevd val buff =%s\n",received_value_buffer );
+    p_protocol_hdr = (BT_CP_PROTOCOL_HDR *)msg_to_ccu;
+
+    p_protocol_hdr->opcode   = received_value_buffer[BLE_CMD_OFFSET];
+    p_protocol_hdr->trans_id = 44;
+    p_protocol_hdr->type     = received_value_buffer[BLE_MSG_MULTI_DATA_TYPE_OFFSET];
+    p_protocol_hdr->length   = received_value_buffer[BLE_MSG_MULTI_DATA_LEN_OFFSET];
+
+    printf("p protocol opcode %02x\n",p_protocol_hdr->opcode );
+    printf("trans_id %02x\n", p_protocol_hdr->trans_id);
+    printf("type %02x\n", p_protocol_hdr->type);
+    printf("length %02x\n", p_protocol_hdr->length);
+
+    p = msg_to_ccu + sizeof(BT_CP_PROTOCOL_HDR);
+    memcpy(p,(received_value_buffer+BLE_MSG_MULTI_DATA_LEN_OFFSET+1), p_protocol_hdr->length);
+
+    *msg_length = sizeof(BT_CP_PROTOCOL_HDR) + p_protocol_hdr->length;
+
+
+    //memcpy(msg_to_ccu , &package, package.length);
+    //memcpy(msg_to_ccu , (received_value_buffer+BLE_MSG_MULTI_DATA_LEN_OFFSET+1),package.length);
+    // msg_to_ccu[0]= received_value_buffer[BLE_CMD_OFFSET];
+    // msg_to_ccu[1]= received_value_buffer[BLE_MSG_MULTI_DATA_TYPE_OFFSET];
+    // msg_to_ccu[2]= 44;
+    // msg_to_ccu[4]= received_value_buffer[BLE_MSG_MULTI_DATA_LEN_OFFSET];
+    //
+    // for(int i=5; i< package.length+sizeof(package); i++){
+    //     msg_to_ccu[i] = received_value_buffer[BLE_MSG_MULTI_DATA_LEN_OFFSET+1];
+    // }
+    // msg_length = sizeof(package) + package.length;
+
+
+    return 0;
 }
 
 int main(int argc, char** argv) {

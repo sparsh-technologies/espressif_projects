@@ -10,7 +10,7 @@
  *
  ****************************************************************************************
  */
-
+#if 1
 #include <stdio.h>
 #include <sys/fcntl.h>
 #include <sys/errno.h>
@@ -31,7 +31,7 @@
 int uart_fd = -1;
 
 uart_config_t uart_config = {
-    .baud_rate = 115200,
+    .baud_rate = 38400,
     .data_bits = UART_DATA_8_BITS,
     .parity    = UART_PARITY_DISABLE,
     .stop_bits = UART_STOP_BITS_1,
@@ -120,7 +120,7 @@ void uart_app_main(void *param)
     vTaskDelete(NULL);
 }
 
-
+#endif
 
 
 
@@ -152,7 +152,7 @@ char   message[20];
 
 void init(void) {
     const uart_config_t uart_config = {
-        .baud_rate = 57600,
+        .baud_rate = 38400,
         .data_bits = UART_DATA_8_BITS,
         .parity = UART_PARITY_DISABLE,
         .stop_bits = UART_STOP_BITS_1,

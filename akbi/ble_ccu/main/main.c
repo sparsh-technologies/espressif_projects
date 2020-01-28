@@ -371,6 +371,10 @@ static void gatts_profile_a_event_handler(esp_gatts_cb_event_t event, esp_gatt_i
             esp_log_buffer_hex(BT_BLE_COEX_TAG, param->write.value, param->write.len);
 
             char received_value_buffer[30];
+            char to_ccu_value_buffer[30];
+            int dummy = 0;
+            int *msg_to_ccu_length = &dummy;
+            int read_ble_message_result = 0;
 
             //copying received string to received_value_buffer
             memcpy(received_value_buffer,"\0",param->write.len+1);
@@ -379,16 +383,30 @@ static void gatts_profile_a_event_handler(esp_gatts_cb_event_t event, esp_gatt_i
 
             memset(ep_return_message,0,MAX_RETURN_MSG_LENGTH);
             //getting return message
-            read_ble_message(received_value_buffer, ep_return_message);
-            //memcpy(return_msg_array[param->write.value[3]],ep_return_message,return_msg_length);
-            send_uart_message(received_value_buffer, param->write.len);
+            read_ble_message_result = read_ble_message(received_value_buffer, ep_return_message);
 
-            printf("BLE Return Message after processing 0x");
-            for(int i = 0; i < MAX_RETURN_MSG_LENGTH ;i++){
-              printf("%02x ",ep_return_message[i]);
+            if (read_ble_message_result == 0 ){
+                //memcpy(return_msg_array[param->write.value[3]],ep_return_message,return_msg_length);
+                printf("received value buffer - %s\n",received_value_buffer);
+
+                populate_bt_msg_to_serial(received_value_buffer,to_ccu_value_buffer,msg_to_ccu_length);
+                printf("parsed message successfully - %s\n",to_ccu_value_buffer);
+
+
+                send_uart_message(to_ccu_value_buffer, *msg_to_ccu_length);
+                //send_uart_message(received_value_buffer,param->write.len)
+                printf("received message %s\n",received_value_buffer);
+                printf("to ccu message %s\n",to_ccu_value_buffer);
+
+                printf("BLE Return Message after processing 0x");
+                for(int i = 0; i < MAX_RETURN_MSG_LENGTH ;i++){
+                  printf("%02x ",ep_return_message[i]);
+                }
+                printf("\n");
             }
-            printf("\n");
-
+            else{
+              printf("Not a valid message\n");
+            }
 
             // if (gl_profile_tab[PROFILE_A_APP_ID].descr_handle == param->write.handle && param->write.len == 2){
             //     uint16_t descr_value = param->write.value[1]<<8 | param->write.value[0];
