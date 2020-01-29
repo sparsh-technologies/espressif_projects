@@ -249,7 +249,7 @@ int execute_store_emergency_number(char *i_cmd, char *i_ret_msg) {
         }
         case DID_EMERGENCY_CLOSE_RELATIVE : {
             memcpy(this_ccu.conf_emergency_nos.close_relative,i_emergency_number,data_len_in_ble);
-            memcpy(&i_ret_msg[BLE_RET_MSG_RC_OFFSET],&SUCCESS,BLE_RETURN_RC_SIZE);
+            memset(&i_ret_msg[BLE_RET_MSG_RC_OFFSET], SUCCESS, BLE_RETURN_RC_SIZE);
             break;
         }
         default: {
@@ -359,8 +359,9 @@ int execute_scan_wifis(char *i_cmd ,char *i_ret_msg) {
         searched_ssid_count_index = 0;
     }
     else if(data_type == BLE_RET_MSG_SCANNED_WIFI_SSID_TYPE){
-       memcpy(&i_ret_msg[BLE_RET_MSG_RC_OFFSET],&SUCCESS,BLE_RETURN_RC_SIZE);
-       memcpy(&i_ret_msg[BLE_RET_MSG_DATA_TYPE_OFFSET],&BLE_RET_MSG_SCANNED_WIFI_SSID_TYPE,BLE_COMMAND_DATA_TYPE_SIZE);
+       memset(&i_ret_msg[BLE_RET_MSG_RC_OFFSET], SUCCESS, BLE_RETURN_RC_SIZE);
+       memset(&i_ret_msg[BLE_RET_MSG_DATA_TYPE_OFFSET], BLE_RET_MSG_SCANNED_WIFI_SSID_TYPE,
+              BLE_COMMAND_DATA_TYPE_SIZE);
        memcpy(&i_ret_msg[BLE_RET_MSG_SCANNED_SSID_COUNT_OFFSET],&this_ccu.scanned_wifis[searched_ssid_count_index].ssid,SCANNED_WIFI_NAME_SIZE);
        printf("\nssid %s\n",this_ccu.scanned_wifis[searched_ssid_count_index].ssid);
        searched_ssid_count_index++;
@@ -385,18 +386,19 @@ int execute_select_a_wifi(char *i_cmd, char *i_ret_msg) {
     switch (data_type) {
         case DID_SELECT_A_WIFI_SSID : {
             memcpy(this_ccu.conf_wifi.ssid,i_data_value,data_len_in_ble);
-            memcpy(&i_ret_msg[BLE_RET_MSG_RC_OFFSET],&SUCCESS,BLE_RETURN_RC_SIZE);
+            memset(&i_ret_msg[BLE_RET_MSG_RC_OFFSET], SUCCESS, BLE_RETURN_RC_SIZE);
             this_ccu.conf_wifi.data_status |= FLAG_DATA_SET_SEL_WIFI_SSID;
             break;
         }
         case DID_SELECT_A_WIFI_NETWORK_KEY : {
             memcpy(this_ccu.conf_wifi.network_key,i_data_value,data_len_in_ble);
-            memcpy(&i_ret_msg[BLE_RET_MSG_RC_OFFSET],&SUCCESS,BLE_RETURN_RC_SIZE);
+            memset(&i_ret_msg[BLE_RET_MSG_RC_OFFSET], SUCCESS, BLE_RETURN_RC_SIZE);
             this_ccu.conf_wifi.data_status |= FLAG_DATA_SET_SEL_WIFI_NETWORK_KEY;
             break;
         }
         default: {
-            memcpy(&i_ret_msg[BLE_RET_MSG_RC_OFFSET],&ERROR_UNRECOGNIZED_DATA,BLE_RETURN_RC_SIZE);
+            memset(&i_ret_msg[BLE_RET_MSG_RC_OFFSET], ERROR_UNRECOGNIZED_DATA,
+                   BLE_RETURN_RC_SIZE);
             break;
         }
     }
@@ -419,7 +421,7 @@ int execute_store_address_visiting(char *i_cmd, char *i_ret_msg) {
 
     if (this_ccu.interface_wifi.mode != ACCESS_POINT) {
         if (0 != enable_ccu_access_point()) {
-            memcpy(&i_ret_msg[BLE_RET_MSG_RC_OFFSET],&ERROR_MY_AP_START,BLE_RETURN_RC_SIZE);
+            memset(&i_ret_msg[BLE_RET_MSG_RC_OFFSET], ERROR_MY_AP_START, BLE_RETURN_RC_SIZE);
             return (int)i_ret_msg[BLE_RET_MSG_RC_OFFSET];
         }
     }
