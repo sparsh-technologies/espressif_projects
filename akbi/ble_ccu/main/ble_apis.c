@@ -1220,7 +1220,7 @@ int main(int argc, char** argv) {
     memset(ble_message,0x00,BLE_MESSAGE_SIZE);
     memset(ble_return_message,0x00,BLE_RETURN_MAX_SIZE);
     strcpy(ble_message, SELECT_A_WIFI_MSG1_TEST);
-    memcpy(&ble_return_message[0],&CCU_TYPE_ID,1);
+    memset(&ble_return_message[0], CCU_TYPE_ID, 1);
     memcpy(&ble_return_message[1],&this_ccu.serial_number[SER_NO_SIZE - CCU_ID_SER_NO_SUFFIX_SIZE],CCU_ID_SER_NO_SUFFIX_SIZE);
     ble_return_message[BLE_RET_MSG_RC_OFFSET] = 0x00;
 
@@ -1256,7 +1256,7 @@ int main(int argc, char** argv) {
     memset(ble_message,0x00,BLE_MESSAGE_SIZE);
     memset(ble_return_message,0x00,BLE_RETURN_MAX_SIZE);
     strcpy(ble_message, ADDRESS_VISITING_MSG_TEST);
-    memcpy(&ble_return_message[0],&CCU_TYPE_ID,1);
+    memset(&ble_return_message[0], CCU_TYPE_ID, 1);
     memcpy(&ble_return_message[1],&this_ccu.serial_number[SER_NO_SIZE - CCU_ID_SER_NO_SUFFIX_SIZE],CCU_ID_SER_NO_SUFFIX_SIZE);
     ble_return_message[BLE_RET_MSG_RC_OFFSET] = 0x00;
 
@@ -1274,7 +1274,7 @@ int main(int argc, char** argv) {
     memset(ble_message,0x00,BLE_MESSAGE_SIZE);
     memset(ble_return_message,0x00,BLE_RETURN_MAX_SIZE);
     strcpy(ble_message, ENTER_LOCAL_HELP_NOS_MSG1_TEST);
-    memcpy(&ble_return_message[0],&CCU_TYPE_ID,1);
+    memset(&ble_return_message[0], CCU_TYPE_ID, 1);
     memcpy(&ble_return_message[1],&this_ccu.serial_number[SER_NO_SIZE - CCU_ID_SER_NO_SUFFIX_SIZE],CCU_ID_SER_NO_SUFFIX_SIZE);
     ble_return_message[BLE_RET_MSG_RC_OFFSET] = 0x00;
 
@@ -1292,7 +1292,7 @@ int main(int argc, char** argv) {
     memset(ble_message,0x00,BLE_MESSAGE_SIZE);
     memset(ble_return_message,0x00,BLE_RETURN_MAX_SIZE);
     strcpy(ble_message, ENTER_LOCAL_HELP_NOS_MSG2_TEST);
-    memcpy(&ble_return_message[0],&CCU_TYPE_ID,1);
+    memset(&ble_return_message[0], CCU_TYPE_ID, 1);
     memcpy(&ble_return_message[1],&this_ccu.serial_number[SER_NO_SIZE - CCU_ID_SER_NO_SUFFIX_SIZE],CCU_ID_SER_NO_SUFFIX_SIZE);
     ble_return_message[BLE_RET_MSG_RC_OFFSET] = 0x00;
 
@@ -1310,7 +1310,7 @@ int main(int argc, char** argv) {
     memset(ble_message,0x00,BLE_MESSAGE_SIZE);
     memset(ble_return_message,0x00,BLE_RETURN_MAX_SIZE);
     strcpy(ble_message, CCU_ACTIVATE_MSG_TEST);
-    memcpy(&ble_return_message[0],&CCU_TYPE_ID,1);
+    memset(&ble_return_message[0], CCU_TYPE_ID, 1);
     memcpy(&ble_return_message[1],&this_ccu.serial_number[SER_NO_SIZE - CCU_ID_SER_NO_SUFFIX_SIZE],CCU_ID_SER_NO_SUFFIX_SIZE);
     ble_return_message[BLE_RET_MSG_RC_OFFSET] = 0x00;
 
@@ -1328,7 +1328,7 @@ int main(int argc, char** argv) {
     memset(ble_message,0x00,BLE_MESSAGE_SIZE);
     memset(ble_return_message,0x00,BLE_RETURN_MAX_SIZE);
     strcpy(ble_message, CONNECT_TO_WIFI_MSG_TEST);
-    memcpy(&ble_return_message[0],&CCU_TYPE_ID,1);
+    memset(&ble_return_message[0], CCU_TYPE_ID, 1);
     memcpy(&ble_return_message[1],&this_ccu.serial_number[SER_NO_SIZE - CCU_ID_SER_NO_SUFFIX_SIZE],CCU_ID_SER_NO_SUFFIX_SIZE);
     ble_return_message[BLE_RET_MSG_RC_OFFSET] = 0x00;
 
