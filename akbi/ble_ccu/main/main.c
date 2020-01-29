@@ -366,15 +366,15 @@ static void gatts_profile_a_event_handler(esp_gatts_cb_event_t event, esp_gatt_i
                        param->write.conn_id, param->write.trans_id, param->write.handle);
 
         if (!param->write.is_prep){
-            ESP_LOGI(BT_BLE_COEX_TAG, "GATT_WRITE_EVT, value len %d, value :", param->write.len);
-            esp_log_buffer_char(BT_BLE_COEX_TAG, param->write.value, param->write.len);
-            esp_log_buffer_hex(BT_BLE_COEX_TAG, param->write.value, param->write.len);
 
             char received_value_buffer[30];
             char to_ccu_value_buffer[30];
-            int dummy = 0;
-            int *msg_to_ccu_length = &dummy;
-            int read_ble_message_result = 0;
+            int msg_to_ccu_length;
+            int read_ble_message_result = 0, i;
+
+            ESP_LOGI(BT_BLE_COEX_TAG, "GATT_WRITE_EVT, value len %d, value :", param->write.len);
+            esp_log_buffer_char(BT_BLE_COEX_TAG, param->write.value, param->write.len);
+            esp_log_buffer_hex(BT_BLE_COEX_TAG, param->write.value, param->write.len);
 
             //copying received string to received_value_buffer
             memcpy(received_value_buffer,"\0",param->write.len+1);
@@ -389,11 +389,16 @@ static void gatts_profile_a_event_handler(esp_gatts_cb_event_t event, esp_gatt_i
                 //memcpy(return_msg_array[param->write.value[3]],ep_return_message,return_msg_length);
                 printf("received value buffer - %s\n",received_value_buffer);
 
-                populate_bt_msg_to_serial(received_value_buffer,to_ccu_value_buffer,msg_to_ccu_length);
+                populate_bt_msg_to_serial(received_value_buffer,to_ccu_value_buffer, &msg_to_ccu_length);
+
+                for (i=0; i< msg_to_ccu_length; i++) 
+                {
+                    printf("Data[%d] : %x\n",i, to_ccu_value_buffer[i]);
+
+                }
                 printf("parsed message successfully - %s\n",to_ccu_value_buffer);
 
-
-                send_uart_message(to_ccu_value_buffer, *msg_to_ccu_length);
+                send_uart_message(to_ccu_value_buffer, msg_to_ccu_length);
                 //send_uart_message(received_value_buffer,param->write.len)
                 printf("received message %s\n",received_value_buffer);
                 printf("to ccu message %s\n",to_ccu_value_buffer);
