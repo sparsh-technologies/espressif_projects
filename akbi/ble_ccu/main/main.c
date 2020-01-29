@@ -63,9 +63,9 @@ typedef struct {
     int      prepare_len;
 } prepare_type_env_t;
 
+static char uart_tx_buffer[200];
 
 static prepare_type_env_t a_prepare_write_env;
-//static prepare_type_env_t b_prepare_write_env;
 
 //Declare the static function
 static void gatts_profile_a_event_handler(esp_gatts_cb_event_t event, esp_gatt_if_t gatts_if, esp_ble_gatts_cb_param_t *param);
@@ -368,7 +368,6 @@ static void gatts_profile_a_event_handler(esp_gatts_cb_event_t event, esp_gatt_i
         if (!param->write.is_prep){
 
             char received_value_buffer[30];
-            char to_ccu_value_buffer[30];
             int msg_to_ccu_length;
             int read_ble_message_result = 0, i;
 
@@ -387,27 +386,17 @@ static void gatts_profile_a_event_handler(esp_gatts_cb_event_t event, esp_gatt_i
 
             if (read_ble_message_result == 0 ){
                 //memcpy(return_msg_array[param->write.value[3]],ep_return_message,return_msg_length);
-                printf("received value buffer - %s\n",received_value_buffer);
 
-                populate_bt_msg_to_serial(received_value_buffer,to_ccu_value_buffer, &msg_to_ccu_length);
+                populate_bt_msg_to_serial(received_value_buffer, uart_tx_buffer, &msg_to_ccu_length);
 
                 for (i=0; i< msg_to_ccu_length; i++) 
                 {
-                    printf("Data[%d] : %x\n",i, to_ccu_value_buffer[i]);
+                    printf("Data[%d] : %x\n",i, uart_tx_buffer[i]);
 
                 }
-                printf("parsed message successfully - %s\n",to_ccu_value_buffer);
 
-                send_uart_message(to_ccu_value_buffer, msg_to_ccu_length);
-                //send_uart_message(received_value_buffer,param->write.len)
-                printf("received message %s\n",received_value_buffer);
-                printf("to ccu message %s\n",to_ccu_value_buffer);
+                send_uart_message(uart_tx_buffer, msg_to_ccu_length);
 
-                printf("BLE Return Message after processing 0x");
-                for(int i = 0; i < MAX_RETURN_MSG_LENGTH ;i++){
-                  printf("%02x ",ep_return_message[i]);
-                }
-                printf("\n");
             }
             else{
               printf("Not a valid message\n");

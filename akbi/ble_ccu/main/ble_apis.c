@@ -857,7 +857,6 @@ int populate_bt_msg_to_serial(char *received_value_buffer,char *msg_to_ccu, int 
     BT_CP_PROTOCOL_HDR  *p_protocol_hdr;
     char                *p;
 
-    printf("in populate recevd val buff =%s\n",received_value_buffer );
     p_protocol_hdr = (BT_CP_PROTOCOL_HDR *)msg_to_ccu;
 
     p_protocol_hdr->opcode   = received_value_buffer[BLE_CMD_OFFSET];
@@ -865,29 +864,15 @@ int populate_bt_msg_to_serial(char *received_value_buffer,char *msg_to_ccu, int 
     p_protocol_hdr->type     = received_value_buffer[BLE_MSG_MULTI_DATA_TYPE_OFFSET];
     p_protocol_hdr->length   = received_value_buffer[BLE_MSG_MULTI_DATA_LEN_OFFSET];
 
-    printf("p protocol opcode %02x\n",p_protocol_hdr->opcode );
-    printf("trans_id %02x\n", p_protocol_hdr->trans_id);
-    printf("type %02x\n", p_protocol_hdr->type);
-    printf("length %02x\n", p_protocol_hdr->length);
+    printf(" Opcode      :  %02x\n",p_protocol_hdr->opcode );
+    printf(" Trans ID    :  %02x\n", p_protocol_hdr->trans_id);
+    printf(" Type        :  %02x\n", p_protocol_hdr->type);
+    printf(" Length      :  %02x\n", p_protocol_hdr->length);
 
     p = msg_to_ccu + sizeof(BT_CP_PROTOCOL_HDR);
     memcpy(p,(received_value_buffer+BLE_MSG_MULTI_DATA_LEN_OFFSET+1), p_protocol_hdr->length);
 
     *msg_length = sizeof(BT_CP_PROTOCOL_HDR) + p_protocol_hdr->length;
-
-
-    //memcpy(msg_to_ccu , &package, package.length);
-    //memcpy(msg_to_ccu , (received_value_buffer+BLE_MSG_MULTI_DATA_LEN_OFFSET+1),package.length);
-    // msg_to_ccu[0]= received_value_buffer[BLE_CMD_OFFSET];
-    // msg_to_ccu[1]= received_value_buffer[BLE_MSG_MULTI_DATA_TYPE_OFFSET];
-    // msg_to_ccu[2]= 44;
-    // msg_to_ccu[4]= received_value_buffer[BLE_MSG_MULTI_DATA_LEN_OFFSET];
-    //
-    // for(int i=5; i< package.length+sizeof(package); i++){
-    //     msg_to_ccu[i] = received_value_buffer[BLE_MSG_MULTI_DATA_LEN_OFFSET+1];
-    // }
-    // msg_length = sizeof(package) + package.length;
-
 
     return 0;
 }
