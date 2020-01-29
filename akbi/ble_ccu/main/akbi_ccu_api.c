@@ -26,7 +26,7 @@ int ccu_sent_subg_clear_learning_msg(char *p_tx_buffer)
 
     p_protocol_hdr = (BT_CP_PROTOCOL_HDR *)p_tx_buffer;
 
-    p_protocol_hdr->opcode   = BT_CP_OPCODE_CLEAR_SUB_G_LEARN;
+    p_protocol_hdr->opcode   = BT_CP_OPCODE_CID_CLEAR_SUB_G_LEARN;
     p_protocol_hdr->trans_id = 44;
     p_protocol_hdr->type     = 0;
     p_protocol_hdr->length   = 0;
@@ -51,7 +51,7 @@ int ccu_sent_subg_learning_msg(char *p_tx_buffer)
 
     p_protocol_hdr = (BT_CP_PROTOCOL_HDR *)p_tx_buffer;
 
-    p_protocol_hdr->opcode   = BT_CP_OPCODE_START_SUB_G_LEARN;
+    p_protocol_hdr->opcode   = BT_CP_OPCODE_CID_START_SUB_G_LEARN;
     p_protocol_hdr->trans_id = 44;
     p_protocol_hdr->type     = 0;
     p_protocol_hdr->length   = 0;
@@ -73,17 +73,14 @@ int ccu_sent_scan_all_wifi_msg(char *p_tx_buffer)
     char                *p;
     int                 length;
 
+    printf(" INFO : Sending SCAN-ALL-WIFI Message \n");
     p_protocol_hdr = (BT_CP_PROTOCOL_HDR *)p_tx_buffer;
 
-    p_protocol_hdr->opcode   = BT_CP_OPCODE_START_WIFI_SCAN;
+    p_protocol_hdr->opcode   = BT_CP_OPCODE_CID_SCAN_WIFIS;
     p_protocol_hdr->trans_id = 44;
     p_protocol_hdr->type     = 0;
     p_protocol_hdr->length   = 0;
 
-    printf(" Opcode      :  %02x\n",p_protocol_hdr->opcode );
-    printf(" Trans ID    :  %02x\n", p_protocol_hdr->trans_id);
-    printf(" Type        :  %02x\n", p_protocol_hdr->type);
-    printf(" Length      :  %02x\n", p_protocol_hdr->length);
 
     length = sizeof(BT_CP_PROTOCOL_HDR) + p_protocol_hdr->length;
     send_uart_message(p_tx_buffer, length);
@@ -99,7 +96,7 @@ int ccu_sent_configure_wifi_credentials(char *p_tx_buffer, char *p_ap_name, char
 
     p_protocol_hdr = (BT_CP_PROTOCOL_HDR *)p_tx_buffer;
 
-    p_protocol_hdr->opcode   = BT_CP_OPCODE_SET_WIFI_CREDENTIALS;
+    p_protocol_hdr->opcode   = BT_CP_OPCODE_CID_SELECT_A_WIFI;
     p_protocol_hdr->trans_id = 44;
 
     /*
@@ -127,6 +124,174 @@ int ccu_sent_configure_wifi_credentials(char *p_tx_buffer, char *p_ap_name, char
     p++;
     memcpy(p, p_passwd, strlen(p_passwd));
     p += strlen(p_passwd);
+
+    length = sizeof(BT_CP_PROTOCOL_HDR) + p_protocol_hdr->length;
+    send_uart_message(p_tx_buffer, length);
+
+    return (0);
+}
+
+int ccu_sent_user_login_msg(char *p_tx_buffer)
+{
+    BT_CP_PROTOCOL_HDR  *p_protocol_hdr;
+    char                *p;
+    int                 length;
+
+    printf(" INFO : Sending USER-LOGIN Message \n");
+    p_protocol_hdr = (BT_CP_PROTOCOL_HDR *)p_tx_buffer;
+
+    p_protocol_hdr->opcode   = BT_CP_OPCODE_CID_LOGIN;
+    p_protocol_hdr->trans_id = 44;
+    p_protocol_hdr->type     = 0;
+    p_protocol_hdr->length   = 0;
+
+
+    length = sizeof(BT_CP_PROTOCOL_HDR) + p_protocol_hdr->length;
+    send_uart_message(p_tx_buffer, length);
+    
+    return (0);
+}
+
+int ccu_sent_user_forgot_passwd_msg(char *p_tx_buffer)
+{
+    BT_CP_PROTOCOL_HDR  *p_protocol_hdr;
+    char                *p;
+    int                 length;
+
+    printf(" INFO : Sending USER-FORGOT_PASSWD Message \n");
+    p_protocol_hdr = (BT_CP_PROTOCOL_HDR *)p_tx_buffer;
+
+    p_protocol_hdr->opcode   = BT_CP_OPCODE_CID_FORGOT_PASSWORD;
+    p_protocol_hdr->trans_id = 44;
+    p_protocol_hdr->type     = 0;
+    p_protocol_hdr->length   = 0;
+
+
+    length = sizeof(BT_CP_PROTOCOL_HDR) + p_protocol_hdr->length;
+    send_uart_message(p_tx_buffer, length);
+
+    return (0);
+}
+
+int ccu_sent_user_change_passwd_msg(char *p_tx_buffer)
+{
+    BT_CP_PROTOCOL_HDR  *p_protocol_hdr;
+    char                *p;
+    int                 length;
+
+    printf(" INFO : Sending USER-CHANGE_PASSWD Message \n");
+    p_protocol_hdr = (BT_CP_PROTOCOL_HDR *)p_tx_buffer;
+
+    p_protocol_hdr->opcode   = BT_CP_OPCODE_CID_CHANGE_PASSWORD;
+    p_protocol_hdr->trans_id = 44;
+    p_protocol_hdr->type     = 0;
+    p_protocol_hdr->length   = 0;
+
+
+    length = sizeof(BT_CP_PROTOCOL_HDR) + p_protocol_hdr->length;
+    send_uart_message(p_tx_buffer, length);
+
+    return (0);
+}
+
+int ccu_sent_record_voice_msg(char *p_tx_buffer)
+{
+    BT_CP_PROTOCOL_HDR  *p_protocol_hdr;
+    char                *p;
+    int                 length;
+
+    printf(" INFO : Sending RECORD-VOICE Message \n");
+    p_protocol_hdr = (BT_CP_PROTOCOL_HDR *)p_tx_buffer;
+
+    p_protocol_hdr->opcode   = BT_CP_OPCODE_CID_RECORD_PERSONAL_VOICE_MSG;
+    p_protocol_hdr->trans_id = 44;
+    p_protocol_hdr->type     = 0;
+    p_protocol_hdr->length   = 0;
+
+
+    length = sizeof(BT_CP_PROTOCOL_HDR) + p_protocol_hdr->length;
+    send_uart_message(p_tx_buffer, length);
+
+    return (0);
+}
+
+int ccu_sent_store_emergency_number_msg(char *p_tx_buffer)
+{
+    BT_CP_PROTOCOL_HDR  *p_protocol_hdr;
+    char                *p;
+    int                 length;
+
+    printf(" INFO : Sending EMERGENCY-NUM Message \n");
+    p_protocol_hdr = (BT_CP_PROTOCOL_HDR *)p_tx_buffer;
+
+    p_protocol_hdr->opcode   = BT_CP_OPCODE_CID_STORE_EMERGENCY_NUMBERS;
+    p_protocol_hdr->trans_id = 44;
+    p_protocol_hdr->type     = 0;
+    p_protocol_hdr->length   = 0;
+
+
+    length = sizeof(BT_CP_PROTOCOL_HDR) + p_protocol_hdr->length;
+    send_uart_message(p_tx_buffer, length);
+
+    return (0);
+}
+
+int ccu_sent_store_personal_number_msg(char *p_tx_buffer)
+{
+    BT_CP_PROTOCOL_HDR  *p_protocol_hdr;
+    char                *p;
+    int                 length;
+
+    printf(" INFO : Sending PERSONAL-NUM Message \n");
+    p_protocol_hdr = (BT_CP_PROTOCOL_HDR *)p_tx_buffer;
+
+    p_protocol_hdr->opcode   = BT_CP_OPCODE_CID_STORE_PERSONAL_NUMBERS;
+    p_protocol_hdr->trans_id = 44;
+    p_protocol_hdr->type     = 0;
+    p_protocol_hdr->length   = 0;
+
+
+    length = sizeof(BT_CP_PROTOCOL_HDR) + p_protocol_hdr->length;
+    send_uart_message(p_tx_buffer, length);
+
+    return (0);
+}
+
+int ccu_sent_store_local_help_number_msg(char *p_tx_buffer)
+{
+    BT_CP_PROTOCOL_HDR  *p_protocol_hdr;
+    char                *p;
+    int                 length;
+
+    printf(" INFO : Sending LOCAL-HELP-NUM Message \n");
+    p_protocol_hdr = (BT_CP_PROTOCOL_HDR *)p_tx_buffer;
+
+    p_protocol_hdr->opcode   = BT_CP_OPCODE_CID_ENTER_LOCAL_HELP_NUMBERS;
+    p_protocol_hdr->trans_id = 44;
+    p_protocol_hdr->type     = 0;
+    p_protocol_hdr->length   = 0;
+
+
+    length = sizeof(BT_CP_PROTOCOL_HDR) + p_protocol_hdr->length;
+    send_uart_message(p_tx_buffer, length);
+
+    return (0);
+}
+
+int ccu_sent_activate_system_msg(char *p_tx_buffer)
+{
+    BT_CP_PROTOCOL_HDR  *p_protocol_hdr;
+    char                *p;
+    int                 length;
+
+    printf(" INFO : Sending ACTIVATE-SYSTEM Message \n");
+    p_protocol_hdr = (BT_CP_PROTOCOL_HDR *)p_tx_buffer;
+
+    p_protocol_hdr->opcode   = BT_CP_OPCODE_CID_CCU_ACTIVATE;
+    p_protocol_hdr->trans_id = 44;
+    p_protocol_hdr->type     = 0;
+    p_protocol_hdr->length   = 0;
+
 
     length = sizeof(BT_CP_PROTOCOL_HDR) + p_protocol_hdr->length;
     send_uart_message(p_tx_buffer, length);

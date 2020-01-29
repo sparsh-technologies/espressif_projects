@@ -270,12 +270,22 @@ typedef struct __attribute__((__packed__)) _bt_cp_protocol_hdr_ {
 /*
  * Various Opcodes are defined here.
  */
-#define BT_CP_OPCODE_MOB1_REGISTER                                0x01
-#define BT_CP_OPCODE_CLEAR_SUB_G_LEARN                            0x02
-#define BT_CP_OPCODE_START_SUB_G_LEARN                            0x03
-#define BT_CP_OPCODE_START_WIFI_SCAN                              0x04
-#define BT_CP_OPCODE_WIFI_SCAN_RESULT                             0x05
-#define BT_CP_OPCODE_SET_WIFI_CREDENTIALS                         0x06
+
+#define BT_CP_OPCODE_CID_REGISTER                                 0x01
+#define BT_CP_OPCODE_CID_LOGIN                                    0x02
+#define BT_CP_OPCODE_CID_FORGOT_PASSWORD                          0x03
+#define BT_CP_OPCODE_CID_CHANGE_PASSWORD                          0x04
+#define BT_CP_OPCODE_CID_RECORD_PERSONAL_VOICE_MSG                0x05
+#define BT_CP_OPCODE_CID_STORE_EMERGENCY_NUMBERS                  0x06
+#define BT_CP_OPCODE_CID_STORE_PERSONAL_NUMBERS                   0x07
+#define BT_CP_OPCODE_CID_SCAN_WIFIS                               0x08
+#define BT_CP_OPCODE_CID_SELECT_A_WIFI                            0x09
+#define BT_CP_OPCODE_CID_ADDRESS_VISITING                         0x0A
+#define BT_CP_OPCODE_CID_ENTER_LOCAL_HELP_NUMBERS                 0x0B
+#define BT_CP_OPCODE_CID_CCU_ACTIVATE                             0x0C
+#define BT_CP_OPCODE_CID_CONNECT_TO_WIFI                          0x0D
+#define BT_CP_OPCODE_CID_CLEAR_SUB_G_LEARN                        0x0E
+#define BT_CP_OPCODE_CID_START_SUB_G_LEARN                        0x0F
 
 /*
  * All TVL Types are defined here.
