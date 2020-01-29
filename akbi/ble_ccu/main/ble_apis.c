@@ -224,7 +224,7 @@ int execute_record_personal_voice_msg(char *i_ret_msg)
             return (int)i_ret_msg[BLE_RET_MSG_RC_OFFSET];
         }
     }
-    memcpy(&i_ret_msg[BLE_RET_MSG_RC_OFFSET],&SUCCESS,BLE_RETURN_RC_SIZE);
+    memset(&i_ret_msg[BLE_RET_MSG_RC_OFFSET], SUCCESS, BLE_RETURN_RC_SIZE);
     memcpy(&i_ret_msg[BLE_RET_MSG_MY_SSID_OFFSET],this_ccu.interface_wifi.ssid,SSID_SIZE);
   //  memcpy(&i_ret_msg[BLE_RET_MSG_MY_NETWORK_KEY_OFFSET],this_ccu.interface_wifi.network_key,NETWORK_KEY_SIZE);
 
@@ -244,7 +244,7 @@ int execute_store_emergency_number(char *i_cmd, char *i_ret_msg) {
     switch (data_type) {
         case DID_EMERGENCY_FIRST_RESPONDER : {
             memcpy(this_ccu.conf_emergency_nos.first_responder,i_emergency_number,data_len_in_ble);
-            memcpy(&i_ret_msg[BLE_RET_MSG_RC_OFFSET],&SUCCESS,BLE_RETURN_RC_SIZE);
+            memset(&i_ret_msg[BLE_RET_MSG_RC_OFFSET], SUCCESS, BLE_RETURN_RC_SIZE);
             break;
         }
         case DID_EMERGENCY_CLOSE_RELATIVE : {
@@ -253,7 +253,7 @@ int execute_store_emergency_number(char *i_cmd, char *i_ret_msg) {
             break;
         }
         default: {
-            memcpy(&i_ret_msg[BLE_RET_MSG_RC_OFFSET],&ERROR_UNRECOGNIZED_DATA,BLE_RETURN_RC_SIZE);
+            memset(&i_ret_msg[BLE_RET_MSG_RC_OFFSET], ERROR_UNRECOGNIZED_DATA, BLE_RETURN_RC_SIZE);
             break;
         }
 
@@ -274,16 +274,16 @@ int execute_store_personal_number(char *i_cmd, char *i_ret_msg) {
     switch (data_type) {
         case DID_PERSONAL_SECOND_NUMBER : {
             memcpy(this_ccu.conf_personal_nos.second_number,i_personal_number,data_len_in_ble);
-            memcpy(&i_ret_msg[BLE_RET_MSG_RC_OFFSET],&SUCCESS,BLE_RETURN_RC_SIZE);
+            memset(&i_ret_msg[BLE_RET_MSG_RC_OFFSET], SUCCESS, BLE_RETURN_RC_SIZE);
             break;
         }
         case DID_PERSONAL_THIRD_NUMBER : {
             memcpy(this_ccu.conf_personal_nos.third_number,i_personal_number,data_len_in_ble);
-            memcpy(&i_ret_msg[BLE_RET_MSG_RC_OFFSET],&SUCCESS,BLE_RETURN_RC_SIZE);
+            memset(&i_ret_msg[BLE_RET_MSG_RC_OFFSET], SUCCESS, BLE_RETURN_RC_SIZE);
             break;
         }
         default: {
-            memcpy(&i_ret_msg[BLE_RET_MSG_RC_OFFSET],&ERROR_UNRECOGNIZED_DATA,BLE_RETURN_RC_SIZE);
+            memset(&i_ret_msg[BLE_RET_MSG_RC_OFFSET], ERROR_UNRECOGNIZED_DATA, BLE_RETURN_RC_SIZE);
             break;
         }
 
@@ -303,16 +303,16 @@ int execute_enter_local_help_number(char *i_cmd, char *i_ret_msg) {
     switch (data_type) {
         case DID_LOCAL_HELP_FOURTH_NUMBER : {
             memcpy(this_ccu.visited_locations[i_visited_locations_count].fourth_phone_number,i_local_help_number,data_len_in_ble);
-            memcpy(&i_ret_msg[BLE_RET_MSG_RC_OFFSET],&SUCCESS,BLE_RETURN_RC_SIZE);
+            memset(&i_ret_msg[BLE_RET_MSG_RC_OFFSET], SUCCESS, BLE_RETURN_RC_SIZE);
             break;
         }
         case DID_LOCAL_HELP_FIFTH_NUMBER : {
             memcpy(this_ccu.visited_locations[i_visited_locations_count].fifth_phone_number,i_local_help_number,data_len_in_ble);
-            memcpy(&i_ret_msg[BLE_RET_MSG_RC_OFFSET],&SUCCESS,BLE_RETURN_RC_SIZE);
+            memset(&i_ret_msg[BLE_RET_MSG_RC_OFFSET], SUCCESS, BLE_RETURN_RC_SIZE);
             break;
         }
         default: {
-            memcpy(&i_ret_msg[BLE_RET_MSG_RC_OFFSET],&ERROR_UNRECOGNIZED_DATA,BLE_RETURN_RC_SIZE);
+            memset(&i_ret_msg[BLE_RET_MSG_RC_OFFSET], ERROR_UNRECOGNIZED_DATA, BLE_RETURN_RC_SIZE);
             break;
         }
 
@@ -342,7 +342,7 @@ int execute_scan_wifis(char *i_cmd ,char *i_ret_msg) {
 
     if (this_ccu.interface_wifi.mode != STATION) {
         if (0 != enable_ccu_wifi_station()) {
-            memcpy(&i_ret_msg[BLE_RET_MSG_RC_OFFSET],&ERROR_MY_WIFI_STN_START,BLE_RETURN_RC_SIZE);
+            memset(&i_ret_msg[BLE_RET_MSG_RC_OFFSET], ERROR_MY_WIFI_STN_START, BLE_RETURN_RC_SIZE);
             return (int)i_ret_msg[BLE_RET_MSG_RC_OFFSET];
         }
     }
@@ -352,8 +352,9 @@ int execute_scan_wifis(char *i_cmd ,char *i_ret_msg) {
         int count = get_scanned_wifis();
         this_ccu.scanned_wifi_count = count;
         printf("\ncount %d\n",count);
-        memcpy(&i_ret_msg[BLE_RET_MSG_RC_OFFSET],&SUCCESS,BLE_RETURN_RC_SIZE);
-        memcpy(&i_ret_msg[BLE_RET_MSG_DATA_TYPE_OFFSET],&BLE_RET_MSG_SCANNED_WIFI_COUNT_TYPE,BLE_COMMAND_DATA_TYPE_SIZE);
+        memset(&i_ret_msg[BLE_RET_MSG_RC_OFFSET], SUCCESS, BLE_RETURN_RC_SIZE);
+        memset(&i_ret_msg[BLE_RET_MSG_DATA_TYPE_OFFSET], BLE_RET_MSG_SCANNED_WIFI_COUNT_TYPE,
+               BLE_COMMAND_DATA_TYPE_SIZE);
         memcpy(&i_ret_msg[BLE_RET_MSG_SCANNED_SSID_COUNT_OFFSET],&count,SCANNED_WIFI_COUNT_SIZE);
         searched_ssid_count_index = 0;
     }
