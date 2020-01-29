@@ -484,7 +484,7 @@ int execute_store_address_visiting(char *i_cmd, char *i_ret_msg) {
     }
 
     //this_ccu.visited_locations_count++;
-    memcpy(&i_ret_msg[BLE_RET_MSG_RC_OFFSET],&SUCCESS,BLE_RETURN_RC_SIZE);
+    memset(&i_ret_msg[BLE_RET_MSG_RC_OFFSET], SUCCESS, BLE_RETURN_RC_SIZE);
     memcpy(&i_ret_msg[BLE_RET_MSG_MY_SSID_OFFSET],this_ccu.interface_wifi.ssid,MY_SSID_SIZE);
     memcpy(&i_ret_msg[BLE_RET_MSG_MY_NETWORK_KEY_OFFSET],this_ccu.interface_wifi.network_key,MY_NETWORK_KEY_SIZE);
 
@@ -560,7 +560,7 @@ int execute_ccu_activate(char *i_cmd, char *i_ret_msg) {
 
     //this_ccu.visited_locations_count++;
     sprintf(this_ccu.activations[i_activations_count].time,"%ld",time(NULL));
-    memcpy(&i_ret_msg[BLE_RET_MSG_RC_OFFSET],&SUCCESS,BLE_RETURN_RC_SIZE);
+    memset(&i_ret_msg[BLE_RET_MSG_RC_OFFSET], SUCCESS, BLE_RETURN_RC_SIZE);
 
     return (int)i_ret_msg[BLE_RET_MSG_RC_OFFSET];
 }
@@ -657,7 +657,7 @@ int read_ble_message(char *i_msg, char *i_ret_msg) {
                 printf("Going to call execute record pers voice message\n");
                 #endif
                 if (this_ccu.paired_mob1.authentication_status != AUTHENTICATED) {
-                    memcpy(&i_ret_msg[BLE_RET_MSG_RC_OFFSET],&ERROR_AUTHENTICATION,BLE_RETURN_RC_SIZE);
+                    memset(&i_ret_msg[BLE_RET_MSG_RC_OFFSET], ERROR_AUTHENTICATION, BLE_RETURN_RC_SIZE);
                     return ERROR_AUTHENTICATION;
                 }
                 execute_record_personal_voice_msg(i_ret_msg);
@@ -668,7 +668,7 @@ int read_ble_message(char *i_msg, char *i_ret_msg) {
                 printf("Going to call execute_store_emergency_number\n");
                 #endif
                 if (this_ccu.paired_mob1.authentication_status != AUTHENTICATED) {
-                    memcpy(&i_ret_msg[BLE_RET_MSG_RC_OFFSET],&ERROR_AUTHENTICATION,BLE_RETURN_RC_SIZE);
+                    memset(&i_ret_msg[BLE_RET_MSG_RC_OFFSET], ERROR_AUTHENTICATION, BLE_RETURN_RC_SIZE);
                     return ERROR_AUTHENTICATION;
                 }
                 memcpy(ble_command,&i_msg[BLE_CMD_OFFSET + BLE_COMMAND_ID_SIZE],BLE_COMMAND_SIZE);
@@ -680,7 +680,7 @@ int read_ble_message(char *i_msg, char *i_ret_msg) {
                 printf("Going to call execute_store_personal_number\n");
                 #endif
                 if (this_ccu.paired_mob1.authentication_status != AUTHENTICATED) {
-                    memcpy(&i_ret_msg[BLE_RET_MSG_RC_OFFSET],&ERROR_AUTHENTICATION,BLE_RETURN_RC_SIZE);
+                    memset(&i_ret_msg[BLE_RET_MSG_RC_OFFSET], ERROR_AUTHENTICATION, BLE_RETURN_RC_SIZE);
                     return ERROR_AUTHENTICATION;
                 }
                 memcpy(ble_command,&i_msg[BLE_CMD_OFFSET + BLE_COMMAND_ID_SIZE],BLE_COMMAND_SIZE);
@@ -693,7 +693,7 @@ int read_ble_message(char *i_msg, char *i_ret_msg) {
                 #endif
                 memcpy(ble_command,&i_msg[BLE_CMD_OFFSET + BLE_COMMAND_ID_SIZE],BLE_COMMAND_SIZE);
                 if (this_ccu.paired_mob1.authentication_status != AUTHENTICATED) {
-                    memcpy(&i_ret_msg[BLE_RET_MSG_RC_OFFSET],&ERROR_AUTHENTICATION,BLE_RETURN_RC_SIZE);
+                    memset(&i_ret_msg[BLE_RET_MSG_RC_OFFSET], ERROR_AUTHENTICATION, BLE_RETURN_RC_SIZE);
                     return ERROR_AUTHENTICATION;
                 }
                 execute_scan_wifis(ble_command ,i_ret_msg);
@@ -704,7 +704,7 @@ int read_ble_message(char *i_msg, char *i_ret_msg) {
                 printf("Going to call execute_select_a_wifi\n");
                 #endif
                 if (this_ccu.paired_mob1.authentication_status != AUTHENTICATED) {
-                    memcpy(&i_ret_msg[BLE_RET_MSG_RC_OFFSET],&ERROR_AUTHENTICATION,BLE_RETURN_RC_SIZE);
+                    memset(&i_ret_msg[BLE_RET_MSG_RC_OFFSET], ERROR_AUTHENTICATION, BLE_RETURN_RC_SIZE);
                     return ERROR_AUTHENTICATION;
                 }
                 memcpy(ble_command,&i_msg[BLE_CMD_OFFSET + BLE_COMMAND_ID_SIZE],BLE_COMMAND_SIZE);
@@ -716,7 +716,7 @@ int read_ble_message(char *i_msg, char *i_ret_msg) {
                 printf("Going to call execute store address visiting\n");
                 #endif
                 if (this_ccu.paired_mob1.authentication_status != AUTHENTICATED) {
-                    memcpy(&i_ret_msg[BLE_RET_MSG_RC_OFFSET],&ERROR_AUTHENTICATION,BLE_RETURN_RC_SIZE);
+                    memset(&i_ret_msg[BLE_RET_MSG_RC_OFFSET], ERROR_AUTHENTICATION, BLE_RETURN_RC_SIZE);
                     return ERROR_AUTHENTICATION;
                 }
                 memcpy(ble_command,&i_msg[BLE_CMD_OFFSET + BLE_COMMAND_ID_SIZE],BLE_COMMAND_SIZE);
@@ -728,7 +728,7 @@ int read_ble_message(char *i_msg, char *i_ret_msg) {
                 printf("Going to call execute_enter_local_help_number\n");
                 #endif
                 if (this_ccu.paired_mob1.authentication_status != AUTHENTICATED) {
-                    memcpy(&i_ret_msg[BLE_RET_MSG_RC_OFFSET],&ERROR_AUTHENTICATION,BLE_RETURN_RC_SIZE);
+                    memset(&i_ret_msg[BLE_RET_MSG_RC_OFFSET], ERROR_AUTHENTICATION, BLE_RETURN_RC_SIZE);
                     return ERROR_AUTHENTICATION;
                 }
                 memcpy(ble_command,&i_msg[BLE_CMD_OFFSET + BLE_COMMAND_ID_SIZE],BLE_COMMAND_SIZE);
@@ -740,7 +740,7 @@ int read_ble_message(char *i_msg, char *i_ret_msg) {
                 printf("Going to call execute ccu activate\n");
                 #endif
                 if (this_ccu.paired_mob1.authentication_status != AUTHENTICATED) {
-                    memcpy(&i_ret_msg[BLE_RET_MSG_RC_OFFSET],&ERROR_AUTHENTICATION,BLE_RETURN_RC_SIZE);
+                    memset(&i_ret_msg[BLE_RET_MSG_RC_OFFSET], ERROR_AUTHENTICATION, BLE_RETURN_RC_SIZE);
                     return ERROR_AUTHENTICATION;
                 }
                 memcpy(ble_command,&i_msg[BLE_CMD_OFFSET + BLE_COMMAND_ID_SIZE],BLE_COMMAND_SIZE);
@@ -752,7 +752,7 @@ int read_ble_message(char *i_msg, char *i_ret_msg) {
                 printf("Going to call execute_connect_to_wifi\n");
                 #endif
                 if (this_ccu.paired_mob1.authentication_status != AUTHENTICATED) {
-                    memcpy(&i_ret_msg[BLE_RET_MSG_RC_OFFSET],&ERROR_AUTHENTICATION,BLE_RETURN_RC_SIZE);
+                    memset(&i_ret_msg[BLE_RET_MSG_RC_OFFSET], ERROR_AUTHENTICATION, BLE_RETURN_RC_SIZE);
                     return ERROR_AUTHENTICATION;
                 }
                 memcpy(ble_command,&i_msg[BLE_CMD_OFFSET + BLE_COMMAND_ID_SIZE],BLE_COMMAND_SIZE);
@@ -903,7 +903,7 @@ int main(int argc, char** argv) {
     populate_serial_no_from_eeprom(this_ccu.serial_number);
 
     memcpy(ble_message, REGISTER_MSG1_TEST, 13);
-    memcpy(&ble_return_message[0],&CCU_TYPE_ID,1);
+    memset(&ble_return_message[0], CCU_TYPE_ID, 1);
     memcpy(&ble_return_message[1],&this_ccu.serial_number[SER_NO_SIZE - CCU_ID_SER_NO_SUFFIX_SIZE],CCU_ID_SER_NO_SUFFIX_SIZE);
 
     #ifdef BLE_DEBUG
@@ -1096,7 +1096,7 @@ int main(int argc, char** argv) {
     memset(ble_message,0x00,BLE_MESSAGE_SIZE);
     memset(ble_return_message,0x00,BLE_RETURN_MAX_SIZE);
     strcpy(ble_message, RECORD_PERSONAL_VOICE_MSG_TEST);
-    memcpy(&ble_return_message[0],&CCU_TYPE_ID,1);
+    memset(&ble_return_message[0], CCU_TYPE_ID, 1);
     memcpy(&ble_return_message[1],&this_ccu.serial_number[SER_NO_SIZE - CCU_ID_SER_NO_SUFFIX_SIZE],CCU_ID_SER_NO_SUFFIX_SIZE);
     ble_return_message[BLE_RET_MSG_RC_OFFSET] = 0x00;
 
@@ -1114,7 +1114,7 @@ int main(int argc, char** argv) {
     memset(ble_message,0x00,BLE_MESSAGE_SIZE);
     memset(ble_return_message,0x00,BLE_RETURN_MAX_SIZE);
     strcpy(ble_message, STORE_EMERGENCY_NOS_MSG1_TEST);
-    memcpy(&ble_return_message[0],&CCU_TYPE_ID,1);
+    memset(&ble_return_message[0], CCU_TYPE_ID, 1);
     memcpy(&ble_return_message[1],&this_ccu.serial_number[SER_NO_SIZE - CCU_ID_SER_NO_SUFFIX_SIZE],CCU_ID_SER_NO_SUFFIX_SIZE);
     ble_return_message[BLE_RET_MSG_RC_OFFSET] = 0x00;
 
@@ -1132,7 +1132,7 @@ int main(int argc, char** argv) {
     memset(ble_message,0x00,BLE_MESSAGE_SIZE);
     memset(ble_return_message,0x00,BLE_RETURN_MAX_SIZE);
     strcpy(ble_message, STORE_EMERGENCY_NOS_MSG2_TEST);
-    memcpy(&ble_return_message[0],&CCU_TYPE_ID,1);
+    memset(&ble_return_message[0], CCU_TYPE_ID, 1);
     memcpy(&ble_return_message[1],&this_ccu.serial_number[SER_NO_SIZE - CCU_ID_SER_NO_SUFFIX_SIZE],CCU_ID_SER_NO_SUFFIX_SIZE);
     ble_return_message[BLE_RET_MSG_RC_OFFSET] = 0x00;
 
@@ -1150,7 +1150,7 @@ int main(int argc, char** argv) {
     memset(ble_message,0x00,BLE_MESSAGE_SIZE);
     memset(ble_return_message,0x00,BLE_RETURN_MAX_SIZE);
     strcpy(ble_message, STORE_PERSONAL_NOS_MSG1_TEST);
-    memcpy(&ble_return_message[0],&CCU_TYPE_ID,1);
+    memset(&ble_return_message[0], CCU_TYPE_ID, 1);
     memcpy(&ble_return_message[1],&this_ccu.serial_number[SER_NO_SIZE - CCU_ID_SER_NO_SUFFIX_SIZE],CCU_ID_SER_NO_SUFFIX_SIZE);
     ble_return_message[BLE_RET_MSG_RC_OFFSET] = 0x00;
 
@@ -1168,7 +1168,7 @@ int main(int argc, char** argv) {
     memset(ble_message,0x00,BLE_MESSAGE_SIZE);
     memset(ble_return_message,0x00,BLE_RETURN_MAX_SIZE);
     strcpy(ble_message, STORE_PERSONAL_NOS_MSG2_TEST);
-    memcpy(&ble_return_message[0],&CCU_TYPE_ID,1);
+    memset(&ble_return_message[0], CCU_TYPE_ID, 1);
     memcpy(&ble_return_message[1],&this_ccu.serial_number[SER_NO_SIZE - CCU_ID_SER_NO_SUFFIX_SIZE],CCU_ID_SER_NO_SUFFIX_SIZE);
     ble_return_message[BLE_RET_MSG_RC_OFFSET] = 0x00;
 
@@ -1186,7 +1186,7 @@ int main(int argc, char** argv) {
     memset(ble_message,0x00,BLE_MESSAGE_SIZE);
     memset(ble_return_message,0x00,BLE_RETURN_MAX_SIZE);
     strcpy(ble_message, SCAN_WIFIS_MSG_TEST);
-    memcpy(&ble_return_message[0],&CCU_TYPE_ID,1);
+    memset(&ble_return_message[0], CCU_TYPE_ID, 1);
     memcpy(&ble_return_message[1],&this_ccu.serial_number[SER_NO_SIZE - CCU_ID_SER_NO_SUFFIX_SIZE],CCU_ID_SER_NO_SUFFIX_SIZE);
     ble_return_message[BLE_RET_MSG_RC_OFFSET] = 0x00;
 
@@ -1202,7 +1202,7 @@ int main(int argc, char** argv) {
     #endif
 
     for (int i = 0; i <this_ccu.scanned_wifi_count; i++) {
-        memcpy(&ble_return_message_with_scanned_wifis[i][0],&CCU_TYPE_ID,1);
+        memset(&ble_return_message_with_scanned_wifis[i][0], CCU_TYPE_ID, 1);
         memcpy(&ble_return_message_with_scanned_wifis[i][1],&this_ccu.serial_number[SER_NO_SIZE - CCU_ID_SER_NO_SUFFIX_SIZE],CCU_ID_SER_NO_SUFFIX_SIZE);
         memcpy(&ble_return_message_with_scanned_wifis[i][BLE_RET_MSG_RC_OFFSET],&ble_return_message[BLE_RET_MSG_RC_OFFSET],BLE_RETURN_RC_SIZE);
         ble_return_message_with_scanned_wifis[i][BLE_RET_MSG_DATA_TYPE_OFFSET] = BLE_RET_MSG_SCANNED_WIFI_SSID_TYPE;
@@ -1238,7 +1238,7 @@ int main(int argc, char** argv) {
     memset(ble_message,0x00,BLE_MESSAGE_SIZE);
     memset(ble_return_message,0x00,BLE_RETURN_MAX_SIZE);
     strcpy(ble_message, SELECT_A_WIFI_MSG2_TEST);
-    memcpy(&ble_return_message[0],&CCU_TYPE_ID,1);
+    memset(&ble_return_message[0], CCU_TYPE_ID, 1);
     memcpy(&ble_return_message[1],&this_ccu.serial_number[SER_NO_SIZE - CCU_ID_SER_NO_SUFFIX_SIZE],CCU_ID_SER_NO_SUFFIX_SIZE);
     ble_return_message[BLE_RET_MSG_RC_OFFSET] = 0x00;
 
