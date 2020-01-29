@@ -215,10 +215,12 @@ int enable_ccu_wifi_station() {
     return 0;
 }
 
-int execute_record_personal_voice_msg(char *i_ret_msg) {
+int execute_record_personal_voice_msg(char *i_ret_msg) 
+{
     if (this_ccu.interface_wifi.mode != ACCESS_POINT) {
         if (0 != enable_ccu_access_point()) {
-            memcpy(&i_ret_msg[BLE_RET_MSG_RC_OFFSET],&ERROR_MY_AP_START,BLE_RETURN_RC_SIZE);
+//            memcpy(&i_ret_msg[BLE_RET_MSG_RC_OFFSET],&ERROR_MY_AP_START,BLE_RETURN_RC_SIZE);
+            memset(&i_ret_msg[BLE_RET_MSG_RC_OFFSET],ERROR_MY_AP_START,BLE_RETURN_RC_SIZE);
             return (int)i_ret_msg[BLE_RET_MSG_RC_OFFSET];
         }
     }
