@@ -80,11 +80,13 @@
 #define DID_LOCAL_HELP_FOURTH_NUMBER       0x01
 #define DID_LOCAL_HELP_FIFTH_NUMBER        0x02
 
-#define FLAG_DATA_SET_CCU_PASSWORD         0x02
 #define FLAG_DATA_SET_CCU_NEW_PASSWORD     0x04
 #define FLAG_DATA_SET_CCU_PWD_MATCH        0x08
+#define FLAG_DATA_SET_CCU_PASSWORD         0x02
 
 #define FLAG_DATA_SET_MOB1_ID              0x01
+
+#define FLAG_DATA_SET_MOB1_PASSWORD        0x01
 #define FLAG_DATA_SET_MOB1_NUM             0x02
 #define FLAG_DATA_SET_MOB1_NAME            0x04
 #define FLAG_DATA_SET_ANDROID_ID_OR_UUID   0x08

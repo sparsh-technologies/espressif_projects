@@ -1,4 +1,4 @@
-﻿/*
+/*
  ****************************************************************************************
  * main.c
  *
@@ -33,6 +33,7 @@
 #include "esp_gatt_common_api.h"
 #include "ble_apis.h"
 #include "uart_async_rxtxtasks_main.h"
+#include <esp32/rom/ets_sys.h>
 
 #define BT_BLE_COEX_TAG             "BT_BLE_COEX"
 #define BLE_ADV_NAME                "AKBI-CCU"
@@ -54,9 +55,32 @@
 #define PROFILE_A_APP_ID            0
 //#define PROFILE_B_APP_ID            1
 #define MAX_RETURN_MSG_LENGTH       20
+#define READY_TO_SEND_REG_DATA_TO_SERIAL   0x0E
+
+#define BLE_CMD_OFFSET                     2
+#define BLE_MSG_MULTI_DATA_TYPE_OFFSET     3
+
+
+
+#define SUCCESS                            0x00
+#define CID_REGISTER                       0x01
+#define CID_LOGIN                          0x02
+#define CID_FORGOT_PASSWORD                0x03
+#define CID_CHANGE_PASSWORD                0x04
+#define CID_RECORD_PERSONAL_VOICE_MSG      0x05
+#define CID_STORE_EMERGENCY_NUMBERS        0x06
+#define CID_STORE_PERSONAL_NUMBERS         0x07
+#define CID_SCAN_WIFIS                     0x08
+#define CID_SELECT_A_WIFI                  0x09
+#define CID_ADDRESS_VISITING               0x0A
+#define CID_ENTER_LOCAL_HELP_NUMBERS       0x0B
+#define CID_CCU_ACTIVATE                   0x0C
+#define CID_CONNECT_TO_WIFI                0x0D
+
 
 extern uint8_t return_data[15];
 char ep_return_message[MAX_RETURN_MSG_LENGTH];
+char saved_messages[4][21];
 
 typedef struct {
     uint8_t  *prepare_buf;
@@ -311,10 +335,16 @@ void example_exec_write_event_env(prepare_type_env_t *prepare_write_env, esp_ble
     prepare_write_env->prepare_len = 0;
 }
 
+int save_group_messages(char *received_value_buffer,int type_id){
+  memcpy(saved_messages[type_id],received_value_buffer,MAX_RETURN_MSG_LENGTH);
+  printf("\n saved message no %x \n\n", type_id);
+  return 0;
+}
 
 static void gatts_profile_a_event_handler(esp_gatts_cb_event_t event, esp_gatt_if_t gatts_if,
                                           esp_ble_gatts_cb_param_t *param)
 {
+  int command_id,type_id;
     printf(" %s : Invoked gatts_profile_a_event_handler \n", __FUNCTION__);
 
     switch (event) {
@@ -370,7 +400,15 @@ static void gatts_profile_a_event_handler(esp_gatts_cb_event_t event, esp_gatt_i
             char received_value_buffer[30];
             char to_ccu_value_buffer[30];
             int msg_to_ccu_length;
-            int read_ble_message_result = 0, i;
+            int read_ble_message_result = 0;
+
+            printf("Data[ ");
+            for (int i=0; i< 20; i++)
+            {
+            printf("%02x ", received_value_buffer[i]);
+            }
+            printf("\n");
+
 
             ESP_LOGI(BT_BLE_COEX_TAG, "GATT_WRITE_EVT, value len %d, value :", param->write.len);
             esp_log_buffer_char(BT_BLE_COEX_TAG, param->write.value, param->write.len);
@@ -384,34 +422,72 @@ static void gatts_profile_a_event_handler(esp_gatts_cb_event_t event, esp_gatt_i
             memset(ep_return_message,0,MAX_RETURN_MSG_LENGTH);
             //getting return message
             read_ble_message_result = read_ble_message(received_value_buffer, ep_return_message);
+            command_id = received_value_buffer[BLE_CMD_OFFSET];
+            type_id    = received_value_buffer[BLE_MSG_MULTI_DATA_TYPE_OFFSET];
+            printf("    read_ble_message_result = %02x\n   command_id = %d\n", read_ble_message_result,command_id);
 
-            if (read_ble_message_result == 0 ){
-                //memcpy(return_msg_array[param->write.value[3]],ep_return_message,return_msg_length);
-                printf("received value buffer - %s\n",received_value_buffer);
+            // if (read_ble_message_result == 0 ){
+            //     //memcpy(return_msg_array[param->write.value[3]],ep_return_message,return_msg_length);
+            //     printf("received value buffer - %s\n",received_value_buffer);
+            //
+            //     populate_bt_msg_to_serial(received_value_buffer,to_ccu_value_buffer, &msg_to_ccu_length);
+            //
+            //     for (i=0; i< msg_to_ccu_length; i++)
+            //     {
+            //         printf("Data[%d] : %x\n",i, to_ccu_value_buffer[i]);
+            //
+            //     }
+            //     printf("parsed message successfully - %s\n",to_ccu_value_buffer);
+            //
+            //     send_uart_message(to_ccu_value_buffer, msg_to_ccu_length);
+            //     //send_uart_message(received_value_buffer,param->write.len)
+            //     printf("received message %s\n",received_value_buffer);
+            //     printf("to ccu message %s\n",to_ccu_value_buffer);
+            //
+            //     printf("BLE Return Message after processing 0x");
+            //     for(int i = 0; i < MAX_RETURN_MSG_LENGTH ;i++){
+            //       printf("%02x ",ep_return_message[i]);
+            //     }
+            //     printf("\n");
+            // }
+            // else{
+            //   printf("Not a valid message\n");
+            // }
 
-                populate_bt_msg_to_serial(received_value_buffer,to_ccu_value_buffer, &msg_to_ccu_length);
+            switch(read_ble_message_result)
+            {
+                case SUCCESS:{
+                    printf("----------------inside case SUCCESS--------------\n");
+                    save_group_messages(received_value_buffer,type_id);
 
-                for (i=0; i< msg_to_ccu_length; i++) 
-                {
-                    printf("Data[%d] : %x\n",i, to_ccu_value_buffer[i]);
-
+                    if((command_id==CID_REGISTER)||(command_id==CID_CHANGE_PASSWORD)||(command_id==CID_STORE_EMERGENCY_NUMBERS)||(command_id==CID_STORE_PERSONAL_NUMBERS)||(command_id==CID_SELECT_A_WIFI)||(command_id==CID_ENTER_LOCAL_HELP_NUMBERS))
+                    {
+                        printf("----------------inside case SUCCESS-in if------------\n");
+                        save_group_messages(received_value_buffer,type_id-1);
+                    }
+                    break;
                 }
-                printf("parsed message successfully - %s\n",to_ccu_value_buffer);
+                case READY_TO_SEND_REG_DATA_TO_SERIAL:{
+                    printf("----------------inside case READY_TO_SEND_REG_DATA_TO_SERIAL-------------\n");
 
-                send_uart_message(to_ccu_value_buffer, msg_to_ccu_length);
-                //send_uart_message(received_value_buffer,param->write.len)
-                printf("received message %s\n",received_value_buffer);
-                printf("to ccu message %s\n",to_ccu_value_buffer);
+                    save_group_messages(received_value_buffer,type_id-1);
+                    for(int i=0 ; i< type_id ; i++){
+                          populate_bt_msg_to_serial(saved_messages[i],to_ccu_value_buffer,&msg_to_ccu_length);
+                          send_uart_message(to_ccu_value_buffer, msg_to_ccu_length);
+                          //delay(100);
+                          printf("sent uart message --delaying-----1 sec\n");
+                          ets_delay_us(1000000);
 
-                printf("BLE Return Message after processing 0x");
-                for(int i = 0; i < MAX_RETURN_MSG_LENGTH ;i++){
-                  printf("%02x ",ep_return_message[i]);
+                      }
+                break;
                 }
-                printf("\n");
+
+                default:{
+                  printf("in default \n");
+                }
             }
-            else{
-              printf("Not a valid message\n");
-            }
+            printf("after switch\n");
+
 
             // if (gl_profile_tab[PROFILE_A_APP_ID].descr_handle == param->write.handle && param->write.len == 2){
             //     uint16_t descr_value = param->write.value[1]<<8 | param->write.value[0];
