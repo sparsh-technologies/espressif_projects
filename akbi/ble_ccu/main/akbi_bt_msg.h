@@ -290,4 +290,11 @@ typedef struct __attribute__((__packed__)) _bt_cp_protocol_hdr_ {
 #define TLV_TYPE_REGISTER_UNIQUE_ID                               0x03
 #define TLV_TYPE_REGISTER_PASSWORD                                0x04
 
+/*
+ * TLV Types for BT_CP_OPCODE_SET_WIFI_CREDENTIALS Opcode
+ */
+#define TLV_TYPE_WIFI_AP_NAME                                     0x01
+#define TLV_TYPE_WIFI_PASSWD_NAME                                 0x02
+#define TLV_TYPE_WIFI_MODE                                        0x03
+
 #endif
