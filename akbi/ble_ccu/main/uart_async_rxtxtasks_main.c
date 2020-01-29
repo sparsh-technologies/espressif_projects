@@ -93,12 +93,16 @@ void uart_app_main(void *param)
 {
     int     s;
     fd_set  rfds;
-    struct timeval tv;
+    struct  timeval tv;
+    char    *p_test_str = "Hello World from ESP32";
+
 
     if(init_uart() != 0) {
         printf(" ERROR : Unable to open serial port \n");
         return;
     }
+
+    send_uart_message(p_test_str, strlen(p_test_str));
 
     while (1) {
 
