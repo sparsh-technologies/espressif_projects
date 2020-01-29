@@ -22,53 +22,50 @@ const char  END_OF_STRING                             = 0;
 const char  *WEBAPP_RETURN_DELIMITER_STRING           = ",";
 
 const short BLE_MESSAGE_SIZE                          = 20;
-const short BLE_COMMAND_SIZE                          = 17; //BLE_MESSAGE SIZE - Source App Type (1) - Source App ID (1) - Command Id (1)
-const short BLE_COMMAND_ID_SIZE                       = 1;
-const short BLE_RETURN_RC_SIZE                        = 1;
-const short BLE_COMMAND_DATA_TYPE_SIZE                = 1;
-
-const short BLE_APP_TYPE_OFFSET                       = 0;
-const short BLE_APP_OFFSET                            = 1;
-//const short BLE_CMD_OFFSET                            = 2;
+#define BLE_COMMAND_SIZE                          17 //BLE_MESSAGE SIZE - Source App Type (1) - Source App ID (1) - Command Id (1)
+#define BLE_COMMAND_ID_SIZE                       1
+#define BLE_RETURN_RC_SIZE                        1
+#define BLE_COMMAND_DATA_TYPE_SIZE                1
+#define BLE_APP_TYPE_OFFSET                       0
+#define BLE_APP_OFFSET                            1
 #define BLE_CMD_OFFSET                            2
+#define BLE_MSG_MULTI_DATA_TYPE_OFFSET            3
+#define BLE_CMD_MULTI_DATA_TYPE_OFFSET            0 // commands with multiple data types sent as multiple messages
+#define BLE_CMD_MULTI_DATA_LEN_OFFSET             1 //for commands with multiple data types sent as multiple messages
+#define BLE_CMD_MULTI_DATA_VALUE_OFFSET           2 //for commands with multiple data types sent as multiple messages
+#define BLE_CMD_MULTI_DATA_VALUE_FIXED_LEN_OFFSET 1 //for commands with multiple data types sent as multiple messages
+#define BLE_CMD_SINGLE_DATA_LEN_OFFSET            0 //for commands that are sent in a single message
+#define BLE_CMD_SINGLE_DATA_VALUE_OFFSET          1 //for commands that are sent in a single message
+#define BLE_RET_MSG_CMD_ID_OFFSET                 5
+#define BLE_RET_MSG_RC_OFFSET                     6
+#define BLE_RET_MSG_DATA_TYPE_OFFSET              7
+#define BLE_RET_MSG_AUTH_TKN_OFFSET               7
+#define BLE_RET_MSG_MY_SSID_OFFSET                7
+#define BLE_RET_MSG_MY_NETWORK_KEY_OFFSET         13
+#define BLE_RET_MSG_SCANNED_SSID_COUNT_OFFSET     8
 
-const short BLE_MSG_MULTI_DATA_TYPE_OFFSET            = 3; //datatype offset in a full message
-const short BLE_CMD_MULTI_DATA_TYPE_OFFSET            = 0; //for commands with multiple data types sent as multiple messages
-const short BLE_CMD_MULTI_DATA_LEN_OFFSET             = 1; //for commands with multiple data types sent as multiple messages
-const short BLE_CMD_MULTI_DATA_VALUE_OFFSET           = 2; //for commands with multiple data types sent as multiple messages
-const short BLE_CMD_MULTI_DATA_VALUE_FIXED_LEN_OFFSET = 1; //for commands with multiple data types sent as multiple messages
-const short BLE_CMD_SINGLE_DATA_LEN_OFFSET            = 0; //for commands that are sent in a single message
-const short BLE_CMD_SINGLE_DATA_VALUE_OFFSET          = 1; //for commands that are sent in a single message
-const short BLE_RET_MSG_CMD_ID_OFFSET                 = 5;
-const short BLE_RET_MSG_RC_OFFSET                     = 6;
-const short BLE_RET_MSG_DATA_TYPE_OFFSET              = 7;
-const short BLE_RET_MSG_AUTH_TKN_OFFSET               = 7;
-const short BLE_RET_MSG_MY_SSID_OFFSET                = 7;
-const short BLE_RET_MSG_MY_NETWORK_KEY_OFFSET         = 13;
-const short BLE_RET_MSG_SCANNED_SSID_COUNT_OFFSET     = 8;
+#define BLE_MSG_MULTI_DATA_LEN_OFFSET             4
+#define BLE_MSG_MULTI_DATA_DATA_OFFSET            5
 
-const short BLE_MSG_MULTI_DATA_LEN_OFFSET             = 4;
-const short BLE_MSG_MULTI_DATA_DATA_OFFSET            = 5;
+#define MOB1_APP_TYPE_ID                          0x4D
+#define CCU_TYPE_ID                               0x47
+#define CCU_ID_SER_NO_SUFFIX_SIZE                 4
+#define BLE_RET_MSG_CCU_ID_OFFSET                 0
+#define BLE_RET_MSG_SCANNED_WIFI_COUNT_TYPE       0x01
+#define BLE_RET_MSG_SCANNED_WIFI_SSID_TYPE        0x02
 
-const char  MOB1_APP_TYPE_ID                          = 0x4D;
-const char  CCU_TYPE_ID                               = 0x47;
-const short CCU_ID_SER_NO_SUFFIX_SIZE                 = 4;
-const short BLE_RET_MSG_CCU_ID_OFFSET                 = 0;
-const char  BLE_RET_MSG_SCANNED_WIFI_COUNT_TYPE       = 0x01;
-const char  BLE_RET_MSG_SCANNED_WIFI_SSID_TYPE        = 0x02;
-
-const short SUCCESS                                   = 0x00;
-const short ERROR_LOGIN_PASSWORD_MISMATCH             = 0x06;
-const short ERROR_SOURCE_APP_TYPE_MISMATCH            = 0x20;
-const short ERROR_SOURCE_APP_MISMATCH                 = 0x21;
-const short ERROR_UNRECOGNIZED_COMMAND                = 0x22;
-const short ERROR_UNRECOGNIZED_DATA                   = 0x23;
-const short ERROR_AUTHENTICATION                      = 0x24;
-const short ERROR_MOB1_NO_NOT_CONFIGURED              = 0x08;
-const short ERROR_CHANGE_PASSWORD_MISMATCH            = 0x09;
-const short ERROR_MY_AP_START                         = 0x0A;
-const short ERROR_MY_WIFI_STN_START                   = 0x0D;
-const short READY_TO_SEND_REG_DATA_TO_SERIAL          = 0x0E;
+#define SUCCESS                                   0x00
+#define ERROR_LOGIN_PASSWORD_MISMATCH             0x06
+#define ERROR_SOURCE_APP_TYPE_MISMATCH            0x20
+#define ERROR_SOURCE_APP_MISMATCH                 0x21
+#define ERROR_UNRECOGNIZED_COMMAND                0x22
+#define ERROR_UNRECOGNIZED_DATA                   0x23
+#define ERROR_AUTHENTICATION                      0x24
+#define ERROR_MOB1_NO_NOT_CONFIGURED              0x08
+#define ERROR_CHANGE_PASSWORD_MISMATCH            0x09
+#define ERROR_MY_AP_START                         0x0A
+#define ERROR_MY_WIFI_STN_START                   0x0D
+#define READY_TO_SEND_REG_DATA_TO_SERIAL          0x0E
 
 #define BLE_RETURN_MAX_SIZE                       20
 #define SER_NO_SIZE                               8
