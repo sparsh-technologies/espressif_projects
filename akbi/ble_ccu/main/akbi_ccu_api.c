@@ -21,7 +21,6 @@
 int ccu_sent_subg_clear_learning_msg(char *p_tx_buffer) 
 {
     BT_CP_PROTOCOL_HDR  *p_protocol_hdr;
-    char                *p;
     int                 length;
 
     p_protocol_hdr = (BT_CP_PROTOCOL_HDR *)p_tx_buffer;
@@ -46,7 +45,6 @@ int ccu_sent_subg_clear_learning_msg(char *p_tx_buffer)
 int ccu_sent_subg_learning_msg(char *p_tx_buffer)
 {
     BT_CP_PROTOCOL_HDR  *p_protocol_hdr;
-    char                *p;
     int                 length;
 
     p_protocol_hdr = (BT_CP_PROTOCOL_HDR *)p_tx_buffer;
@@ -70,7 +68,6 @@ int ccu_sent_subg_learning_msg(char *p_tx_buffer)
 int ccu_sent_scan_all_wifi_msg(char *p_tx_buffer)
 {
     BT_CP_PROTOCOL_HDR  *p_protocol_hdr;
-    char                *p;
     int                 length;
 
     printf(" INFO : Sending SCAN-ALL-WIFI Message \n");
@@ -134,7 +131,6 @@ int ccu_sent_configure_wifi_credentials(char *p_tx_buffer, char *p_ap_name, char
 int ccu_sent_user_login_msg(char *p_tx_buffer)
 {
     BT_CP_PROTOCOL_HDR  *p_protocol_hdr;
-    char                *p;
     int                 length;
 
     printf(" INFO : Sending USER-LOGIN Message \n");
@@ -155,7 +151,6 @@ int ccu_sent_user_login_msg(char *p_tx_buffer)
 int ccu_sent_user_forgot_passwd_msg(char *p_tx_buffer)
 {
     BT_CP_PROTOCOL_HDR  *p_protocol_hdr;
-    char                *p;
     int                 length;
 
     printf(" INFO : Sending USER-FORGOT_PASSWD Message \n");
@@ -176,7 +171,6 @@ int ccu_sent_user_forgot_passwd_msg(char *p_tx_buffer)
 int ccu_sent_user_change_passwd_msg(char *p_tx_buffer)
 {
     BT_CP_PROTOCOL_HDR  *p_protocol_hdr;
-    char                *p;
     int                 length;
 
     printf(" INFO : Sending USER-CHANGE_PASSWD Message \n");
@@ -197,7 +191,6 @@ int ccu_sent_user_change_passwd_msg(char *p_tx_buffer)
 int ccu_sent_record_voice_msg(char *p_tx_buffer)
 {
     BT_CP_PROTOCOL_HDR  *p_protocol_hdr;
-    char                *p;
     int                 length;
 
     printf(" INFO : Sending RECORD-VOICE Message \n");
@@ -218,7 +211,6 @@ int ccu_sent_record_voice_msg(char *p_tx_buffer)
 int ccu_sent_store_emergency_number_msg(char *p_tx_buffer)
 {
     BT_CP_PROTOCOL_HDR  *p_protocol_hdr;
-    char                *p;
     int                 length;
 
     printf(" INFO : Sending EMERGENCY-NUM Message \n");
@@ -239,7 +231,6 @@ int ccu_sent_store_emergency_number_msg(char *p_tx_buffer)
 int ccu_sent_store_personal_number_msg(char *p_tx_buffer)
 {
     BT_CP_PROTOCOL_HDR  *p_protocol_hdr;
-    char                *p;
     int                 length;
 
     printf(" INFO : Sending PERSONAL-NUM Message \n");
@@ -260,7 +251,6 @@ int ccu_sent_store_personal_number_msg(char *p_tx_buffer)
 int ccu_sent_store_local_help_number_msg(char *p_tx_buffer)
 {
     BT_CP_PROTOCOL_HDR  *p_protocol_hdr;
-    char                *p;
     int                 length;
 
     printf(" INFO : Sending LOCAL-HELP-NUM Message \n");
@@ -281,7 +271,6 @@ int ccu_sent_store_local_help_number_msg(char *p_tx_buffer)
 int ccu_sent_activate_system_msg(char *p_tx_buffer)
 {
     BT_CP_PROTOCOL_HDR  *p_protocol_hdr;
-    char                *p;
     int                 length;
 
     printf(" INFO : Sending ACTIVATE-SYSTEM Message \n");

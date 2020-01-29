@@ -69,7 +69,6 @@ const short BLE_MESSAGE_SIZE                          = 20;
 
 #define BLE_RETURN_MAX_SIZE                       20
 #define SER_NO_SIZE                               8
-#define PASS_SIZE                                 15
 #define MOB_NO_SIZE                               10
 #define MOB_NAME_SIZE                             15
 #define IMEI_NO_SIZE                              15
