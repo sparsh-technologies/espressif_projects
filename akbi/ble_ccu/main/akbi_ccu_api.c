@@ -18,10 +18,11 @@
 #include "akbi_bt_msg.h"
 #include "akbi_msg.h"
 
-int ccu_sent_subg_clear_learning_msg(char *p_tx_buffer, int *length) 
+int ccu_sent_subg_clear_learning_msg(char *p_tx_buffer) 
 {
     BT_CP_PROTOCOL_HDR  *p_protocol_hdr;
     char                *p;
+    int                 length;
 
     p_protocol_hdr = (BT_CP_PROTOCOL_HDR *)p_tx_buffer;
 
@@ -35,15 +36,18 @@ int ccu_sent_subg_clear_learning_msg(char *p_tx_buffer, int *length)
     printf(" Type        :  %02x\n", p_protocol_hdr->type);
     printf(" Length      :  %02x\n", p_protocol_hdr->length);
 
-    *length = sizeof(BT_CP_PROTOCOL_HDR) + p_protocol_hdr->length;
+    length = sizeof(BT_CP_PROTOCOL_HDR) + p_protocol_hdr->length;
+
+    send_uart_message(p_tx_buffer, length);
 
     return (0);
 }
 
-int ccu_sent_subg_learning_msg(char *p_tx_buffer, int *length)
+int ccu_sent_subg_learning_msg(char *p_tx_buffer)
 {
     BT_CP_PROTOCOL_HDR  *p_protocol_hdr;
     char                *p;
+    int                 length;
 
     p_protocol_hdr = (BT_CP_PROTOCOL_HDR *)p_tx_buffer;
 
@@ -57,7 +61,8 @@ int ccu_sent_subg_learning_msg(char *p_tx_buffer, int *length)
     printf(" Type        :  %02x\n", p_protocol_hdr->type);
     printf(" Length      :  %02x\n", p_protocol_hdr->length);
 
-    *length = sizeof(BT_CP_PROTOCOL_HDR) + p_protocol_hdr->length;
+    length = sizeof(BT_CP_PROTOCOL_HDR) + p_protocol_hdr->length;
+    send_uart_message(p_tx_buffer, length);
 
     return (0);
 }
