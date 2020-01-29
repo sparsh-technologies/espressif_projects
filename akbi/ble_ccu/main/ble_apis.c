@@ -41,7 +41,7 @@ int execute_register(char *i_cmd, char *i_ret_msg) {
             printf("Password length is #%d#\n",data_len_in_ble);
             memcpy(this_ccu.password,&i_cmd[BLE_CMD_MULTI_DATA_VALUE_OFFSET],data_len_in_ble);
             i_ret_msg[BLE_RET_MSG_RC_OFFSET] = SUCCESS;
-            this_ccu.data_status = this_ccu.data_status | FLAG_DATA_SET_CCU_PASSWORD;
+            this_ccu.paired_mob1.data_status = this_ccu.paired_mob1.data_status | FLAG_DATA_SET_MOB1_PASSWORD;
             //TODO-Store password in EEPROM and populate error code
             break;
         }
@@ -77,6 +77,7 @@ int execute_register(char *i_cmd, char *i_ret_msg) {
      */
     #ifdef BLE_DEBUG
     printf("Data Status #%x#%x#\n", this_ccu.paired_mob1.data_status, this_ccu.data_status);
+    printf("flag data set all #%x\n",FLAG_DATA_SET_MOB1_ALL );
     #endif
 
    if (this_ccu.paired_mob1.data_status == FLAG_DATA_SET_MOB1_ALL){
@@ -215,11 +216,11 @@ int enable_ccu_wifi_station() {
     return 0;
 }
 
-int execute_record_personal_voice_msg(char *i_ret_msg) 
+int execute_record_personal_voice_msg(char *i_ret_msg)
 {
     if (this_ccu.interface_wifi.mode != ACCESS_POINT) {
         if (0 != enable_ccu_access_point()) {
-//            memcpy(&i_ret_msg[BLE_RET_MSG_RC_OFFSET],&ERROR_MY_AP_START,BLE_RETURN_RC_SIZE);
+    //      memcpy(&i_ret_msg[BLE_RET_MSG_RC_OFFSET],&ERROR_MY_AP_START,BLE_RETURN_RC_SIZE);
             memset(&i_ret_msg[BLE_RET_MSG_RC_OFFSET],ERROR_MY_AP_START,BLE_RETURN_RC_SIZE);
             return (int)i_ret_msg[BLE_RET_MSG_RC_OFFSET];
         }
@@ -622,7 +623,7 @@ int read_ble_message(char *i_msg, char *i_ret_msg) {
         switch (ble_cmd_id) {
             case CID_REGISTER : {
                 memcpy(ble_command,&i_msg[BLE_CMD_OFFSET + BLE_COMMAND_ID_SIZE],BLE_COMMAND_SIZE);
-                execute_register(ble_command,i_ret_msg);
+                return execute_register(ble_command,i_ret_msg);
                 break;
             }
             case CID_LOGIN : {
