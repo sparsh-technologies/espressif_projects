@@ -260,7 +260,7 @@ typedef struct _mob_cloud_register_info_ {
 #define PROTO_TYPE_SEND                                           0x01
 #define PROTO_TYPE_SEND_ACK                                       0x02
 
-typedef struct _bt_cp_protocol_hdr_ {
+typedef struct __attribute__ ((__packed__)) _bt_cp_protocol_hdr_ {
 
     unsigned char       opcode;
     unsigned short int  trans_id;

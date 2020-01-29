@@ -1,4 +1,4 @@
-/*
+﻿/*
  ****************************************************************************************
  * main.c
  *
@@ -33,7 +33,7 @@
 #include "esp_gatt_common_api.h"
 #include "ble_apis.h"
 #include "uart_async_rxtxtasks_main.h"
-#include <esp32/rom/ets_sys.h>
+//#include <esp32/rom/ets_sys.h>
 
 #define BT_BLE_COEX_TAG             "BT_BLE_COEX"
 #define BLE_ADV_NAME                "AKBI-CCU"
@@ -391,7 +391,7 @@ static void gatts_profile_a_event_handler(esp_gatts_cb_event_t event, esp_gatt_i
         break;
     }
     case ESP_GATTS_WRITE_EVT:
-    {
+
         ESP_LOGI(BT_BLE_COEX_TAG, "GATT_WRITE_EVT, conn_id %d, trans_id %d, handle %d",
                        param->write.conn_id, param->write.trans_id, param->write.handle);
 
@@ -400,14 +400,6 @@ static void gatts_profile_a_event_handler(esp_gatts_cb_event_t event, esp_gatt_i
             char received_value_buffer[30];
             int msg_to_ccu_length;
             int read_ble_message_result = 0;
-
-            printf("Data[ ");
-            for (int i=0; i< 20; i++)
-            {
-            printf("%02x ", received_value_buffer[i]);
-            }
-            printf("\n");
-
 
             ESP_LOGI(BT_BLE_COEX_TAG, "GATT_WRITE_EVT, value len %d, value :", param->write.len);
             esp_log_buffer_char(BT_BLE_COEX_TAG, param->write.value, param->write.len);
@@ -423,136 +415,46 @@ static void gatts_profile_a_event_handler(esp_gatts_cb_event_t event, esp_gatt_i
             read_ble_message_result = read_ble_message(received_value_buffer, ep_return_message);
             command_id = received_value_buffer[BLE_CMD_OFFSET];
             type_id    = received_value_buffer[BLE_MSG_MULTI_DATA_TYPE_OFFSET];
-            printf("    read_ble_message_result = %02x\n   command_id = %d\n", read_ble_message_result,command_id);
 
-<<<<<<< HEAD
-            if (read_ble_message_result == 0 ){
-                //memcpy(return_msg_array[param->write.value[3]],ep_return_message,return_msg_length);
-
-                populate_bt_msg_to_serial(received_value_buffer, uart_tx_buffer, &msg_to_ccu_length);
-
-                for (i=0; i< msg_to_ccu_length; i++) 
-                {
-                    printf("Data[%d] : %x\n",i, uart_tx_buffer[i]);
-=======
-            // if (read_ble_message_result == 0 ){
-            //     //memcpy(return_msg_array[param->write.value[3]],ep_return_message,return_msg_length);
-            //     printf("received value buffer - %s\n",received_value_buffer);
-            //
-            //     populate_bt_msg_to_serial(received_value_buffer,to_ccu_value_buffer, &msg_to_ccu_length);
-            //
-            //     for (i=0; i< msg_to_ccu_length; i++)
-            //     {
-            //         printf("Data[%d] : %x\n",i, to_ccu_value_buffer[i]);
-            //
-            //     }
-            //     printf("parsed message successfully - %s\n",to_ccu_value_buffer);
-            //
-            //     send_uart_message(to_ccu_value_buffer, msg_to_ccu_length);
-            //     //send_uart_message(received_value_buffer,param->write.len)
-            //     printf("received message %s\n",received_value_buffer);
-            //     printf("to ccu message %s\n",to_ccu_value_buffer);
-            //
-            //     printf("BLE Return Message after processing 0x");
-            //     for(int i = 0; i < MAX_RETURN_MSG_LENGTH ;i++){
-            //       printf("%02x ",ep_return_message[i]);
-            //     }
-            //     printf("\n");
-            // }
-            // else{
-            //   printf("Not a valid message\n");
-            // }
->>>>>>> edce951464a44c93dedca0d9b4c21f5092896719
 
             switch(read_ble_message_result)
             {
-                case SUCCESS:{
-                    printf("----------------inside case SUCCESS--------------\n");
+                case SUCCESS:
+
                     save_group_messages(received_value_buffer,type_id);
 
-                    if((command_id==CID_REGISTER)||(command_id==CID_CHANGE_PASSWORD)||(command_id==CID_STORE_EMERGENCY_NUMBERS)||(command_id==CID_STORE_PERSONAL_NUMBERS)||(command_id==CID_SELECT_A_WIFI)||(command_id==CID_ENTER_LOCAL_HELP_NUMBERS))
+                    if((command_id == CID_REGISTER)||(command_id == CID_CHANGE_PASSWORD)||
+                       (command_id == CID_STORE_EMERGENCY_NUMBERS)||
+                       (command_id == CID_STORE_PERSONAL_NUMBERS)||
+                       (command_id == CID_SELECT_A_WIFI)||
+                       (command_id == CID_ENTER_LOCAL_HELP_NUMBERS))
                     {
-                        printf("----------------inside case SUCCESS-in if------------\n");
+
                         save_group_messages(received_value_buffer,type_id-1);
                     }
                     break;
-                }
-                case READY_TO_SEND_REG_DATA_TO_SERIAL:{
-                    printf("----------------inside case READY_TO_SEND_REG_DATA_TO_SERIAL-------------\n");
+
+                case READY_TO_SEND_REG_DATA_TO_SERIAL:
 
                     save_group_messages(received_value_buffer,type_id-1);
                     for(int i=0 ; i< type_id ; i++){
-                          populate_bt_msg_to_serial(saved_messages[i],to_ccu_value_buffer,&msg_to_ccu_length);
-                          send_uart_message(to_ccu_value_buffer, msg_to_ccu_length);
-                          //delay(100);
+                          populate_bt_msg_to_serial(saved_messages[i], uart_tx_buffer, &msg_to_ccu_length);
+                          send_uart_message(uart_tx_buffer, msg_to_ccu_length);
                           printf("sent uart message --delaying-----1 sec\n");
                           ets_delay_us(1000000);
 
                       }
                 break;
-                }
-<<<<<<< HEAD
 
                 send_uart_message(uart_tx_buffer, msg_to_ccu_length);
 
             }
-            else{
-              printf("Not a valid message\n");
-=======
 
-                default:{
-                  printf("in default \n");
-                }
->>>>>>> edce951464a44c93dedca0d9b4c21f5092896719
-            }
-            printf("after switch\n");
-
-
-            // if (gl_profile_tab[PROFILE_A_APP_ID].descr_handle == param->write.handle && param->write.len == 2){
-            //     uint16_t descr_value = param->write.value[1]<<8 | param->write.value[0];
-            //     if (descr_value == 0x0001){
-            //         if (a_property & ESP_GATT_CHAR_PROP_BIT_NOTIFY){
-            //             ESP_LOGI(BT_BLE_COEX_TAG, "notify enable");
-            //             uint8_t notify_data[5];
-            //             for (int i = 65; i < sizeof(notify_data)+65; ++i)
-            //             {
-            //                 notify_data[i-65] = i%0xff;
-            //             }
-            //             notify_data[0] = param->write.value[0];
-            //             notify_data[1] = param->write.value[1];
-            //             esp_log_buffer_char(BT_BLE_COEX_TAG, notify_data, 15);
-            //             esp_log_buffer_hex(BT_BLE_COEX_TAG, notify_data, 15);
-            //
-            //             //the size of notify_data[] need less than MTU size
-            //             esp_ble_gatts_send_indicate(gatts_if, param->write.conn_id, gl_profile_tab[PROFILE_A_APP_ID].char_handle,
-            //                                     sizeof(notify_data), notify_data, false);
-            //         }
-            //     }else if (descr_value == 0x0002){
-            //         if (a_property & ESP_GATT_CHAR_PROP_BIT_INDICATE){
-            //             ESP_LOGI(BT_BLE_COEX_TAG, "indicate enable");
-            //             uint8_t indicate_data[15];
-            //             for (int i = 0; i < sizeof(indicate_data); ++i)
-            //             {
-            //                 indicate_data[i] = i%0xff;
-            //             }
-            //             //the size of indicate_data[] need less than MTU size
-            //             esp_ble_gatts_send_indicate(gatts_if, param->write.conn_id, gl_profile_tab[PROFILE_A_APP_ID].char_handle,
-            //                                     sizeof(indicate_data), indicate_data, true);
-            //         }
-            //     }
-            //     else if (descr_value == 0x0000){
-            //         ESP_LOGI(BT_BLE_COEX_TAG, "notify/indicate disable ");
-            //     }else{
-            //         ESP_LOGE(BT_BLE_COEX_TAG, "unknown descr value");
-            //         esp_log_buffer_hex(BT_BLE_COEX_TAG, param->write.value, param->write.len);
-            //     }
-            //
-            // }
         }
 
         // example_write_event_env(gatts_if, &a_prepare_write_env, param);
         break;
-    }
+    
     case ESP_GATTS_EXEC_WRITE_EVT:
 
         ESP_LOGI(BT_BLE_COEX_TAG,"ESP_GATTS_EXEC_WRITE_EVT");

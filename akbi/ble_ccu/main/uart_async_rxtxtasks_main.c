@@ -83,10 +83,57 @@ static void check_and_uart_data(int fd, const fd_set *rfds, const char *src_msg)
     }
 }
 
+int akbi_dump_serial_pkt(unsigned char *buffer, int length)
+{
+
+#ifdef PKT_DUMP
+
+    int    ret;
+    int    i, j, row_cnt, size;
+    unsigned char  *p_buffer;
+
+    p_buffer = buffer;
+    row_cnt = length/16;
+    size    = length;
+    j       = 0;
+
+    printf("\n Dumping Packet(Tx) :\n");
+    printf(" --------------------\n");
+
+    while(size) {
+
+        if (size < 16 ) {
+
+            for (i=0;i<size;i++) {
+                printf(" %02x", p_buffer[j]);
+                j++;
+            }
+            printf("\n");
+            size = 0;
+
+        } else {
+
+            for (i=0;i<16;i++) {
+                printf(" %02x", p_buffer[j]);
+                j++;
+            }
+            printf("\n");
+            size -= 16;
+        }
+    }
+#endif
+
+    return (0);
+}
+
 void send_uart_message(const char* p_data, int length)
 {
-    printf(" UART-WRITE : Sending %d bytes \n", length);
-    write(uart_fd, p_data, length);
+    int    ret;
+
+    akbi_dump_serial_pkt(p_data, length);
+    ret = write(uart_fd, p_data, length);
+    printf(" UART-WRITE : Sending %d bytes Status(%d)\n", length, ret);
+
 }
 
 void uart_app_main(void *param)
@@ -94,15 +141,11 @@ void uart_app_main(void *param)
     int     s;
     fd_set  rfds;
     struct  timeval tv;
-    char    *p_test_str = "Hello World from ESP32";
-
 
     if(init_uart() != 0) {
         printf(" ERROR : Unable to open serial port \n");
         return;
     }
-
-    send_uart_message(p_test_str, strlen(p_test_str));
 
     while (1) {
 
