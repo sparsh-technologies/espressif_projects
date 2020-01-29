@@ -18,7 +18,7 @@
 #define BLE_DEBUG
 
 #define SER_NO_SIZE                        8
-#define PASS_SIZE                          15
+#define PASS_SIZE                          50
 #define DEFAULT_PASSWORD_SIZE              12
 #define MOB_NO_SIZE                        10
 #define MOB_NAME_SIZE                      15
@@ -80,13 +80,11 @@
 #define DID_LOCAL_HELP_FOURTH_NUMBER       0x01
 #define DID_LOCAL_HELP_FIFTH_NUMBER        0x02
 
+#define FLAG_DATA_SET_CCU_PASSWORD         0x02
 #define FLAG_DATA_SET_CCU_NEW_PASSWORD     0x04
 #define FLAG_DATA_SET_CCU_PWD_MATCH        0x08
-#define FLAG_DATA_SET_CCU_PASSWORD         0x02
 
 #define FLAG_DATA_SET_MOB1_ID              0x01
-
-#define FLAG_DATA_SET_MOB1_PASSWORD        0x01
 #define FLAG_DATA_SET_MOB1_NUM             0x02
 #define FLAG_DATA_SET_MOB1_NAME            0x04
 #define FLAG_DATA_SET_ANDROID_ID_OR_UUID   0x08
@@ -260,7 +258,7 @@ typedef struct _mob_cloud_register_info_ {
 #define PROTO_TYPE_SEND                                           0x01
 #define PROTO_TYPE_SEND_ACK                                       0x02
 
-typedef struct __attribute__ ((__packed__)) _bt_cp_protocol_hdr_ {
+typedef struct __attribute__((__packed__)) _bt_cp_protocol_hdr_ {
 
     unsigned char       opcode;
     unsigned short int  trans_id;
@@ -273,7 +271,11 @@ typedef struct __attribute__ ((__packed__)) _bt_cp_protocol_hdr_ {
  * Various Opcodes are defined here.
  */
 #define BT_CP_OPCODE_MOB1_REGISTER                                0x01
-
+#define BT_CP_OPCODE_CLEAR_SUB_G_LEARN                            0x02
+#define BT_CP_OPCODE_START_SUB_G_LEARN                            0x03
+#define BT_CP_OPCODE_START_WIFI_SCAN                              0x04
+#define BT_CP_OPCODE_WIFI_SCAN_RESULT                             0x05
+#define BT_CP_OPCODE_SET_WIFI_CREDENTIALS                         0x06
 
 /*
  * All TVL Types are defined here.
