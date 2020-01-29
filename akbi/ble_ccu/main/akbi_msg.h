@@ -29,7 +29,9 @@ const short BLE_COMMAND_DATA_TYPE_SIZE                = 1;
 
 const short BLE_APP_TYPE_OFFSET                       = 0;
 const short BLE_APP_OFFSET                            = 1;
-const short BLE_CMD_OFFSET                            = 2;
+//const short BLE_CMD_OFFSET                            = 2;
+#define BLE_CMD_OFFSET                            2
+
 const short BLE_MSG_MULTI_DATA_TYPE_OFFSET            = 3; //datatype offset in a full message
 const short BLE_CMD_MULTI_DATA_TYPE_OFFSET            = 0; //for commands with multiple data types sent as multiple messages
 const short BLE_CMD_MULTI_DATA_LEN_OFFSET             = 1; //for commands with multiple data types sent as multiple messages
