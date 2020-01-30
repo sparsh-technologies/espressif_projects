@@ -44,7 +44,8 @@ int execute_register(char *i_cmd, char *i_ret_msg)
         printf("Password length is #%d#\n",data_len_in_ble);
         memcpy(this_ccu.password,&i_cmd[BLE_CMD_MULTI_DATA_VALUE_OFFSET],data_len_in_ble);
         i_ret_msg[BLE_RET_MSG_RC_OFFSET] = SUCCESS;
-        this_ccu.paired_mob1.data_status = this_ccu.paired_mob1.data_status | FLAG_DATA_SET_MOB1_PASSWORD;
+		// To Be checked with Sathish
+        // this_ccu.paired_mob1.data_status = this_ccu.paired_mob1.data_status | FLAG_DATA_SET_MOB1_PASSWORD;
             //TODO-Store password in EEPROM and populate error code
             break;
         

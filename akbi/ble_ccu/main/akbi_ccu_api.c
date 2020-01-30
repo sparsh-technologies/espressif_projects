@@ -17,6 +17,7 @@
 #include <time.h>
 #include "akbi_bt_msg.h"
 #include "akbi_msg.h"
+#include "uart_async_rxtxtasks_main.h"
 
 int ccu_sent_subg_clear_learning_msg(char *p_tx_buffer) 
 {
