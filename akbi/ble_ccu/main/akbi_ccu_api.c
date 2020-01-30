@@ -22,7 +22,6 @@
 int ccu_sent_subg_clear_learning_msg(char *p_tx_buffer)
 {
     BT_CP_PROTOCOL_HDR  *p_protocol_hdr;
-    //char                *p;
     int                 length;
 
     p_protocol_hdr = (BT_CP_PROTOCOL_HDR *)p_tx_buffer;
@@ -47,7 +46,6 @@ int ccu_sent_subg_clear_learning_msg(char *p_tx_buffer)
 int ccu_sent_subg_learning_msg(char *p_tx_buffer)
 {
     BT_CP_PROTOCOL_HDR  *p_protocol_hdr;
-    //char                *p;
     int                 length;
 
     p_protocol_hdr = (BT_CP_PROTOCOL_HDR *)p_tx_buffer;
