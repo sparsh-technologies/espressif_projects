@@ -50,7 +50,8 @@ int execute_register(char *i_cmd, char *i_ret_msg)
         printf("Password length is #%d#\n",data_len_in_ble);
         memcpy(this_ccu.password,&i_cmd[BLE_CMD_MULTI_DATA_VALUE_OFFSET],data_len_in_ble);
         i_ret_msg[BLE_RET_MSG_RC_OFFSET] = SUCCESS;
-        this_ccu.paired_mob1.data_status = this_ccu.paired_mob1.data_status | FLAG_DATA_SET_MOB1_PASSWORD;
+		// To Be checked with Sathish
+            this_ccu.paired_mob1.data_status = this_ccu.paired_mob1.data_status | FLAG_DATA_SET_MOB1_PASSWORD;
             //TODO-Store password in EEPROM and populate error code
             break;
 
@@ -942,8 +943,8 @@ int prep_and_send_msg_to_ccu(char *received_value_buffer ,int read_ble_message_r
             save_group_messages(received_value_buffer,type_id-1);
             for(int i=0 ; i< type_id ; i++){
                 ccu_send_reg_msg(saved_messages[i]);
-                printf("sent uart message --delaying-----1 sec\n");
-                ets_delay_us(1000000);
+                printf("sent uart message --delaying-----5 sec\n");
+                ets_delay_us(5000000);
 
               }
         break;
