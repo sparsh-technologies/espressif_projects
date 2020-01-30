@@ -7,9 +7,9 @@
 int read_ble_message(char *i_msg, char *i_ret_msg);
 
 /****************************************************
-*function to populate message from mobile to linux
+*function to prepare and send message to ccu
 ****************************************************/
-int populate_bt_msg_to_serial(char *received_value_buffer,char *msg_to_ccu, int *msg_length);
+int prep_and_send_msg_to_ccu(char *received_value_buffer ,int read_ble_message_result);
 
 
 

@@ -83,7 +83,7 @@ static void check_and_uart_data(int fd, const fd_set *rfds, const char *src_msg)
     }
 }
 
-int akbi_dump_serial_pkt(unsigned char *buffer, int length)
+int akbi_dump_serial_pkt(const char *buffer, int length)
 {
 
 #ifdef PKT_DUMP
@@ -167,5 +167,3 @@ void uart_app_main(void *param)
     deinit_uart(uart_fd);
     vTaskDelete(NULL);
 }
-
-
