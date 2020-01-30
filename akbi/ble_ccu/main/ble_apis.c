@@ -31,6 +31,35 @@ const char  MY_NETWORK_KEY_TEST[NETWORK_KEY_SIZE] = {0x41,0x42,0x43,0x44,0x45,0x
 int return_msg_len                                = BLE_RETURN_MAX_SIZE;
 int searched_ssid_count_index                     = 0;
 static char saved_messages[4][21];
+static char *p_recvd_msg_full;
+static char *p_return_msg_full;
+static int flag_set_recvd_msg_ptr = 0;
+static int flag_set_return_msg_ptr = 0;
+
+void set_recvd_msg_pointer(char *received_value_buffer){
+    p_recvd_msg_full = received_value_buffer;
+    flag_set_recvd_msg_ptr = 1;
+}
+void set_return_msg_pointer(char *ep_return_message){
+    p_return_msg_full = ep_return_message;
+    flag_set_return_msg_ptr = 1;
+}
+
+int save_group_messages(char *received_value_buffer,int type_id){
+    memcpy(saved_messages[type_id],received_value_buffer,BLE_MESSAGE_SIZE);
+    printf("\n saved message no %x \n", type_id);
+    return 0;
+}
+
+//to send all messages altogether
+void send_batch_messages(int no_of_messages){
+    for(int i=0 ; i< no_of_messages ; i++){
+        ccu_send_reg_msg(saved_messages[i],p_return_msg_full);
+        printf("sent uart message %s\n --delaying-----1 sec\n",saved_messages[i]);
+        ets_delay_us(1000000);
+    }
+}
+
 /*
  * Register command execution
  * i_cmd: The command parameters of register
@@ -50,10 +79,11 @@ int execute_register(char *i_cmd, char *i_ret_msg)
         printf("Password length is #%d#\n",data_len_in_ble);
         memcpy(this_ccu.password,&i_cmd[BLE_CMD_MULTI_DATA_VALUE_OFFSET],data_len_in_ble);
         i_ret_msg[BLE_RET_MSG_RC_OFFSET] = SUCCESS;
-		// To Be checked with Sathish
-            this_ccu.paired_mob1.data_status = this_ccu.paired_mob1.data_status | FLAG_DATA_SET_MOB1_PASSWORD;
-            //TODO-Store password in EEPROM and populate error code
-            break;
+		    // To Be checked with Sathish
+        this_ccu.paired_mob1.data_status = this_ccu.paired_mob1.data_status | FLAG_DATA_SET_MOB1_PASSWORD;
+        //TODO-Store password in EEPROM and populate error code
+        save_group_messages(p_recvd_msg_full,DID_REGISTER_PASSWORD-1);
+        break;
 
     case DID_REGISTER_MOB_NO :
         printf("mob no stored %s\n",i_cmd);
@@ -62,6 +92,7 @@ int execute_register(char *i_cmd, char *i_ret_msg)
         i_ret_msg[BLE_RET_MSG_RC_OFFSET] = SUCCESS;
         this_ccu.paired_mob1.data_status = this_ccu.paired_mob1.data_status | FLAG_DATA_SET_MOB1_NUM;
         //TODO-Store mobile number in EEPROM and populate error code
+        save_group_messages(p_recvd_msg_full,DID_REGISTER_MOB_NO-1);
         break;
 
     case DID_REGISTER_MOB_NAME :
@@ -71,6 +102,7 @@ int execute_register(char *i_cmd, char *i_ret_msg)
         i_ret_msg[BLE_RET_MSG_RC_OFFSET] = SUCCESS;
         this_ccu.paired_mob1.data_status = this_ccu.paired_mob1.data_status | FLAG_DATA_SET_MOB1_NAME;
         //TODO-Store mobile name in EEPROM and populate error code
+        save_group_messages(p_recvd_msg_full,DID_REGISTER_MOB_NAME-1);
         break;
 
     case DID_REGISTER_ANDROID_ID_OR_UUID :
@@ -80,6 +112,7 @@ int execute_register(char *i_cmd, char *i_ret_msg)
         i_ret_msg[BLE_RET_MSG_RC_OFFSET] = SUCCESS;
         this_ccu.paired_mob1.data_status = this_ccu.paired_mob1.data_status | FLAG_DATA_SET_ANDROID_ID_OR_UUID;
         //TODO-Store Android ID or UUID in EEPROM and populate error code
+        save_group_messages(p_recvd_msg_full,DID_REGISTER_ANDROID_ID_OR_UUID-1);
         break;
 
     default :
@@ -99,8 +132,11 @@ int execute_register(char *i_cmd, char *i_ret_msg)
     #endif
 
    if (this_ccu.paired_mob1.data_status == FLAG_DATA_SET_MOB1_ALL){
-       return READY_TO_SEND_REG_DATA_TO_SERIAL;
+       //all messages are saved. now send messages altogether
+       send_batch_messages(DID_REGISTER_ANDROID_ID_OR_UUID);
+       //return READY_TO_SEND_REG_DATA_TO_SERIAL;
    }
+   printf("return message after processing%s\n",i_ret_msg );
 
    /*
     * The below if condition and processing needs to be moved to 'Select A WiFi'
@@ -630,6 +666,13 @@ int read_ble_message(char *i_msg, char *i_ret_msg)
     source_app_type_identifier = i_msg[BLE_APP_TYPE_OFFSET];
     source_app_identifier      = i_msg[BLE_APP_OFFSET];
 
+    if(flag_set_recvd_msg_ptr == 0){
+      set_recvd_msg_pointer(i_msg);
+    }
+    if(flag_set_return_msg_ptr == 0){
+      set_return_msg_pointer(i_ret_msg);
+    }
+
     if (source_app_type_identifier == MOB1_APP_TYPE_ID) {
         is_valid_ble_msg = 1;
     } else {
@@ -678,7 +721,7 @@ int read_ble_message(char *i_msg, char *i_ret_msg)
             printf("Going to call execute register\n");
             #endif
             memcpy(ble_command,&i_msg[BLE_CMD_OFFSET + BLE_COMMAND_ID_SIZE],BLE_COMMAND_SIZE);
-            return execute_register(ble_command,i_ret_msg);
+            execute_register(ble_command,i_ret_msg);
             break;
 
         case CID_LOGIN :
@@ -910,46 +953,6 @@ void print_ccu()
     printf("Time #%ld#%d#%d#%d#%d#%d#%d#\n",time_value,tv.tm_year+1900,tv.tm_mon+1,tv.tm_mday,tv.tm_hour,tv.tm_min,tv.tm_sec);
 
     printf("\n\n******** CCU DATA END ********\n");
-}
-
-int save_group_messages(char *received_value_buffer,int type_id){
-  memcpy(saved_messages[type_id],received_value_buffer,BLE_MESSAGE_SIZE);
-  printf("\n saved message no %x \n", type_id);
-  return 0;
-}
-
-int prep_and_send_msg_to_ccu(char *received_value_buffer ,int read_ble_message_result){
-    int command_id = received_value_buffer[BLE_CMD_OFFSET];
-    int type_id    = received_value_buffer[BLE_MSG_MULTI_DATA_TYPE_OFFSET];
-
-    switch(read_ble_message_result)
-    {
-        case SUCCESS:
-            //'if' true when multidata packets need to be stored before sent altogether
-            if((command_id == CID_REGISTER)||(command_id == CID_CHANGE_PASSWORD)||
-               (command_id == CID_STORE_EMERGENCY_NUMBERS)||
-               (command_id == CID_STORE_PERSONAL_NUMBERS)||
-               (command_id == CID_SELECT_A_WIFI)||
-               (command_id == CID_ENTER_LOCAL_HELP_NUMBERS))
-            {
-                save_group_messages(received_value_buffer,type_id-1);
-            }
-            else{//in case of single data type send immediately
-                ccu_send_reg_msg(received_value_buffer);
-            }
-            break;
-
-        case READY_TO_SEND_REG_DATA_TO_SERIAL:
-            save_group_messages(received_value_buffer,type_id-1);
-            for(int i=0 ; i< type_id ; i++){
-                ccu_send_reg_msg(saved_messages[i]);
-                printf("sent uart message --delaying-----5 sec\n");
-                ets_delay_us(5000000);
-
-              }
-        break;
-    }
-    return 0;
 }
 
 int main(int argc, char** argv)

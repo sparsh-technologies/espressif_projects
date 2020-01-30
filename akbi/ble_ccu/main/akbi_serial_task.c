@@ -27,8 +27,10 @@
 #include "lwip/sockets.h"
 #include "lwip/netdb.h"
 #include "peripheral.h"
+#include "akbi_ccu_msg_handler.h"
 
 int uart_fd = -1;
+static char *p_ret_msg;
 
 uart_config_t uart_config = {
     .baud_rate = 115200,
@@ -37,6 +39,11 @@ uart_config_t uart_config = {
     .stop_bits = UART_STOP_BITS_1,
     .flow_ctrl = UART_HW_FLOWCTRL_DISABLE
 };
+
+void set_ret_msg_ptr(char *ret_msg_ptr){
+    p_ret_msg = ret_msg_ptr;
+}
+
 static void deinit_uart()
 {
     close(uart_fd);
@@ -76,7 +83,11 @@ static void check_and_uart_data(int fd, const fd_set *rfds, const char *src_msg)
     if (FD_ISSET(fd, rfds)) {
         if ((read_bytes = read(fd, buf, sizeof(buf)-1)) > 0) {
             buf[read_bytes] = '\0';
+            memcpy(p_ret_msg,buf,read_bytes);
             printf( " INFO : %d bytes were received through %s: %s", read_bytes, src_msg, buf);
+
+            set_data_to_mobile(buf,read_bytes,p_ret_msg);
+
         } else {
             printf(" ERROR : %s read error", src_msg);
         }
@@ -126,10 +137,11 @@ int akbi_dump_serial_pkt(const char *buffer, int length)
     return (0);
 }
 
-void send_uart_message(const char* p_data, int length)
+void send_uart_message(const char* p_data, int length ,char *p_recvd_msg_full )
 {
     int    ret;
 
+    set_ret_msg_ptr(p_recvd_msg_full);
     akbi_dump_serial_pkt(p_data, length);
     ret = write(uart_fd, p_data, length);
     printf(" UART-WRITE : Sending %d bytes Status(%d)\n", length, ret);

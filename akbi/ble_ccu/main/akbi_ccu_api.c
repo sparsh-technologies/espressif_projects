@@ -19,7 +19,7 @@
 #include "akbi_msg.h"
 #include "akbi_serial_task.h"
 
-int ccu_sent_subg_clear_learning_msg(char *p_tx_buffer)
+int ccu_sent_subg_clear_learning_msg(char *p_tx_buffer,char *ep_return_message)
 {
     BT_CP_PROTOCOL_HDR  *p_protocol_hdr;
     int                 length;
@@ -38,12 +38,12 @@ int ccu_sent_subg_clear_learning_msg(char *p_tx_buffer)
 
     length = sizeof(BT_CP_PROTOCOL_HDR) + p_protocol_hdr->length;
 
-    send_uart_message(p_tx_buffer, length);
+    send_uart_message(p_tx_buffer, length , ep_return_message);
 
     return (0);
 }
 
-int ccu_sent_subg_learning_msg(char *p_tx_buffer)
+int ccu_sent_subg_learning_msg(char *p_tx_buffer,char *ep_return_message)
 {
     BT_CP_PROTOCOL_HDR  *p_protocol_hdr;
     int                 length;
@@ -61,14 +61,12 @@ int ccu_sent_subg_learning_msg(char *p_tx_buffer)
     printf(" Length      :  %02x\n", p_protocol_hdr->length);
 
     length = sizeof(BT_CP_PROTOCOL_HDR) + p_protocol_hdr->length;
-    send_uart_message(p_tx_buffer, length);
+    send_uart_message(p_tx_buffer, length , ep_return_message);
 
     return (0);
 }
 
-
-
-int ccu_send_reg_msg(char *received_value_buffer)
+int ccu_send_reg_msg(char *received_value_buffer,char *ep_return_message)
 {
 
     BT_CP_PROTOCOL_HDR  *p_protocol_hdr;
@@ -94,12 +92,12 @@ int ccu_send_reg_msg(char *received_value_buffer)
 
     length = sizeof(BT_CP_PROTOCOL_HDR) + p_protocol_hdr->length;
 
-    send_uart_message(p_tx_buffer, length);
+    send_uart_message(p_tx_buffer, length , ep_return_message);
 
     return 0;
 }
 
-int ccu_sent_scan_all_wifi_msg(char *p_tx_buffer)
+int ccu_sent_scan_all_wifi_msg(char *p_tx_buffer,char *ep_return_message)
 {
     BT_CP_PROTOCOL_HDR  *p_protocol_hdr;
     int                 length;
@@ -114,12 +112,12 @@ int ccu_sent_scan_all_wifi_msg(char *p_tx_buffer)
 
 
     length = sizeof(BT_CP_PROTOCOL_HDR) + p_protocol_hdr->length;
-    send_uart_message(p_tx_buffer, length);
+    send_uart_message(p_tx_buffer, length , ep_return_message);
 
     return (0);
 }
 
-int ccu_sent_configure_wifi_credentials(char *p_tx_buffer, char *p_ap_name, char *p_passwd, int mode)
+int ccu_sent_configure_wifi_credentials(char *p_tx_buffer,char *ep_return_message, char *p_ap_name, char *p_passwd, int mode)
 {
     BT_CP_PROTOCOL_HDR  *p_protocol_hdr;
     char                *p;
@@ -156,12 +154,12 @@ int ccu_sent_configure_wifi_credentials(char *p_tx_buffer, char *p_ap_name, char
     p += strlen(p_passwd);
 
     length = sizeof(BT_CP_PROTOCOL_HDR) + p_protocol_hdr->length;
-    send_uart_message(p_tx_buffer, length);
+    send_uart_message(p_tx_buffer, length , ep_return_message);
 
     return (0);
 }
 
-int ccu_sent_user_login_msg(char *p_tx_buffer)
+int ccu_sent_user_login_msg(char *p_tx_buffer,char *ep_return_message)
 {
     BT_CP_PROTOCOL_HDR  *p_protocol_hdr;
     int                 length;
@@ -176,12 +174,12 @@ int ccu_sent_user_login_msg(char *p_tx_buffer)
 
 
     length = sizeof(BT_CP_PROTOCOL_HDR) + p_protocol_hdr->length;
-    send_uart_message(p_tx_buffer, length);
+    send_uart_message(p_tx_buffer, length , ep_return_message);
 
     return (0);
 }
 
-int ccu_sent_user_forgot_passwd_msg(char *p_tx_buffer)
+int ccu_sent_user_forgot_passwd_msg(char *p_tx_buffer,char *ep_return_message)
 {
     BT_CP_PROTOCOL_HDR  *p_protocol_hdr;
     int                 length;
@@ -196,12 +194,12 @@ int ccu_sent_user_forgot_passwd_msg(char *p_tx_buffer)
 
 
     length = sizeof(BT_CP_PROTOCOL_HDR) + p_protocol_hdr->length;
-    send_uart_message(p_tx_buffer, length);
+    send_uart_message(p_tx_buffer, length , ep_return_message);
 
     return (0);
 }
 
-int ccu_sent_user_change_passwd_msg(char *p_tx_buffer)
+int ccu_sent_user_change_passwd_msg(char *p_tx_buffer,char *ep_return_message)
 {
     BT_CP_PROTOCOL_HDR  *p_protocol_hdr;
     int                 length;
@@ -216,12 +214,12 @@ int ccu_sent_user_change_passwd_msg(char *p_tx_buffer)
 
 
     length = sizeof(BT_CP_PROTOCOL_HDR) + p_protocol_hdr->length;
-    send_uart_message(p_tx_buffer, length);
+    send_uart_message(p_tx_buffer, length , ep_return_message);
 
     return (0);
 }
 
-int ccu_sent_record_voice_msg(char *p_tx_buffer)
+int ccu_sent_record_voice_msg(char *p_tx_buffer,char *ep_return_message)
 {
     BT_CP_PROTOCOL_HDR  *p_protocol_hdr;
     int                 length;
@@ -236,12 +234,12 @@ int ccu_sent_record_voice_msg(char *p_tx_buffer)
 
 
     length = sizeof(BT_CP_PROTOCOL_HDR) + p_protocol_hdr->length;
-    send_uart_message(p_tx_buffer, length);
+    send_uart_message(p_tx_buffer, length , ep_return_message);
 
     return (0);
 }
 
-int ccu_sent_store_emergency_number_msg(char *p_tx_buffer)
+int ccu_sent_store_emergency_number_msg(char *p_tx_buffer,char *ep_return_message)
 {
     BT_CP_PROTOCOL_HDR  *p_protocol_hdr;
     int                 length;
@@ -256,12 +254,12 @@ int ccu_sent_store_emergency_number_msg(char *p_tx_buffer)
 
 
     length = sizeof(BT_CP_PROTOCOL_HDR) + p_protocol_hdr->length;
-    send_uart_message(p_tx_buffer, length);
+    send_uart_message(p_tx_buffer, length , ep_return_message);
 
     return (0);
 }
 
-int ccu_sent_store_personal_number_msg(char *p_tx_buffer)
+int ccu_sent_store_personal_number_msg(char *p_tx_buffer,char *ep_return_message)
 {
     BT_CP_PROTOCOL_HDR  *p_protocol_hdr;
     int                 length;
@@ -276,12 +274,12 @@ int ccu_sent_store_personal_number_msg(char *p_tx_buffer)
 
 
     length = sizeof(BT_CP_PROTOCOL_HDR) + p_protocol_hdr->length;
-    send_uart_message(p_tx_buffer, length);
+    send_uart_message(p_tx_buffer, length , ep_return_message);
 
     return (0);
 }
 
-int ccu_sent_store_local_help_number_msg(char *p_tx_buffer)
+int ccu_sent_store_local_help_number_msg(char *p_tx_buffer,char *ep_return_message)
 {
     BT_CP_PROTOCOL_HDR  *p_protocol_hdr;
     int                 length;
@@ -296,12 +294,12 @@ int ccu_sent_store_local_help_number_msg(char *p_tx_buffer)
 
 
     length = sizeof(BT_CP_PROTOCOL_HDR) + p_protocol_hdr->length;
-    send_uart_message(p_tx_buffer, length);
+    send_uart_message(p_tx_buffer, length , ep_return_message);
 
     return (0);
 }
 
-int ccu_sent_activate_system_msg(char *p_tx_buffer)
+int ccu_sent_activate_system_msg(char *p_tx_buffer,char *ep_return_message)
 {
     BT_CP_PROTOCOL_HDR  *p_protocol_hdr;
     int                 length;
@@ -316,7 +314,7 @@ int ccu_sent_activate_system_msg(char *p_tx_buffer)
 
 
     length = sizeof(BT_CP_PROTOCOL_HDR) + p_protocol_hdr->length;
-    send_uart_message(p_tx_buffer, length);
+    send_uart_message(p_tx_buffer, length , ep_return_message);
 
     return (0);
 }

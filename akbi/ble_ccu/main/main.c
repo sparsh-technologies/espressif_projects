@@ -381,11 +381,7 @@ static void gatts_profile_a_event_handler(esp_gatts_cb_event_t event, esp_gatt_i
             memset(ep_return_message,0,MAX_RETURN_MSG_LENGTH);
 
             //getting return message to be sent to mobile in ep_return_message
-            read_ble_message_result = read_ble_message(received_value_buffer, ep_return_message);
-
-            //prepare and send data to ccu------------------
-            prep_and_send_msg_to_ccu(received_value_buffer ,read_ble_message_result);
-
+            read_ble_message(received_value_buffer, ep_return_message);
 
         }
 
