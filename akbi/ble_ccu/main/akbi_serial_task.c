@@ -31,6 +31,7 @@
 
 int uart_fd = -1;
 static char *p_ret_msg;
+char serial_rx_data[500];
 
 uart_config_t uart_config = {
     .baud_rate = 115200,
@@ -81,12 +82,14 @@ static void check_and_uart_data(int fd, const fd_set *rfds, const char *src_msg)
     int read_bytes;
 
     if (FD_ISSET(fd, rfds)) {
-        if ((read_bytes = read(fd, buf, sizeof(buf)-1)) > 0) {
-            buf[read_bytes] = '\0';
-            memcpy(p_ret_msg,buf,read_bytes);
-            printf( " INFO : %d bytes were received through %s: %s", read_bytes, src_msg, buf);
 
-            set_data_to_mobile(buf,read_bytes,p_ret_msg);
+        if ((read_bytes = read(fd, serial_rx_data, sizeof(serial_rx_data)-1)) > 0) {
+
+            serial_rx_data[read_bytes] = '\0';
+            memcpy(p_ret_msg, serial_rx_data,read_bytes);
+            printf( " INFO : %d bytes received , read_bytes);
+
+            akbi_process_rx_serial_data(buf,read_bytes,p_ret_msg);
 
         } else {
             printf(" ERROR : %s read error", src_msg);

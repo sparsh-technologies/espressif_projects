@@ -288,6 +288,9 @@ typedef struct __attribute__((__packed__)) _bt_cp_protocol_hdr_ {
 #define BT_CP_OPCODE_CID_CLEAR_SUB_G_LEARN                        0x0E
 #define BT_CP_OPCODE_CID_START_SUB_G_LEARN                        0x0F
 
+#define BT_CP_OPCODE_CID_SCAN_WIFI_RESULT                         0x70
+
+
 /*
  * All TVL Types are defined here.
  */

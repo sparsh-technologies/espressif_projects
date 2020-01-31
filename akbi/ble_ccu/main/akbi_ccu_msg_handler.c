@@ -4,8 +4,9 @@
 #include "akbi_bt_msg.h"
 #include "akbi_msg.h"
 
+AKBI_WIFI_SCAN_REPORT  wifi_scan_report;
 
-void set_data_to_mobile(char *ccu_msg,int length,char *return_pointer){
+void akbi_process_rx_serial_data(char *ccu_msg,int length,char *return_pointer){
 
      char *p;
 
@@ -21,5 +22,39 @@ void set_data_to_mobile(char *ccu_msg,int length,char *return_pointer){
       p = ccu_msg + sizeof(BT_CP_PROTOCOL_HDR);
 
       memcpy(return_pointer+BLE_RET_MSG_SCANNED_SSID_COUNT_OFFSET, p , p_protocol_hdr->length);
+
+    switch(p_protocol_hdr->opcode)
+    {
+    case BT_CP_OPCODE_CID_SCAN_WIFI_RESULT :
+
+        /*
+         * First check whether this is the first packet. If this is the first packet, then
+         * cleanupp the datastructure here.
+         */
+        if (p_protocol_hdr->type == 1) {
+            memset(&wifi_scan_report, 0x00, sizeof(AKBI_WIFI_SCAN_REPORT));
+        }
+
+        /*
+         * Now check whether this is the last packet. If so, just mark the scanning as completed.
+         */
+        if (p_protocol_hdr->type == 0 ) {
+
+        }
+
+        /*
+         * Now, copy all the contents into the local datastructure.
+         */
+        index = p_protocol_hdr->type;
+        p = ccu_msg + sizeof(BT_CP_PROTOCOL_HDR);
+
+        strncpy(wifi_scan_report.ap_name[index-1], p, p_protocol_hdr->length);
+        wifi_scan_report.ap_count++;
+        break;
+
+    default:
+        break;
+
+    }
 
 }

@@ -656,6 +656,10 @@ int execute_connect_to_wifi(char *i_cmd, char *i_ret_msg)
     return (int)i_ret_msg[BLE_RET_MSG_RC_OFFSET];
 }
 
+/*
+ * This API will read the packets from the mobile phone and process the packets.
+ */
+
 int read_ble_message(char *i_msg, char *i_ret_msg)
 {
     int  is_valid_ble_msg;
@@ -717,32 +721,20 @@ int read_ble_message(char *i_msg, char *i_ret_msg)
         switch (ble_cmd_id)
         {
         case CID_REGISTER :
-            #ifdef BLE_DEBUG
-            printf("Going to call execute register\n");
-            #endif
             memcpy(ble_command,&i_msg[BLE_CMD_OFFSET + BLE_COMMAND_ID_SIZE],BLE_COMMAND_SIZE);
             execute_register(ble_command,i_ret_msg);
             break;
 
         case CID_LOGIN :
-            #ifdef BLE_DEBUG
-            printf("Going to call execute login\n");
-            #endif
             memcpy(ble_command,&i_msg[BLE_CMD_OFFSET + BLE_COMMAND_ID_SIZE],BLE_COMMAND_SIZE);
             execute_login(ble_command,i_ret_msg);
             break;
 
         case CID_FORGOT_PASSWORD :
-            #ifdef BLE_DEBUG
-            printf("Going to call execute forgot password\n");
-            #endif
             execute_forgot_password(i_ret_msg);
             break;
 
         case CID_CHANGE_PASSWORD :
-            #ifdef BLE_DEBUG
-            printf("Going to call execute change password\n");
-            #endif
             if (this_ccu.paired_mob1.authentication_status != AUTHENTICATED) {
                 i_ret_msg[BLE_RET_MSG_RC_OFFSET] = ERROR_AUTHENTICATION;
                 return ERROR_AUTHENTICATION;
@@ -752,9 +744,6 @@ int read_ble_message(char *i_msg, char *i_ret_msg)
             break;
 
         case CID_RECORD_PERSONAL_VOICE_MSG :
-            #ifdef BLE_DEBUG
-            printf("Going to call execute record pers voice message\n");
-            #endif
             if (this_ccu.paired_mob1.authentication_status != AUTHENTICATED) {
                 memset(&i_ret_msg[BLE_RET_MSG_RC_OFFSET], ERROR_AUTHENTICATION, BLE_RETURN_RC_SIZE);
                 return ERROR_AUTHENTICATION;
@@ -763,9 +752,6 @@ int read_ble_message(char *i_msg, char *i_ret_msg)
             break;
 
         case CID_STORE_EMERGENCY_NUMBERS :
-            #ifdef BLE_DEBUG
-            printf("Going to call execute_store_emergency_number\n");
-            #endif
             if (this_ccu.paired_mob1.authentication_status != AUTHENTICATED) {
                 memset(&i_ret_msg[BLE_RET_MSG_RC_OFFSET], ERROR_AUTHENTICATION, BLE_RETURN_RC_SIZE);
                 return ERROR_AUTHENTICATION;
@@ -775,9 +761,6 @@ int read_ble_message(char *i_msg, char *i_ret_msg)
             break;
 
         case CID_STORE_PERSONAL_NUMBERS :
-            #ifdef BLE_DEBUG
-            printf("Going to call execute_store_personal_number\n");
-            #endif
             if (this_ccu.paired_mob1.authentication_status != AUTHENTICATED) {
                 memset(&i_ret_msg[BLE_RET_MSG_RC_OFFSET], ERROR_AUTHENTICATION, BLE_RETURN_RC_SIZE);
                 return ERROR_AUTHENTICATION;
@@ -787,9 +770,6 @@ int read_ble_message(char *i_msg, char *i_ret_msg)
             break;
 
         case CID_SCAN_WIFIS :
-            #ifdef BLE_DEBUG
-            printf("Going to call execute_scan_wifis\n");
-            #endif
             memcpy(ble_command,&i_msg[BLE_CMD_OFFSET + BLE_COMMAND_ID_SIZE],BLE_COMMAND_SIZE);
             if (this_ccu.paired_mob1.authentication_status != AUTHENTICATED) {
                 memset(&i_ret_msg[BLE_RET_MSG_RC_OFFSET], ERROR_AUTHENTICATION, BLE_RETURN_RC_SIZE);
@@ -799,9 +779,6 @@ int read_ble_message(char *i_msg, char *i_ret_msg)
             break;
 
         case CID_SELECT_A_WIFI :
-            #ifdef BLE_DEBUG
-            printf("Going to call execute_select_a_wifi\n");
-            #endif
             if (this_ccu.paired_mob1.authentication_status != AUTHENTICATED) {
                 memset(&i_ret_msg[BLE_RET_MSG_RC_OFFSET], ERROR_AUTHENTICATION, BLE_RETURN_RC_SIZE);
                 return ERROR_AUTHENTICATION;
@@ -811,9 +788,6 @@ int read_ble_message(char *i_msg, char *i_ret_msg)
             break;
 
         case CID_ADDRESS_VISITING :
-            #ifdef BLE_DEBUG
-            printf("Going to call execute store address visiting\n");
-            #endif
             if (this_ccu.paired_mob1.authentication_status != AUTHENTICATED) {
                 memset(&i_ret_msg[BLE_RET_MSG_RC_OFFSET], ERROR_AUTHENTICATION, BLE_RETURN_RC_SIZE);
                 return ERROR_AUTHENTICATION;
@@ -823,9 +797,6 @@ int read_ble_message(char *i_msg, char *i_ret_msg)
             break;
 
         case CID_ENTER_LOCAL_HELP_NUMBERS :
-            #ifdef BLE_DEBUG
-            printf("Going to call execute_enter_local_help_number\n");
-            #endif
             if (this_ccu.paired_mob1.authentication_status != AUTHENTICATED) {
                 memset(&i_ret_msg[BLE_RET_MSG_RC_OFFSET], ERROR_AUTHENTICATION, BLE_RETURN_RC_SIZE);
                 return ERROR_AUTHENTICATION;
@@ -835,9 +806,6 @@ int read_ble_message(char *i_msg, char *i_ret_msg)
             break;
 
         case CID_CCU_ACTIVATE :
-            #ifdef BLE_DEBUG
-            printf("Going to call execute ccu activate\n");
-            #endif
             if (this_ccu.paired_mob1.authentication_status != AUTHENTICATED) {
                 memset(&i_ret_msg[BLE_RET_MSG_RC_OFFSET], ERROR_AUTHENTICATION, BLE_RETURN_RC_SIZE);
                 return ERROR_AUTHENTICATION;
@@ -847,9 +815,6 @@ int read_ble_message(char *i_msg, char *i_ret_msg)
             break;
 
         case CID_CONNECT_TO_WIFI :
-            #ifdef BLE_DEBUG
-            printf("Going to call execute_connect_to_wifi\n");
-            #endif
             if (this_ccu.paired_mob1.authentication_status != AUTHENTICATED) {
                 memset(&i_ret_msg[BLE_RET_MSG_RC_OFFSET], ERROR_AUTHENTICATION, BLE_RETURN_RC_SIZE);
                 return ERROR_AUTHENTICATION;
@@ -860,9 +825,7 @@ int read_ble_message(char *i_msg, char *i_ret_msg)
 
         default :
             i_ret_msg[BLE_RET_MSG_RC_OFFSET] = ERROR_UNRECOGNIZED_COMMAND;
-            #ifdef BLE_DEBUG
             printf("Unrecognized Command #%x#\n",ble_cmd_id);
-            #endif
             break;
 
         }
@@ -954,6 +917,8 @@ void print_ccu()
 
     printf("\n\n******** CCU DATA END ********\n");
 }
+
+#if 0
 
 int main(int argc, char** argv)
 {
@@ -1409,3 +1374,5 @@ int main(int argc, char** argv)
 
     print_ccu();
 }
+
+#endif

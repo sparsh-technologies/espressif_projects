@@ -336,15 +336,18 @@ static void gatts_profile_a_event_handler(esp_gatts_cb_event_t event, esp_gatt_i
 
     case ESP_GATTS_READ_EVT:
     {
+
+        /*
+         * When the Mobile phone try to READ some data, the control comes through this path.
+         */
+        esp_gatt_rsp_t rsp;
+
         ESP_LOGI(BT_BLE_COEX_TAG, "GATT_READ_EVT, conn_id %d, trans_id %d, handle %d\n",
                  param->read.conn_id, param->read.trans_id, param->read.handle);
 
-        esp_gatt_rsp_t rsp;
-        //static int increment_add_value = 0 ;
         memset(&rsp, 0, sizeof(esp_gatt_rsp_t));
         rsp.attr_value.handle = param->read.handle;
         rsp.attr_value.len = MAX_RETURN_MSG_LENGTH;
-
 
         for(int i = 0 ;i < MAX_RETURN_MSG_LENGTH; i++){
             rsp.attr_value.value[i] = ep_return_message[i];
@@ -360,28 +363,31 @@ static void gatts_profile_a_event_handler(esp_gatts_cb_event_t event, esp_gatt_i
 
         break;
     }
+
     case ESP_GATTS_WRITE_EVT:
+
+        /*
+         * When the Mobile phone sends the data, the control comes through this path.
+         */
 
         ESP_LOGI(BT_BLE_COEX_TAG, "GATT_WRITE_EVT, conn_id %d, trans_id %d, handle %d",
                        param->write.conn_id, param->write.trans_id, param->write.handle);
 
         if (!param->write.is_prep){
 
-            char received_value_buffer[30];
+            char  rx_pkt_buffer[30];
             int read_ble_message_result = 0;
+
+            memset(rx_pkt_buffer, 0x00, 30);
+            memset(ep_return_message, 0x00, MAX_RETURN_MSG_LENGTH);
 
             ESP_LOGI(BT_BLE_COEX_TAG, "GATT_WRITE_EVT, value len %d, value :", param->write.len);
             esp_log_buffer_char(BT_BLE_COEX_TAG, param->write.value, param->write.len);
             esp_log_buffer_hex(BT_BLE_COEX_TAG, param->write.value, param->write.len);
 
-            //copying received string to received_value_buffer
-            memcpy(received_value_buffer,"\0",param->write.len+1);
-            memcpy(received_value_buffer,param->write.value,param->write.len);
-            //printf("value buff %s\n",received_value_buffer );
-            memset(ep_return_message,0,MAX_RETURN_MSG_LENGTH);
+            memcpy(rx_pkt_buffer, param->write.value, param->write.len);
 
-            //getting return message to be sent to mobile in ep_return_message
-            read_ble_message(received_value_buffer, ep_return_message);
+            read_ble_message(rx_pkt_buffer, ep_return_message);
 
         }
 

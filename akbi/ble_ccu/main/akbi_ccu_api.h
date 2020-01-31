@@ -1,6 +1,27 @@
-#ifndef __AKBI_CCU_API_H__
-#define __AKBI_CCU_API_H__
+/*
+ ****************************************************************************************
+ * akbi_ccu_api.h
+ *
+ * Author    : Shikhil 
+ * Ver       : 1.0
+ * Date      : 31-Dec-2019
+ *
+ * Copyright Infinicomm Solutions India Pvt Ltd, 2019-20
+ *
+ ****************************************************************************************
+ */
 
+#ifndef _AKBI_CCU_API_H_
+#define _AKBI_CCU_API_H_
+
+#define MAX_AP_NAME_LENGTH                 100
+
+typedef struct _akbi_wifi_scan_report_
+{
+    int    ap_count;
+    char   ap_name[20][MAX_AP_NAME_LENGTH];
+
+} AKBI_WIFI_SCAN_REPORT;
 
 
 /*****************************************************
