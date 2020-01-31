@@ -9,8 +9,8 @@ AKBI_WIFI_SCAN_REPORT  wifi_scan_report;
 
 void akbi_process_rx_serial_data(char *ccu_msg,int length,char *return_pointer)
 {
-
-    char *p;
+    int    index;
+    char   *p;
 
     BT_CP_PROTOCOL_HDR  *p_protocol_hdr;
 
