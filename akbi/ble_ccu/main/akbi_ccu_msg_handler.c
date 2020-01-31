@@ -23,8 +23,6 @@ void akbi_process_rx_serial_data(char *ccu_msg,int length,char *return_pointer)
 
     p = ccu_msg + sizeof(BT_CP_PROTOCOL_HDR);
 
-    memcpy(return_pointer+BLE_RET_MSG_SCANNED_SSID_COUNT_OFFSET, p , p_protocol_hdr->length);
-
     switch(p_protocol_hdr->opcode)
     {
 
@@ -42,7 +40,7 @@ void akbi_process_rx_serial_data(char *ccu_msg,int length,char *return_pointer)
          * Now check whether this is the last packet. If so, just mark the scanning as completed.
          */
         if (p_protocol_hdr->type == 0 ) {
-
+            return ;
         }
 
         /*
@@ -52,6 +50,7 @@ void akbi_process_rx_serial_data(char *ccu_msg,int length,char *return_pointer)
         p = ccu_msg + sizeof(BT_CP_PROTOCOL_HDR);
 
         strncpy(wifi_scan_report.ap_name[index-1], p, p_protocol_hdr->length);
+        printf(" INFO : AP-%d : %s \n", index, wifi_scan_report.ap_name[index-1]);
         wifi_scan_report.ap_count++;
         break;
 
@@ -59,5 +58,5 @@ void akbi_process_rx_serial_data(char *ccu_msg,int length,char *return_pointer)
         break;
 
     }
-
+    return;
 }

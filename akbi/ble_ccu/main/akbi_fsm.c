@@ -17,12 +17,14 @@
 #include <time.h>
 #include "akbi_fsm.h"
 
+CCU_FSM_STATES bt_state = FSM_STATE_INIT;
+
 int akbi_get_fsm_state()
 {
     return (bt_state);
 }
 
-void akbi_set_fsm_state()
+void akbi_set_fsm_state(CCU_FSM_STATES state)
 {
     bt_state = state;
 }
@@ -30,12 +32,16 @@ void akbi_set_fsm_state()
 int akbi_check_fsm_state_and_respond()
 {
     CCU_FSM_STATES    current_state;
-    int               ret;
+    int               ret = 0;
 
     current_state = akbi_get_fsm_state();
 
     switch(current_state)
     {
+
+    case FSM_STATE_INIT :
+        ret = 0;
+        break;
 
     case FSM_STATE_MOB_REGISTERED :
         ret = 0;

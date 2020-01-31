@@ -14,7 +14,8 @@
 #ifndef _AKBI_FSM_H_
 #define _AKBI_FSM_H_
 
-enum {
+typedef enum {
+    FSM_STATE_INIT,
     FSM_STATE_MOB_REGISTERED,
     FSM_STATE_LOGIN,
     FSM_STATE_FORGOT_PASSWD,
@@ -32,7 +33,8 @@ enum {
     FSM_STATE_ACTIVATE_IN_PROGRESS,
 } CCU_FSM_STATES;
 
-extern int akbi_get_fsm_state();
-extern void akbi_set_fsm_state();
+extern int akbi_get_fsm_state(void);
+extern void akbi_set_fsm_state(CCU_FSM_STATES state);
+extern int akbi_check_fsm_state_and_respond(void);
 
 #endif
