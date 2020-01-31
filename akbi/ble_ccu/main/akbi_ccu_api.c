@@ -119,7 +119,7 @@ int ccu_send_login_msg()
     return 0;
 }
 
-int ccu_sent_scan_all_wifi_msg(char *ep_return_message)
+int ccu_sent_scan_all_wifi_msg()
 {
     BT_CP_PROTOCOL_HDR  *p_protocol_hdr;
     int                 length;

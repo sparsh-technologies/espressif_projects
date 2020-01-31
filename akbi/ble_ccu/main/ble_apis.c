@@ -40,6 +40,7 @@ static int flag_set_return_msg_ptr = 0;
  * All extern API's are declared here.
  */
 extern int ccu_send_login_msg(void);
+extern int ccu_sent_scan_all_wifi_msg(void);
 
 void set_recvd_msg_pointer(char *received_value_buffer){
     p_recvd_msg_full = received_value_buffer;
@@ -435,6 +436,7 @@ int execute_scan_wifis(char *i_cmd ,char *i_ret_msg)
             return (int)i_ret_msg[BLE_RET_MSG_RC_OFFSET];
         }
     }
+
     //TODO: Send the command to scan WiFis to the processor and get response.
     printf("data_type %c\ncount type %c\n",data_type,BLE_RET_MSG_SCANNED_WIFI_COUNT_TYPE);
     if(data_type == BLE_RET_MSG_SCANNED_WIFI_COUNT_TYPE){
@@ -446,15 +448,23 @@ int execute_scan_wifis(char *i_cmd ,char *i_ret_msg)
                BLE_COMMAND_DATA_TYPE_SIZE);
         memcpy(&i_ret_msg[BLE_RET_MSG_SCANNED_SSID_COUNT_OFFSET],&count,SCANNED_WIFI_COUNT_SIZE);
         searched_ssid_count_index = 0;
+
     }
     else if(data_type == BLE_RET_MSG_SCANNED_WIFI_SSID_TYPE){
+
        memset(&i_ret_msg[BLE_RET_MSG_RC_OFFSET], SUCCESS, BLE_RETURN_RC_SIZE);
        memset(&i_ret_msg[BLE_RET_MSG_DATA_TYPE_OFFSET], BLE_RET_MSG_SCANNED_WIFI_SSID_TYPE,
               BLE_COMMAND_DATA_TYPE_SIZE);
-       memcpy(&i_ret_msg[BLE_RET_MSG_SCANNED_SSID_COUNT_OFFSET],&this_ccu.scanned_wifis[searched_ssid_count_index].ssid,SCANNED_WIFI_NAME_SIZE);
+       memcpy(&i_ret_msg[BLE_RET_MSG_SCANNED_SSID_COUNT_OFFSET],
+              &this_ccu.scanned_wifis[searched_ssid_count_index].ssid,SCANNED_WIFI_NAME_SIZE);
        printf("\nssid %s\n",this_ccu.scanned_wifis[searched_ssid_count_index].ssid);
        searched_ssid_count_index++;
     }
+
+    /*
+     * Send message to the CCU to start scan operation.
+     */
+    ccu_sent_scan_all_wifi_msg();
 
     return (int)i_ret_msg[BLE_RET_MSG_RC_OFFSET];
 }
