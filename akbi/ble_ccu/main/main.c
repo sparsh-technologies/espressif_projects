@@ -345,6 +345,14 @@ static void gatts_profile_a_event_handler(esp_gatts_cb_event_t event, esp_gatt_i
         ESP_LOGI(BT_BLE_COEX_TAG, "GATT_READ_EVT, conn_id %d, trans_id %d, handle %d\n",
                  param->read.conn_id, param->read.trans_id, param->read.handle);
 
+        /*
+         * If the state is not right, we may respond in a different way.
+         */
+        if (akbi_check_fsm_state_and_respond() != 0) {
+
+            break;
+        }
+
         memset(&rsp, 0, sizeof(esp_gatt_rsp_t));
         rsp.attr_value.handle = param->read.handle;
         rsp.attr_value.len = MAX_RETURN_MSG_LENGTH;
@@ -352,9 +360,6 @@ static void gatts_profile_a_event_handler(esp_gatts_cb_event_t event, esp_gatt_i
         for(int i = 0 ;i < MAX_RETURN_MSG_LENGTH; i++){
             rsp.attr_value.value[i] = ep_return_message[i];
         }
-
-
-        ESP_LOGI(BT_BLE_COEX_TAG, "in read fn");
 
         esp_log_buffer_hex(BT_BLE_COEX_TAG, &rsp,rsp.attr_value.len );
 

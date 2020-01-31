@@ -20,7 +20,7 @@
 #include "akbi_serial_task.h"
 #include <rom/ets_sys.h>
 #include "akbi_ccu_api.h"
-
+#include "akbi_fsm.h"
 
 
 CCU this_ccu;
@@ -745,15 +745,18 @@ int read_ble_message(char *i_msg, char *i_ret_msg)
         case CID_REGISTER :
             memcpy(ble_command,&i_msg[BLE_CMD_OFFSET + BLE_COMMAND_ID_SIZE],BLE_COMMAND_SIZE);
             execute_register(ble_command,i_ret_msg);
+            akbi_set_fsm_state(FSM_STATE_MOB_REGISTERED);
             break;
 
         case CID_LOGIN :
             memcpy(ble_command,&i_msg[BLE_CMD_OFFSET + BLE_COMMAND_ID_SIZE],BLE_COMMAND_SIZE);
             execute_login(ble_command,i_ret_msg);
+            akbi_set_fsm_state(FSM_STATE_LOGIN);
             break;
 
         case CID_FORGOT_PASSWORD :
             execute_forgot_password(i_ret_msg);
+            akbi_set_fsm_state(FSM_STATE_FORGOT_PASSWD);
             break;
 
         case CID_CHANGE_PASSWORD :
@@ -763,6 +766,7 @@ int read_ble_message(char *i_msg, char *i_ret_msg)
             }
             memcpy(ble_command,&i_msg[BLE_CMD_OFFSET + BLE_COMMAND_ID_SIZE],BLE_COMMAND_SIZE);
             execute_change_password(ble_command,i_ret_msg);
+            akbi_set_fsm_state(FSM_STATE_CHANGE_PASSWD);
             break;
 
         case CID_RECORD_PERSONAL_VOICE_MSG :
@@ -771,6 +775,7 @@ int read_ble_message(char *i_msg, char *i_ret_msg)
                 return ERROR_AUTHENTICATION;
             }
             execute_record_personal_voice_msg(i_ret_msg);
+            akbi_set_fsm_state(FSM_STATE_VOICE_RECORDING_IN_PRORESS);
             break;
 
         case CID_STORE_EMERGENCY_NUMBERS :
@@ -780,6 +785,7 @@ int read_ble_message(char *i_msg, char *i_ret_msg)
             }
             memcpy(ble_command,&i_msg[BLE_CMD_OFFSET + BLE_COMMAND_ID_SIZE],BLE_COMMAND_SIZE);
             execute_store_emergency_number(ble_command,i_ret_msg);
+            akbi_set_fsm_state(FSM_STATE_SET_EMER_NUM);
             break;
 
         case CID_STORE_PERSONAL_NUMBERS :
@@ -789,6 +795,7 @@ int read_ble_message(char *i_msg, char *i_ret_msg)
             }
             memcpy(ble_command,&i_msg[BLE_CMD_OFFSET + BLE_COMMAND_ID_SIZE],BLE_COMMAND_SIZE);
             execute_store_personal_number(ble_command,i_ret_msg);
+            akbi_set_fsm_state(FSM_STATE_SET_PERSONAL_NUM );
             break;
 
         case CID_SCAN_WIFIS :
@@ -798,6 +805,7 @@ int read_ble_message(char *i_msg, char *i_ret_msg)
                 return ERROR_AUTHENTICATION;
             }
             execute_scan_wifis(ble_command ,i_ret_msg);
+            akbi_set_fsm_state(FSM_STATE_WIFI_SCAN_IN_PROGRESS);
             break;
 
         case CID_SELECT_A_WIFI :
@@ -807,6 +815,7 @@ int read_ble_message(char *i_msg, char *i_ret_msg)
             }
             memcpy(ble_command,&i_msg[BLE_CMD_OFFSET + BLE_COMMAND_ID_SIZE],BLE_COMMAND_SIZE);
             execute_select_a_wifi(ble_command,i_ret_msg);
+            akbi_set_fsm_state(FSM_STATE_WIFI_SELECT_IN_PROGRESS );
             break;
 
         case CID_ADDRESS_VISITING :
@@ -816,6 +825,7 @@ int read_ble_message(char *i_msg, char *i_ret_msg)
             }
             memcpy(ble_command,&i_msg[BLE_CMD_OFFSET + BLE_COMMAND_ID_SIZE],BLE_COMMAND_SIZE);
             execute_store_address_visiting(ble_command,i_ret_msg);
+            akbi_set_fsm_state(FSM_STATE_CFG_SET_ADDRESS );
             break;
 
         case CID_ENTER_LOCAL_HELP_NUMBERS :
@@ -825,6 +835,7 @@ int read_ble_message(char *i_msg, char *i_ret_msg)
             }
             memcpy(ble_command,&i_msg[BLE_CMD_OFFSET + BLE_COMMAND_ID_SIZE],BLE_COMMAND_SIZE);
             execute_enter_local_help_number(ble_command,i_ret_msg);
+            akbi_set_fsm_state(FSM_STATE_CFG_SET_HELP_NUM );
             break;
 
         case CID_CCU_ACTIVATE :
@@ -834,6 +845,7 @@ int read_ble_message(char *i_msg, char *i_ret_msg)
             }
             memcpy(ble_command,&i_msg[BLE_CMD_OFFSET + BLE_COMMAND_ID_SIZE],BLE_COMMAND_SIZE);
             execute_ccu_activate(ble_command,i_ret_msg);
+            akbi_set_fsm_state(FSM_STATE_ACTIVATE_IN_PROGRESS);
             break;
 
         case CID_CONNECT_TO_WIFI :
@@ -843,6 +855,7 @@ int read_ble_message(char *i_msg, char *i_ret_msg)
             }
             memcpy(ble_command,&i_msg[BLE_CMD_OFFSET + BLE_COMMAND_ID_SIZE],BLE_COMMAND_SIZE);
             execute_connect_to_wifi(ble_command,i_ret_msg);
+            akbi_set_fsm_state(FSM_STATE_WIFI_CONNECT_IN_PROGRESS);
             break;
 
         default :
