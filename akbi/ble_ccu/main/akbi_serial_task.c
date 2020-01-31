@@ -87,7 +87,7 @@ static void check_and_uart_data(int fd, const fd_set *rfds, const char *src_msg)
 
             serial_rx_data[read_bytes] = '\0';
             memcpy(p_ret_msg, serial_rx_data,read_bytes);
-            printf( " INFO : %d bytes received , read_bytes);
+            printf( " INFO : %d bytes received \n", read_bytes);
 
             akbi_process_rx_serial_data(buf,read_bytes,p_ret_msg);
 
