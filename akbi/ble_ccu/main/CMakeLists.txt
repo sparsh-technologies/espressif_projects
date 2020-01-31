@@ -4,6 +4,7 @@ set(COMPONENT_SRCS "bt_app_core.c"
                    "ble_apis.c"
                    "akbi_serial_task.c"
                    "akbi_ccu_api.c"
+                   "akbi_ccu_msg_handler.c"
                    )
 set(COMPONENT_ADD_INCLUDEDIRS ".")
 

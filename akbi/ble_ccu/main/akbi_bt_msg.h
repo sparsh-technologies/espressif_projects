@@ -18,8 +18,8 @@
 #define BLE_DEBUG
 
 #define SER_NO_SIZE                        8
-#define PASS_SIZE                          50
 #define DEFAULT_PASSWORD_SIZE              12
+#define PASS_SIZE                          15
 #define MOB_NO_SIZE                        10
 #define MOB_NAME_SIZE                      15
 #define ANDROID_ID_OR_UUID_SIZE            15
@@ -84,11 +84,12 @@
 #define FLAG_DATA_SET_CCU_NEW_PASSWORD     0x04
 #define FLAG_DATA_SET_CCU_PWD_MATCH        0x08
 
-#define FLAG_DATA_SET_MOB1_ID              0x01
+#define FLAG_DATA_SET_MOB1_PASSWORD        0x01
 #define FLAG_DATA_SET_MOB1_NUM             0x02
 #define FLAG_DATA_SET_MOB1_NAME            0x04
 #define FLAG_DATA_SET_ANDROID_ID_OR_UUID   0x08
-#define FLAG_DATA_SET_MOB1_ALL             0x0F
+#define FLAG_DATA_SET_MOB1_ID              0x10
+#define FLAG_DATA_SET_MOB1_ALL             0x1F
 
 #define FLAG_DATA_SET_SEL_WIFI_SSID        0x01
 #define FLAG_DATA_SET_SEL_WIFI_NETWORK_KEY 0x02
@@ -100,7 +101,7 @@ typedef enum {UNAUTHENTICATED = 0, AUTHENTICATED} AUTH_STATUS;
 
 typedef struct _mob1_ {
 
-    char id[BLE_APP_ID_SIZE];
+    char id;
     char mobile_number[MOB_NO_SIZE];
     char mobile_name[MOB_NAME_SIZE];
     char android_id_or_uuid[ANDROID_ID_OR_UUID_SIZE];
@@ -286,6 +287,9 @@ typedef struct __attribute__((__packed__)) _bt_cp_protocol_hdr_ {
 #define BT_CP_OPCODE_CID_CONNECT_TO_WIFI                          0x0D
 #define BT_CP_OPCODE_CID_CLEAR_SUB_G_LEARN                        0x0E
 #define BT_CP_OPCODE_CID_START_SUB_G_LEARN                        0x0F
+
+#define BT_CP_OPCODE_CID_SCAN_WIFI_RESULT                         0x70
+
 
 /*
  * All TVL Types are defined here.

@@ -15,13 +15,14 @@
 #define _AKBI_MSG_H_
 
 #define CURRENT_FIRMWARE_VERSION "1.0(1)"
+
 #define BLE_DEBUG
 
-const char  NEWLINE                                   = '\n';
-const char  END_OF_STRING                             = 0;
-const char  *WEBAPP_RETURN_DELIMITER_STRING           = ",";
+#define  NEWLINE                                 '\n'
+#define  END_OF_STRING                            0
+//const char  *WEBAPP_RETURN_DELIMITER_STRING           = ",";
 
-const short BLE_MESSAGE_SIZE                          = 20;
+#define BLE_MESSAGE_SIZE                          20
 #define BLE_COMMAND_SIZE                          17 //BLE_MESSAGE SIZE - Source App Type (1) - Source App ID (1) - Command Id (1)
 #define BLE_COMMAND_ID_SIZE                       1
 #define BLE_RETURN_RC_SIZE                        1
