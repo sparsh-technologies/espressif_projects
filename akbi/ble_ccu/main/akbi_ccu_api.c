@@ -135,7 +135,7 @@ int ccu_sent_scan_all_wifi_msg()
 
 
     length = sizeof(BT_CP_PROTOCOL_HDR) + p_protocol_hdr->length;
-    send_uart_message(p_tx_buffer, length , ep_return_message);
+    send_uart_message(p_tx_buffer, length , NULL);
 
     return (0);
 }
