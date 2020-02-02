@@ -33,6 +33,7 @@
 #include "esp_gatt_common_api.h"
 #include "ble_apis.h"
 #include "akbi_serial_task.h"
+#include "akbi_fsm.h"
 
 #define BT_BLE_COEX_TAG             "BT_BLE_COEX"
 #define BLE_ADV_NAME                "AKBI-CCU"

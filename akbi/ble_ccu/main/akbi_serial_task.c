@@ -78,7 +78,6 @@ static int init_uart()
 
 static void check_and_uart_data(int fd, const fd_set *rfds, const char *src_msg)
 {
-    char buf[100];
     int read_bytes;
 
     if (FD_ISSET(fd, rfds)) {
@@ -86,10 +85,7 @@ static void check_and_uart_data(int fd, const fd_set *rfds, const char *src_msg)
         if ((read_bytes = read(fd, serial_rx_data, sizeof(serial_rx_data)-1)) > 0) {
 
             serial_rx_data[read_bytes] = '\0';
-//            memcpy(p_ret_msg, serial_rx_data,read_bytes);
-            printf( " INFO : %d bytes received \n", read_bytes);
-
-            akbi_process_rx_serial_data(buf,read_bytes,p_ret_msg);
+            akbi_process_rx_serial_data(serial_rx_data, read_bytes,p_ret_msg);
 
         } else {
             printf(" ERROR : %s read error", src_msg);
