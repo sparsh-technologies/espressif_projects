@@ -263,61 +263,82 @@ int ccu_sent_record_voice_msg(char *p_tx_buffer,char *ep_return_message)
     return (0);
 }
 
-int ccu_sent_store_emergency_number_msg(char *p_tx_buffer,char *ep_return_message)
+/*
+ * API to send Emerggency number to CCU
+ */
+int ccu_sent_store_emergency_number_msg(char *p_tx_buffer,int emergency_no_id,
+                                        char *emergency_num, int num_length)
 {
     BT_CP_PROTOCOL_HDR  *p_protocol_hdr;
     int                 length;
+    char                *p;
 
     printf(" INFO : Sending EMERGENCY-NUM Message \n");
     p_protocol_hdr = (BT_CP_PROTOCOL_HDR *)p_tx_buffer;
 
     p_protocol_hdr->opcode   = BT_CP_OPCODE_CID_STORE_EMERGENCY_NUMBERS;
     p_protocol_hdr->trans_id = 44;
-    p_protocol_hdr->type     = 0;
-    p_protocol_hdr->length   = 0;
+    p_protocol_hdr->type     = emergency_no_id;
+    p_protocol_hdr->length   = num_length;
 
+    p = p_tx_buffer + sizeof(BT_CP_PROTOCOL_HDR);
+    memcpy(p, emergency_num, num_length);
 
-    length = sizeof(BT_CP_PROTOCOL_HDR) + p_protocol_hdr->length;
+    length = p_protocol_hdr->length;
     send_uart_message(p_tx_buffer, length , ep_return_message);
 
     return (0);
 }
 
-int ccu_sent_store_personal_number_msg(char *p_tx_buffer,char *ep_return_message)
+/*
+ * API to send Personal number to CCU
+ */
+int ccu_sent_store_personal_number_msg(char *p_tx_buffer, int pers_no_id,
+                                       char *personal_num, int num_length)
 {
     BT_CP_PROTOCOL_HDR  *p_protocol_hdr;
     int                 length;
+    char                *p;
 
     printf(" INFO : Sending PERSONAL-NUM Message \n");
     p_protocol_hdr = (BT_CP_PROTOCOL_HDR *)p_tx_buffer;
 
     p_protocol_hdr->opcode   = BT_CP_OPCODE_CID_STORE_PERSONAL_NUMBERS;
     p_protocol_hdr->trans_id = 44;
-    p_protocol_hdr->type     = 0;
-    p_protocol_hdr->length   = 0;
+    p_protocol_hdr->type     = pers_no_id;
+    p_protocol_hdr->length   = num_length;
 
+    p = p_tx_buffer + sizeof(BT_CP_PROTOCOL_HDR);
+    memcpy(p, personal_num, num_length);
 
-    length = sizeof(BT_CP_PROTOCOL_HDR) + p_protocol_hdr->length;
+    length = p_protocol_hdr->length;
     send_uart_message(p_tx_buffer, length , ep_return_message);
 
     return (0);
 }
 
-int ccu_sent_store_local_help_number_msg(char *p_tx_buffer,char *ep_return_message)
+/*
+ * API to send Local number to CCU
+ */
+int ccu_sent_store_local_help_number_msg(char *p_tx_buffer, int local_num_id, 
+                                         char *local_num, int num_length)
 {
     BT_CP_PROTOCOL_HDR  *p_protocol_hdr;
     int                 length;
+    char                *p;
 
     printf(" INFO : Sending LOCAL-HELP-NUM Message \n");
     p_protocol_hdr = (BT_CP_PROTOCOL_HDR *)p_tx_buffer;
 
     p_protocol_hdr->opcode   = BT_CP_OPCODE_CID_ENTER_LOCAL_HELP_NUMBERS;
     p_protocol_hdr->trans_id = 44;
-    p_protocol_hdr->type     = 0;
-    p_protocol_hdr->length   = 0;
+    p_protocol_hdr->type     = local_num_id;
+    p_protocol_hdr->length   = num_length;
 
+    p = p_tx_buffer + sizeof(BT_CP_PROTOCOL_HDR);
+    memcpy(p, local_num, num_length);
 
-    length = sizeof(BT_CP_PROTOCOL_HDR) + p_protocol_hdr->length;
+    length = p_protocol_hdr->length;
     send_uart_message(p_tx_buffer, length , ep_return_message);
 
     return (0);
