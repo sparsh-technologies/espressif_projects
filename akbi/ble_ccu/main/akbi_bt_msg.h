@@ -305,6 +305,31 @@ typedef struct __attribute__((__packed__)) _bt_cp_protocol_hdr_ {
 #define TLV_TYPE_REGISTER_PASSWORD                                0x04
 
 /*
+ * TLV Types for BT_CP_OPCODE_CID_RECORD_PERSONAL_VOICE_MSG Opcode
+ */
+#define TLV_TYPE_PERSONAL_VOICE                                   0x01
+
+/*
+ * TLV Types for BT_CP_OPCODE_CID_STORE_EMERGENCY_NUMBERS Opcode
+ */
+#define TLV_TYPE_EMERGENCY_NUMBER_1                               0x01
+#define TLV_TYPE_EMERGENCY_NUMBER_2                               0x02
+#define TLV_TYPE_EMERGENCY_NUMBER_3                               0x03
+
+/*
+ * TLV Types for BT_CP_OPCODE_CID_STORE_PERSONAL_NUMBERS Opcode
+ */
+#define TLV_TYPE_PERSONAL_NUMBER_1                                0x01
+#define TLV_TYPE_PERSONAL_NUMBER_2                                0x02
+#define TLV_TYPE_PERSONAL_NUMBER_3                                0x03
+
+/*
+ * TLV Types for BT_CP_OPCODE_CID_ENTER_LOCAL_HELP_NUMBERS Opcode
+ */
+#define TLV_TYPE_LOCAL_NUMBER_1                                   0x01
+#define TLV_TYPE_LOCAL_NUMBER_2                                   0x02
+
+/*
  * TLV Types for BT_CP_OPCODE_SET_WIFI_CREDENTIALS Opcode
  */
 #define TLV_TYPE_WIFI_AP_NAME                                     0x01
