@@ -4,6 +4,7 @@
 #include "akbi_bt_msg.h"
 #include "akbi_msg.h"
 #include "akbi_ccu_api.h"
+#include "akbi_fsm.h"
 
 AKBI_WIFI_SCAN_REPORT  wifi_scan_report;
 
@@ -23,6 +24,13 @@ void akbi_process_rx_serial_data(char *ccu_msg,int length,char *return_pointer)
 
     p = ccu_msg + sizeof(BT_CP_PROTOCOL_HDR);
 
+    printf("\ndata :" );
+    for (int i = 0; i < p_protocol_hdr->length; i++) {
+        printf("%02x ", p[i]);
+    }
+    printf("\n" );
+
+
     switch(p_protocol_hdr->opcode)
     {
 
@@ -40,6 +48,8 @@ void akbi_process_rx_serial_data(char *ccu_msg,int length,char *return_pointer)
          * Now check whether this is the last packet. If so, just mark the scanning as completed.
          */
         if (p_protocol_hdr->type == 0 ) {
+            akbi_set_fsm_state(FSM_STATE_WIFI_SCAN_COMPLETE);
+            printf("STATE set : FSM_STATE_WIFI_SCAN_COMPLETE \n");
             return ;
         }
 
@@ -50,6 +60,7 @@ void akbi_process_rx_serial_data(char *ccu_msg,int length,char *return_pointer)
         p = ccu_msg + sizeof(BT_CP_PROTOCOL_HDR);
 
         strncpy(wifi_scan_report.ap_name[index-1], p, p_protocol_hdr->length);
+        save_ssids(wifi_scan_report.ap_name[index-1],index-1,p_protocol_hdr->length);
         printf(" INFO : AP-%d : %s \n", index, wifi_scan_report.ap_name[index-1]);
         wifi_scan_report.ap_count++;
         break;

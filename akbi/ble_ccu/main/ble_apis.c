@@ -18,7 +18,7 @@
 #include "akbi_bt_msg.h"
 #include "akbi_msg.h"
 #include "akbi_serial_task.h"
-#include <rom/ets_sys.h>
+#include <esp32/rom/ets_sys.h>
 #include "akbi_ccu_api.h"
 #include "akbi_fsm.h"
 
@@ -40,7 +40,9 @@ static int flag_set_return_msg_ptr = 0;
  * All extern API's are declared here.
  */
 extern int ccu_send_login_msg(void);
-extern int ccu_sent_scan_all_wifi_msg(void);
+extern int ccu_sent_scan_all_wifi_msg(char * ret_msg);
+
+AKBI_WIFI_SCAN_REPORT  wifi_scan_report;
 
 void set_recvd_msg_pointer(char *received_value_buffer){
     p_recvd_msg_full = received_value_buffer;
@@ -52,15 +54,34 @@ void set_return_msg_pointer(char *ep_return_message){
 }
 
 int save_group_messages(char *received_value_buffer,int type_id){
-    memcpy(saved_messages[type_id],received_value_buffer,BLE_MESSAGE_SIZE);
+    memcpy(saved_messages[type_id-1],received_value_buffer,BLE_MESSAGE_SIZE);
     printf("\n saved message no %x \n", type_id);
     return 0;
 }
 
 //to send all messages altogether
-void send_batch_messages(int no_of_messages){
+void send_batch_messages(int no_of_messages,int ble_cmd_id){
     for(int i=0 ; i< no_of_messages ; i++){
-        ccu_send_reg_msg(saved_messages[i],p_return_msg_full);
+        switch(ble_cmd_id){
+            case CID_REGISTER:
+                ccu_send_reg_msg(saved_messages[i],p_return_msg_full);
+                break;
+            case CID_CHANGE_PASSWORD:
+                ccu_sent_user_change_passwd_msg(saved_messages[i],p_return_msg_full);
+                break;
+            case CID_STORE_EMERGENCY_NUMBERS:
+                ccu_sent_store_emergency_number_msg(saved_messages[i],p_return_msg_full);
+                break;
+            case CID_STORE_PERSONAL_NUMBERS:
+                ccu_sent_store_personal_number_msg(saved_messages[i],p_return_msg_full);
+                break;
+            case CID_SELECT_A_WIFI:
+                //ccu_sent_configure_wifi_credentials(saved_messages[i],p_return_msg_full);
+                break;
+            case CID_ENTER_LOCAL_HELP_NUMBERS:
+                ccu_sent_store_local_help_number_msg(saved_messages[i],p_return_msg_full);
+                break;
+        }
         printf("sent uart message %s\n --delaying-----1 sec\n",saved_messages[i]);
         ets_delay_us(1000000);
     }
@@ -88,7 +109,7 @@ int execute_register(char *i_cmd, char *i_ret_msg)
 		    // To Be checked with Sathish
         this_ccu.paired_mob1.data_status = this_ccu.paired_mob1.data_status | FLAG_DATA_SET_MOB1_PASSWORD;
         //TODO-Store password in EEPROM and populate error code
-        save_group_messages(p_recvd_msg_full,DID_REGISTER_PASSWORD-1);
+        save_group_messages(p_recvd_msg_full,DID_REGISTER_PASSWORD);
         break;
 
     case DID_REGISTER_MOB_NO :
@@ -98,7 +119,7 @@ int execute_register(char *i_cmd, char *i_ret_msg)
         i_ret_msg[BLE_RET_MSG_RC_OFFSET] = SUCCESS;
         this_ccu.paired_mob1.data_status = this_ccu.paired_mob1.data_status | FLAG_DATA_SET_MOB1_NUM;
         //TODO-Store mobile number in EEPROM and populate error code
-        save_group_messages(p_recvd_msg_full,DID_REGISTER_MOB_NO-1);
+        save_group_messages(p_recvd_msg_full,DID_REGISTER_MOB_NO);
         break;
 
     case DID_REGISTER_MOB_NAME :
@@ -108,7 +129,7 @@ int execute_register(char *i_cmd, char *i_ret_msg)
         i_ret_msg[BLE_RET_MSG_RC_OFFSET] = SUCCESS;
         this_ccu.paired_mob1.data_status = this_ccu.paired_mob1.data_status | FLAG_DATA_SET_MOB1_NAME;
         //TODO-Store mobile name in EEPROM and populate error code
-        save_group_messages(p_recvd_msg_full,DID_REGISTER_MOB_NAME-1);
+        save_group_messages(p_recvd_msg_full,DID_REGISTER_MOB_NAME);
         break;
 
     case DID_REGISTER_ANDROID_ID_OR_UUID :
@@ -118,7 +139,7 @@ int execute_register(char *i_cmd, char *i_ret_msg)
         i_ret_msg[BLE_RET_MSG_RC_OFFSET] = SUCCESS;
         this_ccu.paired_mob1.data_status = this_ccu.paired_mob1.data_status | FLAG_DATA_SET_ANDROID_ID_OR_UUID;
         //TODO-Store Android ID or UUID in EEPROM and populate error code
-        save_group_messages(p_recvd_msg_full,DID_REGISTER_ANDROID_ID_OR_UUID-1);
+        save_group_messages(p_recvd_msg_full,DID_REGISTER_ANDROID_ID_OR_UUID);
         break;
 
     default :
@@ -139,7 +160,7 @@ int execute_register(char *i_cmd, char *i_ret_msg)
 
    if (this_ccu.paired_mob1.data_status == FLAG_DATA_SET_MOB1_ALL){
        //all messages are saved. now send messages altogether
-       send_batch_messages(DID_REGISTER_ANDROID_ID_OR_UUID);
+       send_batch_messages(DID_REGISTER_ANDROID_ID_OR_UUID,CID_REGISTER);
        //return READY_TO_SEND_REG_DATA_TO_SERIAL;
    }
    printf("return message after processing%s\n",i_ret_msg );
@@ -251,6 +272,7 @@ int execute_change_password(char *i_cmd, char *i_ret_msg)
         if (0 == memcmp(this_ccu.password, &i_cmd[BLE_CMD_MULTI_DATA_VALUE_OFFSET],data_len_in_ble)) {
             this_ccu.data_status = this_ccu.data_status | FLAG_DATA_SET_CCU_PWD_MATCH;
             i_ret_msg[BLE_RET_MSG_RC_OFFSET] = SUCCESS;
+            save_group_messages(p_recvd_msg_full,DID_CHANGE_PASSWORD_CURRENT);
         }
         else {
             i_ret_msg[BLE_RET_MSG_RC_OFFSET] = ERROR_CHANGE_PASSWORD_MISMATCH;
@@ -262,6 +284,8 @@ int execute_change_password(char *i_cmd, char *i_ret_msg)
         memcpy(this_ccu.new_password_to_be_set,&i_cmd[BLE_CMD_MULTI_DATA_VALUE_OFFSET],data_len_in_ble);
         this_ccu.data_status = this_ccu.data_status | FLAG_DATA_SET_CCU_NEW_PASSWORD;
         i_ret_msg[BLE_RET_MSG_RC_OFFSET] = SUCCESS;
+        save_group_messages(p_recvd_msg_full,DID_CHANGE_PASSWORD_NEW);
+        send_batch_messages(DID_CHANGE_PASSWORD_NEW,CID_CHANGE_PASSWORD);
         break;
 
     default:
@@ -331,11 +355,14 @@ int execute_store_emergency_number(char *i_cmd, char *i_ret_msg)
         case DID_EMERGENCY_FIRST_RESPONDER : {
             memcpy(this_ccu.conf_emergency_nos.first_responder,i_emergency_number,data_len_in_ble);
             memset(&i_ret_msg[BLE_RET_MSG_RC_OFFSET], SUCCESS, BLE_RETURN_RC_SIZE);
+            save_group_messages(p_recvd_msg_full,DID_EMERGENCY_FIRST_RESPONDER);
             break;
         }
         case DID_EMERGENCY_CLOSE_RELATIVE : {
             memcpy(this_ccu.conf_emergency_nos.close_relative,i_emergency_number,data_len_in_ble);
             memset(&i_ret_msg[BLE_RET_MSG_RC_OFFSET], SUCCESS, BLE_RETURN_RC_SIZE);
+            save_group_messages(p_recvd_msg_full,DID_EMERGENCY_CLOSE_RELATIVE);
+            send_batch_messages(DID_EMERGENCY_CLOSE_RELATIVE,CID_STORE_EMERGENCY_NUMBERS);
             break;
         }
         default: {
@@ -392,11 +419,14 @@ int execute_enter_local_help_number(char *i_cmd, char *i_ret_msg)
         case DID_LOCAL_HELP_FOURTH_NUMBER : {
             memcpy(this_ccu.visited_locations[i_visited_locations_count].fourth_phone_number,i_local_help_number,data_len_in_ble);
             memset(&i_ret_msg[BLE_RET_MSG_RC_OFFSET], SUCCESS, BLE_RETURN_RC_SIZE);
+            save_group_messages(p_recvd_msg_full,DID_LOCAL_HELP_FOURTH_NUMBER);
             break;
         }
         case DID_LOCAL_HELP_FIFTH_NUMBER : {
             memcpy(this_ccu.visited_locations[i_visited_locations_count].fifth_phone_number,i_local_help_number,data_len_in_ble);
             memset(&i_ret_msg[BLE_RET_MSG_RC_OFFSET], SUCCESS, BLE_RETURN_RC_SIZE);
+            save_group_messages(p_recvd_msg_full,DID_LOCAL_HELP_FIFTH_NUMBER);
+            send_batch_messages(DID_LOCAL_HELP_FIFTH_NUMBER,CID_ENTER_LOCAL_HELP_NUMBERS);
             break;
         }
         default: {
@@ -409,26 +439,13 @@ int execute_enter_local_help_number(char *i_cmd, char *i_ret_msg)
     return (int)i_ret_msg[BLE_RET_MSG_RC_OFFSET];
 }
 
-int get_scanned_wifis()
-{
-    //get the SSIDs from the serial response from the processor and populate the CCU data strucure.
-    char ssids[MAX_WIFI_SCAN_COUNT][SSID_SIZE] = {
-        {"First WiFi"},
-        {"Second WiFi"},
-        {"Third WiFi"}
-    };
-    int i;
-    for (i = 0; i < 3; i++) {
-        strcpy(this_ccu.scanned_wifis[i].ssid, ssids[i]);
-    }
-    return i;
-}
 
 int execute_scan_wifis(char *i_cmd ,char *i_ret_msg)
 {
 
     char data_type                          = i_cmd[BLE_CMD_MULTI_DATA_TYPE_OFFSET];
     i_ret_msg[BLE_RET_MSG_DATA_TYPE_OFFSET] = data_type;
+    int count=4;
 
     if (this_ccu.interface_wifi.mode != STATION) {
         if (0 != enable_ccu_wifi_station()) {
@@ -440,8 +457,8 @@ int execute_scan_wifis(char *i_cmd ,char *i_ret_msg)
     //TODO: Send the command to scan WiFis to the processor and get response.
     printf("data_type %c\ncount type %c\n",data_type,BLE_RET_MSG_SCANNED_WIFI_COUNT_TYPE);
     if(data_type == BLE_RET_MSG_SCANNED_WIFI_COUNT_TYPE){
-        int count = get_scanned_wifis();
-        this_ccu.scanned_wifi_count = count;
+        ccu_sent_scan_all_wifi_msg(i_ret_msg);
+        this_ccu.scanned_wifi_count = count;//-------------------------to be defined
         printf("\ncount %d\n",count);
         memset(&i_ret_msg[BLE_RET_MSG_RC_OFFSET], SUCCESS, BLE_RETURN_RC_SIZE);
         memset(&i_ret_msg[BLE_RET_MSG_DATA_TYPE_OFFSET], BLE_RET_MSG_SCANNED_WIFI_COUNT_TYPE,
@@ -452,19 +469,19 @@ int execute_scan_wifis(char *i_cmd ,char *i_ret_msg)
     }
     else if(data_type == BLE_RET_MSG_SCANNED_WIFI_SSID_TYPE){
 
-       memset(&i_ret_msg[BLE_RET_MSG_RC_OFFSET], SUCCESS, BLE_RETURN_RC_SIZE);
-       memset(&i_ret_msg[BLE_RET_MSG_DATA_TYPE_OFFSET], BLE_RET_MSG_SCANNED_WIFI_SSID_TYPE,
+        ccu_sent_scan_all_wifi_msg(i_ret_msg);
+        memset(&i_ret_msg[BLE_RET_MSG_RC_OFFSET], SUCCESS, BLE_RETURN_RC_SIZE);
+        memset(&i_ret_msg[BLE_RET_MSG_DATA_TYPE_OFFSET], BLE_RET_MSG_SCANNED_WIFI_SSID_TYPE,
               BLE_COMMAND_DATA_TYPE_SIZE);
-       memcpy(&i_ret_msg[BLE_RET_MSG_SCANNED_SSID_COUNT_OFFSET],
+        memcpy(&i_ret_msg[BLE_RET_MSG_SCANNED_SSID_COUNT_OFFSET],
               &this_ccu.scanned_wifis[searched_ssid_count_index].ssid,SCANNED_WIFI_NAME_SIZE);
-       printf("\nssid %s\n",this_ccu.scanned_wifis[searched_ssid_count_index].ssid);
-       searched_ssid_count_index++;
+        printf("\nssid %s\n",this_ccu.scanned_wifis[searched_ssid_count_index].ssid);
+        searched_ssid_count_index++;
     }
 
     /*
      * Send message to the CCU to start scan operation.
      */
-    ccu_sent_scan_all_wifi_msg();
 
     return (int)i_ret_msg[BLE_RET_MSG_RC_OFFSET];
 }
@@ -489,12 +506,15 @@ int execute_select_a_wifi(char *i_cmd, char *i_ret_msg)
             memcpy(this_ccu.conf_wifi.ssid,i_data_value,data_len_in_ble);
             memset(&i_ret_msg[BLE_RET_MSG_RC_OFFSET], SUCCESS, BLE_RETURN_RC_SIZE);
             this_ccu.conf_wifi.data_status |= FLAG_DATA_SET_SEL_WIFI_SSID;
+            save_group_messages(p_recvd_msg_full,DID_SELECT_A_WIFI_SSID);
             break;
         }
         case DID_SELECT_A_WIFI_NETWORK_KEY : {
             memcpy(this_ccu.conf_wifi.network_key,i_data_value,data_len_in_ble);
             memset(&i_ret_msg[BLE_RET_MSG_RC_OFFSET], SUCCESS, BLE_RETURN_RC_SIZE);
             this_ccu.conf_wifi.data_status |= FLAG_DATA_SET_SEL_WIFI_NETWORK_KEY;
+            save_group_messages(p_recvd_msg_full,DID_SELECT_A_WIFI_NETWORK_KEY);
+            send_batch_messages(DID_SELECT_A_WIFI_NETWORK_KEY,CID_SELECT_A_WIFI);
             break;
         }
         default: {
@@ -952,4 +972,3 @@ void print_ccu()
 
     printf("\n\n******** CCU DATA END ********\n");
 }
-

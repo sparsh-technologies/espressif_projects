@@ -119,10 +119,11 @@ int ccu_send_login_msg()
     return 0;
 }
 
-int ccu_sent_scan_all_wifi_msg()
+int ccu_sent_scan_all_wifi_msg(char *ep_return_message)
 {
     BT_CP_PROTOCOL_HDR  *p_protocol_hdr;
     int                 length;
+    //int                 count;
     char                p_tx_buffer[25];
 
     printf(" INFO : Sending SCAN-ALL-WIFI Message \n");
@@ -135,7 +136,7 @@ int ccu_sent_scan_all_wifi_msg()
 
 
     length = sizeof(BT_CP_PROTOCOL_HDR) + p_protocol_hdr->length;
-    send_uart_message(p_tx_buffer, length , NULL);
+    send_uart_message(p_tx_buffer, length , ep_return_message);
 
     return (0);
 }
@@ -227,10 +228,10 @@ int ccu_sent_user_change_passwd_msg(char *p_tx_buffer,char *ep_return_message)
     BT_CP_PROTOCOL_HDR  *p_protocol_hdr;
     int                 length;
 
-    printf(" INFO : Sending USER-CHANGE_PASSWD Message \n");
+    printf(" INFO : Sending USER-FORGOT_PASSWD Message \n");
     p_protocol_hdr = (BT_CP_PROTOCOL_HDR *)p_tx_buffer;
 
-    p_protocol_hdr->opcode   = BT_CP_OPCODE_CID_CHANGE_PASSWORD;
+    p_protocol_hdr->opcode   = BT_CP_OPCODE_CID_FORGOT_PASSWORD;
     p_protocol_hdr->trans_id = 44;
     p_protocol_hdr->type     = 0;
     p_protocol_hdr->length   = 0;

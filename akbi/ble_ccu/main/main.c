@@ -349,10 +349,11 @@ static void gatts_profile_a_event_handler(esp_gatts_cb_event_t event, esp_gatt_i
         /*
          * If the state is not right, we may respond in a different way.
          */
-        if (akbi_check_fsm_state_and_respond() != 0) {
+        if (akbi_check_fsm_state_and_respond(ep_return_message) != 0) {
 
             break;
         }
+
 
         memset(&rsp, 0, sizeof(esp_gatt_rsp_t));
         rsp.attr_value.handle = param->read.handle;
@@ -382,7 +383,6 @@ static void gatts_profile_a_event_handler(esp_gatts_cb_event_t event, esp_gatt_i
         if (!param->write.is_prep){
 
             char  rx_pkt_buffer[30];
-            int read_ble_message_result = 0;
 
             memset(rx_pkt_buffer, 0x00, 30);
             memset(ep_return_message, 0x00, MAX_RETURN_MSG_LENGTH);

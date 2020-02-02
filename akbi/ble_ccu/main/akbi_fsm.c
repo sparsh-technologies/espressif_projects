@@ -17,6 +17,7 @@
 #include <time.h>
 #include "akbi_fsm.h"
 
+
 CCU_FSM_STATES bt_state = FSM_STATE_INIT;
 
 int akbi_get_fsm_state()
@@ -24,12 +25,20 @@ int akbi_get_fsm_state()
     return (bt_state);
 }
 
+static char wifi_report[10][20];
+
+static int ssid_index = 0;
+
 void akbi_set_fsm_state(CCU_FSM_STATES state)
 {
     bt_state = state;
 }
 
-int akbi_check_fsm_state_and_respond()
+void save_ssids(char *ssid,int indx,int length){
+    memcpy(&wifi_report[indx],ssid,length);
+}
+
+int akbi_check_fsm_state_and_respond(char *ep_return_message)
 {
     CCU_FSM_STATES    current_state;
     int               ret = 0;
@@ -73,10 +82,15 @@ int akbi_check_fsm_state_and_respond()
 
     case FSM_STATE_WIFI_SCAN_IN_PROGRESS :
         printf(" INFO : Wifi Scanning in progress \n");
-        ret = 1;
+        //set ssid name to packets
+        memcpy(ep_return_message+4,&wifi_report[ssid_index],11);
+        ssid_index++;
+        ret = 0;
+        //ret = 1;
         break;
 
     case FSM_STATE_WIFI_SCAN_COMPLETE :
+        ssid_index = 0;
         ret = 0;
         break;
 

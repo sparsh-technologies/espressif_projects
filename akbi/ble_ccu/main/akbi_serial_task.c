@@ -30,6 +30,7 @@
 #include "akbi_ccu_msg_handler.h"
 
 int uart_fd = -1;
+static int flag_set_ret_ptr = 0;
 static char *p_ret_msg;
 char serial_rx_data[500];
 
@@ -136,11 +137,15 @@ int akbi_dump_serial_pkt(const char *buffer, int length)
     return (0);
 }
 
-void send_uart_message(const char* p_data, int length ,char *p_recvd_msg_full )
+void send_uart_message(const char* p_data, int length ,char *p_ret_message )
 {
     int    ret;
 
-    set_ret_msg_ptr(p_recvd_msg_full);
+    if(flag_set_ret_ptr == 0)
+    {
+        set_ret_msg_ptr(p_ret_message);
+        flag_set_ret_ptr = 1;
+    }
     akbi_dump_serial_pkt(p_data, length);
     ret = write(uart_fd, p_data, length);
     printf(" UART-WRITE : Sending %d bytes Status(%d)\n", length, ret);
