@@ -141,6 +141,7 @@ static void check_and_uart_data(int fd, const fd_set *rfds, const char *src_msg)
                 /*
                  * If the timer is not started, then start the timer now.
                  */
+                serial_rx_data[serial_data_bytes++] = data_byte;
                 serial_port_timer_start();
                 serial_timer_state = 1;
             } else {
