@@ -18,7 +18,7 @@
 #include "akbi_bt_msg.h"
 #include "akbi_msg.h"
 #include "akbi_serial_task.h"
-#include <rom/ets_sys.h>
+#include <esp32/rom/ets_sys.h>
 #include "akbi_ccu_api.h"
 #include "akbi_fsm.h"
 
@@ -82,6 +82,7 @@ void send_batch_messages(int no_of_messages,int ble_cmd_id){
                 ccu_sent_store_local_help_number_msg(saved_messages[i],p_return_msg_full);
                 break;
         }
+        printf("sent uart message %s\n --delaying-----1 sec\n",saved_messages[i]);
         ets_delay_us(1000000);
     }
 }
@@ -102,6 +103,7 @@ int execute_register(char *i_cmd, char *i_ret_msg)
     {
 
     case DID_REGISTER_PASSWORD :
+        printf("Password length is #%d#\n",data_len_in_ble);
         memcpy(this_ccu.password,&i_cmd[BLE_CMD_MULTI_DATA_VALUE_OFFSET],data_len_in_ble);
         i_ret_msg[BLE_RET_MSG_RC_OFFSET] = SUCCESS;
 		    // To Be checked with Sathish
@@ -111,6 +113,7 @@ int execute_register(char *i_cmd, char *i_ret_msg)
         break;
 
     case DID_REGISTER_MOB_NO :
+        printf("mob no stored %s\n",i_cmd);
         memcpy(this_ccu.paired_mob1.mobile_number,
                &i_cmd[BLE_CMD_MULTI_DATA_VALUE_OFFSET],data_len_in_ble);
         i_ret_msg[BLE_RET_MSG_RC_OFFSET] = SUCCESS;
@@ -120,6 +123,7 @@ int execute_register(char *i_cmd, char *i_ret_msg)
         break;
 
     case DID_REGISTER_MOB_NAME :
+        printf("mob name stored %s\n",i_cmd);
         memcpy(this_ccu.paired_mob1.mobile_name,
                &i_cmd[BLE_CMD_MULTI_DATA_VALUE_OFFSET],data_len_in_ble);
         i_ret_msg[BLE_RET_MSG_RC_OFFSET] = SUCCESS;
@@ -129,6 +133,7 @@ int execute_register(char *i_cmd, char *i_ret_msg)
         break;
 
     case DID_REGISTER_ANDROID_ID_OR_UUID :
+        printf("android id  stored %s\n",i_cmd);
         memcpy(this_ccu.paired_mob1.android_id_or_uuid,
                &i_cmd[BLE_CMD_MULTI_DATA_VALUE_OFFSET],data_len_in_ble);
         i_ret_msg[BLE_RET_MSG_RC_OFFSET] = SUCCESS;
@@ -158,6 +163,7 @@ int execute_register(char *i_cmd, char *i_ret_msg)
        send_batch_messages(DID_REGISTER_ANDROID_ID_OR_UUID,CID_REGISTER);
        //return READY_TO_SEND_REG_DATA_TO_SERIAL;
    }
+   printf("return message after processing%s\n",i_ret_msg );
 
    /*
     * The below if condition and processing needs to be moved to 'Select A WiFi'
@@ -182,6 +188,7 @@ int execute_login(char *i_cmd, char *i_ret_msg)
     char i_pwd[data_len_in_ble];
 
     memcpy(i_pwd,&i_cmd[BLE_CMD_SINGLE_DATA_VALUE_OFFSET],data_len_in_ble);
+    printf("data %s\n",i_pwd);
     #ifdef BLE_DEBUG
     printf("In execute login #%s#%s#%d#\n",i_pwd, this_ccu.password,data_len_in_ble);
     #endif
@@ -447,11 +454,11 @@ int execute_scan_wifis(char *i_cmd ,char *i_ret_msg)
     }
 
     //TODO: Send the command to scan WiFis to the processor and get response.
+    printf("data_type %c\ncount type %c\n",data_type,BLE_RET_MSG_SCANNED_WIFI_COUNT_TYPE);
     if(data_type == BLE_RET_MSG_SCANNED_WIFI_COUNT_TYPE){
+        akbi_clear_ssids();
+        akbi_set_fsm_state(FSM_STATE_WIFI_SCAN_IN_PROGRESS);
         ccu_sent_scan_all_wifi_msg(i_ret_msg);
-        //this_ccu.scanned_wifi_count = count;//-------------------------to be defined
-        //printf("\ncount %d\n",count);
-        //memset(&i_ret_msg[BLE_RET_MSG_RC_OFFSET], SUCCESS, BLE_RETURN_RC_SIZE);
         memset(&i_ret_msg[BLE_RET_MSG_DATA_TYPE_OFFSET], BLE_RET_MSG_SCANNED_WIFI_COUNT_TYPE,
                BLE_COMMAND_DATA_TYPE_SIZE);
         //memcpy(&i_ret_msg[BLE_RET_MSG_SCANNED_SSID_COUNT_OFFSET],&count,SCANNED_WIFI_COUNT_SIZE);
@@ -459,14 +466,13 @@ int execute_scan_wifis(char *i_cmd ,char *i_ret_msg)
 
     }
     else if(data_type == BLE_RET_MSG_SCANNED_WIFI_SSID_TYPE){
-        //ccu_sent_scan_all_wifi_msg(i_ret_msg);
-        memset(&i_ret_msg[BLE_RET_MSG_RC_OFFSET], SUCCESS, BLE_RETURN_RC_SIZE);
+        //RC value set in akbi_process_rx_serial_data()
         memset(&i_ret_msg[BLE_RET_MSG_DATA_TYPE_OFFSET], BLE_RET_MSG_SCANNED_WIFI_SSID_TYPE,
               BLE_COMMAND_DATA_TYPE_SIZE);
-        memcpy(&i_ret_msg[BLE_RET_MSG_SCANNED_SSID_COUNT_OFFSET],
-              &this_ccu.scanned_wifis[searched_ssid_count_index].ssid,SCANNED_WIFI_NAME_SIZE);
-        printf("\nssid %s\n",this_ccu.scanned_wifis[searched_ssid_count_index].ssid);
-        searched_ssid_count_index++;
+        //ssid name set in akbi_process_rx_serial_data()
+        // memcpy(&i_ret_msg[BLE_RET_MSG_SCANNED_SSID_COUNT_OFFSET],
+        //       &this_ccu.scanned_wifis[searched_ssid_count_index].ssid,SCANNED_WIFI_NAME_SIZE);
+        //searched_ssid_count_index++;
     }
 
     /*

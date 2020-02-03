@@ -28,6 +28,13 @@ int akbi_get_fsm_state()
 static char wifi_report[10][20];
 
 static int ssid_index = 0;
+static int no_of_stored_ssids = 0;
+
+void akbi_clear_ssids(){
+    memset(wifi_report,0x00,sizeof(wifi_report));
+    no_of_stored_ssids = 0 ;
+    ssid_index = 0 ;
+}
 
 void akbi_set_fsm_state(CCU_FSM_STATES state)
 {
@@ -36,6 +43,9 @@ void akbi_set_fsm_state(CCU_FSM_STATES state)
 
 void save_ssids(char *ssid,int indx,int length){
     memcpy(wifi_report[indx],ssid,length);
+    if(no_of_stored_ssids<(indx+1)){
+        no_of_stored_ssids = indx + 1;
+    }
 }
 
 int akbi_check_fsm_state_and_respond(char *ep_return_message)

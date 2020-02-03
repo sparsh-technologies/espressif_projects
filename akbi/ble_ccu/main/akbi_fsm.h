@@ -37,7 +37,9 @@ extern int akbi_get_fsm_state(void);
 extern void akbi_set_fsm_state(CCU_FSM_STATES state);
 extern int akbi_check_fsm_state_and_respond(char *ep_return_message);
 void save_ssids(char *ssid,int indx,int length);
+void akbi_clear_ssids();
 #define RETURN_MSG_DATA_OFFSET 0x08
+#define AKBI_RC_OFFSET         6
 
 
 #endif

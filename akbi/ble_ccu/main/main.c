@@ -344,9 +344,7 @@ static void gatts_profile_a_event_handler(esp_gatts_cb_event_t event, esp_gatt_i
          * If the state is not right, we may respond in a different way.
          */
         if (akbi_check_fsm_state_and_respond(ep_return_message) != 0) {
-            memset(&ep_return_message[6],55,1);
-            //akbi_set_fsm_state(FSM_STATE_WIFI_SELECT_IN_PROGRESS);
-            //break;
+            ep_return_message[AKBI_RC_OFFSET] = 55 ; //correct value to be defined           
         }
 
         for(int i = 0 ;i < MAX_RETURN_MSG_LENGTH; i++){

@@ -35,6 +35,7 @@ static int flag_set_ret_ptr = 0;
 static char *p_ret_msg;
 char serial_rx_data[500];
 esp_timer_handle_t oneshot_timer;
+esp_timer_handle_t periodic_timer;
 
 static const char* TAG = "example";
 
@@ -71,7 +72,7 @@ static void oneshot_timer_callback(void* arg)
 static void periodic_timer_callback(void* arg)
 {
     int64_t time_since_boot = esp_timer_get_time();
-    ESP_LOGI(TAG, "Periodic timer called, time since boot: %lld us", time_since_boot);
+    //ESP_LOGI(TAG, "Periodic timer called, time since boot: %lld us", time_since_boot);
 }
 
 static void serial_port_timer_init()
