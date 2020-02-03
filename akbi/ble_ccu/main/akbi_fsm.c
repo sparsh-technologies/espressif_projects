@@ -83,8 +83,6 @@ int akbi_check_fsm_state_and_respond(char *ep_return_message)
         break;
 
     case FSM_STATE_SET_PERSONAL_NUM :
-        printf("in case;set pers so set it to wifi in progress\n");
-
         ret = 0;
         break;
 
@@ -102,7 +100,7 @@ int akbi_check_fsm_state_and_respond(char *ep_return_message)
 
     case FSM_STATE_WIFI_SELECT_IN_PROGRESS :
         printf(">>in case:FSM_STATE_WIFI_SELECT_IN_PROGRESS,sending ssid no=%d\n",ssid_index );
-        memcpy(ep_return_message+7,&wifi_report[ssid_index],11);
+        memcpy(ep_return_message+RETURN_MSG_DATA_OFFSET,&wifi_report[ssid_index],12);
         ssid_index++;
         ret = 0;
         break;
