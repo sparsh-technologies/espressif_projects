@@ -36,7 +36,10 @@ static char *p_ret_msg;
 char serial_rx_data[500];
 esp_timer_handle_t oneshot_timer;
 
+static const char* TAG = "example";
+
 static void oneshot_timer_callback(void* arg);
+static void periodic_timer_callback(void* arg);
 
 uart_config_t uart_config = {
     .baud_rate = 115200,
@@ -52,16 +55,32 @@ const esp_timer_create_args_t oneshot_timer_args = {
     .name = "one-shot"
 };
 
+const esp_timer_create_args_t periodic_timer_args = {
+    .callback = &periodic_timer_callback,
+     /* name is optional, but may help identify the timer when debugging */
+    .name = "periodic"
+};
+
 static void oneshot_timer_callback(void* arg)
 {
     int64_t time_since_boot = esp_timer_get_time();
 
-    printf("One-shot timer called, time since boot: %lld us", time_since_boot);
+    ESP_LOGI(TAG, "One shot timer called, time since boot: %lld us", time_since_boot);
+}
+
+static void periodic_timer_callback(void* arg)
+{
+    int64_t time_since_boot = esp_timer_get_time();
+    ESP_LOGI(TAG, "Periodic timer called, time since boot: %lld us", time_since_boot);
 }
 
 static void serial_port_timer_init()
 {
     printf("Creating Timer \n");
+
+    ESP_ERROR_CHECK(esp_timer_create(&periodic_timer_args, &periodic_timer));
+    ESP_ERROR_CHECK(esp_timer_start_periodic(periodic_timer, 500000));
+
     ESP_ERROR_CHECK(esp_timer_create(&oneshot_timer_args, &oneshot_timer));
     ESP_ERROR_CHECK(esp_timer_start_once(oneshot_timer, 5000000));
 }
