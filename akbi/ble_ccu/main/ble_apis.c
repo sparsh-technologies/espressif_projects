@@ -445,7 +445,6 @@ int execute_scan_wifis(char *i_cmd ,char *i_ret_msg)
 
     char data_type                          = i_cmd[BLE_CMD_MULTI_DATA_TYPE_OFFSET];
     i_ret_msg[BLE_RET_MSG_DATA_TYPE_OFFSET] = data_type;
-    int count=4;
 
     if (this_ccu.interface_wifi.mode != STATION) {
         if (0 != enable_ccu_wifi_station()) {
@@ -457,19 +456,20 @@ int execute_scan_wifis(char *i_cmd ,char *i_ret_msg)
     //TODO: Send the command to scan WiFis to the processor and get response.
     printf("data_type %c\ncount type %c\n",data_type,BLE_RET_MSG_SCANNED_WIFI_COUNT_TYPE);
     if(data_type == BLE_RET_MSG_SCANNED_WIFI_COUNT_TYPE){
+        printf("In count---------\n" );
         ccu_sent_scan_all_wifi_msg(i_ret_msg);
-        this_ccu.scanned_wifi_count = count;//-------------------------to be defined
-        printf("\ncount %d\n",count);
-        memset(&i_ret_msg[BLE_RET_MSG_RC_OFFSET], SUCCESS, BLE_RETURN_RC_SIZE);
+        //this_ccu.scanned_wifi_count = count;//-------------------------to be defined
+        //printf("\ncount %d\n",count);
+        //memset(&i_ret_msg[BLE_RET_MSG_RC_OFFSET], SUCCESS, BLE_RETURN_RC_SIZE);
         memset(&i_ret_msg[BLE_RET_MSG_DATA_TYPE_OFFSET], BLE_RET_MSG_SCANNED_WIFI_COUNT_TYPE,
                BLE_COMMAND_DATA_TYPE_SIZE);
-        memcpy(&i_ret_msg[BLE_RET_MSG_SCANNED_SSID_COUNT_OFFSET],&count,SCANNED_WIFI_COUNT_SIZE);
+        //memcpy(&i_ret_msg[BLE_RET_MSG_SCANNED_SSID_COUNT_OFFSET],&count,SCANNED_WIFI_COUNT_SIZE);
         searched_ssid_count_index = 0;
 
     }
     else if(data_type == BLE_RET_MSG_SCANNED_WIFI_SSID_TYPE){
-
-        ccu_sent_scan_all_wifi_msg(i_ret_msg);
+        printf("In ssid type---------\n" );
+        //ccu_sent_scan_all_wifi_msg(i_ret_msg);
         memset(&i_ret_msg[BLE_RET_MSG_RC_OFFSET], SUCCESS, BLE_RETURN_RC_SIZE);
         memset(&i_ret_msg[BLE_RET_MSG_DATA_TYPE_OFFSET], BLE_RET_MSG_SCANNED_WIFI_SSID_TYPE,
               BLE_COMMAND_DATA_TYPE_SIZE);
@@ -815,7 +815,7 @@ int read_ble_message(char *i_msg, char *i_ret_msg)
             }
             memcpy(ble_command,&i_msg[BLE_CMD_OFFSET + BLE_COMMAND_ID_SIZE],BLE_COMMAND_SIZE);
             execute_store_personal_number(ble_command,i_ret_msg);
-            akbi_set_fsm_state(FSM_STATE_SET_PERSONAL_NUM );
+            //akbi_set_fsm_state(FSM_STATE_SET_PERSONAL_NUM );
             break;
 
         case CID_SCAN_WIFIS :
@@ -825,7 +825,11 @@ int read_ble_message(char *i_msg, char *i_ret_msg)
                 return ERROR_AUTHENTICATION;
             }
             execute_scan_wifis(ble_command ,i_ret_msg);
-            akbi_set_fsm_state(FSM_STATE_WIFI_SCAN_IN_PROGRESS);
+            if((akbi_get_fsm_state()!=FSM_STATE_WIFI_SCAN_IN_PROGRESS)&&
+                       (akbi_get_fsm_state()!=FSM_STATE_WIFI_SCAN_COMPLETE)&&
+                       (akbi_get_fsm_state()!=FSM_STATE_WIFI_SELECT_IN_PROGRESS)){
+                akbi_set_fsm_state(FSM_STATE_WIFI_SCAN_IN_PROGRESS);
+            }
             break;
 
         case CID_SELECT_A_WIFI :

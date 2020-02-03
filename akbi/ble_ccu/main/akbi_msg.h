@@ -67,6 +67,7 @@
 #define ERROR_MY_AP_START                         0x0A
 #define ERROR_MY_WIFI_STN_START                   0x0D
 #define READY_TO_SEND_REG_DATA_TO_SERIAL          0x0E
+#define WIFI_SCANNING_IN_PROGRESS                 0x77//for testing
 
 #define BLE_RETURN_MAX_SIZE                       20
 #define SER_NO_SIZE                               8

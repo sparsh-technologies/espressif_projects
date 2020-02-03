@@ -34,7 +34,7 @@ void akbi_process_rx_serial_data(char *ccu_msg,int length,char *return_pointer)
     switch(p_protocol_hdr->opcode)
     {
 
-    case BT_CP_OPCODE_CID_SCAN_WIFI_RESULT :
+    case BT_CP_OPCODE_CID_SCAN_WIFI_RESULT :// 70
 
         /*
          * First check whether this is the first packet. If this is the first packet, then
@@ -42,15 +42,27 @@ void akbi_process_rx_serial_data(char *ccu_msg,int length,char *return_pointer)
          */
         if (p_protocol_hdr->type == 1) {
             memset(&wifi_scan_report, 0x00, sizeof(AKBI_WIFI_SCAN_REPORT));
+            //memset(&return_pointer[BLE_RET_MSG_RC_OFFSET],WIFI_SCANNING_IN_PROGRESS,BLE_RETURN_RC_SIZE);
+            printf("first ssid\n");
+
         }
 
         /*
          * Now check whether this is the last packet. If so, just mark the scanning as completed.
          */
-        if (p_protocol_hdr->type == 0 ) {
+        else if (p_protocol_hdr->type == 0 ) {
             akbi_set_fsm_state(FSM_STATE_WIFI_SCAN_COMPLETE);
-            printf("STATE set : FSM_STATE_WIFI_SCAN_COMPLETE \n");
+            memset(&return_pointer[BLE_RET_MSG_RC_OFFSET],SUCCESS,BLE_RETURN_RC_SIZE);
+            memcpy(&return_pointer[BLE_RET_MSG_SCANNED_SSID_COUNT_OFFSET],&wifi_scan_report.ap_count,SCANNED_WIFI_COUNT_SIZE);
+            printf("STATE set : FSM_STATE_WIFI_SCAN_COMPLETE ,count = %d\n",wifi_scan_report.ap_count);
+            for (int i = 0; i < wifi_scan_report.ap_count; i++) {
+                printf(" ssid>%s\n", wifi_scan_report.ap_name[i]);
+            }
             return ;
+        }
+        else{
+            memset(&return_pointer[BLE_RET_MSG_RC_OFFSET],WIFI_SCANNING_IN_PROGRESS,BLE_RETURN_RC_SIZE);
+            printf(" %d th ssid\n",p_protocol_hdr->type );
         }
 
         /*

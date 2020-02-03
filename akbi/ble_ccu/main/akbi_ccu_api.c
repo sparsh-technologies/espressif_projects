@@ -285,7 +285,7 @@ int ccu_sent_store_emergency_number_msg(char *p_tx_buffer,int emergency_no_id,
     memcpy(p, emergency_num, num_length);
 
     length = p_protocol_hdr->length;
-    send_uart_message(p_tx_buffer, length , ep_return_message);
+    //send_uart_message(p_tx_buffer, length , ep_return_message);
 
     return (0);
 }
@@ -312,7 +312,7 @@ int ccu_sent_store_personal_number_msg(char *p_tx_buffer, int pers_no_id,
     memcpy(p, personal_num, num_length);
 
     length = p_protocol_hdr->length;
-    send_uart_message(p_tx_buffer, length , ep_return_message);
+    //send_uart_message(p_tx_buffer, length , ep_return_message);
 
     return (0);
 }
@@ -320,7 +320,7 @@ int ccu_sent_store_personal_number_msg(char *p_tx_buffer, int pers_no_id,
 /*
  * API to send Local number to CCU
  */
-int ccu_sent_store_local_help_number_msg(char *p_tx_buffer, int local_num_id, 
+int ccu_sent_store_local_help_number_msg(char *p_tx_buffer, int local_num_id,
                                          char *local_num, int num_length)
 {
     BT_CP_PROTOCOL_HDR  *p_protocol_hdr;
@@ -339,7 +339,7 @@ int ccu_sent_store_local_help_number_msg(char *p_tx_buffer, int local_num_id,
     memcpy(p, local_num, num_length);
 
     length = p_protocol_hdr->length;
-    send_uart_message(p_tx_buffer, length , ep_return_message);
+    //send_uart_message(p_tx_buffer, length , ep_return_message);
 
     return (0);
 }

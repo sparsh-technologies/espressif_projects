@@ -18,14 +18,16 @@
 #include "akbi_fsm.h"
 
 
-CCU_FSM_STATES bt_state = FSM_STATE_INIT;
+static CCU_FSM_STATES bt_state = FSM_STATE_INIT;
 
 int akbi_get_fsm_state()
 {
-    return (bt_state);
+    printf("in get_fsm  state = %d\n",bt_state );
+    return bt_state;
 }
 
 static char wifi_report[10][20];
+//const char * const wifi_report[4]={"first wifi ","second wifi","third wifi ","fourth wifi"};
 
 static int ssid_index = 0;
 
@@ -35,7 +37,9 @@ void akbi_set_fsm_state(CCU_FSM_STATES state)
 }
 
 void save_ssids(char *ssid,int indx,int length){
-    memcpy(&wifi_report[indx],ssid,length);
+    printf("ssid num (%d) saved = ",indx );
+    memcpy(wifi_report[indx],ssid,length);
+    printf("%s\n",wifi_report[indx] );
 }
 
 int akbi_check_fsm_state_and_respond(char *ep_return_message)
@@ -44,11 +48,13 @@ int akbi_check_fsm_state_and_respond(char *ep_return_message)
     int               ret = 0;
 
     current_state = akbi_get_fsm_state();
+    printf("current fsm state =  %d\n", current_state );
 
     switch(current_state)
     {
 
     case FSM_STATE_INIT :
+
         ret = 0;
         break;
 
@@ -77,24 +83,27 @@ int akbi_check_fsm_state_and_respond(char *ep_return_message)
         break;
 
     case FSM_STATE_SET_PERSONAL_NUM :
+        printf("in case;set pers so set it to wifi in progress\n");
+
         ret = 0;
         break;
 
     case FSM_STATE_WIFI_SCAN_IN_PROGRESS :
-        printf(" INFO : Wifi Scanning in progress \n");
+        printf(" INFO : Wifi Scanning in progress ,ssid_index = %d\n",ssid_index);
         //set ssid name to packets
-        memcpy(ep_return_message+4,&wifi_report[ssid_index],11);
-        ssid_index++;
-        ret = 0;
-        //ret = 1;
+        ret = 1;
         break;
 
     case FSM_STATE_WIFI_SCAN_COMPLETE :
         ssid_index = 0;
         ret = 0;
+        akbi_set_fsm_state(FSM_STATE_WIFI_SELECT_IN_PROGRESS);
         break;
 
     case FSM_STATE_WIFI_SELECT_IN_PROGRESS :
+        printf(">>in case:FSM_STATE_WIFI_SELECT_IN_PROGRESS,sending ssid no=%d\n",ssid_index );
+        memcpy(ep_return_message+7,&wifi_report[ssid_index],11);
+        ssid_index++;
         ret = 0;
         break;
 
@@ -119,6 +128,6 @@ int akbi_check_fsm_state_and_respond(char *ep_return_message)
         break;
 
     }
-
-    return (ret);
+    printf("returning = %d\n", ret);
+    return ret;
 }

@@ -346,18 +346,21 @@ static void gatts_profile_a_event_handler(esp_gatts_cb_event_t event, esp_gatt_i
         ESP_LOGI(BT_BLE_COEX_TAG, "GATT_READ_EVT, conn_id %d, trans_id %d, handle %d\n",
                  param->read.conn_id, param->read.trans_id, param->read.handle);
 
-        /*
-         * If the state is not right, we may respond in a different way.
-         */
-        if (akbi_check_fsm_state_and_respond(ep_return_message) != 0) {
-
-            break;
-        }
-
 
         memset(&rsp, 0, sizeof(esp_gatt_rsp_t));
         rsp.attr_value.handle = param->read.handle;
         rsp.attr_value.len = MAX_RETURN_MSG_LENGTH;
+
+        printf("====READ FN , \n" );
+        /*
+         * If the state is not right, we may respond in a different way.
+         */
+        if (akbi_check_fsm_state_and_respond(ep_return_message) != 0) {
+            memset(&ep_return_message[6],55,1);
+            //akbi_set_fsm_state(FSM_STATE_WIFI_SELECT_IN_PROGRESS);
+            printf("setting error code in ep_return_message\n" );
+            //break;
+        }
 
         for(int i = 0 ;i < MAX_RETURN_MSG_LENGTH; i++){
             rsp.attr_value.value[i] = ep_return_message[i];
@@ -365,6 +368,8 @@ static void gatts_profile_a_event_handler(esp_gatts_cb_event_t event, esp_gatt_i
 
         esp_log_buffer_hex(BT_BLE_COEX_TAG, &rsp,rsp.attr_value.len );
 
+
+        printf("in main sending response %s\n",ep_return_message );
         esp_ble_gatts_send_response(gatts_if, param->read.conn_id, param->read.trans_id,
                                     ESP_GATT_OK, &rsp);
 
