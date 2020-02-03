@@ -28,11 +28,13 @@
 #include "lwip/netdb.h"
 #include "peripheral.h"
 #include "akbi_ccu_msg_handler.h"
+#include "esp_timer.h"
 
 int uart_fd = -1;
 static int flag_set_ret_ptr = 0;
 static char *p_ret_msg;
 char serial_rx_data[500];
+esp_timer_handle_t oneshot_timer;
 
 uart_config_t uart_config = {
     .baud_rate = 115200,
@@ -42,8 +44,34 @@ uart_config_t uart_config = {
     .flow_ctrl = UART_HW_FLOWCTRL_DISABLE
 };
 
+const esp_timer_create_args_t oneshot_timer_args = {
+    .callback = &oneshot_timer_callback,
+    /* argument specified here will be passed to timer callback function */
+    .arg = (void*) periodic_timer,
+    .name = "one-shot"
+};
+
 void set_ret_msg_ptr(char *ret_msg_ptr){
     p_ret_msg = ret_msg_ptr;
+}
+
+static void oneshot_timer_callback(void* arg)
+{
+    int64_t time_since_boot = esp_timer_get_time();
+    ESP_LOGI(TAG, "One-shot timer called, time since boot: %lld us", time_since_boot);
+    esp_timer_handle_t periodic_timer_handle = (esp_timer_handle_t) arg;
+    /* To start the timer which is running, need to stop it first */
+    ESP_ERROR_CHECK(esp_timer_stop(periodic_timer_handle));
+    ESP_ERROR_CHECK(esp_timer_start_periodic(periodic_timer_handle, 1000000));
+    time_since_boot = esp_timer_get_time();
+    ESP_LOGI(TAG, "Restarted periodic timer with 1s period, time since boot: %lld us",
+            time_since_boot);
+}
+
+static serial_port_timer_init()
+{
+    ESP_ERROR_CHECK(esp_timer_create(&oneshot_timer_args, &oneshot_timer));
+    ESP_ERROR_CHECK(esp_timer_start_once(oneshot_timer, 5000000));
 }
 
 static void deinit_uart()
@@ -74,6 +102,8 @@ static int init_uart()
 
     printf(" Opened serial port successfully. FD(%d) \n", uart_fd);
     esp_vfs_dev_uart_use_driver(2);
+
+    serial_port_timer_init();
     return (0);
 }
 
