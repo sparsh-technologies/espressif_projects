@@ -31,10 +31,7 @@ int ccu_sent_subg_clear_learning_msg(char *p_tx_buffer,char *ep_return_message)
     p_protocol_hdr->type     = 0;
     p_protocol_hdr->length   = 0;
 
-    printf(" Opcode      :  %02x\n",p_protocol_hdr->opcode );
-    printf(" Trans ID    :  %02x\n", p_protocol_hdr->trans_id);
-    printf(" Type        :  %02x\n", p_protocol_hdr->type);
-    printf(" Length      :  %02x\n", p_protocol_hdr->length);
+    printf(" INFO : Sent CLEAR_SUB_G_LEARN Cmd \n");
 
     length = sizeof(BT_CP_PROTOCOL_HDR) + p_protocol_hdr->length;
 
@@ -55,10 +52,7 @@ int ccu_sent_subg_learning_msg(char *p_tx_buffer,char *ep_return_message)
     p_protocol_hdr->type     = 0;
     p_protocol_hdr->length   = 0;
 
-    printf(" Opcode      :  %02x\n",p_protocol_hdr->opcode );
-    printf(" Trans ID    :  %02x\n", p_protocol_hdr->trans_id);
-    printf(" Type        :  %02x\n", p_protocol_hdr->type);
-    printf(" Length      :  %02x\n", p_protocol_hdr->length);
+    printf(" INFO : Sent START_SUB_G_LEARN Cmd \n");
 
     length = sizeof(BT_CP_PROTOCOL_HDR) + p_protocol_hdr->length;
     send_uart_message(p_tx_buffer, length , ep_return_message);
@@ -82,10 +76,7 @@ int ccu_send_reg_msg(char *received_value_buffer,char *ep_return_message)
     p_protocol_hdr->type     = received_value_buffer[BLE_MSG_MULTI_DATA_TYPE_OFFSET];
     p_protocol_hdr->length   = received_value_buffer[BLE_MSG_MULTI_DATA_LEN_OFFSET];
 
-    printf(" Opcode      :  %02x\n",p_protocol_hdr->opcode );
-    printf(" Trans ID    :  %02x\n", p_protocol_hdr->trans_id);
-    printf(" Type        :  %02x\n", p_protocol_hdr->type);
-    printf(" Length      :  %02x\n", p_protocol_hdr->length);
+    printf(" INFO : Sent REGISTER Cmd \n");
 
     p = p_tx_buffer + sizeof(BT_CP_PROTOCOL_HDR);
     memcpy(p,(received_value_buffer+BLE_MSG_MULTI_DATA_LEN_OFFSET+1), p_protocol_hdr->length);

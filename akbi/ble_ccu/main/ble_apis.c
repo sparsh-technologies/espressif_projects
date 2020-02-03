@@ -82,7 +82,6 @@ void send_batch_messages(int no_of_messages,int ble_cmd_id){
                 ccu_sent_store_local_help_number_msg(saved_messages[i],p_return_msg_full);
                 break;
         }
-        printf("sent uart message %s\n --delaying-----1 sec\n",saved_messages[i]);
         ets_delay_us(1000000);
     }
 }
@@ -163,7 +162,6 @@ int execute_register(char *i_cmd, char *i_ret_msg)
        send_batch_messages(DID_REGISTER_ANDROID_ID_OR_UUID,CID_REGISTER);
        //return READY_TO_SEND_REG_DATA_TO_SERIAL;
    }
-   printf("return message after processing%s\n",i_ret_msg );
 
    /*
     * The below if condition and processing needs to be moved to 'Select A WiFi'
