@@ -34,10 +34,10 @@ int uart_fd = -1;
 static int flag_set_ret_ptr = 0;
 static char *p_ret_msg;
 char serial_rx_data[500];
-esp_timer_handle_t oneshot_timer;
-esp_timer_handle_t periodic_timer;
-
-static const char* TAG = "example";
+esp_timer_handle_t oneshot_timer = NULL;
+static int serial_timer_state = -1;
+static int serial_data_bytes = 0;
+static const char* TAG = "UART-DRIVER";
 
 static void oneshot_timer_callback(void* arg);
 static void periodic_timer_callback(void* arg);
@@ -56,35 +56,36 @@ const esp_timer_create_args_t oneshot_timer_args = {
     .name = "one-shot"
 };
 
-const esp_timer_create_args_t periodic_timer_args = {
-    .callback = &periodic_timer_callback,
-     /* name is optional, but may help identify the timer when debugging */
-    .name = "periodic"
-};
-
 static void oneshot_timer_callback(void* arg)
 {
-    int64_t time_since_boot = esp_timer_get_time();
 
-    ESP_LOGI(TAG, "One shot timer called, time since boot: %lld us", time_since_boot);
-}
+    ESP_LOGI(TAG, " Serial Timer Expired Bytes: %d ", serial_data_bytes);
 
-static void periodic_timer_callback(void* arg)
-{
-    int64_t time_since_boot = esp_timer_get_time();
-    //ESP_LOGI(TAG, "Periodic timer called, time since boot: %lld us", time_since_boot);
+    esp_log_buffer_hex(TAG, serial_rx_data, serial_data_bytes);
+    serial_rx_data[++serial_data_bytes] = '\0';
+    akbi_process_rx_serial_data(serial_rx_data, serial_data_bytes-1,p_ret_msg);
+    serial_data_bytes = 0;
+    serial_timer_state = -1;
 }
 
 static void serial_port_timer_init()
 {
-    printf("Creating Timer \n");
-
-    ESP_ERROR_CHECK(esp_timer_create(&periodic_timer_args, &periodic_timer));
-    ESP_ERROR_CHECK(esp_timer_start_periodic(periodic_timer, 500000));
+    printf(" INFO : Creating Timer \n");
 
     ESP_ERROR_CHECK(esp_timer_create(&oneshot_timer_args, &oneshot_timer));
-    ESP_ERROR_CHECK(esp_timer_start_once(oneshot_timer, 5000000));
 }
+
+static void serial_port_timer_start()
+{
+    ESP_ERROR_CHECK(esp_timer_start_once(oneshot_timer, 100000));
+    serial_timer_state = 1;
+}
+
+static void serial_port_timer_stop()
+{
+    ESP_ERROR_CHECK(esp_timer_stop(oneshot_timer));
+}
+
 
 static void deinit_uart()
 {
@@ -122,14 +123,32 @@ static int init_uart()
 static void check_and_uart_data(int fd, const fd_set *rfds, const char *src_msg)
 {
     int read_bytes;
+    unsigned char    data_byte;
 
     if (FD_ISSET(fd, rfds)) {
 
-        if ((read_bytes = read(fd, serial_rx_data, sizeof(serial_rx_data)-1)) > 0) {
+//        if ((read_bytes = read(fd, serial_rx_data, sizeof(serial_rx_data)-1)) > 0) {
+        if ((read_bytes = read(fd, &data_byte, 1)) > 0) {
 
-            serial_rx_data[read_bytes] = '\0';
-            printf(" INFO : Received %d bytes \n", read_bytes);
-            akbi_process_rx_serial_data(serial_rx_data, read_bytes,p_ret_msg);
+            /*
+             * Once we get the first byte, start the one-shot timer. If the timer
+             * gets fired, then it marks the end of packets.
+             */
+
+
+            if (serial_timer_state != 1) {
+
+                /*
+                 * If the timer is not started, then start the timer now.
+                 */
+                serial_rx_data[serial_data_bytes++] = data_byte;
+                serial_port_timer_start();
+                serial_timer_state = 1;
+            } else {
+                serial_port_timer_stop();
+                serial_rx_data[serial_data_bytes++] = data_byte;
+                serial_port_timer_start();
+            }
 
         } else {
             printf(" ERROR : %s read error", src_msg);
