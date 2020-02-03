@@ -37,7 +37,7 @@ char serial_rx_data[500];
 esp_timer_handle_t oneshot_timer = NULL;
 static int serial_timer_state = -1;
 static int serial_data_bytes = 0;
-static const char* TAG = "example";
+static const char* TAG = "UART-DRIVER";
 
 static void oneshot_timer_callback(void* arg);
 static void periodic_timer_callback(void* arg);
@@ -59,18 +59,18 @@ const esp_timer_create_args_t oneshot_timer_args = {
 static void oneshot_timer_callback(void* arg)
 {
 
-    ESP_LOGI(TAG, " Serial Timer Expired Bytes: %d us", serial_data_bytes);
-//    ESP_ERROR_CHECK(esp_timer_stop(oneshot_timer));
+    ESP_LOGI(TAG, " Serial Timer Expired Bytes: %d ", serial_data_bytes);
 
+    esp_log_buffer_hex(TAG, serial_rx_data, serial_data_bytes);
     serial_rx_data[++serial_data_bytes] = '\0';
     akbi_process_rx_serial_data(serial_rx_data, serial_data_bytes-1,p_ret_msg);
     serial_data_bytes = 0;
-	serial_timer_state = -1;
+    serial_timer_state = -1;
 }
 
 static void serial_port_timer_init()
 {
-    printf("Creating Timer \n");
+    printf(" INFO : Creating Timer \n");
 
     ESP_ERROR_CHECK(esp_timer_create(&oneshot_timer_args, &oneshot_timer));
 }
