@@ -102,7 +102,6 @@ int execute_register(char *i_cmd, char *i_ret_msg)
     {
 
     case DID_REGISTER_PASSWORD :
-        printf("Password length is #%d#\n",data_len_in_ble);
         memcpy(this_ccu.password,&i_cmd[BLE_CMD_MULTI_DATA_VALUE_OFFSET],data_len_in_ble);
         i_ret_msg[BLE_RET_MSG_RC_OFFSET] = SUCCESS;
 		    // To Be checked with Sathish
@@ -112,7 +111,6 @@ int execute_register(char *i_cmd, char *i_ret_msg)
         break;
 
     case DID_REGISTER_MOB_NO :
-        printf("mob no stored %s\n",i_cmd);
         memcpy(this_ccu.paired_mob1.mobile_number,
                &i_cmd[BLE_CMD_MULTI_DATA_VALUE_OFFSET],data_len_in_ble);
         i_ret_msg[BLE_RET_MSG_RC_OFFSET] = SUCCESS;
@@ -122,7 +120,6 @@ int execute_register(char *i_cmd, char *i_ret_msg)
         break;
 
     case DID_REGISTER_MOB_NAME :
-        printf("mob name stored %s\n",i_cmd);
         memcpy(this_ccu.paired_mob1.mobile_name,
                &i_cmd[BLE_CMD_MULTI_DATA_VALUE_OFFSET],data_len_in_ble);
         i_ret_msg[BLE_RET_MSG_RC_OFFSET] = SUCCESS;
@@ -132,7 +129,6 @@ int execute_register(char *i_cmd, char *i_ret_msg)
         break;
 
     case DID_REGISTER_ANDROID_ID_OR_UUID :
-        printf("android id  stored %s\n",i_cmd);
         memcpy(this_ccu.paired_mob1.android_id_or_uuid,
                &i_cmd[BLE_CMD_MULTI_DATA_VALUE_OFFSET],data_len_in_ble);
         i_ret_msg[BLE_RET_MSG_RC_OFFSET] = SUCCESS;
@@ -186,7 +182,6 @@ int execute_login(char *i_cmd, char *i_ret_msg)
     char i_pwd[data_len_in_ble];
 
     memcpy(i_pwd,&i_cmd[BLE_CMD_SINGLE_DATA_VALUE_OFFSET],data_len_in_ble);
-    printf("data %s\n",i_pwd);
     #ifdef BLE_DEBUG
     printf("In execute login #%s#%s#%d#\n",i_pwd, this_ccu.password,data_len_in_ble);
     #endif
@@ -452,9 +447,7 @@ int execute_scan_wifis(char *i_cmd ,char *i_ret_msg)
     }
 
     //TODO: Send the command to scan WiFis to the processor and get response.
-    printf("data_type %c\ncount type %c\n",data_type,BLE_RET_MSG_SCANNED_WIFI_COUNT_TYPE);
     if(data_type == BLE_RET_MSG_SCANNED_WIFI_COUNT_TYPE){
-        printf("In count---------\n" );
         ccu_sent_scan_all_wifi_msg(i_ret_msg);
         //this_ccu.scanned_wifi_count = count;//-------------------------to be defined
         //printf("\ncount %d\n",count);
@@ -466,7 +459,6 @@ int execute_scan_wifis(char *i_cmd ,char *i_ret_msg)
 
     }
     else if(data_type == BLE_RET_MSG_SCANNED_WIFI_SSID_TYPE){
-        printf("In ssid type---------\n" );
         //ccu_sent_scan_all_wifi_msg(i_ret_msg);
         memset(&i_ret_msg[BLE_RET_MSG_RC_OFFSET], SUCCESS, BLE_RETURN_RC_SIZE);
         memset(&i_ret_msg[BLE_RET_MSG_DATA_TYPE_OFFSET], BLE_RET_MSG_SCANNED_WIFI_SSID_TYPE,

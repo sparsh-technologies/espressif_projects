@@ -86,6 +86,7 @@ static void check_and_uart_data(int fd, const fd_set *rfds, const char *src_msg)
         if ((read_bytes = read(fd, serial_rx_data, sizeof(serial_rx_data)-1)) > 0) {
 
             serial_rx_data[read_bytes] = '\0';
+            printf(" INFO : Received %d bytes \n", read_bytes);
             akbi_process_rx_serial_data(serial_rx_data, read_bytes,p_ret_msg);
 
         } else {
