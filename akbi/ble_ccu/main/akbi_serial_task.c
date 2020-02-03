@@ -36,6 +36,8 @@ static char *p_ret_msg;
 char serial_rx_data[500];
 esp_timer_handle_t oneshot_timer;
 
+static void oneshot_timer_callback(void* arg);
+
 uart_config_t uart_config = {
     .baud_rate = 115200,
     .data_bits = UART_DATA_8_BITS,
@@ -47,29 +49,19 @@ uart_config_t uart_config = {
 const esp_timer_create_args_t oneshot_timer_args = {
     .callback = &oneshot_timer_callback,
     /* argument specified here will be passed to timer callback function */
-    .arg = (void*) periodic_timer,
     .name = "one-shot"
 };
-
-void set_ret_msg_ptr(char *ret_msg_ptr){
-    p_ret_msg = ret_msg_ptr;
-}
 
 static void oneshot_timer_callback(void* arg)
 {
     int64_t time_since_boot = esp_timer_get_time();
-    ESP_LOGI(TAG, "One-shot timer called, time since boot: %lld us", time_since_boot);
-    esp_timer_handle_t periodic_timer_handle = (esp_timer_handle_t) arg;
-    /* To start the timer which is running, need to stop it first */
-    ESP_ERROR_CHECK(esp_timer_stop(periodic_timer_handle));
-    ESP_ERROR_CHECK(esp_timer_start_periodic(periodic_timer_handle, 1000000));
-    time_since_boot = esp_timer_get_time();
-    ESP_LOGI(TAG, "Restarted periodic timer with 1s period, time since boot: %lld us",
-            time_since_boot);
+
+    printf("One-shot timer called, time since boot: %lld us", time_since_boot);
 }
 
-static serial_port_timer_init()
+static void serial_port_timer_init()
 {
+    printf("Creating Timer \n");
     ESP_ERROR_CHECK(esp_timer_create(&oneshot_timer_args, &oneshot_timer));
     ESP_ERROR_CHECK(esp_timer_start_once(oneshot_timer, 5000000));
 }
@@ -123,6 +115,10 @@ static void check_and_uart_data(int fd, const fd_set *rfds, const char *src_msg)
             printf(" ERROR : %s read error", src_msg);
         }
     }
+}
+
+void set_ret_msg_ptr(char *ret_msg_ptr){
+    p_ret_msg = ret_msg_ptr;
 }
 
 int akbi_dump_serial_pkt(const char *buffer, int length)
