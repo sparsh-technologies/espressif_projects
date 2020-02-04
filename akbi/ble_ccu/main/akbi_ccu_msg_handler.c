@@ -6,9 +6,12 @@
 #include "akbi_ccu_api.h"
 #include "akbi_fsm.h"
 
-AKBI_WIFI_SCAN_REPORT  wifi_scan_report;
+#define MAX_RETURN_MSG_LENGTH       20
 
-void akbi_process_rx_serial_data(char *ccu_msg,int length,char *return_pointer)
+AKBI_WIFI_SCAN_REPORT  wifi_scan_report;
+extern char ep_return_message[MAX_RETURN_MSG_LENGTH];
+
+void akbi_process_rx_serial_data(char *ccu_msg,int length)
 {
     int    index;
     char   *p;
@@ -35,8 +38,8 @@ void akbi_process_rx_serial_data(char *ccu_msg,int length,char *return_pointer)
         if (p_protocol_hdr->type == 0) {
 
           akbi_set_fsm_state(FSM_STATE_WIFI_SCAN_COMPLETE);
-          memset(&return_pointer[BLE_RET_MSG_RC_OFFSET],SUCCESS,BLE_RETURN_RC_SIZE);
-          memcpy(&return_pointer[BLE_RET_MSG_SCANNED_SSID_COUNT_OFFSET],
+          memset(&ep_return_message[BLE_RET_MSG_RC_OFFSET],SUCCESS,BLE_RETURN_RC_SIZE);
+          memcpy(&ep_return_message[BLE_RET_MSG_SCANNED_SSID_COUNT_OFFSET],
                  &wifi_scan_report.ap_count,SCANNED_WIFI_COUNT_SIZE);
 
           return ;
@@ -52,7 +55,7 @@ void akbi_process_rx_serial_data(char *ccu_msg,int length,char *return_pointer)
                 memset(&wifi_scan_report, 0x00, sizeof(AKBI_WIFI_SCAN_REPORT));
             }
 
-            memset(&return_pointer[BLE_RET_MSG_RC_OFFSET],WIFI_SCANNING_IN_PROGRESS,BLE_RETURN_RC_SIZE);
+            memset(&ep_return_message[BLE_RET_MSG_RC_OFFSET],WIFI_SCANNING_IN_PROGRESS,BLE_RETURN_RC_SIZE);
             /*
             * Now, copy all the contents into the local datastructure.
             */
