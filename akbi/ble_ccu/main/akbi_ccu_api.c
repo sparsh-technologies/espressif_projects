@@ -143,6 +143,10 @@ int ccu_sent_configure_wifi_credentials( unsigned char ap_id, char *p_passwd, in
     char                p_tx_buffer[100];
     BT_CP_TLV_HDR       *p_tlv_hdr;
 
+    printf(" INFO : Sending CONFIGURE-WIFI Message \n");
+    printf(" INFO : PASSWD : %s(%d) \n", p_passwd, strlen(p_passwd));
+    printf(" INFO : AP-ID  : %d \n", ap_id);
+
     memset(p_tx_buffer, 0x00, 100);
     p_protocol_hdr = (BT_CP_PROTOCOL_HDR *)p_tx_buffer;
     p_protocol_hdr->opcode   = BT_CP_OPCODE_CID_SELECT_A_WIFI;
@@ -168,11 +172,9 @@ int ccu_sent_configure_wifi_credentials( unsigned char ap_id, char *p_passwd, in
 
 
     length = sizeof(BT_CP_PROTOCOL_HDR) + 1 + sizeof(BT_CP_TLV_HDR) + strlen(p_passwd);
-    printf("strlen=%x\n",strlen(p_passwd) );
     //length = sizeof(BT_CP_PROTOCOL_HDR) + 1 + sizeof(BT_CP_TLV_HDR) + pw_len;
 
     p_tx_buffer[length] = 0x00;
-    printf("ptxbuff-------==%s\n",p_tx_buffer );
 
     send_uart_message(p_tx_buffer, length );
 
@@ -185,7 +187,7 @@ int ccu_sent_connect_to_wifi(){
     BT_CP_PROTOCOL_HDR  *p_protocol_hdr;
     int                 length;
 
-    printf(" INFO : Sending USER-LOGIN Message \n");
+    printf(" INFO : Sending CONNECT-TO-WIFI Message \n");
     p_protocol_hdr = (BT_CP_PROTOCOL_HDR *)p_tx_buffer;
 
     p_protocol_hdr->opcode   = BT_CP_OPCODE_CID_CONNECT_TO_WIFI;
