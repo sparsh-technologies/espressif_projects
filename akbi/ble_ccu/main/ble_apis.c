@@ -493,6 +493,7 @@ int execute_select_a_wifi(char *i_cmd, char *i_ret_msg)
     char data_type       = i_cmd[BLE_CMD_MULTI_DATA_TYPE_OFFSET];
     int  data_len_in_ble = (int)i_cmd[BLE_CMD_MULTI_DATA_LEN_OFFSET];
     char i_data_value[data_len_in_ble];
+    printf("ssid cmd in select wifi: %02x %02x %02x\n",i_cmd[0],i_cmd[1],i_cmd[2] );
 
     memcpy(i_data_value,&i_cmd[BLE_CMD_MULTI_DATA_VALUE_OFFSET],data_len_in_ble);
     memcpy(&i_ret_msg[BLE_RET_MSG_DATA_TYPE_OFFSET],&data_type,BLE_COMMAND_DATA_TYPE_SIZE);
@@ -520,6 +521,7 @@ int execute_select_a_wifi(char *i_cmd, char *i_ret_msg)
         }
     }
 
+
     if (FLAG_DATA_SET_SEL_WIFI_ALL == (FLAG_DATA_SET_SEL_WIFI_ALL & this_ccu.conf_wifi.data_status)) {
         //TODO: Get the wifi status from the processor
         this_ccu.conf_wifi.status = get_wifi_status();
@@ -528,6 +530,13 @@ int execute_select_a_wifi(char *i_cmd, char *i_ret_msg)
     return (int)i_ret_msg[BLE_RET_MSG_RC_OFFSET];
 }
 
+int execute_connect_to_wifi(char *i_cmd, char *i_ret_msg)
+{
+  //TODO: Get the wifi status from the processor
+  this_ccu.conf_wifi.status = get_wifi_status();
+  //memcpy(&i_ret_msg[BLE_RET_MSG_RC_OFFSET],&this_ccu.conf_wifi.status,BLE_RETURN_RC_SIZE);
+  return (int)i_ret_msg[BLE_RET_MSG_RC_OFFSET];
+}
 int execute_store_address_visiting(char *i_cmd, char *i_ret_msg)
 {
     char degree[LAT_LONG_DEGREE_SIZE];
@@ -686,13 +695,6 @@ int execute_ccu_activate(char *i_cmd, char *i_ret_msg)
     return (int)i_ret_msg[BLE_RET_MSG_RC_OFFSET];
 }
 
-int execute_connect_to_wifi(char *i_cmd, char *i_ret_msg)
-{
-    //TODO: Get the wifi status from the processor
-    this_ccu.conf_wifi.status = get_wifi_status();
-    memcpy(&i_ret_msg[BLE_RET_MSG_RC_OFFSET],&this_ccu.conf_wifi.status,BLE_RETURN_RC_SIZE);
-    return (int)i_ret_msg[BLE_RET_MSG_RC_OFFSET];
-}
 
 /*
  * This API will read the packets from the mobile phone and process the packets.
@@ -834,8 +836,8 @@ int read_ble_message(char *i_msg, char *i_ret_msg)
                 return ERROR_AUTHENTICATION;
             }
             memcpy(ble_command,&i_msg[BLE_CMD_OFFSET + BLE_COMMAND_ID_SIZE],BLE_COMMAND_SIZE);
-            execute_select_a_wifi(ble_command,i_ret_msg);
             akbi_set_fsm_state(FSM_STATE_WIFI_SELECT_IN_PROGRESS );
+            execute_select_a_wifi(ble_command,i_ret_msg);
             break;
 
         case CID_ADDRESS_VISITING :
@@ -874,8 +876,8 @@ int read_ble_message(char *i_msg, char *i_ret_msg)
                 return ERROR_AUTHENTICATION;
             }
             memcpy(ble_command,&i_msg[BLE_CMD_OFFSET + BLE_COMMAND_ID_SIZE],BLE_COMMAND_SIZE);
-            execute_connect_to_wifi(ble_command,i_ret_msg);
             akbi_set_fsm_state(FSM_STATE_WIFI_CONNECT_IN_PROGRESS);
+            execute_connect_to_wifi(ble_command,i_ret_msg);
             break;
 
         default :

@@ -104,12 +104,6 @@ int akbi_check_fsm_state_and_respond(char *ep_return_message)
         akbi_set_fsm_state(FSM_STATE_WIFI_NAME_SEND_IN_PROGRESS);
         break;
 
-    // case FSM_STATE_WIFI_NAME_SEND_IN_PROGRESS :
-    //     memcpy(ep_return_message+RETURN_MSG_DATA_OFFSET,&wifi_report[ssid_index],12);
-    //     ssid_index++;
-    //     ret = 0;
-    //     break;
-
     case FSM_STATE_WIFI_NAME_SEND_IN_PROGRESS :
 
         memcpy(ep_return_message+RETURN_MSG_DATA_OFFSET,&wifi_report[ssid_index],12);
@@ -133,7 +127,7 @@ int akbi_check_fsm_state_and_respond(char *ep_return_message)
         break;
 
     case FSM_STATE_WIFI_CONNECT_IN_PROGRESS :
-        ret = 0;
+        ret = 1;
         break;
 
     case FSM_STATE_WIFI_CONNECT_COMPLETE :
