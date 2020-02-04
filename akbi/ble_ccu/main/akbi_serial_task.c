@@ -207,11 +207,6 @@ void send_uart_message(const char* p_data, int length )
 {
     int    ret;
 
-    if(flag_set_ret_ptr == 0)
-    {
-        set_ret_msg_ptr(p_ret_message);
-        flag_set_ret_ptr = 1;
-    }
     akbi_dump_serial_pkt(p_data, length);
     ret = write(uart_fd, p_data, length);
     printf(" UART-WRITE : Sending %d bytes Status(%d)\n", length, ret);
