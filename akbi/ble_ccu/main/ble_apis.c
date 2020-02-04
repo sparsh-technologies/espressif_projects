@@ -82,7 +82,6 @@ void send_batch_messages(int no_of_messages,int ble_cmd_id){
                 ccu_sent_store_local_help_number_msg(saved_messages[i]);
                 break;
         }
-        printf("sent uart message %s\n --delaying-----1 sec\n",saved_messages[i]);
         ets_delay_us(1000000);
     }
 }
@@ -454,7 +453,6 @@ int execute_scan_wifis(char *i_cmd ,char *i_ret_msg)
     }
 
     //TODO: Send the command to scan WiFis to the processor and get response.
-    printf("data_type %c\ncount type %c\n",data_type,BLE_RET_MSG_SCANNED_WIFI_COUNT_TYPE);
     if(data_type == BLE_RET_MSG_SCANNED_WIFI_COUNT_TYPE){
         akbi_clear_ssids();
         akbi_set_fsm_state(FSM_STATE_WIFI_SCAN_IN_PROGRESS);

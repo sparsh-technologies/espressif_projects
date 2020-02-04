@@ -383,7 +383,6 @@ static void gatts_profile_a_event_handler(esp_gatts_cb_event_t event, esp_gatt_i
 
             memcpy(rx_pkt_buffer, param->write.value, param->write.len);
 
-            printf("rx_pkt_buffer=%s\n",rx_pkt_buffer );
             read_ble_message(rx_pkt_buffer, ep_return_message);
 
         }
