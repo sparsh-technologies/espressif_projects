@@ -35,7 +35,7 @@ int ccu_sent_subg_clear_learning_msg(char *p_tx_buffer,char *ep_return_message)
 
     length = sizeof(BT_CP_PROTOCOL_HDR) + p_protocol_hdr->length;
 
-    send_uart_message(p_tx_buffer, length , ep_return_message);
+    send_uart_message(p_tx_buffer, length );
 
     return (0);
 }
@@ -55,7 +55,7 @@ int ccu_sent_subg_learning_msg(char *p_tx_buffer,char *ep_return_message)
     printf(" INFO : Sent START_SUB_G_LEARN Cmd \n");
 
     length = sizeof(BT_CP_PROTOCOL_HDR) + p_protocol_hdr->length;
-    send_uart_message(p_tx_buffer, length , ep_return_message);
+    send_uart_message(p_tx_buffer, length );
 
     return (0);
 }
@@ -83,7 +83,7 @@ int ccu_send_reg_msg(char *received_value_buffer,char *ep_return_message)
 
     length = sizeof(BT_CP_PROTOCOL_HDR) + p_protocol_hdr->length;
 
-    send_uart_message(p_tx_buffer, length , ep_return_message);
+    send_uart_message(p_tx_buffer, length );
 
     return 0;
 }
@@ -105,7 +105,7 @@ int ccu_send_login_msg()
 
 
     length = sizeof(BT_CP_PROTOCOL_HDR) + p_protocol_hdr->length;
-    send_uart_message(p_tx_buffer, length , p_rx_buffer);
+    send_uart_message(p_tx_buffer, length );
 
     return 0;
 }
@@ -127,7 +127,7 @@ int ccu_sent_scan_all_wifi_msg(char *ep_return_message)
 
 
     length = sizeof(BT_CP_PROTOCOL_HDR) + p_protocol_hdr->length;
-    send_uart_message(p_tx_buffer, length , ep_return_message);
+    send_uart_message(p_tx_buffer, length );
 
     return (0);
 }
@@ -165,7 +165,7 @@ int ccu_sent_configure_wifi_credentials( unsigned char ap_id, char *p_passwd, in
     memcpy(p_tlv_hdr->data, p_passwd, strlen(p_passwd));
 
     length = sizeof(BT_CP_PROTOCOL_HDR) + 1 + sizeof(BT_CP_TLV_HDR) + strlen(p_passwd);
-    send_uart_message(p_tx_buffer, length , ep_return_message);
+    send_uart_message(p_tx_buffer, length );
 
     return (0);
 }
@@ -185,7 +185,7 @@ int ccu_sent_user_login_msg(char *p_tx_buffer,char *ep_return_message)
 
 
     length = sizeof(BT_CP_PROTOCOL_HDR) + p_protocol_hdr->length;
-    send_uart_message(p_tx_buffer, length , ep_return_message);
+    send_uart_message(p_tx_buffer, length );
 
     return (0);
 }
@@ -205,7 +205,7 @@ int ccu_sent_user_forgot_passwd_msg(char *p_tx_buffer,char *ep_return_message)
 
 
     length = sizeof(BT_CP_PROTOCOL_HDR) + p_protocol_hdr->length;
-    send_uart_message(p_tx_buffer, length , ep_return_message);
+    send_uart_message(p_tx_buffer, length );
 
     return (0);
 }
@@ -225,7 +225,7 @@ int ccu_sent_user_change_passwd_msg(char *p_tx_buffer,char *ep_return_message)
 
 
     length = sizeof(BT_CP_PROTOCOL_HDR) + p_protocol_hdr->length;
-    send_uart_message(p_tx_buffer, length , ep_return_message);
+    send_uart_message(p_tx_buffer, length );
 
     return (0);
 }
@@ -245,7 +245,7 @@ int ccu_sent_record_voice_msg(char *p_tx_buffer,char *ep_return_message)
 
 
     length = sizeof(BT_CP_PROTOCOL_HDR) + p_protocol_hdr->length;
-    send_uart_message(p_tx_buffer, length , ep_return_message);
+    send_uart_message(p_tx_buffer, length );
 
     return (0);
 }
@@ -272,7 +272,7 @@ int ccu_sent_store_emergency_number_msg(char *p_tx_buffer,int emergency_no_id,
     memcpy(p, emergency_num, num_length);
 
     length = p_protocol_hdr->length;
-    send_uart_message(p_tx_buffer, length , ep_return_message);
+    send_uart_message(p_tx_buffer, length );
 
     return (0);
 }
@@ -346,7 +346,7 @@ int ccu_sent_activate_system_msg(char *p_tx_buffer,char *ep_return_message)
 
 
     length = sizeof(BT_CP_PROTOCOL_HDR) + p_protocol_hdr->length;
-    send_uart_message(p_tx_buffer, length , ep_return_message);
+    send_uart_message(p_tx_buffer, length );
 
     return (0);
 }

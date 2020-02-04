@@ -203,7 +203,7 @@ int akbi_dump_serial_pkt(const char *buffer, int length)
     return (0);
 }
 
-void send_uart_message(const char* p_data, int length ,char *p_ret_message )
+void send_uart_message(const char* p_data, int length )
 {
     int    ret;
 
