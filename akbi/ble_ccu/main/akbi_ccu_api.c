@@ -156,7 +156,7 @@ int ccu_sent_configure_wifi_credentials( unsigned char ap_id, char *p_passwd, in
     p_protocol_hdr->type     = TLV_TYPE_WIFI_AP_ID;
     p_protocol_hdr->length   = 1;
     *p = ap_id;
-    p++
+    p++;
 
     p_tlv_hdr  = (BT_CP_TLV_HDR*)p;
 
@@ -272,7 +272,7 @@ int ccu_sent_store_emergency_number_msg(char *p_tx_buffer,int emergency_no_id,
     memcpy(p, emergency_num, num_length);
 
     length = p_protocol_hdr->length;
-    //send_uart_message(p_tx_buffer, length , ep_return_message);
+    send_uart_message(p_tx_buffer, length , ep_return_message);
 
     return (0);
 }
