@@ -25,7 +25,7 @@ typedef enum {
     FSM_STATE_SET_PERSONAL_NUM,
     FSM_STATE_WIFI_SCAN_IN_PROGRESS,
     FSM_STATE_WIFI_SCAN_COMPLETE,
-    FSM_STATE_WIFI_SELECT_IN_PROGRESS,
+    FSM_STATE_WIFI_NAME_SEND_IN_PROGRESS,
     FSM_STATE_WIFI_CONNECT_IN_PROGRESS,
     FSM_STATE_WIFI_CONNECT_COMPLETE,
     FSM_STATE_CFG_SET_ADDRESS,
@@ -38,8 +38,9 @@ extern void akbi_set_fsm_state(CCU_FSM_STATES state);
 extern int akbi_check_fsm_state_and_respond(char *ep_return_message);
 void save_ssids(char *ssid,int indx,int length);
 void akbi_clear_ssids();
-#define RETURN_MSG_DATA_OFFSET 0x08
+#define RETURN_MSG_DATA_OFFSET 8
 #define AKBI_RC_OFFSET         6
+#define RETURN_MSG_LENGTH      20
 
 
 #endif

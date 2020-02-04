@@ -823,7 +823,7 @@ int read_ble_message(char *i_msg, char *i_ret_msg)
             execute_scan_wifis(ble_command ,i_ret_msg);
             if((akbi_get_fsm_state()!=FSM_STATE_WIFI_SCAN_IN_PROGRESS)&&
                        (akbi_get_fsm_state()!=FSM_STATE_WIFI_SCAN_COMPLETE)&&
-                       (akbi_get_fsm_state()!=FSM_STATE_WIFI_SELECT_IN_PROGRESS)){
+                       (akbi_get_fsm_state()!=FSM_STATE_WIFI_NAME_SEND_IN_PROGRESS)){
                 akbi_set_fsm_state(FSM_STATE_WIFI_SCAN_IN_PROGRESS);
             }
             break;

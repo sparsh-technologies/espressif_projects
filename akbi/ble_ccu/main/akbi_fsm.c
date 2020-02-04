@@ -26,6 +26,7 @@ int akbi_get_fsm_state()
 }
 
 static char wifi_report[10][20];
+static int  wifi_report_length[10];
 
 static int ssid_index = 0;
 static int no_of_stored_ssids = 0;
@@ -46,6 +47,7 @@ void save_ssids(char *ssid,int indx,int length){
     if(no_of_stored_ssids<(indx+1)){
         no_of_stored_ssids = indx + 1;
     }
+    wifi_report_length[indx] = length;
 }
 
 int akbi_check_fsm_state_and_respond(char *ep_return_message)
@@ -99,12 +101,34 @@ int akbi_check_fsm_state_and_respond(char *ep_return_message)
     case FSM_STATE_WIFI_SCAN_COMPLETE :
         ssid_index = 0;
         ret = 0;
-        akbi_set_fsm_state(FSM_STATE_WIFI_SELECT_IN_PROGRESS);
+        akbi_set_fsm_state(FSM_STATE_WIFI_NAME_SEND_IN_PROGRESS);
         break;
 
-    case FSM_STATE_WIFI_SELECT_IN_PROGRESS :
+    // case FSM_STATE_WIFI_NAME_SEND_IN_PROGRESS :
+    //     memcpy(ep_return_message+RETURN_MSG_DATA_OFFSET,&wifi_report[ssid_index],12);
+    //     ssid_index++;
+    //     ret = 0;
+    //     break;
+
+    case FSM_STATE_WIFI_NAME_SEND_IN_PROGRESS :
+
         memcpy(ep_return_message+RETURN_MSG_DATA_OFFSET,&wifi_report[ssid_index],12);
-        ssid_index++;
+
+        if (wifi_report_length[ssid_index]>12) {
+            memcpy(ep_return_message+RETURN_MSG_DATA_OFFSET,&wifi_report[ssid_index],10);
+            memset(ep_return_message+RETURN_MSG_DATA_OFFSET+10,'~',1);
+            memset(ep_return_message+RETURN_MSG_DATA_OFFSET+11,49,1);
+            ssid_index++;
+        }
+        else{
+            memcpy(ep_return_message+RETURN_MSG_DATA_OFFSET,&wifi_report[ssid_index],12);
+            ssid_index++;
+        }
+        ret = 0;
+        break;
+
+
+    case FSM_STATE_WIFI_SELECT_IN_PROGRESS :
         ret = 0;
         break;
 

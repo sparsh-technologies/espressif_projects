@@ -36,7 +36,7 @@
 #include "akbi_fsm.h"
 
 #define BT_BLE_COEX_TAG             "BT_BLE_COEX"
-#define BLE_ADV_NAME                "AKBI-CCU"
+#define BLE_ADV_NAME                "Guardian"
 #define BLE_LOCAL_NAME              "lcln"
 
 #define GATTS_SERVICE_UUID_A        0x00FF
@@ -344,7 +344,7 @@ static void gatts_profile_a_event_handler(esp_gatts_cb_event_t event, esp_gatt_i
          * If the state is not right, we may respond in a different way.
          */
         if (akbi_check_fsm_state_and_respond(ep_return_message) != 0) {
-            ep_return_message[AKBI_RC_OFFSET] = 55 ; //correct value to be defined           
+            ep_return_message[AKBI_RC_OFFSET] = 55 ; //correct value to be defined
         }
 
         for(int i = 0 ;i < MAX_RETURN_MSG_LENGTH; i++){
