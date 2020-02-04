@@ -161,9 +161,19 @@ int ccu_sent_configure_wifi_credentials( unsigned char ap_id, char *p_passwd, in
 
     p_tlv_hdr->type   = TLV_TYPE_WIFI_PASSWD_NAME;
     p_tlv_hdr->length = strlen(p_passwd);
-    memcpy(p_tlv_hdr->data, p_passwd, strlen(p_passwd));
+    //p_tlv_hdr->length = pw_len;
+
+     memcpy(p_tlv_hdr->data, p_passwd, strlen(p_passwd));
+    //memcpy(p_tlv_hdr->data, p_passwd, pw_len);
+
 
     length = sizeof(BT_CP_PROTOCOL_HDR) + 1 + sizeof(BT_CP_TLV_HDR) + strlen(p_passwd);
+    printf("strlen=%x\n",strlen(p_passwd) );
+    //length = sizeof(BT_CP_PROTOCOL_HDR) + 1 + sizeof(BT_CP_TLV_HDR) + pw_len;
+
+    p_tx_buffer[length] = 0x00;
+    printf("ptxbuff-------==%s\n",p_tx_buffer );
+
     send_uart_message(p_tx_buffer, length );
 
     return (0);

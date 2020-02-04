@@ -517,7 +517,8 @@ int execute_select_a_wifi(char *i_cmd, char *i_ret_msg)
             memset(p_password , 0x00, 20);
             selected_ap_id = saved_messages[0][BLE_MSG_MULTI_DATA_DATA_OFFSET];
             memcpy(p_password ,&saved_messages[1][BLE_MSG_MULTI_DATA_DATA_OFFSET],saved_messages[1][BLE_MSG_MULTI_DATA_LEN_OFFSET]);
-            ccu_sent_configure_wifi_credentials(selected_ap_id, p_password, 4);
+            printf("pppp=%s\n",p_password );
+            ccu_sent_configure_wifi_credentials(selected_ap_id+1, p_password, 4 );
 
             break;
         }
