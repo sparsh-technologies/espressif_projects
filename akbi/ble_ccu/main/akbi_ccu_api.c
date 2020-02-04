@@ -136,8 +136,7 @@ int ccu_sent_scan_all_wifi_msg(char *ep_return_message)
  * This API will be used to send the selected Wifi information to the CCU.
  */
 
-int ccu_sent_configure_wifi_credentials(char *p_tx_buffer,char *ep_return_message, 
-                                        unsigned char ap_id, char *p_passwd, int mode)
+int ccu_sent_configure_wifi_credentials( unsigned char ap_id, char *p_passwd, int mode)
 {
     BT_CP_PROTOCOL_HDR  *p_protocol_hdr;
     char                *p;

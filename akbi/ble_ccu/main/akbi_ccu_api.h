@@ -41,7 +41,7 @@ int ccu_send_login_msg();
 
 int ccu_sent_scan_all_wifi_msg(char *ret_msg);
 
-int ccu_sent_configure_wifi_credentials(char *p_tx_buffer,char *ep_return_message, char *p_ap_name, char *p_passwd, int mode);
+int ccu_sent_configure_wifi_credentials(unsigned char ap_id, char *p_passwd, int mode);
 
 int ccu_sent_user_login_msg(char *p_tx_buffer,char *ep_return_message);
 
