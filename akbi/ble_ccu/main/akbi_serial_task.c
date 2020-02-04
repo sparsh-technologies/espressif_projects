@@ -39,7 +39,7 @@ static int serial_data_bytes = 0;
 static const char* TAG = "UART-DRIVER";
 
 static void oneshot_timer_callback(void* arg);
-static void periodic_timer_callback(void* arg);
+//static void periodic_timer_callback(void* arg);
 
 uart_config_t uart_config = {
     .baud_rate = 115200,

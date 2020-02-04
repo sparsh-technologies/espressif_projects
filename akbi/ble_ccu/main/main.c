@@ -352,6 +352,7 @@ static void gatts_profile_a_event_handler(esp_gatts_cb_event_t event, esp_gatt_i
         }
 
         esp_log_buffer_hex(BT_BLE_COEX_TAG, &rsp,rsp.attr_value.len );
+        esp_log_buffer_char(BT_BLE_COEX_TAG, &rsp,rsp.attr_value.len );
 
 
         esp_ble_gatts_send_response(gatts_if, param->read.conn_id, param->read.trans_id,
@@ -382,6 +383,7 @@ static void gatts_profile_a_event_handler(esp_gatts_cb_event_t event, esp_gatt_i
 
             memcpy(rx_pkt_buffer, param->write.value, param->write.len);
 
+            printf("rx_pkt_buffer=%s\n",rx_pkt_buffer );
             read_ble_message(rx_pkt_buffer, ep_return_message);
 
         }

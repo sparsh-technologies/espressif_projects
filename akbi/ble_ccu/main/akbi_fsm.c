@@ -121,7 +121,8 @@ int akbi_check_fsm_state_and_respond(char *ep_return_message)
         ret = 0;
         break;
 
-    case FSM_STATE_WIFI_CONNECT_IN_PROGRESS :
+
+    case FSM_STATE_WIFI_SELECT_IN_PROGRESS :
         ret = 0;
         break;
 
@@ -129,8 +130,8 @@ int akbi_check_fsm_state_and_respond(char *ep_return_message)
         ret = 1;
         break;
 
-    case FSM_STATE_WIFI_SELECT_IN_PROGRESS :
-        ret = 0;
+    case FSM_STATE_WIFI_CONNECT_COMPLETE :
+        ret = 1;
         break;
 
     case FSM_STATE_CFG_SET_ADDRESS :

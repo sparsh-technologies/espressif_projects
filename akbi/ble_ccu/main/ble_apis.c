@@ -70,16 +70,16 @@ void send_batch_messages(int no_of_messages,int ble_cmd_id){
                 ccu_sent_user_change_passwd_msg(saved_messages[i],p_return_msg_full);
                 break;
             case CID_STORE_EMERGENCY_NUMBERS:
-                ccu_sent_store_emergency_number_msg(saved_messages[i],p_return_msg_full);
+                ccu_sent_store_emergency_number_msg(saved_messages[i]);
                 break;
             case CID_STORE_PERSONAL_NUMBERS:
-                ccu_sent_store_personal_number_msg(saved_messages[i],p_return_msg_full);
+                ccu_sent_store_personal_number_msg(saved_messages[i]);
                 break;
-            case CID_SELECT_A_WIFI:
-                //ccu_sent_configure_wifi_credentials(saved_messages[i],p_return_msg_full);
-                break;
+            // case CID_SELECT_A_WIFI:
+            //     ccu_sent_configure_wifi_credentials(saved_messages[i],p_return_msg_full);
+            //     break;
             case CID_ENTER_LOCAL_HELP_NUMBERS:
-                ccu_sent_store_local_help_number_msg(saved_messages[i],p_return_msg_full);
+                ccu_sent_store_local_help_number_msg(saved_messages[i]);
                 break;
         }
         printf("sent uart message %s\n --delaying-----1 sec\n",saved_messages[i]);
@@ -493,6 +493,8 @@ int execute_select_a_wifi(char *i_cmd, char *i_ret_msg)
     char data_type       = i_cmd[BLE_CMD_MULTI_DATA_TYPE_OFFSET];
     int  data_len_in_ble = (int)i_cmd[BLE_CMD_MULTI_DATA_LEN_OFFSET];
     char i_data_value[data_len_in_ble];
+    char p_password[20];
+    int  selected_ap_id ;
     printf("ssid cmd in select wifi: %02x %02x %02x\n",i_cmd[0],i_cmd[1],i_cmd[2] );
 
     memcpy(i_data_value,&i_cmd[BLE_CMD_MULTI_DATA_VALUE_OFFSET],data_len_in_ble);
@@ -511,7 +513,12 @@ int execute_select_a_wifi(char *i_cmd, char *i_ret_msg)
             memset(&i_ret_msg[BLE_RET_MSG_RC_OFFSET], SUCCESS, BLE_RETURN_RC_SIZE);
             this_ccu.conf_wifi.data_status |= FLAG_DATA_SET_SEL_WIFI_NETWORK_KEY;
             save_group_messages(p_recvd_msg_full,DID_SELECT_A_WIFI_NETWORK_KEY);
-            send_batch_messages(DID_SELECT_A_WIFI_NETWORK_KEY,CID_SELECT_A_WIFI);
+
+            memset(p_password , 0x00, 20);
+            selected_ap_id = saved_messages[0][BLE_MSG_MULTI_DATA_DATA_OFFSET];
+            memcpy(p_password ,&saved_messages[1][BLE_MSG_MULTI_DATA_DATA_OFFSET],saved_messages[1][BLE_MSG_MULTI_DATA_LEN_OFFSET]);
+            ccu_sent_configure_wifi_credentials(selected_ap_id, p_password, 4);
+
             break;
         }
         default: {
@@ -532,10 +539,12 @@ int execute_select_a_wifi(char *i_cmd, char *i_ret_msg)
 
 int execute_connect_to_wifi(char *i_cmd, char *i_ret_msg)
 {
-  //TODO: Get the wifi status from the processor
-  this_ccu.conf_wifi.status = get_wifi_status();
-  //memcpy(&i_ret_msg[BLE_RET_MSG_RC_OFFSET],&this_ccu.conf_wifi.status,BLE_RETURN_RC_SIZE);
-  return (int)i_ret_msg[BLE_RET_MSG_RC_OFFSET];
+    //TODO: Get the wifi status from the processor
+    akbi_set_fsm_state(FSM_STATE_WIFI_CONNECT_IN_PROGRESS);
+    ccu_sent_connect_to_wifi();
+    this_ccu.conf_wifi.status = get_wifi_status();
+    //memcpy(&i_ret_msg[BLE_RET_MSG_RC_OFFSET],&this_ccu.conf_wifi.status,BLE_RETURN_RC_SIZE);
+    return (int)i_ret_msg[BLE_RET_MSG_RC_OFFSET];
 }
 int execute_store_address_visiting(char *i_cmd, char *i_ret_msg)
 {

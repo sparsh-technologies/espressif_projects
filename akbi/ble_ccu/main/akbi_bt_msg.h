@@ -306,10 +306,10 @@ typedef struct __attribute__((__packed__)) _bt_cp_tlv_hdr_ {
  * TLV Types for BT_CP_OPCODE_MOB1_REGISTER Opcode
  */
 
-#define TLV_TYPE_REGISTER_MOB_NUM                                 0x01
-#define TLV_TYPE_REGISTER_MOB_NAME                                0x02
-#define TLV_TYPE_REGISTER_UNIQUE_ID                               0x03
-#define TLV_TYPE_REGISTER_PASSWORD                                0x04
+#define TLV_TYPE_REGISTER_PASSWORD                                0x01
+#define TLV_TYPE_REGISTER_MOB_NUM                                 0x02
+#define TLV_TYPE_REGISTER_MOB_NAME                                0x03
+#define TLV_TYPE_REGISTER_UNIQUE_ID                               0x04
 
 /*
  * TLV Types for BT_CP_OPCODE_CID_RECORD_PERSONAL_VOICE_MSG Opcode
