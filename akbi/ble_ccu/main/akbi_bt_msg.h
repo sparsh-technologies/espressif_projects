@@ -268,6 +268,13 @@ typedef struct __attribute__((__packed__)) _bt_cp_protocol_hdr_ {
 
 } BT_CP_PROTOCOL_HDR;
 
+typedef struct __attribute__((__packed__)) _bt_cp_tlv_hdr_ {
+
+    unsigned char       type;
+    unsigned char       length;
+
+} BT_CP_TLV_HDR;
+
 /*
  * Various Opcodes are defined here.
  */
@@ -289,7 +296,7 @@ typedef struct __attribute__((__packed__)) _bt_cp_protocol_hdr_ {
 #define BT_CP_OPCODE_CID_START_SUB_G_LEARN                        0x0F
 
 #define BT_CP_OPCODE_CID_SCAN_WIFI_RESULT                         0x70
-
+#define BT_CP_OPCODE_CID_WIFI_CONNECT_COMPLETED                   0x71
 
 /*
  * All TVL Types are defined here.
@@ -332,7 +339,7 @@ typedef struct __attribute__((__packed__)) _bt_cp_protocol_hdr_ {
 /*
  * TLV Types for BT_CP_OPCODE_SET_WIFI_CREDENTIALS Opcode
  */
-#define TLV_TYPE_WIFI_AP_NAME                                     0x01
+#define TLV_TYPE_WIFI_AP_ID                                       0x01
 #define TLV_TYPE_WIFI_PASSWD_NAME                                 0x02
 #define TLV_TYPE_WIFI_MODE                                        0x03
 
