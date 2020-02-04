@@ -32,7 +32,6 @@
 
 int uart_fd = -1;
 static int flag_set_ret_ptr = 0;
-static char *p_ret_msg;
 char serial_rx_data[500];
 esp_timer_handle_t oneshot_timer = NULL;
 static int serial_timer_state = -1;
@@ -63,7 +62,7 @@ static void oneshot_timer_callback(void* arg)
 
     esp_log_buffer_hex(TAG, serial_rx_data, serial_data_bytes);
     serial_rx_data[++serial_data_bytes] = '\0';
-    akbi_process_rx_serial_data(serial_rx_data, serial_data_bytes-1,p_ret_msg);
+    akbi_process_rx_serial_data(serial_rx_data, serial_data_bytes-1);
     serial_data_bytes = 0;
     serial_timer_state = -1;
 }
@@ -154,10 +153,6 @@ static void check_and_uart_data(int fd, const fd_set *rfds, const char *src_msg)
             printf(" ERROR : %s read error", src_msg);
         }
     }
-}
-
-void set_ret_msg_ptr(char *ret_msg_ptr){
-    p_ret_msg = ret_msg_ptr;
 }
 
 int akbi_dump_serial_pkt(const char *buffer, int length)
