@@ -31,6 +31,7 @@ typedef enum {
     FSM_STATE_CFG_SET_ADDRESS,
     FSM_STATE_CFG_SET_HELP_NUM,
     FSM_STATE_ACTIVATE_IN_PROGRESS,
+    FSM_STATE_WIFI_SELECT_IN_PROGRESS
 } CCU_FSM_STATES;
 
 extern int akbi_get_fsm_state(void);
