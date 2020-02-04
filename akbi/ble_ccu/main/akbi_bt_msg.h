@@ -272,7 +272,7 @@ typedef struct __attribute__((__packed__)) _bt_cp_tlv_hdr_ {
 
     unsigned char       type;
     unsigned char       length;
-
+    unsigned char       data[];
 } BT_CP_TLV_HDR;
 
 /*
