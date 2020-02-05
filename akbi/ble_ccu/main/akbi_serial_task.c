@@ -30,6 +30,10 @@
 #include "akbi_ccu_msg_handler.h"
 #include "esp_timer.h"
 
+#define PKT_DUMP
+
+#define AKBI_UART_BUFFER_SZ     ( 2 * 1024)
+
 typedef struct {
     int handle;
     bool finished;
@@ -46,7 +50,7 @@ static const char* TAG = "UART-DRIVER";
 task_context_t context1;
 TaskHandle_t uart_task;
 static void oneshot_timer_callback(void* arg);
-//static void periodic_timer_callback(void* arg);
+QueueHandle_t uart_queue;
 
 uart_config_t uart_config = {
     .baud_rate = 19200,
@@ -61,6 +65,8 @@ const esp_timer_create_args_t oneshot_timer_args = {
     /* argument specified here will be passed to timer callback function */
     .name = "one-shot"
 };
+
+void send_uart_message_new(void);
 
 static void oneshot_timer_callback(void* arg)
 {
@@ -109,7 +115,7 @@ static int init_uart()
 
     uart_param_config(UART_NUM_2, &uart_config);
     uart_set_pin(UART_NUM_2, 17, 16, ECHO_TEST_RTS, ECHO_TEST_CTS);
-    uart_driver_install(UART_NUM_2, 256, 0, 0, NULL, 0);
+    uart_driver_install(UART_NUM_2, AKBI_UART_BUFFER_SZ, AKBI_UART_BUFFER_SZ, 10, &uart_queue, 0);
 
     printf(" INFO : Opening Serial Port 2 \n");
 
@@ -206,26 +212,17 @@ int akbi_dump_serial_pkt(const char *buffer, int length)
 
 void send_uart_message(const char* p_data, int length )
 {
-    int    ret;
-
+    int     ret, i;
+    char    data;
+	
     memset(serial_tx_data, 0x00, 100);
     memcpy(serial_tx_data, p_data, length);
 
-    /*
-     * There is an issue where in when we try to send 15 bytes, the driver was adding some
-     * extra bytes, which was screwing up the CCU parser. To address this, if the number of 
-     * bytes is less, then just do a dummy padding.
-     */
-#if 0
-    if (length < 16) {
-
-        length = 16;
+    for(i=0; i < length; i++) {
+        data =  serial_tx_data[i];
+        uart_write_bytes(UART_NUM_2, &data, 1);
     }
-#endif
-    akbi_dump_serial_pkt(serial_tx_data, length);
-    ret = write(uart_fd, serial_tx_data, length);
-    printf(" UART-WRITE : Sending %d bytes Status(%d)\n", length, ret);
-    usleep(100000);
+	
 }
 
 void akbi_uart_thread(void *param)
@@ -241,7 +238,7 @@ void akbi_uart_thread(void *param)
 
     while (1) {
 
-        tv.tv_sec = 5,
+        tv.tv_sec = 15,
         tv.tv_usec = 0,
 
         FD_ZERO(&rfds);
