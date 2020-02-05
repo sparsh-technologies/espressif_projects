@@ -98,43 +98,49 @@ int execute_register(char *i_cmd, char *i_ret_msg)
     {
 
     case DID_REGISTER_PASSWORD :
-        printf("Password length is #%d#\n",data_len_in_ble);
         memcpy(this_ccu.password,&i_cmd[BLE_CMD_MULTI_DATA_VALUE_OFFSET],data_len_in_ble);
+        printf(" INFO : Passwd - %s(%d) \n", this_ccu.password, data_len_in_ble);
         i_ret_msg[BLE_RET_MSG_RC_OFFSET] = SUCCESS;
 		    // To Be checked with Sathish
         this_ccu.paired_mob1.data_status = this_ccu.paired_mob1.data_status | FLAG_DATA_SET_MOB1_PASSWORD;
-        //TODO-Store password in EEPROM and populate error code
-        save_group_messages(p_recvd_msg_full,DID_REGISTER_PASSWORD);
+
+        ccu_send_reg_msg_new(DID_REGISTER_PASSWORD, this_ccu.password);
+
+//        save_group_messages(p_recvd_msg_full,DID_REGISTER_PASSWORD);
         break;
 
     case DID_REGISTER_MOB_NO :
-        printf("mob no stored %s\n",i_cmd);
         memcpy(this_ccu.paired_mob1.mobile_number,
                &i_cmd[BLE_CMD_MULTI_DATA_VALUE_OFFSET],data_len_in_ble);
+        printf(" INFO : Mob-No - %s(%d) \n", this_ccu.paired_mob1.mobile_number, data_len_in_ble);
         i_ret_msg[BLE_RET_MSG_RC_OFFSET] = SUCCESS;
         this_ccu.paired_mob1.data_status = this_ccu.paired_mob1.data_status | FLAG_DATA_SET_MOB1_NUM;
         //TODO-Store mobile number in EEPROM and populate error code
-        save_group_messages(p_recvd_msg_full,DID_REGISTER_MOB_NO);
+//        save_group_messages(p_recvd_msg_full,DID_REGISTER_MOB_NO);
+        ccu_send_reg_msg_new(DID_REGISTER_MOB_NO, this_ccu.paired_mob1.mobile_number);
         break;
 
     case DID_REGISTER_MOB_NAME :
-        printf("mob name stored %s\n",i_cmd);
         memcpy(this_ccu.paired_mob1.mobile_name,
                &i_cmd[BLE_CMD_MULTI_DATA_VALUE_OFFSET],data_len_in_ble);
+        printf(" INFO : Mob-Name - %s(%d) \n", this_ccu.paired_mob1.mobile_name, data_len_in_ble);
         i_ret_msg[BLE_RET_MSG_RC_OFFSET] = SUCCESS;
         this_ccu.paired_mob1.data_status = this_ccu.paired_mob1.data_status | FLAG_DATA_SET_MOB1_NAME;
         //TODO-Store mobile name in EEPROM and populate error code
-        save_group_messages(p_recvd_msg_full,DID_REGISTER_MOB_NAME);
+//        save_group_messages(p_recvd_msg_full,DID_REGISTER_MOB_NAME);
+        ccu_send_reg_msg_new(DID_REGISTER_MOB_NAME, this_ccu.paired_mob1.mobile_name);
         break;
 
     case DID_REGISTER_ANDROID_ID_OR_UUID :
-        printf("android id  stored %s\n",i_cmd);
         memcpy(this_ccu.paired_mob1.android_id_or_uuid,
                &i_cmd[BLE_CMD_MULTI_DATA_VALUE_OFFSET],data_len_in_ble);
+        printf(" INFO : Mob-UUID - %s(%d) \n", this_ccu.paired_mob1.android_id_or_uuid, 
+                 data_len_in_ble);
         i_ret_msg[BLE_RET_MSG_RC_OFFSET] = SUCCESS;
         this_ccu.paired_mob1.data_status = this_ccu.paired_mob1.data_status | FLAG_DATA_SET_ANDROID_ID_OR_UUID;
         //TODO-Store Android ID or UUID in EEPROM and populate error code
-        save_group_messages(p_recvd_msg_full,DID_REGISTER_ANDROID_ID_OR_UUID);
+//        save_group_messages(p_recvd_msg_full,DID_REGISTER_ANDROID_ID_OR_UUID);
+        ccu_send_reg_msg_new(DID_REGISTER_ANDROID_ID_OR_UUID, this_ccu.paired_mob1.android_id_or_uuid);
         break;
 
     default :
@@ -149,16 +155,11 @@ int execute_register(char *i_cmd, char *i_ret_msg)
      * Also the 2nd bit of ccu.data_status will be set if password is set.
      */
 
-    #ifdef BLE_DEBUG
-    printf("Data Status #%x#%x#\n", this_ccu.paired_mob1.data_status, this_ccu.data_status);
-    #endif
-
-   if (this_ccu.paired_mob1.data_status == FLAG_DATA_SET_MOB1_ALL){
+    if (this_ccu.paired_mob1.data_status == FLAG_DATA_SET_MOB1_ALL){
        //all messages are saved. now send messages altogether
-       send_batch_messages(DID_REGISTER_ANDROID_ID_OR_UUID,CID_REGISTER);
+//       send_batch_messages(DID_REGISTER_ANDROID_ID_OR_UUID,CID_REGISTER);
        //return READY_TO_SEND_REG_DATA_TO_SERIAL;
-   }
-   printf("return message after processing%s\n",i_ret_msg );
+    }
 
    /*
     * The below if condition and processing needs to be moved to 'Select A WiFi'
