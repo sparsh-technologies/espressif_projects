@@ -55,7 +55,6 @@ void set_return_msg_pointer(char *ep_return_message){
 
 int save_group_messages(char *received_value_buffer,int type_id){
     memcpy(saved_messages[type_id-1],received_value_buffer,BLE_MESSAGE_SIZE);
-    printf("\n saved message no %x \n", type_id);
     return 0;
 }
 
@@ -493,7 +492,6 @@ int execute_select_a_wifi(char *i_cmd, char *i_ret_msg)
     char i_data_value[data_len_in_ble];
     char p_password[20];
     int  selected_ap_id ;
-    printf("ssid cmd in select wifi: %02x %02x %02x\n",i_cmd[0],i_cmd[1],i_cmd[2] );
 
     memcpy(i_data_value,&i_cmd[BLE_CMD_MULTI_DATA_VALUE_OFFSET],data_len_in_ble);
     memcpy(&i_ret_msg[BLE_RET_MSG_DATA_TYPE_OFFSET],&data_type,BLE_COMMAND_DATA_TYPE_SIZE);
@@ -515,7 +513,6 @@ int execute_select_a_wifi(char *i_cmd, char *i_ret_msg)
             memset(p_password , 0x00, 20);
             selected_ap_id = saved_messages[0][BLE_MSG_MULTI_DATA_DATA_OFFSET];
             memcpy(p_password ,&saved_messages[1][BLE_MSG_MULTI_DATA_DATA_OFFSET],saved_messages[1][BLE_MSG_MULTI_DATA_LEN_OFFSET]);
-            printf("pppp=%s\n",p_password );
             ccu_sent_configure_wifi_credentials(selected_ap_id+1, p_password, 4 );
 
             break;
