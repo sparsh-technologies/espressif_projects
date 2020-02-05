@@ -73,7 +73,7 @@ int akbi_check_fsm_state_and_respond(char *ep_return_message)
         break;
 
     case FSM_STATE_FORGOT_PASSWD :
-        ret = 0;
+        ret = 1;
         break;
 
     case FSM_STATE_CHANGE_PASSWD :

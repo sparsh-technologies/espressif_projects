@@ -74,9 +74,6 @@ void send_batch_messages(int no_of_messages,int ble_cmd_id){
             case CID_STORE_PERSONAL_NUMBERS:
                 ccu_sent_store_personal_number_msg(saved_messages[i]);
                 break;
-            // case CID_SELECT_A_WIFI:
-            //     ccu_sent_configure_wifi_credentials(saved_messages[i],p_return_msg_full);
-            //     break;
             case CID_ENTER_LOCAL_HELP_NUMBERS:
                 ccu_sent_store_local_help_number_msg(saved_messages[i]);
                 break;
@@ -240,9 +237,13 @@ int execute_forgot_password(char *i_ret_msg)
             i_ret_msg[BLE_RET_MSG_RC_OFFSET] = ERROR_MOB1_NO_NOT_CONFIGURED;
             return ERROR_MOB1_NO_NOT_CONFIGURED;
         }
+        else{
+            akbi_set_fsm_state(FSM_STATE_FORGOT_PASSWD);
+            ccu_sent_user_forgot_passwd_msg();
+        }
         /*
          * TODO - send the password and mobile number over the serial interface to the processor - connection manager.
-         * Return 0x00 if text message is sent successfully. 01 if problem sending text, 02 if mobile number not configured.
+         * Return 0x00 if text message is sent successfully. 01 if problem sending text
          */
         printf("Password reset #%s#\n", pass);
     }
@@ -387,11 +388,15 @@ int execute_store_personal_number(char *i_cmd, char *i_ret_msg)
         case DID_PERSONAL_SECOND_NUMBER : {
             memcpy(this_ccu.conf_personal_nos.second_number,i_personal_number,data_len_in_ble);
             memset(&i_ret_msg[BLE_RET_MSG_RC_OFFSET], SUCCESS, BLE_RETURN_RC_SIZE);
+            save_group_messages(p_recvd_msg_full,DID_PERSONAL_SECOND_NUMBER);
             break;
         }
         case DID_PERSONAL_THIRD_NUMBER : {
             memcpy(this_ccu.conf_personal_nos.third_number,i_personal_number,data_len_in_ble);
             memset(&i_ret_msg[BLE_RET_MSG_RC_OFFSET], SUCCESS, BLE_RETURN_RC_SIZE);
+            save_group_messages(p_recvd_msg_full,DID_PERSONAL_THIRD_NUMBER);
+            //ccu_sent_store_personal_number_msg();
+            send_batch_messages(DID_PERSONAL_THIRD_NUMBER,CID_STORE_PERSONAL_NUMBERS);
             break;
         }
         default: {
@@ -773,13 +778,13 @@ int read_ble_message(char *i_msg, char *i_ret_msg)
 
         case CID_LOGIN :
             memcpy(ble_command,&i_msg[BLE_CMD_OFFSET + BLE_COMMAND_ID_SIZE],BLE_COMMAND_SIZE);
-            execute_login(ble_command,i_ret_msg);
             akbi_set_fsm_state(FSM_STATE_LOGIN);
+            execute_login(ble_command,i_ret_msg);
             break;
 
         case CID_FORGOT_PASSWORD :
-            execute_forgot_password(i_ret_msg);
             akbi_set_fsm_state(FSM_STATE_FORGOT_PASSWD);
+            execute_forgot_password(i_ret_msg);
             break;
 
         case CID_CHANGE_PASSWORD :
@@ -788,8 +793,8 @@ int read_ble_message(char *i_msg, char *i_ret_msg)
                 return ERROR_AUTHENTICATION;
             }
             memcpy(ble_command,&i_msg[BLE_CMD_OFFSET + BLE_COMMAND_ID_SIZE],BLE_COMMAND_SIZE);
-            execute_change_password(ble_command,i_ret_msg);
             akbi_set_fsm_state(FSM_STATE_CHANGE_PASSWD);
+            execute_change_password(ble_command,i_ret_msg);
             break;
 
         case CID_RECORD_PERSONAL_VOICE_MSG :
