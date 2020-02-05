@@ -33,6 +33,7 @@
 int uart_fd = -1;
 static int flag_set_ret_ptr = 0;
 char serial_rx_data[500];
+char serial_tx_data[500];
 esp_timer_handle_t oneshot_timer = NULL;
 static int serial_timer_state = -1;
 static int serial_data_bytes = 0;
@@ -202,8 +203,9 @@ void send_uart_message(const char* p_data, int length )
 {
     int    ret;
 
-    akbi_dump_serial_pkt(p_data, length);
-    ret = write(uart_fd, p_data, length);
+    memcpy(serial_tx_data, p_data, length);
+    akbi_dump_serial_pkt(serial_tx_data, length);
+    ret = write(uart_fd, serial_tx_data, length);
     printf(" UART-WRITE : Sending %d bytes Status(%d)\n", length, ret);
 
 }
