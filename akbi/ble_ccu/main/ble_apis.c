@@ -41,6 +41,7 @@ static int flag_set_return_msg_ptr = 0;
  */
 extern int ccu_send_login_msg(void);
 extern int ccu_sent_scan_all_wifi_msg(char * ret_msg);
+extern int ccu_send_reg_msg_new(int type, char *received_value_buffer);
 
 AKBI_WIFI_SCAN_REPORT  wifi_scan_report;
 
