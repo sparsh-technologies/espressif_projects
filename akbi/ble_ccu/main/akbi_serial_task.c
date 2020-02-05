@@ -30,6 +30,11 @@
 #include "akbi_ccu_msg_handler.h"
 #include "esp_timer.h"
 
+typedef struct {
+    int handle;
+    bool finished;
+} task_context_t;
+
 int uart_fd = -1;
 static int flag_set_ret_ptr = 0;
 char serial_rx_data[500];
@@ -38,12 +43,13 @@ esp_timer_handle_t oneshot_timer = NULL;
 static int serial_timer_state = -1;
 static int serial_data_bytes = 0;
 static const char* TAG = "UART-DRIVER";
-
+task_context_t context1;
+TaskHandle_t uart_task;
 static void oneshot_timer_callback(void* arg);
 //static void periodic_timer_callback(void* arg);
 
 uart_config_t uart_config = {
-    .baud_rate = 115200,
+    .baud_rate = 19200,
     .data_bits = UART_DATA_8_BITS,
     .parity    = UART_PARITY_DISABLE,
     .stop_bits = UART_STOP_BITS_1,
@@ -210,19 +216,19 @@ void send_uart_message(const char* p_data, int length )
      * extra bytes, which was screwing up the CCU parser. To address this, if the number of 
      * bytes is less, then just do a dummy padding.
      */
-
+#if 0
     if (length < 16) {
 
         length = 16;
     }
-
+#endif
     akbi_dump_serial_pkt(serial_tx_data, length);
     ret = write(uart_fd, serial_tx_data, length);
     printf(" UART-WRITE : Sending %d bytes Status(%d)\n", length, ret);
-
+    usleep(100000);
 }
 
-void uart_app_main(void *param)
+void akbi_uart_thread(void *param)
 {
     int     s;
     fd_set  rfds;
@@ -252,4 +258,9 @@ void uart_app_main(void *param)
 
     deinit_uart(uart_fd);
     vTaskDelete(NULL);
+}
+
+void create_uart_task(void *param)
+{
+    xTaskCreate(akbi_uart_thread, "akbi_uart_thread", 4*1024, &context1, 0, &uart_task);
 }

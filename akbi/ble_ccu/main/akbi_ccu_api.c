@@ -69,21 +69,21 @@ int ccu_send_reg_msg(char *received_value_buffer,char *ep_return_message)
 
     int                 length;
 
+    memset(p_tx_buffer, 0x00, 25);
     p_protocol_hdr = (BT_CP_PROTOCOL_HDR *)p_tx_buffer;
 
-    p_protocol_hdr->opcode   = received_value_buffer[BLE_CMD_OFFSET];
+    p_protocol_hdr->opcode   = BT_CP_OPCODE_CID_REGISTER;
     p_protocol_hdr->trans_id = 44;
     p_protocol_hdr->type     = received_value_buffer[BLE_MSG_MULTI_DATA_TYPE_OFFSET];
     p_protocol_hdr->length   = received_value_buffer[BLE_MSG_MULTI_DATA_LEN_OFFSET];
-
-    printf(" INFO : Sent REGISTER Cmd \n");
 
     p = p_tx_buffer + sizeof(BT_CP_PROTOCOL_HDR);
     memcpy(p,(received_value_buffer+BLE_MSG_MULTI_DATA_LEN_OFFSET+1), p_protocol_hdr->length);
 
     length = sizeof(BT_CP_PROTOCOL_HDR) + p_protocol_hdr->length;
+    printf(" INFO : Sent REGISTER Cmd Length(%d) \n", p_protocol_hdr->length);
 
-    send_uart_message(p_tx_buffer, length );
+    send_uart_message(p_tx_buffer, length + 1);
 
     return 0;
 }
