@@ -41,7 +41,7 @@ static int flag_set_return_msg_ptr = 0;
  */
 extern int ccu_send_login_msg(void);
 extern int ccu_sent_scan_all_wifi_msg(char * ret_msg);
-extern int ccu_send_reg_msg_new(int type, char *received_value_buffer);
+extern int ccu_send_reg_msg_new(int type, char *received_value_buffer, int data_len);
 
 AKBI_WIFI_SCAN_REPORT  wifi_scan_report;
 
@@ -105,7 +105,7 @@ int execute_register(char *i_cmd, char *i_ret_msg)
 		    // To Be checked with Sathish
         this_ccu.paired_mob1.data_status = this_ccu.paired_mob1.data_status | FLAG_DATA_SET_MOB1_PASSWORD;
 
-        ccu_send_reg_msg_new(DID_REGISTER_PASSWORD, this_ccu.password);
+        ccu_send_reg_msg_new(DID_REGISTER_PASSWORD, this_ccu.password, data_len_in_ble);
 
 //        save_group_messages(p_recvd_msg_full,DID_REGISTER_PASSWORD);
         break;
@@ -118,7 +118,7 @@ int execute_register(char *i_cmd, char *i_ret_msg)
         this_ccu.paired_mob1.data_status = this_ccu.paired_mob1.data_status | FLAG_DATA_SET_MOB1_NUM;
         //TODO-Store mobile number in EEPROM and populate error code
 //        save_group_messages(p_recvd_msg_full,DID_REGISTER_MOB_NO);
-        ccu_send_reg_msg_new(DID_REGISTER_MOB_NO, this_ccu.paired_mob1.mobile_number);
+        ccu_send_reg_msg_new(DID_REGISTER_MOB_NO, this_ccu.paired_mob1.mobile_number, data_len_in_ble);
         break;
 
     case DID_REGISTER_MOB_NAME :
@@ -129,7 +129,7 @@ int execute_register(char *i_cmd, char *i_ret_msg)
         this_ccu.paired_mob1.data_status = this_ccu.paired_mob1.data_status | FLAG_DATA_SET_MOB1_NAME;
         //TODO-Store mobile name in EEPROM and populate error code
 //        save_group_messages(p_recvd_msg_full,DID_REGISTER_MOB_NAME);
-        ccu_send_reg_msg_new(DID_REGISTER_MOB_NAME, this_ccu.paired_mob1.mobile_name);
+        ccu_send_reg_msg_new(DID_REGISTER_MOB_NAME, this_ccu.paired_mob1.mobile_name, data_len_in_ble);
         break;
 
     case DID_REGISTER_ANDROID_ID_OR_UUID :
@@ -141,7 +141,9 @@ int execute_register(char *i_cmd, char *i_ret_msg)
         this_ccu.paired_mob1.data_status = this_ccu.paired_mob1.data_status | FLAG_DATA_SET_ANDROID_ID_OR_UUID;
         //TODO-Store Android ID or UUID in EEPROM and populate error code
 //        save_group_messages(p_recvd_msg_full,DID_REGISTER_ANDROID_ID_OR_UUID);
-        ccu_send_reg_msg_new(DID_REGISTER_ANDROID_ID_OR_UUID, this_ccu.paired_mob1.android_id_or_uuid);
+        ccu_send_reg_msg_new(DID_REGISTER_ANDROID_ID_OR_UUID, 
+                             this_ccu.paired_mob1.android_id_or_uuid, 
+                             data_len_in_ble);
         break;
 
     default :
