@@ -204,6 +204,15 @@ void send_uart_message(const char* p_data, int length )
 
     akbi_dump_serial_pkt(p_data, length);
     ret = write(uart_fd, p_data, length);
+    // printf("\n\nsent uart msg\n");
+    // for (int i = 0; i < length; i++) {
+    //   printf("%c ",p_data[i] );
+    // }
+    // printf("\n" );
+    // for (int i = 0; i < length; i++) {
+    //   printf("%02x ",p_data[i] );
+    // }
+    // printf("\n" );
     printf(" UART-WRITE : Sending %d bytes Status(%d)\n", length, ret);
 
 }

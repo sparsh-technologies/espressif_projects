@@ -222,10 +222,11 @@ int ccu_sent_user_login_msg(char *p_tx_buffer,char *ep_return_message)
     return (0);
 }
 
-int ccu_sent_user_forgot_passwd_msg(char *p_tx_buffer,char *ep_return_message)
+int ccu_sent_user_forgot_passwd_msg()
 {
     BT_CP_PROTOCOL_HDR  *p_protocol_hdr;
     int                 length;
+    char                p_tx_buffer[20];
 
     printf(" INFO : Sending USER-FORGOT_PASSWD Message \n");
     p_protocol_hdr = (BT_CP_PROTOCOL_HDR *)p_tx_buffer;
@@ -234,7 +235,6 @@ int ccu_sent_user_forgot_passwd_msg(char *p_tx_buffer,char *ep_return_message)
     p_protocol_hdr->trans_id = 44;
     p_protocol_hdr->type     = 0;
     p_protocol_hdr->length   = 0;
-
 
     length = sizeof(BT_CP_PROTOCOL_HDR) + p_protocol_hdr->length;
     send_uart_message(p_tx_buffer, length );
@@ -242,19 +242,23 @@ int ccu_sent_user_forgot_passwd_msg(char *p_tx_buffer,char *ep_return_message)
     return (0);
 }
 
-int ccu_sent_user_change_passwd_msg(char *p_tx_buffer,char *ep_return_message)
+int ccu_sent_user_change_passwd_msg(char *received_value_buffer,char *ep_return_message)
 {
+    char                p_tx_buffer[20];
     BT_CP_PROTOCOL_HDR  *p_protocol_hdr;
     int                 length;
+    char                *p;
 
-    printf(" INFO : Sending USER-FORGOT_PASSWD Message \n");
+    printf(" INFO : Sending USER-CHANGE_PASSWD Message \n");
     p_protocol_hdr = (BT_CP_PROTOCOL_HDR *)p_tx_buffer;
 
-    p_protocol_hdr->opcode   = BT_CP_OPCODE_CID_FORGOT_PASSWORD;
+    p_protocol_hdr->opcode   = BT_CP_OPCODE_CID_CHANGE_PASSWORD;
     p_protocol_hdr->trans_id = 44;
     p_protocol_hdr->type     = 0;
-    p_protocol_hdr->length   = 0;
+    p_protocol_hdr->length   = received_value_buffer[BLE_MSG_MULTI_DATA_LEN_OFFSET];;
 
+    p = p_tx_buffer + sizeof(BT_CP_PROTOCOL_HDR);
+    memcpy(p, (received_value_buffer+BLE_MSG_MULTI_DATA_LEN_OFFSET+1), p_protocol_hdr->length);
 
     length = sizeof(BT_CP_PROTOCOL_HDR) + p_protocol_hdr->length;
     send_uart_message(p_tx_buffer, length );
@@ -287,13 +291,13 @@ int ccu_sent_record_voice_msg(char *p_tx_buffer,char *ep_return_message)
  */
 int ccu_sent_store_emergency_number_msg(char *received_value_buffer)
 {
-    char p_tx_buffer[20];
+    char                p_tx_buffer[20];
     BT_CP_PROTOCOL_HDR  *p_protocol_hdr;
     int                 length;
     char                *p;
     int  type = received_value_buffer[BLE_MSG_MULTI_DATA_TYPE_OFFSET];
 
-    printf(" INFO : Sending PERSONAL-NUM Message \n");
+    printf(" INFO : Sending emergency-NUM Message \n");
     p_protocol_hdr = (BT_CP_PROTOCOL_HDR *)p_tx_buffer;
 
     p_protocol_hdr->opcode   = BT_CP_OPCODE_CID_STORE_EMERGENCY_NUMBERS;
@@ -311,7 +315,7 @@ int ccu_sent_store_emergency_number_msg(char *received_value_buffer)
     p = p_tx_buffer + sizeof(BT_CP_PROTOCOL_HDR);
     memcpy(p, (received_value_buffer+BLE_MSG_MULTI_DATA_LEN_OFFSET+1), p_protocol_hdr->length);
 
-    length = p_protocol_hdr->length;
+    length = sizeof(BT_CP_PROTOCOL_HDR) + p_protocol_hdr->length;
     send_uart_message(p_tx_buffer, length);
 
     return (0);
@@ -333,6 +337,9 @@ int ccu_sent_store_personal_number_msg(char *received_value_buffer)
     p_protocol_hdr->opcode   = BT_CP_OPCODE_CID_STORE_PERSONAL_NUMBERS;
     p_protocol_hdr->trans_id = 44;
     switch(type){
+      case 0:
+          p_protocol_hdr->type = TLV_TYPE_PERSONAL_NUMBER_1;
+          break;
       case 1:
           p_protocol_hdr->type = TLV_TYPE_PERSONAL_NUMBER_2;
           break;
@@ -344,7 +351,7 @@ int ccu_sent_store_personal_number_msg(char *received_value_buffer)
     p = p_tx_buffer + sizeof(BT_CP_PROTOCOL_HDR);
     memcpy(p, (received_value_buffer+BLE_MSG_MULTI_DATA_LEN_OFFSET+1), p_protocol_hdr->length);
 
-    length = p_protocol_hdr->length;
+    length = sizeof(BT_CP_PROTOCOL_HDR) + p_protocol_hdr->length;
     send_uart_message(p_tx_buffer, length);
 
     return (0);
@@ -360,7 +367,7 @@ int ccu_sent_store_local_help_number_msg(char *received_value_buffer)
     int                 length;
     char                *p;
 
-    printf(" INFO : Sending PERSONAL-NUM Message \n");
+    printf(" INFO : Sending local help-NUM Message \n");
     p_protocol_hdr = (BT_CP_PROTOCOL_HDR *)p_tx_buffer;
 
     p_protocol_hdr->opcode   = BT_CP_OPCODE_CID_ENTER_LOCAL_HELP_NUMBERS;
