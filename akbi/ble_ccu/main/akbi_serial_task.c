@@ -33,7 +33,7 @@
 int uart_fd = -1;
 static int flag_set_ret_ptr = 0;
 char serial_rx_data[500];
-char serial_tx_data[500];
+char serial_tx_data[100];
 esp_timer_handle_t oneshot_timer = NULL;
 static int serial_timer_state = -1;
 static int serial_data_bytes = 0;
@@ -127,7 +127,6 @@ static void check_and_uart_data(int fd, const fd_set *rfds, const char *src_msg)
 
     if (FD_ISSET(fd, rfds)) {
 
-//        if ((read_bytes = read(fd, serial_rx_data, sizeof(serial_rx_data)-1)) > 0) {
         if ((read_bytes = read(fd, &data_byte, 1)) > 0) {
 
             /*
@@ -203,7 +202,20 @@ void send_uart_message(const char* p_data, int length )
 {
     int    ret;
 
+    memset(serial_tx_data, 0x00, 100);
     memcpy(serial_tx_data, p_data, length);
+
+    /*
+     * There is an issue where in when we try to send 15 bytes, the driver was adding some
+     * extra bytes, which was screwing up the CCU parser. To address this, if the number of 
+     * bytes is less, then just do a dummy padding.
+     */
+
+    if (length < 16) {
+
+        length = 16;
+    }
+
     akbi_dump_serial_pkt(serial_tx_data, length);
     ret = write(uart_fd, serial_tx_data, length);
     printf(" UART-WRITE : Sending %d bytes Status(%d)\n", length, ret);
