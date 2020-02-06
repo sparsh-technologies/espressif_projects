@@ -70,10 +70,10 @@ void send_uart_message_new(void);
 
 static void oneshot_timer_callback(void* arg)
 {
-
+#ifdef DEBUG_ENABLE
     ESP_LOGI(TAG, " Serial Timer Expired Bytes: %d ", serial_data_bytes);
-
     esp_log_buffer_hex(TAG, serial_rx_data, serial_data_bytes);
+#endif
     serial_rx_data[++serial_data_bytes] = '\0';
     akbi_process_rx_serial_data(serial_rx_data, serial_data_bytes-1);
     serial_data_bytes = 0;
@@ -214,7 +214,7 @@ void send_uart_message(const char* p_data, int length )
 {
     int     ret, i;
     char    data;
-	
+
     memset(serial_tx_data, 0x00, 100);
     memcpy(serial_tx_data, p_data, length);
 
@@ -222,7 +222,7 @@ void send_uart_message(const char* p_data, int length )
         data =  serial_tx_data[i];
         uart_write_bytes(UART_NUM_2, &data, 1);
     }
-	
+
 }
 
 void akbi_uart_thread(void *param)

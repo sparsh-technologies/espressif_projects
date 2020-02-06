@@ -186,11 +186,13 @@ static void gap_event_handler(esp_gap_ble_cb_event_t event, esp_ble_gap_cb_param
 
     case ESP_GAP_BLE_ADV_START_COMPLETE_EVT:
         //advertising start complete event to indicate advertising start successfully or failed
+#ifdef DEBUG_ENABLE
         if (param->adv_start_cmpl.status != ESP_BT_STATUS_SUCCESS) {
             ESP_LOGE(BT_BLE_COEX_TAG, "Advertising start failed\n");
         }else {
             ESP_LOGI(BT_BLE_COEX_TAG, "Start adv successfully\n");
         }
+#endif
         break;
 
     case ESP_GAP_BLE_ADV_STOP_COMPLETE_EVT:
@@ -360,9 +362,10 @@ static void gatts_profile_a_event_handler(esp_gatts_cb_event_t event, esp_gatt_i
         for(int i = 0 ;i < MAX_RETURN_MSG_LENGTH; i++){
             rsp.attr_value.value[i] = ep_return_message[i];
         }
-
+#ifdef DEBUG_ENABLE
         esp_log_buffer_hex(BT_BLE_COEX_TAG, &rsp,rsp.attr_value.len );
         esp_log_buffer_char(BT_BLE_COEX_TAG, &rsp,rsp.attr_value.len );
+#endif
 
 
         esp_ble_gatts_send_response(gatts_if, param->read.conn_id, param->read.trans_id,
@@ -506,7 +509,9 @@ static void gatts_profile_a_event_handler(esp_gatts_cb_event_t event, esp_gatt_i
     }
 
     case ESP_GATTS_DISCONNECT_EVT:
+#ifdef DEBUG_ENABLE
         ESP_LOGI(BT_BLE_COEX_TAG, "ESP_GATTS_DISCONNECT_EVT");
+#endif        
         esp_ble_gap_start_advertising(&adv_params);
         break;
 
@@ -620,7 +625,7 @@ void bt_app_gap_cb(esp_bt_gap_cb_event_t event, esp_bt_gap_cb_param_t *param)
         if (param->auth_cmpl.stat == ESP_BT_STATUS_SUCCESS) {
 
 #ifdef DEBUG_ENABLE
-            ESP_LOGI(BT_BLE_COEX_TAG, " INFO : Authentication success: %s", 
+            ESP_LOGI(BT_BLE_COEX_TAG, " INFO : Authentication success: %s",
                      param->auth_cmpl.device_name);
 #endif
 
