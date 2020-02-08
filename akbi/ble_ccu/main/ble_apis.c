@@ -135,14 +135,14 @@ int execute_register(char *i_cmd, char *i_ret_msg)
     case DID_REGISTER_ANDROID_ID_OR_UUID :
         memcpy(this_ccu.paired_mob1.android_id_or_uuid,
                &i_cmd[BLE_CMD_MULTI_DATA_VALUE_OFFSET],data_len_in_ble);
-        printf(" INFO : Mob-UUID - %s(%d) \n", this_ccu.paired_mob1.android_id_or_uuid, 
+        printf(" INFO : Mob-UUID - %s(%d) \n", this_ccu.paired_mob1.android_id_or_uuid,
                  data_len_in_ble);
         i_ret_msg[BLE_RET_MSG_RC_OFFSET] = SUCCESS;
         this_ccu.paired_mob1.data_status = this_ccu.paired_mob1.data_status | FLAG_DATA_SET_ANDROID_ID_OR_UUID;
         //TODO-Store Android ID or UUID in EEPROM and populate error code
 //        save_group_messages(p_recvd_msg_full,DID_REGISTER_ANDROID_ID_OR_UUID);
-        ccu_send_reg_msg_new(DID_REGISTER_ANDROID_ID_OR_UUID, 
-                             this_ccu.paired_mob1.android_id_or_uuid, 
+        ccu_send_reg_msg_new(DID_REGISTER_ANDROID_ID_OR_UUID,
+                             this_ccu.paired_mob1.android_id_or_uuid,
                              data_len_in_ble);
         break;
 
@@ -192,10 +192,12 @@ int execute_login(char *i_cmd, char *i_ret_msg)
     printf("In execute login #%s#%s#%d#\n",i_pwd, this_ccu.password,data_len_in_ble);
     #endif
     //memcmp is used as the strings are not exactly strings ending in \0.
-    if (0 == memcmp(i_pwd,this_ccu.password,data_len_in_ble)) {
-        this_ccu.paired_mob1.authentication_status = AUTHENTICATED;
-        i_ret_msg[BLE_RET_MSG_RC_OFFSET] = SUCCESS;
-        //TODO: Auth Token to be stored in EEPROM
+    if (data_len_in_ble == strlen(this_ccu.password)) {
+        if (0 == memcmp(i_pwd,this_ccu.password,strlen(this_ccu.password))) {
+          this_ccu.paired_mob1.authentication_status = AUTHENTICATED;
+          i_ret_msg[BLE_RET_MSG_RC_OFFSET] = SUCCESS;
+          //TODO: Auth Token to be stored in EEPROM
+        }
     }
     else {
         this_ccu.paired_mob1.authentication_status = UNAUTHENTICATED;
