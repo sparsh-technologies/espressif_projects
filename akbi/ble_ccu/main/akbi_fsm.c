@@ -16,6 +16,8 @@
 #include <string.h>
 #include <time.h>
 #include "akbi_fsm.h"
+#include "akbi_msg.h"
+
 
 
 static CCU_FSM_STATES bt_state = FSM_STATE_INIT;
@@ -131,7 +133,8 @@ int akbi_check_fsm_state_and_respond(char *ep_return_message)
         break;
 
     case FSM_STATE_WIFI_CONNECT_COMPLETE :
-        ret = 1;
+        ep_return_message[BLE_RET_MSG_RC_OFFSET] = SUCCESS;
+        ret = 0;
         break;
 
     case FSM_STATE_WIFI_DISCONNECT_IN_PROGRESS :
@@ -139,7 +142,8 @@ int akbi_check_fsm_state_and_respond(char *ep_return_message)
         break;
 
     case FSM_STATE_WIFI_DISCONNECT_COMPLETE :
-        ret = 1;
+        ep_return_message[BLE_RET_MSG_RC_OFFSET] = SUCCESS;
+        ret = 0;
         break;
 
     case FSM_STATE_FW_UPGRADE_IN_PROGRESS :

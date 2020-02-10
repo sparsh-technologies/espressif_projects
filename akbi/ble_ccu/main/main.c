@@ -187,13 +187,13 @@ static void gap_event_handler(esp_gap_ble_cb_event_t event, esp_ble_gap_cb_param
 
     case ESP_GAP_BLE_ADV_START_COMPLETE_EVT:
         //advertising start complete event to indicate advertising start successfully or failed
-#ifdef DEBUG_ENABLE
+        #ifdef DEBUG_ENABLE
         if (param->adv_start_cmpl.status != ESP_BT_STATUS_SUCCESS) {
             ESP_LOGE(BT_BLE_COEX_TAG, "Advertising start failed\n");
         }else {
             ESP_LOGI(BT_BLE_COEX_TAG, "Start adv successfully\n");
         }
-#endif
+        #endif
         break;
 
     case ESP_GAP_BLE_ADV_STOP_COMPLETE_EVT:
@@ -207,7 +207,7 @@ static void gap_event_handler(esp_gap_ble_cb_event_t event, esp_ble_gap_cb_param
 
     case ESP_GAP_BLE_UPDATE_CONN_PARAMS_EVT:
 
-#ifdef DEBUG_ENABLE
+        #ifdef DEBUG_ENABLE
         ESP_LOGI(BT_BLE_COEX_TAG, "update connection params status = %d, min_int = %d, max_int = %d,conn_int = %d,latency = %d, timeout = %d",
                   param->update_conn_params.status,
                   param->update_conn_params.min_int,
@@ -215,7 +215,7 @@ static void gap_event_handler(esp_gap_ble_cb_event_t event, esp_ble_gap_cb_param
                   param->update_conn_params.conn_int,
                   param->update_conn_params.latency,
                   param->update_conn_params.timeout);
-#endif
+        #endif
         break;
 
     default:
@@ -296,9 +296,9 @@ void example_exec_write_event_env(prepare_type_env_t *prepare_write_env, esp_ble
                            prepare_write_env->prepare_len);
 
     }else{
-#ifdef DEBUG_ENABLE
+    #ifdef DEBUG_ENABLE
         ESP_LOGI(BT_BLE_COEX_TAG,"ESP_GATT_PREP_WRITE_CANCEL");
-#endif
+    #endif
     }
 
     if (prepare_write_env->prepare_buf) {
@@ -319,10 +319,10 @@ static void gatts_profile_a_event_handler(esp_gatts_cb_event_t event, esp_gatt_i
 
     case ESP_GATTS_REG_EVT:
 
-#ifdef DEBUG_ENABLE
+        #ifdef DEBUG_ENABLE
         ESP_LOGI(BT_BLE_COEX_TAG, "REGISTER_APP_EVT, status %d, app_id %d\n",
                  param->reg.status, param->reg.app_id);
-#endif
+        #endif
 
         esp_ble_gap_config_local_privacy(true);
         gl_profile_tab[PROFILE_A_APP_ID].service_id.is_primary = true;
@@ -344,10 +344,10 @@ static void gatts_profile_a_event_handler(esp_gatts_cb_event_t event, esp_gatt_i
          */
         esp_gatt_rsp_t rsp;
 
-#ifdef DEBUG_ENABLE
+        #ifdef DEBUG_ENABLE
         ESP_LOGI(BT_BLE_COEX_TAG, "GATT_READ_EVT, conn_id %d, trans_id %d, handle %d\n",
                  param->read.conn_id, param->read.trans_id, param->read.handle);
-#endif
+        #endif
 
         memset(&rsp, 0, sizeof(esp_gatt_rsp_t));
         rsp.attr_value.handle = param->read.handle;
@@ -363,10 +363,10 @@ static void gatts_profile_a_event_handler(esp_gatts_cb_event_t event, esp_gatt_i
         for(int i = 0 ;i < MAX_RETURN_MSG_LENGTH; i++){
             rsp.attr_value.value[i] = ep_return_message[i];
         }
-#ifdef DEBUG_ENABLE
+        #ifdef DEBUG_ENABLE
         esp_log_buffer_hex(BT_BLE_COEX_TAG, &rsp,rsp.attr_value.len );
         esp_log_buffer_char(BT_BLE_COEX_TAG, &rsp,rsp.attr_value.len );
-#endif
+        #endif
 
 
         esp_ble_gatts_send_response(gatts_if, param->read.conn_id, param->read.trans_id,
@@ -380,10 +380,10 @@ static void gatts_profile_a_event_handler(esp_gatts_cb_event_t event, esp_gatt_i
         /*
          * When the Mobile phone sends the data, the control comes through this path.
          */
-#ifdef DEBUG_ENABLE
+        #ifdef DEBUG_ENABLE
         ESP_LOGI(BT_BLE_COEX_TAG, "GATT_WRITE_EVT, conn_id %d, trans_id %d, handle %d",
                        param->write.conn_id, param->write.trans_id, param->write.handle);
-#endif
+        #endif
 
         if (!param->write.is_prep){
 
@@ -392,11 +392,11 @@ static void gatts_profile_a_event_handler(esp_gatts_cb_event_t event, esp_gatt_i
             memset(rx_pkt_buffer, 0x00, 30);
             memset(ep_return_message, 0x00, MAX_RETURN_MSG_LENGTH);
 
-#ifdef DEBUG_ENABLE
+            #ifdef DEBUG_ENABLE
             ESP_LOGI(BT_BLE_COEX_TAG, "GATT_WRITE_EVT, value len %d, value :", param->write.len);
             esp_log_buffer_char(BT_BLE_COEX_TAG, param->write.value, param->write.len);
             esp_log_buffer_hex(BT_BLE_COEX_TAG, param->write.value, param->write.len);
-#endif
+            #endif
 
             memcpy(rx_pkt_buffer, param->write.value, param->write.len);
 
@@ -409,9 +409,9 @@ static void gatts_profile_a_event_handler(esp_gatts_cb_event_t event, esp_gatt_i
 
     case ESP_GATTS_EXEC_WRITE_EVT:
 
-#ifdef DEBUG_ENABLE
+        #ifdef DEBUG_ENABLE
         ESP_LOGI(BT_BLE_COEX_TAG,"ESP_GATTS_EXEC_WRITE_EVT");
-#endif
+        #endif
 
         esp_ble_gatts_send_response(gatts_if, param->write.conn_id,
                                     param->write.trans_id, ESP_GATT_OK, NULL);
@@ -420,9 +420,9 @@ static void gatts_profile_a_event_handler(esp_gatts_cb_event_t event, esp_gatt_i
 
     case ESP_GATTS_MTU_EVT:
 
-#ifdef DEBUG_ENABLE
+        #ifdef DEBUG_ENABLE
         ESP_LOGI(BT_BLE_COEX_TAG, "ESP_GATTS_MTU_EVT, MTU %d", param->mtu.mtu);
-#endif
+        #endif
         break;
 
     case ESP_GATTS_UNREG_EVT:
@@ -430,10 +430,10 @@ static void gatts_profile_a_event_handler(esp_gatts_cb_event_t event, esp_gatt_i
 
     case ESP_GATTS_CREATE_EVT:
 
-#ifdef DEBUG_ENABLE
+        #ifdef DEBUG_ENABLE
         ESP_LOGI(BT_BLE_COEX_TAG, "CREATE_SERVICE_EVT, status %d,  service_handle %d\n",
                  param->create.status, param->create.service_handle);
-#endif
+        #endif
 
         gl_profile_tab[PROFILE_A_APP_ID].service_handle = param->create.service_handle;
         gl_profile_tab[PROFILE_A_APP_ID].char_uuid.len = ESP_UUID_LEN_16;
@@ -456,10 +456,10 @@ static void gatts_profile_a_event_handler(esp_gatts_cb_event_t event, esp_gatt_i
 
     case ESP_GATTS_ADD_CHAR_EVT: {
 
-#ifdef DEBUG_ENABLE
+        #ifdef DEBUG_ENABLE
         ESP_LOGI(BT_BLE_COEX_TAG, "ADD_CHAR_EVT, status %d,  attr_handle %d, service_handle %d\n",
                 param->add_char.status, param->add_char.attr_handle, param->add_char.service_handle);
-#endif
+        #endif
 
         gl_profile_tab[PROFILE_A_APP_ID].char_handle = param->add_char.attr_handle;
         gl_profile_tab[PROFILE_A_APP_ID].descr_uuid.len = ESP_UUID_LEN_16;
@@ -479,12 +479,12 @@ static void gatts_profile_a_event_handler(esp_gatts_cb_event_t event, esp_gatt_i
 
         gl_profile_tab[PROFILE_A_APP_ID].descr_handle = param->add_char_descr.attr_handle;
 
-#ifdef DEBUG_ENABLE
+        #ifdef DEBUG_ENABLE
         ESP_LOGI(BT_BLE_COEX_TAG, "ADD_DESCR_EVT, status %d, attr_handle %d, service_handle %d\n",
                                   param->add_char_descr.status,
                                   param->add_char_descr.attr_handle,
                                   param->add_char_descr.service_handle);
-#endif
+        #endif
 
         break;
 
@@ -493,10 +493,10 @@ static void gatts_profile_a_event_handler(esp_gatts_cb_event_t event, esp_gatt_i
 
     case ESP_GATTS_START_EVT:
 
-#ifdef DEBUG_ENABLE
+        #ifdef DEBUG_ENABLE
         ESP_LOGI(BT_BLE_COEX_TAG, "SERVICE_START_EVT, status %d, service_handle %d\n",
                  param->start.status, param->start.service_handle);
-#endif
+        #endif
 
         break;
 
@@ -510,17 +510,17 @@ static void gatts_profile_a_event_handler(esp_gatts_cb_event_t event, esp_gatt_i
     }
 
     case ESP_GATTS_DISCONNECT_EVT:
-#ifdef DEBUG_ENABLE
+        #ifdef DEBUG_ENABLE
         ESP_LOGI(BT_BLE_COEX_TAG, "ESP_GATTS_DISCONNECT_EVT");
-#endif
+        #endif
         esp_ble_gap_start_advertising(&adv_params);
         break;
 
     case ESP_GATTS_CONF_EVT:
 
-#ifdef DEBUG_ENABLE
+        #ifdef DEBUG_ENABLE
         ESP_LOGI(BT_BLE_COEX_TAG, "ESP_GATTS_CONF_EVT, status %d", param->conf.status);
-#endif
+        #endif
 
         if (param->conf.status != ESP_GATT_OK){
             esp_log_buffer_hex(BT_BLE_COEX_TAG, param->conf.value, param->conf.len);

@@ -289,6 +289,7 @@ int ccu_sent_user_forgot_passwd_msg(char *new_password)
 
     length = sizeof(BT_CP_PROTOCOL_HDR) + p_protocol_hdr->length;
     send_uart_message(p_tx_buffer, length );
+    printf("ptx in FPpp=%s\n", p_tx_buffer);
 
     return (0);
 }

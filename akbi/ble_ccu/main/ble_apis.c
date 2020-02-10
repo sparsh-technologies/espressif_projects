@@ -239,6 +239,7 @@ int execute_forgot_password(char *i_ret_msg)
     memset(pass,0x00,DEFAULT_PASSWORD_SIZE);
     if (0 == generate_password(pass)) {
         memcpy(this_ccu.password,pass,DEFAULT_PASSWORD_SIZE);
+        printf("generated pw:::%s\n",pass );
         if ((this_ccu.paired_mob1.data_status & FLAG_DATA_SET_MOB1_NUM) == 0x00) {
             i_ret_msg[BLE_RET_MSG_RC_OFFSET] = ERROR_MOB1_NO_NOT_CONFIGURED;
             return ERROR_MOB1_NO_NOT_CONFIGURED;
@@ -274,10 +275,12 @@ int execute_change_password(char *i_cmd, char *i_ret_msg)
     {
 
     case DID_CHANGE_PASSWORD_CURRENT:
-        if (0 == memcmp(this_ccu.password, &i_cmd[BLE_CMD_MULTI_DATA_VALUE_OFFSET],data_len_in_ble)) {
-            this_ccu.data_status = this_ccu.data_status | FLAG_DATA_SET_CCU_PWD_MATCH;
-            i_ret_msg[BLE_RET_MSG_RC_OFFSET] = SUCCESS;
-            save_group_messages(p_recvd_msg_full,DID_CHANGE_PASSWORD_CURRENT);
+        if(strlen(this_ccu.password)== data_len_in_ble){
+            if (0 == memcmp(this_ccu.password, &i_cmd[BLE_CMD_MULTI_DATA_VALUE_OFFSET],strlen(this_ccu.password))) {
+              this_ccu.data_status = this_ccu.data_status | FLAG_DATA_SET_CCU_PWD_MATCH;
+              i_ret_msg[BLE_RET_MSG_RC_OFFSET] = SUCCESS;
+              save_group_messages(p_recvd_msg_full,DID_CHANGE_PASSWORD_CURRENT);
+            }
         }
         else {
             i_ret_msg[BLE_RET_MSG_RC_OFFSET] = ERROR_CHANGE_PASSWORD_MISMATCH;
@@ -286,6 +289,7 @@ int execute_change_password(char *i_cmd, char *i_ret_msg)
         break;
 
     case DID_CHANGE_PASSWORD_NEW:
+        memset(this_ccu.new_password_to_be_set,0x00,sizeof(this_ccu.new_password_to_be_set));
         memcpy(this_ccu.new_password_to_be_set,&i_cmd[BLE_CMD_MULTI_DATA_VALUE_OFFSET],data_len_in_ble);
         this_ccu.data_status = this_ccu.data_status | FLAG_DATA_SET_CCU_NEW_PASSWORD;
         i_ret_msg[BLE_RET_MSG_RC_OFFSET] = SUCCESS;
@@ -848,7 +852,7 @@ int read_ble_message(char *i_msg, char *i_ret_msg)
 
         case CID_FORGOT_PASSWORD :
             akbi_set_fsm_state(FSM_STATE_FORGOT_PASSWD);
-            execute_forgot_password(i_ret_msg);
+               execute_forgot_password(i_ret_msg);
             break;
 
         case CID_CHANGE_PASSWORD :
