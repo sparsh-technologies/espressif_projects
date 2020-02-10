@@ -45,6 +45,8 @@ int ccu_sent_configure_wifi_credentials(unsigned char ap_id, char *p_passwd, int
 
 int ccu_sent_connect_to_wifi();
 
+int ccu_sent_disconnect_from_wifi();
+
 int ccu_sent_user_login_msg(char *p_tx_buffer,char *ep_return_message);
 
 int ccu_sent_user_forgot_passwd_msg();
@@ -59,6 +61,10 @@ int ccu_sent_store_personal_number_msg(char *received_value_buffer);
 
 int ccu_sent_store_local_help_number_msg(char *received_value_buffer);
 
-int ccu_sent_activate_system_msg(char *p_tx_buffer,char *ep_return_message);
+int ccu_sent_activate_system_msg();
+
+int ccu_sent_update_sw_msg();
+
+int ccu_sent_upload_trip_info();
 
 #endif

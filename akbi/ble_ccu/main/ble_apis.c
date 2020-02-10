@@ -107,7 +107,7 @@ int execute_register(char *i_cmd, char *i_ret_msg)
 
         ccu_send_reg_msg_new(DID_REGISTER_PASSWORD, this_ccu.password, data_len_in_ble);
 
-//        save_group_messages(p_recvd_msg_full,DID_REGISTER_PASSWORD);
+        // save_group_messages(p_recvd_msg_full,DID_REGISTER_PASSWORD);
         break;
 
     case DID_REGISTER_MOB_NO :
@@ -117,7 +117,7 @@ int execute_register(char *i_cmd, char *i_ret_msg)
         i_ret_msg[BLE_RET_MSG_RC_OFFSET] = SUCCESS;
         this_ccu.paired_mob1.data_status = this_ccu.paired_mob1.data_status | FLAG_DATA_SET_MOB1_NUM;
         //TODO-Store mobile number in EEPROM and populate error code
-//        save_group_messages(p_recvd_msg_full,DID_REGISTER_MOB_NO);
+       // save_group_messages(p_recvd_msg_full,DID_REGISTER_MOB_NO);
         ccu_send_reg_msg_new(DID_REGISTER_MOB_NO, this_ccu.paired_mob1.mobile_number, data_len_in_ble);
         break;
 
@@ -128,7 +128,7 @@ int execute_register(char *i_cmd, char *i_ret_msg)
         i_ret_msg[BLE_RET_MSG_RC_OFFSET] = SUCCESS;
         this_ccu.paired_mob1.data_status = this_ccu.paired_mob1.data_status | FLAG_DATA_SET_MOB1_NAME;
         //TODO-Store mobile name in EEPROM and populate error code
-//        save_group_messages(p_recvd_msg_full,DID_REGISTER_MOB_NAME);
+       // save_group_messages(p_recvd_msg_full,DID_REGISTER_MOB_NAME);
         ccu_send_reg_msg_new(DID_REGISTER_MOB_NAME, this_ccu.paired_mob1.mobile_name, data_len_in_ble);
         break;
 
@@ -140,7 +140,7 @@ int execute_register(char *i_cmd, char *i_ret_msg)
         i_ret_msg[BLE_RET_MSG_RC_OFFSET] = SUCCESS;
         this_ccu.paired_mob1.data_status = this_ccu.paired_mob1.data_status | FLAG_DATA_SET_ANDROID_ID_OR_UUID;
         //TODO-Store Android ID or UUID in EEPROM and populate error code
-//        save_group_messages(p_recvd_msg_full,DID_REGISTER_ANDROID_ID_OR_UUID);
+       // save_group_messages(p_recvd_msg_full,DID_REGISTER_ANDROID_ID_OR_UUID);
         ccu_send_reg_msg_new(DID_REGISTER_ANDROID_ID_OR_UUID,
                              this_ccu.paired_mob1.android_id_or_uuid,
                              data_len_in_ble);
@@ -160,7 +160,7 @@ int execute_register(char *i_cmd, char *i_ret_msg)
 
     if (this_ccu.paired_mob1.data_status == FLAG_DATA_SET_MOB1_ALL){
        //all messages are saved. now send messages altogether
-//       send_batch_messages(DID_REGISTER_ANDROID_ID_OR_UUID,CID_REGISTER);
+      // send_batch_messages(DID_REGISTER_ANDROID_ID_OR_UUID,CID_REGISTER);
        //return READY_TO_SEND_REG_DATA_TO_SERIAL;
     }
 
@@ -245,7 +245,7 @@ int execute_forgot_password(char *i_ret_msg)
         }
         else{
             akbi_set_fsm_state(FSM_STATE_FORGOT_PASSWD);
-            ccu_sent_user_forgot_passwd_msg();
+            ccu_sent_user_forgot_passwd_msg(pass);
         }
         /*
          * TODO - send the password and mobile number over the serial interface to the processor - connection manager.
@@ -333,7 +333,6 @@ int execute_record_personal_voice_msg(char *i_ret_msg)
 {
     if (this_ccu.interface_wifi.mode != ACCESS_POINT) {
         if (0 != enable_ccu_access_point()) {
-    //      memcpy(&i_ret_msg[BLE_RET_MSG_RC_OFFSET],&ERROR_MY_AP_START,BLE_RETURN_RC_SIZE);
             memset(&i_ret_msg[BLE_RET_MSG_RC_OFFSET],ERROR_MY_AP_START,BLE_RETURN_RC_SIZE);
             return (int)i_ret_msg[BLE_RET_MSG_RC_OFFSET];
         }
@@ -448,7 +447,6 @@ int execute_enter_local_help_number(char *i_cmd, char *i_ret_msg)
     return (int)i_ret_msg[BLE_RET_MSG_RC_OFFSET];
 }
 
-
 int execute_scan_wifis(char *i_cmd ,char *i_ret_msg)
 {
 
@@ -544,15 +542,24 @@ int execute_select_a_wifi(char *i_cmd, char *i_ret_msg)
     return (int)i_ret_msg[BLE_RET_MSG_RC_OFFSET];
 }
 
-int execute_connect_to_wifi(char *i_cmd, char *i_ret_msg)
+int execute_connect_to_wifi(char *i_ret_msg)
 {
     //TODO: Get the wifi status from the processor
-    akbi_set_fsm_state(FSM_STATE_WIFI_CONNECT_IN_PROGRESS);
     ccu_sent_connect_to_wifi();
     this_ccu.conf_wifi.status = get_wifi_status();
     //memcpy(&i_ret_msg[BLE_RET_MSG_RC_OFFSET],&this_ccu.conf_wifi.status,BLE_RETURN_RC_SIZE);
     return (int)i_ret_msg[BLE_RET_MSG_RC_OFFSET];
 }
+
+int execute_disconnect_from_wifi(char *i_ret_msg)
+{
+    //TODO: Get the wifi status from the processor
+    ccu_sent_disconnect_from_wifi();
+    this_ccu.conf_wifi.status = get_wifi_status();
+    //memcpy(&i_ret_msg[BLE_RET_MSG_RC_OFFSET],&this_ccu.conf_wifi.status,BLE_RETURN_RC_SIZE);
+    return (int)i_ret_msg[BLE_RET_MSG_RC_OFFSET];
+}
+
 int execute_store_address_visiting(char *i_cmd, char *i_ret_msg)
 {
     char degree[LAT_LONG_DEGREE_SIZE];
@@ -634,7 +641,7 @@ int execute_store_address_visiting(char *i_cmd, char *i_ret_msg)
     return (int)i_ret_msg[BLE_RET_MSG_RC_OFFSET];
 }
 
-int execute_ccu_activate(char *i_cmd, char *i_ret_msg)
+int execute_ccu_activate(char *i_cmd,char *i_ret_msg)
 {
     char degree[LAT_LONG_DEGREE_SIZE];
     char minute[LAT_LONG_MINUTE_SIZE];
@@ -704,11 +711,55 @@ int execute_ccu_activate(char *i_cmd, char *i_ret_msg)
 
     }
 
+    ccu_sent_activate_system_msg();
     //this_ccu.visited_locations_count++;
     sprintf(this_ccu.activations[i_activations_count].time,"%ld",time(NULL));
     memset(&i_ret_msg[BLE_RET_MSG_RC_OFFSET], SUCCESS, BLE_RETURN_RC_SIZE);
 
     return (int)i_ret_msg[BLE_RET_MSG_RC_OFFSET];
+}
+
+int update_ccu_sw(char *i_ret_msg)
+{
+    //TODO: Get the upgrade status from the processor
+    ccu_sent_update_sw_msg();
+    // this_ccu.fw_upgrades[].version = get_wifi_status();
+    return 0;
+}
+
+int update_trip_info()
+{
+    //TODO: Get the info status from the processor
+    akbi_set_fsm_state(FSM_STATE_FW_UPGRADE_IN_PROGRESS);
+    ccu_sent_upload_trip_info();
+    return 0;
+
+}
+
+
+/*
+* Function to syncronize the data structure ,'this_ccu', with that in the ccu
+*/
+int syncronize_with_ccu()
+{
+    //code
+    return 0;
+}
+
+/*
+* Function to check and update the 'this_ccu' structure ,if needed
+*/
+int check_for_this_ccu_data_change()
+{
+  #if 0
+    if (get_structure_ver_in_ccu() == this_ccu.structure_data_version){
+        return 0;
+    }
+    else{
+        return 1;
+    }
+  #endif
+  return 0;
 }
 
 
@@ -731,6 +782,13 @@ int read_ble_message(char *i_msg, char *i_ret_msg)
     }
     if(flag_set_return_msg_ptr == 0){
       set_return_msg_pointer(i_ret_msg);
+    }
+
+    if (check_for_this_ccu_data_change()) {
+        int err = syncronize_with_ccu();
+        if (err) {
+            printf("syncronization with ccu failed\n");
+        }
     }
 
     if (source_app_type_identifier == MOB1_APP_TYPE_ID) {
@@ -893,9 +951,33 @@ int read_ble_message(char *i_msg, char *i_ret_msg)
             }
             memcpy(ble_command,&i_msg[BLE_CMD_OFFSET + BLE_COMMAND_ID_SIZE],BLE_COMMAND_SIZE);
             akbi_set_fsm_state(FSM_STATE_WIFI_CONNECT_IN_PROGRESS);
-            execute_connect_to_wifi(ble_command,i_ret_msg);
+            execute_connect_to_wifi(i_ret_msg);
+            break;
+        case CID_DISCONNECT_FROM_WIFI :
+            if (this_ccu.paired_mob1.authentication_status != AUTHENTICATED) {
+                memset(&i_ret_msg[BLE_RET_MSG_RC_OFFSET], ERROR_AUTHENTICATION, BLE_RETURN_RC_SIZE);
+                return ERROR_AUTHENTICATION;
+            }
+            akbi_set_fsm_state(FSM_STATE_WIFI_DISCONNECT_IN_PROGRESS);
+            execute_disconnect_from_wifi(i_ret_msg);
+            break;
+        case CID_UPDATE_CCU_SW :
+            if (this_ccu.paired_mob1.authentication_status != AUTHENTICATED) {
+                memset(&i_ret_msg[BLE_RET_MSG_RC_OFFSET], ERROR_AUTHENTICATION, BLE_RETURN_RC_SIZE);
+                return ERROR_AUTHENTICATION;
+            }
+            akbi_set_fsm_state(FSM_STATE_FW_UPGRADE_IN_PROGRESS);
+            update_ccu_sw(i_ret_msg);
             break;
 
+        case CID_UPLOAD_TRIP_INFO:
+            if (this_ccu.paired_mob1.authentication_status != AUTHENTICATED) {
+                memset(&i_ret_msg[BLE_RET_MSG_RC_OFFSET], ERROR_AUTHENTICATION, BLE_RETURN_RC_SIZE);
+                return ERROR_AUTHENTICATION;
+            }
+            akbi_set_fsm_state(FSM_STATE_TRIP_INFO_UPLOAD_IN_PROGRESS);
+            update_trip_info(i_ret_msg);
+            break;
         default :
             i_ret_msg[BLE_RET_MSG_RC_OFFSET] = ERROR_UNRECOGNIZED_COMMAND;
             printf("Unrecognized Command #%x#\n",ble_cmd_id);

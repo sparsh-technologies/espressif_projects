@@ -55,6 +55,7 @@
 #define PROFILE_A_APP_ID            0
 //#define PROFILE_B_APP_ID            1
 #define MAX_RETURN_MSG_LENGTH       20
+#define DEBUG_ENABLE                1
 
 
 extern uint8_t return_data[15];
@@ -511,7 +512,7 @@ static void gatts_profile_a_event_handler(esp_gatts_cb_event_t event, esp_gatt_i
     case ESP_GATTS_DISCONNECT_EVT:
 #ifdef DEBUG_ENABLE
         ESP_LOGI(BT_BLE_COEX_TAG, "ESP_GATTS_DISCONNECT_EVT");
-#endif        
+#endif
         esp_ble_gap_start_advertising(&adv_params);
         break;
 

@@ -134,6 +134,30 @@ int akbi_check_fsm_state_and_respond(char *ep_return_message)
         ret = 1;
         break;
 
+    case FSM_STATE_WIFI_DISCONNECT_IN_PROGRESS :
+        ret = 1;
+        break;
+
+    case FSM_STATE_WIFI_DISCONNECT_COMPLETE :
+        ret = 1;
+        break;
+
+    case FSM_STATE_FW_UPGRADE_IN_PROGRESS :
+        ret = 1;
+        break;
+
+    case FSM_STATE_FW_UPGRADE_COMPLETE :
+        ret = 1;
+        break;
+
+    case FSM_STATE_TRIP_INFO_UPLOAD_IN_PROGRESS :
+        ret = 1;
+        break;
+
+    case FSM_STATE_TRIP_INFO_UPLOAD_COMPLETE :
+        ret = 1;
+        break;
+
     case FSM_STATE_CFG_SET_ADDRESS :
         ret = 0;
         break;

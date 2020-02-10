@@ -99,7 +99,7 @@ int ccu_send_reg_msg_new(int type, char *received_value_buffer, int data_len)
 
     memset(p_tx_buffer, 0x00, 25);
     p_protocol_hdr = (BT_CP_PROTOCOL_HDR *)p_tx_buffer;
-    
+
     p_protocol_hdr->opcode   = BT_CP_OPCODE_CID_REGISTER;
     p_protocol_hdr->trans_id = 44;
     p_protocol_hdr->type     = type;
@@ -209,7 +209,8 @@ int ccu_sent_configure_wifi_credentials( unsigned char ap_id, char *p_passwd, in
     return (0);
 }
 
-int ccu_sent_connect_to_wifi(){
+int ccu_sent_connect_to_wifi()
+{
 
     char p_tx_buffer[20];
     BT_CP_PROTOCOL_HDR  *p_protocol_hdr;
@@ -219,6 +220,28 @@ int ccu_sent_connect_to_wifi(){
     p_protocol_hdr = (BT_CP_PROTOCOL_HDR *)p_tx_buffer;
 
     p_protocol_hdr->opcode   = BT_CP_OPCODE_CID_CONNECT_TO_WIFI;
+    p_protocol_hdr->trans_id = 44;
+    p_protocol_hdr->type     = 0;
+    p_protocol_hdr->length   = 0;
+
+
+    length = sizeof(BT_CP_PROTOCOL_HDR) + p_protocol_hdr->length;
+    send_uart_message(p_tx_buffer, length );
+
+    return (0);
+}
+
+int ccu_sent_disconnect_from_wifi()
+{
+
+    char p_tx_buffer[20];
+    BT_CP_PROTOCOL_HDR  *p_protocol_hdr;
+    int                 length;
+
+    printf(" INFO : Sending DISCONNECT-FROM-WIFI Message \n");
+    p_protocol_hdr = (BT_CP_PROTOCOL_HDR *)p_tx_buffer;
+
+    p_protocol_hdr->opcode   = BT_CP_OPCODE_CID_DISCONNECT_FROM_WIFI;
     p_protocol_hdr->trans_id = 44;
     p_protocol_hdr->type     = 0;
     p_protocol_hdr->length   = 0;
@@ -250,7 +273,7 @@ int ccu_sent_user_login_msg(char *p_tx_buffer,char *ep_return_message)
     return (0);
 }
 
-int ccu_sent_user_forgot_passwd_msg()
+int ccu_sent_user_forgot_passwd_msg(char *new_password)
 {
     BT_CP_PROTOCOL_HDR  *p_protocol_hdr;
     int                 length;
@@ -262,7 +285,7 @@ int ccu_sent_user_forgot_passwd_msg()
     p_protocol_hdr->opcode   = BT_CP_OPCODE_CID_FORGOT_PASSWORD;
     p_protocol_hdr->trans_id = 44;
     p_protocol_hdr->type     = 0;
-    p_protocol_hdr->length   = 0;
+    p_protocol_hdr->length   = DEFAULT_PASSWORD_SIZE;
 
     length = sizeof(BT_CP_PROTOCOL_HDR) + p_protocol_hdr->length;
     send_uart_message(p_tx_buffer, length );
@@ -412,15 +435,58 @@ int ccu_sent_store_local_help_number_msg(char *received_value_buffer)
     return (0);
 }
 
-int ccu_sent_activate_system_msg(char *p_tx_buffer,char *ep_return_message)
+int ccu_sent_activate_system_msg()
 {
     BT_CP_PROTOCOL_HDR  *p_protocol_hdr;
     int                 length;
+    char                p_tx_buffer[20];
 
     printf(" INFO : Sending ACTIVATE-SYSTEM Message \n");
     p_protocol_hdr = (BT_CP_PROTOCOL_HDR *)p_tx_buffer;
 
     p_protocol_hdr->opcode   = BT_CP_OPCODE_CID_CCU_ACTIVATE;
+    p_protocol_hdr->trans_id = 44;
+    p_protocol_hdr->type     = 0;
+    p_protocol_hdr->length   = 0;
+
+
+    length = sizeof(BT_CP_PROTOCOL_HDR) + p_protocol_hdr->length;
+    send_uart_message(p_tx_buffer, length );
+
+    return (0);
+}
+
+int ccu_sent_update_sw_msg()
+{
+    BT_CP_PROTOCOL_HDR  *p_protocol_hdr;
+    int                 length;
+    char                p_tx_buffer[20];
+
+    printf(" INFO : Sending UPGRADE-SOFTWARE Message \n");
+    p_protocol_hdr = (BT_CP_PROTOCOL_HDR *)p_tx_buffer;
+
+    p_protocol_hdr->opcode   = BT_CP_OPCODE_CID_UPDATE_CCU_SW;
+    p_protocol_hdr->trans_id = 44;
+    p_protocol_hdr->type     = 0;
+    p_protocol_hdr->length   = 0;
+
+
+    length = sizeof(BT_CP_PROTOCOL_HDR) + p_protocol_hdr->length;
+    send_uart_message(p_tx_buffer, length );
+
+    return (0);
+}
+
+int ccu_sent_upload_trip_info()
+{
+    BT_CP_PROTOCOL_HDR  *p_protocol_hdr;
+    int                 length;
+    char                p_tx_buffer[20];
+
+    printf(" INFO : Sending TRIP_INFO Message \n");
+    p_protocol_hdr = (BT_CP_PROTOCOL_HDR *)p_tx_buffer;
+
+    p_protocol_hdr->opcode   = BT_CP_OPCODE_CID_UPLOAD_TRIP_INFO;
     p_protocol_hdr->trans_id = 44;
     p_protocol_hdr->type     = 0;
     p_protocol_hdr->length   = 0;

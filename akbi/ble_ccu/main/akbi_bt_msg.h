@@ -64,6 +64,9 @@
 #define CID_ENTER_LOCAL_HELP_NUMBERS       0x0B
 #define CID_CCU_ACTIVATE                   0x0C
 #define CID_CONNECT_TO_WIFI                0x0D
+#define CID_DISCONNECT_FROM_WIFI           0x0E
+#define CID_UPDATE_CCU_SW                  0x0F
+#define CID_UPLOAD_TRIP_INFO               0x10
 
 #define DID_REGISTER_PASSWORD              0x01
 #define DID_REGISTER_MOB_NO                0x02
@@ -239,6 +242,7 @@ typedef struct ccu {
     RESCUE_TERMINATION_LOG   rescue_terminations[ACTIVATIONS_COUNT];
     WIFI_CONNECTIONS_LOG     wifi_connections[WIFI_CONNECTIONS_COUNT];
     unsigned short           data_status;
+    unsigned short           structure_data_version;
 
 } CCU;
 
@@ -292,8 +296,12 @@ typedef struct __attribute__((__packed__)) _bt_cp_tlv_hdr_ {
 #define BT_CP_OPCODE_CID_ENTER_LOCAL_HELP_NUMBERS                 0x0B
 #define BT_CP_OPCODE_CID_CCU_ACTIVATE                             0x0C
 #define BT_CP_OPCODE_CID_CONNECT_TO_WIFI                          0x0D
+//the following needs to be changed w.r.t documentation
 #define BT_CP_OPCODE_CID_CLEAR_SUB_G_LEARN                        0x0E
 #define BT_CP_OPCODE_CID_START_SUB_G_LEARN                        0x0F
+#define BT_CP_OPCODE_CID_DISCONNECT_FROM_WIFI                     0x10
+#define BT_CP_OPCODE_CID_UPDATE_CCU_SW                            0x11
+#define BT_CP_OPCODE_CID_UPLOAD_TRIP_INFO                         0x12
 
 #define BT_CP_OPCODE_CID_SCAN_WIFI_RESULT                         0x70
 #define BT_CP_OPCODE_CID_WIFI_CONNECT_COMPLETED                   0x71
