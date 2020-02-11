@@ -39,7 +39,6 @@ static int flag_set_return_msg_ptr = 0;
 /*
  * All extern API's are declared here.
  */
-extern int ccu_send_login_msg(void);
 extern int ccu_sent_scan_all_wifi_msg(char * ret_msg);
 extern int ccu_send_reg_msg_new(int type, char *received_value_buffer, int data_len);
 
@@ -104,7 +103,6 @@ int execute_register(char *i_cmd, char *i_ret_msg)
         i_ret_msg[BLE_RET_MSG_RC_OFFSET] = SUCCESS;
 		    // To Be checked with Sathish
         this_ccu.paired_mob1.data_status = this_ccu.paired_mob1.data_status | FLAG_DATA_SET_MOB1_PASSWORD;
-
         ccu_send_reg_msg_new(DID_REGISTER_PASSWORD, this_ccu.password, data_len_in_ble);
 
         // save_group_messages(p_recvd_msg_full,DID_REGISTER_PASSWORD);
@@ -187,30 +185,30 @@ int execute_login(char *i_cmd, char *i_ret_msg)
     char i_pwd[data_len_in_ble];
 
     memcpy(i_pwd,&i_cmd[BLE_CMD_SINGLE_DATA_VALUE_OFFSET],data_len_in_ble);
-    printf("data %s\n",i_pwd);
     #ifdef BLE_DEBUG
+    printf("data %s\n",i_pwd);
     printf("In execute login #%s#%s#%d#\n",i_pwd, this_ccu.password,data_len_in_ble);
     #endif
     //memcmp is used as the strings are not exactly strings ending in \0.
-    if (data_len_in_ble == strlen(this_ccu.password)) {
-        if (0 == memcmp(i_pwd,this_ccu.password,strlen(this_ccu.password))) {
-          this_ccu.paired_mob1.authentication_status = AUTHENTICATED;
-          i_ret_msg[BLE_RET_MSG_RC_OFFSET] = SUCCESS;
-          //TODO: Auth Token to be stored in EEPROM
-        }
-    }
-    else {
-        this_ccu.paired_mob1.authentication_status = UNAUTHENTICATED;
-        printf("Password MISMATCH\n");
-        i_ret_msg[BLE_RET_MSG_RC_OFFSET] = ERROR_LOGIN_PASSWORD_MISMATCH;
-        return (1);
-    }
+    // if ((data_len_in_ble == strlen(this_ccu.password))&&(0 == memcmp(i_pwd,this_ccu.password,strlen(this_ccu.password))))
+    // {
+    //     this_ccu.paired_mob1.authentication_status = AUTHENTICATED;
+    //     i_ret_msg[BLE_RET_MSG_RC_OFFSET] = SUCCESS;
+    //     //TODO: Auth Token to be stored in EEPROM
+    // }
+    // else {
+    //     this_ccu.paired_mob1.authentication_status = UNAUTHENTICATED;
+    //     printf("Password MISMATCH\n");
+    //     i_ret_msg[BLE_RET_MSG_RC_OFFSET] = ERROR_LOGIN_PASSWORD_MISMATCH;
+    //     return (1);
+    // }
 
     /*
      * If login is successful, then send a message to the CCU that we have logged into the device.
      * This is just to synchronize the state between both the CCU and ESP32 module.
      */
-    ccu_send_login_msg();
+    akbi_set_fsm_state(FSM_STATE_LOGIN);
+    ccu_send_login_msg(i_pwd,data_len_in_ble);
     return 0;
 }
 
@@ -275,12 +273,11 @@ int execute_change_password(char *i_cmd, char *i_ret_msg)
     {
 
     case DID_CHANGE_PASSWORD_CURRENT:
-        if(strlen(this_ccu.password)== data_len_in_ble){
-            if (0 == memcmp(this_ccu.password, &i_cmd[BLE_CMD_MULTI_DATA_VALUE_OFFSET],strlen(this_ccu.password))) {
+        if ((data_len_in_ble == strlen(this_ccu.password))&&(0 == memcmp(this_ccu.password, &i_cmd[BLE_CMD_MULTI_DATA_VALUE_OFFSET],strlen(this_ccu.password))))
+        {
               this_ccu.data_status = this_ccu.data_status | FLAG_DATA_SET_CCU_PWD_MATCH;
               i_ret_msg[BLE_RET_MSG_RC_OFFSET] = SUCCESS;
               save_group_messages(p_recvd_msg_full,DID_CHANGE_PASSWORD_CURRENT);
-            }
         }
         else {
             i_ret_msg[BLE_RET_MSG_RC_OFFSET] = ERROR_CHANGE_PASSWORD_MISMATCH;
@@ -840,19 +837,17 @@ int read_ble_message(char *i_msg, char *i_ret_msg)
         {
         case CID_REGISTER :
             memcpy(ble_command,&i_msg[BLE_CMD_OFFSET + BLE_COMMAND_ID_SIZE],BLE_COMMAND_SIZE);
-            execute_register(ble_command,i_ret_msg);
             akbi_set_fsm_state(FSM_STATE_MOB_REGISTERED);
+            execute_register(ble_command,i_ret_msg);
             break;
 
         case CID_LOGIN :
             memcpy(ble_command,&i_msg[BLE_CMD_OFFSET + BLE_COMMAND_ID_SIZE],BLE_COMMAND_SIZE);
-            akbi_set_fsm_state(FSM_STATE_LOGIN);
             execute_login(ble_command,i_ret_msg);
             break;
 
         case CID_FORGOT_PASSWORD :
-            akbi_set_fsm_state(FSM_STATE_FORGOT_PASSWD);
-               execute_forgot_password(i_ret_msg);
+            execute_forgot_password(i_ret_msg);
             break;
 
         case CID_CHANGE_PASSWORD :

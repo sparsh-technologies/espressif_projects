@@ -116,11 +116,12 @@ int ccu_send_reg_msg_new(int type, char *received_value_buffer, int data_len)
     return 0;
 }
 
-int ccu_send_login_msg()
+int ccu_send_login_msg(char * password, int data_len)
 {
     BT_CP_PROTOCOL_HDR  *p_protocol_hdr;
     int                 length;
     char                p_tx_buffer[25];
+    char                *p;
 
     printf(" INFO : Sending LOGIN Message \n");
     p_protocol_hdr = (BT_CP_PROTOCOL_HDR *)p_tx_buffer;
@@ -128,8 +129,10 @@ int ccu_send_login_msg()
     p_protocol_hdr->opcode   = BT_CP_OPCODE_CID_LOGIN;
     p_protocol_hdr->trans_id = 44;
     p_protocol_hdr->type     = 0;
-    p_protocol_hdr->length   = 0;
+    p_protocol_hdr->length   = data_len;
 
+    p = p_tx_buffer + sizeof(BT_CP_PROTOCOL_HDR);
+    memcpy(p, password, p_protocol_hdr->length);
 
     length = sizeof(BT_CP_PROTOCOL_HDR) + p_protocol_hdr->length;
     send_uart_message(p_tx_buffer, length );

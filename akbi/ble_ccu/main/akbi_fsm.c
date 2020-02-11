@@ -71,6 +71,10 @@ int akbi_check_fsm_state_and_respond(char *ep_return_message)
         break;
 
     case FSM_STATE_LOGIN :
+        ret = 1;
+        break;
+
+    case FSM_STATE_LOGIN_SUCCESS :
         ret = 0;
         break;
 

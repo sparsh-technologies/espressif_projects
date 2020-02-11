@@ -14,7 +14,7 @@ extern char ep_return_message[MAX_RETURN_MSG_LENGTH];
 void akbi_process_rx_serial_data(char *ccu_msg,int length)
 {
     int    index;
-    char   *p;
+    char   *p_payload;
 
     BT_CP_PROTOCOL_HDR  *p_protocol_hdr;
 
@@ -25,14 +25,14 @@ void akbi_process_rx_serial_data(char *ccu_msg,int length)
     printf(" Type        :  %02x\n", p_protocol_hdr->type);
     printf(" Length      :  %02x\n", p_protocol_hdr->length);
 
-    p = ccu_msg + sizeof(BT_CP_PROTOCOL_HDR);
+    p_payload = ccu_msg + sizeof(BT_CP_PROTOCOL_HDR);
 
     switch(p_protocol_hdr->opcode)
     {
         case BT_CP_OPCODE_CID_SCAN_WIFI_RESULT :
-        /*
-        * Now check whether this is the last packet. If so, just mark the scanning as completed.
-        */
+            /*
+            * Now check whether this is the last packet. If so, just mark the scanning as completed.
+            */
             if (p_protocol_hdr->type == 0) {
               akbi_set_fsm_state(FSM_STATE_WIFI_SCAN_COMPLETE);
               memset(&ep_return_message[BLE_RET_MSG_RC_OFFSET],SUCCESS,BLE_RETURN_RC_SIZE);
@@ -40,7 +40,6 @@ void akbi_process_rx_serial_data(char *ccu_msg,int length)
                      &wifi_scan_report.ap_count,SCANNED_WIFI_COUNT_SIZE);
               return ;
             }
-
             else {
                 if (p_protocol_hdr->type == 1 ) {
                     /*
@@ -49,20 +48,24 @@ void akbi_process_rx_serial_data(char *ccu_msg,int length)
                      */
                     memset(&wifi_scan_report, 0x00, sizeof(AKBI_WIFI_SCAN_REPORT));
                 }
-
                 memset(&ep_return_message[BLE_RET_MSG_RC_OFFSET],WIFI_SCANNING_IN_PROGRESS,BLE_RETURN_RC_SIZE);
                 /*
                 * Now, copy all the contents into the local datastructure.
                 */
                 index = p_protocol_hdr->type;
-                p = ccu_msg + sizeof(BT_CP_PROTOCOL_HDR);
 
-                strncpy(wifi_scan_report.ap_name[index-1], p, p_protocol_hdr->length);
+                strncpy(wifi_scan_report.ap_name[index-1], p_payload, p_protocol_hdr->length);
                 save_ssids(wifi_scan_report.ap_name[index-1],index-1,p_protocol_hdr->length);
                 wifi_scan_report.ap_count++;
                 break;
             }
 
+        case BT_CP_OPCODE_CID_LOGIN_STATUS:
+            if (p_payload[0] == SUCCESS) {
+                akbi_set_fsm_state(FSM_STATE_LOGIN_SUCCESS);
+                memset(&ep_return_message[BLE_RET_MSG_RC_OFFSET],SUCCESS,BLE_RETURN_RC_SIZE);
+                return;
+            }
 
         default:
             break;
