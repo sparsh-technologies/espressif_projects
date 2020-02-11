@@ -302,6 +302,8 @@ typedef struct __attribute__((__packed__)) _bt_cp_tlv_hdr_ {
 #define BT_CP_OPCODE_CID_DISCONNECT_FROM_WIFI                     0x10
 #define BT_CP_OPCODE_CID_UPDATE_CCU_SW                            0x11
 #define BT_CP_OPCODE_CID_UPLOAD_TRIP_INFO                         0x12
+#define BT_CP_OPCODE_CID_CCU_READY                                0x13
+
 
 #define BT_CP_OPCODE_CID_SCAN_WIFI_RESULT                         0x70
 #define BT_CP_OPCODE_CID_WIFI_CONNECT_COMPLETED                   0x71
@@ -366,5 +368,14 @@ typedef struct __attribute__((__packed__)) _bt_cp_tlv_hdr_ {
 #define TLV_TYPE_STORED_CFG_PERSONAL_NUM_3                        0x06
 #define TLV_TYPE_STORED_CFG_LOCAL_NUM_1                           0x07
 #define TLV_TYPE_STORED_CFG_LOCAL_NUM_2                           0x08
+#define TLV_TYPE_STORED_CFG_PAIRED_WIFI                           0x09
+
+/*
+ * TLV Types for BT_CP_OPCODE_CID_CCU_READY Opcode
+ */
+#define TLV_TYPE_CCU_READY_SW_VER                                 0x01
+#define TLV_TYPE_CCU_READY_SERIAL_NUM                             0x02
+
+
 
 #endif
