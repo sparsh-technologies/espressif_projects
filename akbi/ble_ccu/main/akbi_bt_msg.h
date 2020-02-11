@@ -307,6 +307,8 @@ typedef struct __attribute__((__packed__)) _bt_cp_tlv_hdr_ {
 #define BT_CP_OPCODE_CID_WIFI_CONNECT_COMPLETED                   0x71
 #define BT_CP_OPCODE_CID_CURRENT_CCU_SW_VER                       0x72
 #define BT_CP_OPCODE_CID_AVAILABLE_CCU_SW_VER                     0x73
+#define BT_CP_OPCODE_CID_LOGIN_STATUS                             0x74
+#define BT_CP_OPCODE_CID_CFG_PARAMS                               0x75
 
 /*
  * All TVL Types are defined here.
@@ -352,5 +354,17 @@ typedef struct __attribute__((__packed__)) _bt_cp_tlv_hdr_ {
 #define TLV_TYPE_WIFI_AP_ID                                       0x01
 #define TLV_TYPE_WIFI_PASSWD_NAME                                 0x02
 #define TLV_TYPE_WIFI_MODE                                        0x03
+
+/*
+ * TLV Types for BT_CP_OPCODE_CID_CFG_PARAMS Opcode
+ */
+#define TLV_TYPE_STORED_CFG_EMER_NUM_1                            0x01
+#define TLV_TYPE_STORED_CFG_EMER_NUM_2                            0x02
+#define TLV_TYPE_STORED_CFG_EMER_NUM_3                            0x03
+#define TLV_TYPE_STORED_CFG_PERSONAL_NUM_1                        0x04
+#define TLV_TYPE_STORED_CFG_PERSONAL_NUM_2                        0x05
+#define TLV_TYPE_STORED_CFG_PERSONAL_NUM_3                        0x06
+#define TLV_TYPE_STORED_CFG_LOCAL_NUM_1                           0x07
+#define TLV_TYPE_STORED_CFG_LOCAL_NUM_2                           0x08
 
 #endif
