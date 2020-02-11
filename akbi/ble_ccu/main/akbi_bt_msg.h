@@ -17,10 +17,10 @@
 #define CURRENT_FIRMWARE_VERSION "1.0(1)"
 #define BLE_DEBUG
 
-#define SER_NO_SIZE                        8
+#define SER_NO_SIZE                        20
 #define DEFAULT_PASSWORD_SIZE              12
 #define PASS_SIZE                          15
-#define MOB_NO_SIZE                        10
+#define MOB_NO_SIZE                        20
 #define MOB_NAME_SIZE                      15
 #define ANDROID_ID_OR_UUID_SIZE            15
 #define BLE_APP_TYPE_ID_SIZE               1
@@ -317,7 +317,7 @@ typedef struct __attribute__((__packed__)) _bt_cp_tlv_hdr_ {
  */
 
 /*
- * TLV Types for BT_CP_OPCODE_MOB1_REGISTER Opcode
+ * TLV Types for BT_CP_OPCODE_CID_REGISTER Opcode
  */
 
 #define TLV_TYPE_REGISTER_PASSWORD                                0x01
