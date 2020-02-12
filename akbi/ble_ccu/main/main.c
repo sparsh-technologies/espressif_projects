@@ -45,12 +45,13 @@
 #define GATTS_DESCR_UUID_A          0x3333
 #define GATTS_NUM_HANDLE_A          4
 
+
 #define GATTS_DEMO_CHAR_VAL_LEN_MAX 0x40
 #define PREPARE_BUF_MAX_SIZE        1024
 #define PROFILE_NUM                 1
 #define PROFILE_A_APP_ID            0
 #define MAX_RETURN_MSG_LENGTH       20
-#define DEBUG_ENABLE                1
+#define DEBUG_ENABLE                0
 
 
 extern uint8_t return_data[15];
