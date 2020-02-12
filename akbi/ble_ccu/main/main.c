@@ -45,18 +45,13 @@
 #define GATTS_DESCR_UUID_A          0x3333
 #define GATTS_NUM_HANDLE_A          4
 
-// #define GATTS_SERVICE_UUID_B        0x00EE
-// #define GATTS_CHAR_UUID_B           0xEE01
-// #define GATTS_DESCR_UUID_B          0x2222
-// #define GATTS_NUM_HANDLE_B          4
 
 #define GATTS_DEMO_CHAR_VAL_LEN_MAX 0x40
 #define PREPARE_BUF_MAX_SIZE        1024
 #define PROFILE_NUM                 1
 #define PROFILE_A_APP_ID            0
-//#define PROFILE_B_APP_ID            1
 #define MAX_RETURN_MSG_LENGTH       20
-#define DEBUG_ENABLE                1
+#define DEBUG_ENABLE                0
 
 
 extern uint8_t return_data[15];
@@ -742,9 +737,6 @@ void app_main(void)
     status[0] = 0x00;
 
     while(status[0] == 0){
-      #ifdef DEBUG_ENABLE
-      printf("CCU IS Booting\n");
-      #endif
       akbi_check_fsm_state_and_respond(status);
       ets_delay_us(100000);
       //esp_task_wdt_feed();

@@ -70,17 +70,9 @@
 #define WIFI_SCANNING_IN_PROGRESS                 0x77//for testing
 
 #define BLE_RETURN_MAX_SIZE                       20
-#define SER_NO_SIZE                               8
-#define MOB_NO_SIZE                               10
 #define MOB_NAME_SIZE                             15
 #define IMEI_NO_SIZE                              15
 #define BLE_APP_TYPE_ID_SIZE                      1
-
-#if 0
-#define BLE_APP_ID_SIZE               2
-#define DEFAULT_EMERGENCY_NUMBER      911
-#define LAT_LONG_SIZE                 11
-#endif
 
 #define BLE_APP_AUTH_TOKEN_SIZE       2
 #define FILE_NAME_SIZE                30
