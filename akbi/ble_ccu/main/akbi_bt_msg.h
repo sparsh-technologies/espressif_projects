@@ -311,6 +311,7 @@ typedef struct __attribute__((__packed__)) _bt_cp_tlv_hdr_ {
 #define BT_CP_OPCODE_CID_AVAILABLE_CCU_SW_VER                     0x73
 #define BT_CP_OPCODE_CID_LOGIN_STATUS                             0x74
 #define BT_CP_OPCODE_CID_CFG_PARAMS                               0x75
+#define BT_CP_OPCODE_CID_SELECT_A_WIFI_RESULT                     0x76
 
 /*
  * All TVL Types are defined here.

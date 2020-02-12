@@ -148,11 +148,12 @@ int akbi_check_fsm_state_and_respond(char *ep_return_message)
         break;
 
     case FSM_STATE_WIFI_CONNECT_IN_PROGRESS :
+        printf("wifi connect in progress\n");
         ret = 1;
         break;
 
     case FSM_STATE_WIFI_CONNECT_COMPLETE :
-        ep_return_message[BLE_RET_MSG_RC_OFFSET] = SUCCESS;
+        // ep_return_message[BLE_RET_MSG_RC_OFFSET] = SUCCESS;
         ret = 0;
         break;
 

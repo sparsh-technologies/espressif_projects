@@ -70,6 +70,12 @@ void akbi_process_rx_serial_data(char *ccu_msg,int length)
                 memset(&ep_return_message[BLE_RET_MSG_RC_OFFSET],SUCCESS,BLE_RETURN_RC_SIZE);
                 return;
             }
+
+        case BT_CP_OPCODE_CID_SELECT_A_WIFI_RESULT:
+                akbi_set_fsm_state(FSM_STATE_WIFI_CONNECT_COMPLETE);
+                memset(&ep_return_message[BLE_RET_MSG_RC_OFFSET],p_payload[0],BLE_RETURN_RC_SIZE);
+                return;
+
         // case BT_CP_OPCODE_CID_FORGOT_PASSWORD_STATUS:
         //       if (p_payload[0] == SUCCESS) {
               //     akbi_set_fsm_state(FSM_STATE_FORGOT_PASSWD_SMS_SENT);
