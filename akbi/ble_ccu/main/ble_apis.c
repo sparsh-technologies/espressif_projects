@@ -793,11 +793,13 @@ int read_ble_message(char *i_msg, char *i_ret_msg)
             is_valid_ble_msg = 1;
         }
         else {
-            is_valid_ble_msg = 0;
-            printf("paired mob1 id error %c\n",this_ccu.paired_mob1.id );
-
-            i_ret_msg[BLE_RET_MSG_RC_OFFSET] = ERROR_SOURCE_APP_MISMATCH;
-            return (ERROR_SOURCE_APP_MISMATCH);
+            // is_valid_ble_msg = 0;
+            // printf("paired mob1 id error %c\n",this_ccu.paired_mob1.id );
+            //
+            // i_ret_msg[BLE_RET_MSG_RC_OFFSET] = ERROR_SOURCE_APP_MISMATCH;
+            // return (ERROR_SOURCE_APP_MISMATCH);
+            is_valid_ble_msg = 1;
+            
         }
     }
 
