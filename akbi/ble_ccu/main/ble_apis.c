@@ -496,6 +496,7 @@ int execute_select_a_wifi(char *i_cmd, char *i_ret_msg)
             memset(p_password , 0x00, 20);
             selected_ap_id = saved_messages[0][BLE_MSG_MULTI_DATA_DATA_OFFSET];
             memcpy(p_password ,&saved_messages[1][BLE_MSG_MULTI_DATA_DATA_OFFSET],saved_messages[1][BLE_MSG_MULTI_DATA_LEN_OFFSET]);
+            akbi_set_fsm_state(FSM_STATE_WIFI_CONNECT_IN_PROGRESS);
             ccu_sent_configure_wifi_credentials(selected_ap_id+1, p_password, 4 );
 
             break;
@@ -799,7 +800,7 @@ int read_ble_message(char *i_msg, char *i_ret_msg)
             // i_ret_msg[BLE_RET_MSG_RC_OFFSET] = ERROR_SOURCE_APP_MISMATCH;
             // return (ERROR_SOURCE_APP_MISMATCH);
             is_valid_ble_msg = 1;
-            
+
         }
     }
 
