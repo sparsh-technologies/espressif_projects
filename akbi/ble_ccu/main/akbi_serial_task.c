@@ -222,7 +222,7 @@ void send_uart_message(const char* p_data, int length )
         data =  serial_tx_data[i];
         uart_write_bytes(UART_NUM_2, &data, 1);
     }
-
+    printf("uart msg sent: %s\n",serial_tx_data );
 }
 
 void akbi_uart_thread(void *param)

@@ -62,6 +62,11 @@ int akbi_check_fsm_state_and_respond(char *ep_return_message)
     switch(current_state)
     {
 
+    case FSM_STATE_CCU_READY:
+        ep_return_message[0] = 0x47;
+        ret = 1;
+        break;
+
     case FSM_STATE_INIT :
         ret = 0;
         break;
@@ -75,6 +80,7 @@ int akbi_check_fsm_state_and_respond(char *ep_return_message)
         break;
 
     case FSM_STATE_LOGIN_SUCCESS :
+        printf("return login success\n" );
         ret = 0;
         break;
 

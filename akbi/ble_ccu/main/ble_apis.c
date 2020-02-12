@@ -53,6 +53,15 @@ void set_return_msg_pointer(char *ep_return_message){
     flag_set_return_msg_ptr = 1;
 }
 
+int check_ccu_ready(){
+    if(0){//flag_ccu_ready){
+      return 1;
+    }
+    else{
+      return 0;
+    }
+}
+
 int save_group_messages(char *received_value_buffer,int type_id){
     memcpy(saved_messages[type_id-1],received_value_buffer,BLE_MESSAGE_SIZE);
     return 0;
@@ -78,7 +87,7 @@ void send_batch_messages(int no_of_messages,int ble_cmd_id){
                 ccu_sent_store_local_help_number_msg(saved_messages[i]);
                 break;
         }
-        ets_delay_us(1000000);
+        ets_delay_us(500000);
     }
 }
 
@@ -92,7 +101,6 @@ int execute_register(char *i_cmd, char *i_ret_msg)
     char data_type                          = i_cmd[BLE_CMD_MULTI_DATA_TYPE_OFFSET];
     int  data_len_in_ble                    = (int)i_cmd[BLE_CMD_MULTI_DATA_LEN_OFFSET];
     i_ret_msg[BLE_RET_MSG_DATA_TYPE_OFFSET] = data_type;
-
 
     switch (data_type)
     {
@@ -189,24 +197,6 @@ int execute_login(char *i_cmd, char *i_ret_msg)
     printf("data %s\n",i_pwd);
     printf("In execute login #%s#%s#%d#\n",i_pwd, this_ccu.password,data_len_in_ble);
     #endif
-    //memcmp is used as the strings are not exactly strings ending in \0.
-    // if ((data_len_in_ble == strlen(this_ccu.password))&&(0 == memcmp(i_pwd,this_ccu.password,strlen(this_ccu.password))))
-    // {
-    //     this_ccu.paired_mob1.authentication_status = AUTHENTICATED;
-    //     i_ret_msg[BLE_RET_MSG_RC_OFFSET] = SUCCESS;
-    //     //TODO: Auth Token to be stored in EEPROM
-    // }
-    // else {
-    //     this_ccu.paired_mob1.authentication_status = UNAUTHENTICATED;
-    //     printf("Password MISMATCH\n");
-    //     i_ret_msg[BLE_RET_MSG_RC_OFFSET] = ERROR_LOGIN_PASSWORD_MISMATCH;
-    //     return (1);
-    // }
-
-    /*
-     * If login is successful, then send a message to the CCU that we have logged into the device.
-     * This is just to synchronize the state between both the CCU and ESP32 module.
-     */
     akbi_set_fsm_state(FSM_STATE_LOGIN);
     ccu_send_login_msg(i_pwd,data_len_in_ble);
     return 0;
@@ -739,7 +729,7 @@ int update_trip_info()
 
 
 /*
-* Function to syncronize the data structure ,'this_ccu', with that in the ccu
+* Function to synchronize the data structure ,'this_ccu', with that in the ccu
 */
 int syncronize_with_ccu()
 {
@@ -811,7 +801,7 @@ int read_ble_message(char *i_msg, char *i_ret_msg)
         ((this_ccu.paired_mob1.data_status & FLAG_DATA_SET_MOB1_ID) == 0x00)) {
 
         this_ccu.paired_mob1.id = i_msg[BLE_APP_OFFSET];
-        printf("paired_mob1.id stored %c\n",i_msg[BLE_APP_OFFSET] );
+        printf("paired_mob1.id stored 1 %c\n",i_msg[BLE_APP_OFFSET] );
         this_ccu.paired_mob1.data_status = this_ccu.paired_mob1.data_status | FLAG_DATA_SET_MOB1_ID;
         is_valid_ble_msg = 1;
     }
@@ -821,7 +811,7 @@ int read_ble_message(char *i_msg, char *i_ret_msg)
         }
         else {
             is_valid_ble_msg = 0;
-            printf("paired_mob1.id stored %c\n",this_ccu.paired_mob1.id );
+            printf("paired mob1 id error %c\n",this_ccu.paired_mob1.id );
 
             i_ret_msg[BLE_RET_MSG_RC_OFFSET] = ERROR_SOURCE_APP_MISMATCH;
             return (ERROR_SOURCE_APP_MISMATCH);
@@ -830,6 +820,7 @@ int read_ble_message(char *i_msg, char *i_ret_msg)
 
     //TODO: Store the Mob1 ID onto EEPROM
 
+    // i_ret_msg[BLE_RET_MSG_RC_OFFSET] = RETURN_MSG_NOT_READY;
 
     if (is_valid_ble_msg) {
 

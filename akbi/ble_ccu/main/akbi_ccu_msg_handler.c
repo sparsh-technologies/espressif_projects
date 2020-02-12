@@ -29,6 +29,10 @@ void akbi_process_rx_serial_data(char *ccu_msg,int length)
 
     switch(p_protocol_hdr->opcode)
     {
+        case BT_CP_OPCODE_CID_CCU_READY:
+            akbi_set_fsm_state(FSM_STATE_CCU_READY);
+            break;
+
         case BT_CP_OPCODE_CID_SCAN_WIFI_RESULT :
             /*
             * Now check whether this is the last packet. If so, just mark the scanning as completed.
@@ -66,9 +70,11 @@ void akbi_process_rx_serial_data(char *ccu_msg,int length)
                 memset(&ep_return_message[BLE_RET_MSG_RC_OFFSET],SUCCESS,BLE_RETURN_RC_SIZE);
                 return;
             }
-
-        default:
-            break;
+        // case :
+        //     .
+        //     break;
+        // default:
+        //     break;
 
         }
     return;

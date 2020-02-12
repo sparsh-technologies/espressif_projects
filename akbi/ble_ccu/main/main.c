@@ -34,6 +34,7 @@
 #include "ble_apis.h"
 #include "akbi_serial_task.h"
 #include "akbi_fsm.h"
+#include "esp_int_wdt.h"
 
 #define BT_BLE_COEX_TAG             "BT_BLE_COEX"
 #define BLE_ADV_NAME                "Guardian"
@@ -357,7 +358,10 @@ static void gatts_profile_a_event_handler(esp_gatts_cb_event_t event, esp_gatt_i
          * If the state is not right, we may respond in a different way.
          */
         if (akbi_check_fsm_state_and_respond(ep_return_message) != 0) {
-            ep_return_message[AKBI_RC_OFFSET] = 55 ; //correct value to be defined
+            ep_return_message[AKBI_RC_OFFSET] = RETURN_MSG_NOT_READY ; //correct value to be defined
+        }
+        else{
+            ep_return_message[AKBI_RC_OFFSET] = SUCCESS ;
         }
 
         for(int i = 0 ;i < MAX_RETURN_MSG_LENGTH; i++){
@@ -399,7 +403,6 @@ static void gatts_profile_a_event_handler(esp_gatts_cb_event_t event, esp_gatt_i
             #endif
 
             memcpy(rx_pkt_buffer, param->write.value, param->write.len);
-
             read_ble_message(rx_pkt_buffer, ep_return_message);
 
         }
@@ -706,8 +709,8 @@ void app_main(void)
     }
 
     /* create application task */
-
     bt_app_task_start_up();
+
 
 
 #if (CONFIG_BT_SSP_ENABLED == true)
@@ -733,8 +736,21 @@ void app_main(void)
     esp_bt_gap_set_pin(pin_type, 4, pin_code);
 
 
+    create_uart_task(NULL);
+
+    char status[2];
+    status[0] = 0x00;
+
+    while(status[0] == 0){
+      #ifdef DEBUG_ENABLE
+      printf("CCU IS Booting\n");
+      #endif
+      akbi_check_fsm_state_and_respond(status);
+      ets_delay_us(100000);
+      //esp_task_wdt_feed();
+    }
+
     //gatt server init
     ble_gatts_init();
 
-    create_uart_task(NULL);
 }

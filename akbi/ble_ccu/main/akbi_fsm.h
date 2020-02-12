@@ -15,6 +15,7 @@
 #define _AKBI_FSM_H_
 
 typedef enum {
+    FSM_STATE_CCU_READY,
     FSM_STATE_INIT,
     FSM_STATE_MOB_REGISTERED,
     FSM_STATE_LOGIN,
@@ -50,6 +51,9 @@ void akbi_clear_ssids();
 #define RETURN_MSG_DATA_OFFSET 8
 #define AKBI_RC_OFFSET         6
 #define RETURN_MSG_LENGTH      20
+#define RETURN_MSG_NOT_READY   0x55
+#define SUCCESS                0x00
+
 
 
 #endif
