@@ -434,10 +434,8 @@ int execute_scan_wifis(char *i_cmd ,char *i_ret_msg)
     //         return (int)i_ret_msg[BLE_RET_MSG_RC_OFFSET];
     //     }
     // }
-printf("4\n" );
     //TODO: Send the command to scan WiFis to the processor and get response.
     if(data_type == BLE_RET_MSG_SCANNED_WIFI_COUNT_TYPE){
-printf("4a---\n" );
         akbi_clear_ssids();
         akbi_set_fsm_state(FSM_STATE_WIFI_SCAN_IN_PROGRESS);
         ccu_sent_scan_all_wifi_msg(i_ret_msg);
@@ -808,7 +806,6 @@ int read_ble_message(char *i_msg, char *i_ret_msg)
     // i_ret_msg[BLE_RET_MSG_RC_OFFSET] = RETURN_MSG_NOT_READY;
 
     if (is_valid_ble_msg) {
-printf("1--\n" );
         switch (ble_cmd_id)
         {
         case CID_REGISTER :
@@ -866,13 +863,11 @@ printf("1--\n" );
             break;
 
         case CID_SCAN_WIFIS :
-printf("2---\n" );
             memcpy(ble_command,&i_msg[BLE_CMD_OFFSET + BLE_COMMAND_ID_SIZE],BLE_COMMAND_SIZE);
             if (this_ccu.paired_mob1.authentication_status != AUTHENTICATED) {
                 memset(&i_ret_msg[BLE_RET_MSG_RC_OFFSET], ERROR_AUTHENTICATION, BLE_RETURN_RC_SIZE);
                 return ERROR_AUTHENTICATION;
             }
-printf("3---\n" );
             execute_scan_wifis(ble_command ,i_ret_msg);
             if((akbi_get_fsm_state()!=FSM_STATE_WIFI_SCAN_IN_PROGRESS)&&
                        (akbi_get_fsm_state()!=FSM_STATE_WIFI_SCAN_COMPLETE)&&
