@@ -6,14 +6,4 @@
 ****************************************************/
 int read_ble_message(char *i_msg, char *i_ret_msg);
 
-/****************************************************
-*function to prepare and send message to ccu
-****************************************************/
-int prep_and_send_msg_to_ccu(char *received_value_buffer ,int read_ble_message_result);
-
-/*
- * Function to check whether ccu is booted up
- */
-int check_ccu_ready();
-
 #endif

@@ -53,22 +53,16 @@ void set_return_msg_pointer(char *ep_return_message){
     flag_set_return_msg_ptr = 1;
 }
 
-int check_ccu_ready(){
-    if(0){//flag_ccu_ready){
-      return 1;
-    }
-    else{
-      return 0;
-    }
-}
 
-int save_group_messages(char *received_value_buffer,int type_id){
+int save_group_messages(char *received_value_buffer,int type_id)
+{
     memcpy(saved_messages[type_id-1],received_value_buffer,BLE_MESSAGE_SIZE);
     return 0;
 }
 
 //to send all messages altogether
-void send_batch_messages(int no_of_messages,int ble_cmd_id){
+void send_batch_messages(int no_of_messages,int ble_cmd_id)
+{
     for(int i=0 ; i< no_of_messages ; i++){
         switch(ble_cmd_id){
             case CID_REGISTER:
@@ -202,46 +196,36 @@ int execute_login(char *i_cmd, char *i_ret_msg)
     return 0;
 }
 
-int generate_password(char *i_pass)
-{
-    int i;
-    srand(time(NULL));
-    for(i = 0; i < 12; i++) {
-        i_pass[i] = 33 + rand() % 94;
-    }
-    i_pass[i] = '\0';
-    return 0;
-}
+// int generate_password(char *i_pass)
+// {
+//     int i;
+//     srand(time(NULL));
+//     for(i = 0; i < 12; i++) {
+//         i_pass[i] = 33 + rand() % 94;
+//     }
+//     i_pass[i] = '\0';
+//     return 0;
+// }
 
 /*
  * forgot password command execution
- * i_ret_msg: pointer to the return message
  */
-int execute_forgot_password(char *i_ret_msg)
+int execute_forgot_password()
 {
-    /*
-     * Set a generic password.
-     * Send that password to the configured phone number.
-     */
-    char pass[DEFAULT_PASSWORD_SIZE];
-    memset(pass,0x00,DEFAULT_PASSWORD_SIZE);
-    if (0 == generate_password(pass)) {
-        memcpy(this_ccu.password,pass,DEFAULT_PASSWORD_SIZE);
-        printf("generated pw:::%s\n",pass );
-        if ((this_ccu.paired_mob1.data_status & FLAG_DATA_SET_MOB1_NUM) == 0x00) {
-            i_ret_msg[BLE_RET_MSG_RC_OFFSET] = ERROR_MOB1_NO_NOT_CONFIGURED;
-            return ERROR_MOB1_NO_NOT_CONFIGURED;
-        }
-        else{
+
+        // if ((this_ccu.paired_mob1.data_status & FLAG_DATA_SET_MOB1_NUM) == 0x00) {
+        //     i_ret_msg[BLE_RET_MSG_RC_OFFSET] = ERROR_MOB1_NO_NOT_CONFIGURED;
+        //     return ERROR_MOB1_NO_NOT_CONFIGURED;
+        // }
+        // else{
             akbi_set_fsm_state(FSM_STATE_FORGOT_PASSWD);
-            ccu_sent_user_forgot_passwd_msg(pass);
-        }
+            ccu_sent_user_forgot_passwd_msg();
+        // }
         /*
          * TODO - send the password and mobile number over the serial interface to the processor - connection manager.
          * Return 0x00 if text message is sent successfully. 01 if problem sending text
          */
-        printf("Password reset #%s#\n", pass);
-    }
+        printf("Password reset \n");
     return 0;
 }
 
@@ -444,15 +428,16 @@ int execute_scan_wifis(char *i_cmd ,char *i_ret_msg)
     char data_type                          = i_cmd[BLE_CMD_MULTI_DATA_TYPE_OFFSET];
     i_ret_msg[BLE_RET_MSG_DATA_TYPE_OFFSET] = data_type;
 
-    if (this_ccu.interface_wifi.mode != STATION) {
-        if (0 != enable_ccu_wifi_station()) {
-            memset(&i_ret_msg[BLE_RET_MSG_RC_OFFSET], ERROR_MY_WIFI_STN_START, BLE_RETURN_RC_SIZE);
-            return (int)i_ret_msg[BLE_RET_MSG_RC_OFFSET];
-        }
-    }
-
+    // if (this_ccu.interface_wifi.mode != STATION) {
+    //     if (0 != enable_ccu_wifi_station()) {
+    //         memset(&i_ret_msg[BLE_RET_MSG_RC_OFFSET], ERROR_MY_WIFI_STN_START, BLE_RETURN_RC_SIZE);
+    //         return (int)i_ret_msg[BLE_RET_MSG_RC_OFFSET];
+    //     }
+    // }
+printf("4\n" );
     //TODO: Send the command to scan WiFis to the processor and get response.
     if(data_type == BLE_RET_MSG_SCANNED_WIFI_COUNT_TYPE){
+printf("4a---\n" );
         akbi_clear_ssids();
         akbi_set_fsm_state(FSM_STATE_WIFI_SCAN_IN_PROGRESS);
         ccu_sent_scan_all_wifi_msg(i_ret_msg);
@@ -823,7 +808,7 @@ int read_ble_message(char *i_msg, char *i_ret_msg)
     // i_ret_msg[BLE_RET_MSG_RC_OFFSET] = RETURN_MSG_NOT_READY;
 
     if (is_valid_ble_msg) {
-
+printf("1--\n" );
         switch (ble_cmd_id)
         {
         case CID_REGISTER :
@@ -838,7 +823,7 @@ int read_ble_message(char *i_msg, char *i_ret_msg)
             break;
 
         case CID_FORGOT_PASSWORD :
-            execute_forgot_password(i_ret_msg);
+            execute_forgot_password();
             break;
 
         case CID_CHANGE_PASSWORD :
@@ -881,11 +866,13 @@ int read_ble_message(char *i_msg, char *i_ret_msg)
             break;
 
         case CID_SCAN_WIFIS :
+printf("2---\n" );
             memcpy(ble_command,&i_msg[BLE_CMD_OFFSET + BLE_COMMAND_ID_SIZE],BLE_COMMAND_SIZE);
             if (this_ccu.paired_mob1.authentication_status != AUTHENTICATED) {
                 memset(&i_ret_msg[BLE_RET_MSG_RC_OFFSET], ERROR_AUTHENTICATION, BLE_RETURN_RC_SIZE);
                 return ERROR_AUTHENTICATION;
             }
+printf("3---\n" );
             execute_scan_wifis(ble_command ,i_ret_msg);
             if((akbi_get_fsm_state()!=FSM_STATE_WIFI_SCAN_IN_PROGRESS)&&
                        (akbi_get_fsm_state()!=FSM_STATE_WIFI_SCAN_COMPLETE)&&

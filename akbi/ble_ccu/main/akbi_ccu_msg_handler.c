@@ -70,9 +70,21 @@ void akbi_process_rx_serial_data(char *ccu_msg,int length)
                 memset(&ep_return_message[BLE_RET_MSG_RC_OFFSET],SUCCESS,BLE_RETURN_RC_SIZE);
                 return;
             }
-        // case :
-        //     .
-        //     break;
+        // case BT_CP_OPCODE_CID_FORGOT_PASSWORD_STATUS:
+        //       if (p_payload[0] == SUCCESS) {
+              //     akbi_set_fsm_state(FSM_STATE_FORGOT_PASSWD_SMS_SENT);
+              //     memset(&ep_return_message[BLE_RET_MSG_RC_OFFSET],SUCCESS,BLE_RETURN_RC_SIZE);
+              //     return;
+          //     }else if (p_payload[0] == ERROR_MOB1_NO_NOT_CONFIGURED){
+                  // akbi_set_fsm_state(FSM_STATE_INIT);
+                  // memset(&ep_return_message[BLE_RET_MSG_RC_OFFSET],ERROR_MOB1_NO_NOT_CONFIGURED,BLE_RETURN_RC_SIZE);
+                  // return;
+            //  }
+            //     else if (p_payload[0] == ERROR_SENDING_TEXT_MSG){
+                    // akbi_set_fsm_state(FSM_STATE_INIT);
+                    // memset(&ep_return_message[ERROR_SENDING_TEXT_MSG],ERROR_MOB1_NO_NOT_CONFIGURED,BLE_RETURN_RC_SIZE);
+                    // return;
+              //  }        //      break;
         // default:
         //     break;
 

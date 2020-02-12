@@ -146,7 +146,7 @@ int ccu_sent_scan_all_wifi_msg(char *ep_return_message)
     int                 length;
     //int                 count;
     char                p_tx_buffer[25];
-
+printf("5\n" );
     printf(" INFO : Sending SCAN-ALL-WIFI Message \n");
     p_protocol_hdr = (BT_CP_PROTOCOL_HDR *)p_tx_buffer;
 
@@ -255,28 +255,28 @@ int ccu_sent_disconnect_from_wifi()
 
     return (0);
 }
+//
+// int ccu_sent_user_login_msg(char *p_tx_buffer,char *ep_return_message)
+// {
+//     BT_CP_PROTOCOL_HDR  *p_protocol_hdr;
+//     int                 length;
+//
+//     printf(" INFO : Sending USER-LOGIN Message \n");
+//     p_protocol_hdr = (BT_CP_PROTOCOL_HDR *)p_tx_buffer;
+//
+//     p_protocol_hdr->opcode   = BT_CP_OPCODE_CID_LOGIN;
+//     p_protocol_hdr->trans_id = 44;
+//     p_protocol_hdr->type     = 0;
+//     p_protocol_hdr->length   = 0;
+//
+//
+//     length = sizeof(BT_CP_PROTOCOL_HDR) + p_protocol_hdr->length;
+//     send_uart_message(p_tx_buffer, length );
+//
+//     return (0);
+// }
 
-int ccu_sent_user_login_msg(char *p_tx_buffer,char *ep_return_message)
-{
-    BT_CP_PROTOCOL_HDR  *p_protocol_hdr;
-    int                 length;
-
-    printf(" INFO : Sending USER-LOGIN Message \n");
-    p_protocol_hdr = (BT_CP_PROTOCOL_HDR *)p_tx_buffer;
-
-    p_protocol_hdr->opcode   = BT_CP_OPCODE_CID_LOGIN;
-    p_protocol_hdr->trans_id = 44;
-    p_protocol_hdr->type     = 0;
-    p_protocol_hdr->length   = 0;
-
-
-    length = sizeof(BT_CP_PROTOCOL_HDR) + p_protocol_hdr->length;
-    send_uart_message(p_tx_buffer, length );
-
-    return (0);
-}
-
-int ccu_sent_user_forgot_passwd_msg(char *new_password)
+int ccu_sent_user_forgot_passwd_msg()
 {
     BT_CP_PROTOCOL_HDR  *p_protocol_hdr;
     int                 length;
@@ -288,7 +288,7 @@ int ccu_sent_user_forgot_passwd_msg(char *new_password)
     p_protocol_hdr->opcode   = BT_CP_OPCODE_CID_FORGOT_PASSWORD;
     p_protocol_hdr->trans_id = 44;
     p_protocol_hdr->type     = 0;
-    p_protocol_hdr->length   = DEFAULT_PASSWORD_SIZE;
+    p_protocol_hdr->length   = 0;
 
     length = sizeof(BT_CP_PROTOCOL_HDR) + p_protocol_hdr->length;
     send_uart_message(p_tx_buffer, length );

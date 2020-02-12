@@ -45,16 +45,10 @@
 #define GATTS_DESCR_UUID_A          0x3333
 #define GATTS_NUM_HANDLE_A          4
 
-// #define GATTS_SERVICE_UUID_B        0x00EE
-// #define GATTS_CHAR_UUID_B           0xEE01
-// #define GATTS_DESCR_UUID_B          0x2222
-// #define GATTS_NUM_HANDLE_B          4
-
 #define GATTS_DEMO_CHAR_VAL_LEN_MAX 0x40
 #define PREPARE_BUF_MAX_SIZE        1024
 #define PROFILE_NUM                 1
 #define PROFILE_A_APP_ID            0
-//#define PROFILE_B_APP_ID            1
 #define MAX_RETURN_MSG_LENGTH       20
 #define DEBUG_ENABLE                1
 
@@ -338,8 +332,8 @@ static void gatts_profile_a_event_handler(esp_gatts_cb_event_t event, esp_gatt_i
         break;
 
     case ESP_GATTS_READ_EVT:
-    {
 
+    {
         /*
          * When the Mobile phone try to READ some data, the control comes through this path.
          */
@@ -358,10 +352,10 @@ static void gatts_profile_a_event_handler(esp_gatts_cb_event_t event, esp_gatt_i
          * If the state is not right, we may respond in a different way.
          */
         if (akbi_check_fsm_state_and_respond(ep_return_message) != 0) {
-            ep_return_message[AKBI_RC_OFFSET] = RETURN_MSG_NOT_READY ; //correct value to be defined
+            ep_return_message[AKBI_RC_OFFSET] = RETURN_MSG_NOT_READY ;
         }
         else{
-            ep_return_message[AKBI_RC_OFFSET] = SUCCESS ;
+            // ep_return_message[AKBI_RC_OFFSET] = SUCCESS ;
         }
 
         for(int i = 0 ;i < MAX_RETURN_MSG_LENGTH; i++){
@@ -556,11 +550,11 @@ static void gatts_event_handler(esp_gatts_cb_event_t event, esp_gatt_if_t gatts_
 
         } else {
 
-#ifdef DEBUG_ENABLE
+            #ifdef DEBUG_ENABLE
             ESP_LOGI(BT_BLE_COEX_TAG, "Reg app failed, app_id %04x, status %d\n",
                     param->reg.app_id,
                     param->reg.status);
-#endif
+            #endif
 
             return;
 
@@ -628,10 +622,10 @@ void bt_app_gap_cb(esp_bt_gap_cb_event_t event, esp_bt_gap_cb_param_t *param)
     case ESP_BT_GAP_AUTH_CMPL_EVT: {
         if (param->auth_cmpl.stat == ESP_BT_STATUS_SUCCESS) {
 
-#ifdef DEBUG_ENABLE
+            #ifdef DEBUG_ENABLE
             ESP_LOGI(BT_BLE_COEX_TAG, " INFO : Authentication success: %s",
                      param->auth_cmpl.device_name);
-#endif
+            #endif
 
             esp_log_buffer_hex(BT_BLE_COEX_TAG, param->auth_cmpl.bda, ESP_BD_ADDR_LEN);
         } else {
@@ -640,7 +634,7 @@ void bt_app_gap_cb(esp_bt_gap_cb_event_t event, esp_bt_gap_cb_param_t *param)
         break;
     }
 
-#if (CONFIG_BT_SSP_ENABLED == true)
+    #if (CONFIG_BT_SSP_ENABLED == true)
     case ESP_BT_GAP_CFM_REQ_EVT:
         ESP_LOGI(BT_BLE_COEX_TAG, "ESP_BT_GAP_CFM_REQ_EVT Please compare the numeric value: %d",
                                    param->cfm_req.num_val);
@@ -654,7 +648,7 @@ void bt_app_gap_cb(esp_bt_gap_cb_event_t event, esp_bt_gap_cb_param_t *param)
     case ESP_BT_GAP_KEY_REQ_EVT:
         ESP_LOGI(BT_BLE_COEX_TAG, "ESP_BT_GAP_KEY_REQ_EVT Please enter passkey!");
         break;
-#endif
+    #endif
 
     default: {
         ESP_LOGI(BT_BLE_COEX_TAG, "event: %d", event);
@@ -713,13 +707,13 @@ void app_main(void)
 
 
 
-#if (CONFIG_BT_SSP_ENABLED == true)
+    #if (CONFIG_BT_SSP_ENABLED == true)
 
     /* Set default parameters for Secure Simple Pairing */
     esp_bt_sp_param_t param_type = ESP_BT_SP_IOCAP_MODE;
     esp_bt_io_cap_t iocap = ESP_BT_IO_CAP_IO;
     esp_bt_gap_set_security_param(param_type, &iocap, sizeof(uint8_t));
-#endif
+    #endif
 
     /*
      * Set default parameters for Legacy Pairing
@@ -741,14 +735,13 @@ void app_main(void)
     char status[2];
     status[0] = 0x00;
 
-    while(status[0] == 0){
-      #ifdef DEBUG_ENABLE
-      printf("CCU IS Booting\n");
-      #endif
-      akbi_check_fsm_state_and_respond(status);
-      ets_delay_us(100000);
-      //esp_task_wdt_feed();
-    }
+    // while(status[0] == 0){
+    //     #ifdef DEBUG_ENABLE
+    //     printf("CCU IS Booting\n");
+    //     #endif
+    //     akbi_check_fsm_state_and_respond(status);
+    //     ets_delay_us(100000);
+    // }
 
     //gatt server init
     ble_gatts_init();

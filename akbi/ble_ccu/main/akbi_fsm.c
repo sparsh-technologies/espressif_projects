@@ -17,8 +17,10 @@
 #include <time.h>
 #include "akbi_fsm.h"
 #include "akbi_msg.h"
+#include "akbi_bt_msg.h"
 
 
+extern CCU this_ccu;
 
 static CCU_FSM_STATES bt_state = FSM_STATE_INIT;
 
@@ -58,7 +60,9 @@ int akbi_check_fsm_state_and_respond(char *ep_return_message)
     int               ret = 0;
 
     current_state = akbi_get_fsm_state();
-
+    /*
+     * Return 1 if waiting for message from ccu. If received the message, return 0
+     */
     switch(current_state)
     {
 
@@ -81,10 +85,15 @@ int akbi_check_fsm_state_and_respond(char *ep_return_message)
 
     case FSM_STATE_LOGIN_SUCCESS :
         printf("return login success\n" );
+        this_ccu.paired_mob1.authentication_status = AUTHENTICATED;
         ret = 0;
         break;
 
     case FSM_STATE_FORGOT_PASSWD :
+        ret = 1;
+        break;
+
+    case FSM_STATE_FORGOT_PASSWD_SMS_SENT :
         ret = 1;
         break;
 
