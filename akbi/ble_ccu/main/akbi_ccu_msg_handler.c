@@ -10,6 +10,8 @@
 
 AKBI_WIFI_SCAN_REPORT  wifi_scan_report;
 extern char ep_return_message[MAX_RETURN_MSG_LENGTH];
+extern char firmware_version[10];
+extern char ccu_serial_no[20];
 
 void akbi_process_rx_serial_data(char *ccu_msg,int length)
 {
@@ -31,6 +33,23 @@ void akbi_process_rx_serial_data(char *ccu_msg,int length)
     {
         case BT_CP_OPCODE_CID_CCU_READY:
             akbi_set_fsm_state(FSM_STATE_CCU_READY);
+            printf("payload=%s\n",p_payload );
+            memset(firmware_version,0x00,sizeof(firmware_version));
+            //save firmware version
+            for(int i=0; i<p_protocol_hdr->length;i++ ){
+                firmware_version[i] = p_payload[0];
+                p_payload++;
+            }
+            printf("fw version: %s\n",firmware_version );
+            //skip type byte
+            p_payload+=2;
+            //save serial number
+            for(int i=0; i<10;i++ ){
+                ccu_serial_no[i] = p_payload[0];
+                p_payload++;
+            }
+            printf("ccu SER no: %s\n",ccu_serial_no );
+
             break;
 
         case BT_CP_OPCODE_CID_SCAN_WIFI_RESULT :

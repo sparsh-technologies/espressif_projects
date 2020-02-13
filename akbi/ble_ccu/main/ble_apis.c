@@ -625,6 +625,7 @@ int execute_ccu_activate(char *i_cmd,char *i_ret_msg)
     unsigned char byte_offset = 0;
     unsigned char i_activations_count = this_ccu.activations_count;
 
+    ccu_sent_activate_system_msg();
     //TODO: Send message to the processor to switch mode.
     this_ccu.mode = MONITOR;
     memcpy(degree,&i_cmd[byte_offset],LAT_LONG_DEGREE_SIZE);
@@ -686,7 +687,6 @@ int execute_ccu_activate(char *i_cmd,char *i_ret_msg)
 
     }
 
-    ccu_sent_activate_system_msg();
     //this_ccu.visited_locations_count++;
     sprintf(this_ccu.activations[i_activations_count].time,"%ld",time(NULL));
     memset(&i_ret_msg[BLE_RET_MSG_RC_OFFSET], SUCCESS, BLE_RETURN_RC_SIZE);
