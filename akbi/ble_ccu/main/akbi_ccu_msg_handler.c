@@ -5,6 +5,8 @@
 #include "akbi_msg.h"
 #include "akbi_ccu_api.h"
 #include "akbi_fsm.h"
+#include <rom/ets_sys.h>
+
 
 #define MAX_RETURN_MSG_LENGTH       20
 
@@ -95,6 +97,11 @@ void akbi_process_rx_serial_data(char *ccu_msg,int length)
                 memset(&ep_return_message[BLE_RET_MSG_RC_OFFSET],p_payload[0],BLE_RETURN_RC_SIZE);
                 return;
 
+        case BT_CP_OPCODE_CID_WIFI_CONNECT_COMPLETED:
+                akbi_set_fsm_state(FSM_STATE_WIFI_CONNECT_COMPLETE);
+                ets_delay_us(500000);
+                memset(&ep_return_message[BLE_RET_MSG_RC_OFFSET],p_payload[0],BLE_RETURN_RC_SIZE);
+                return;
         // case BT_CP_OPCODE_CID_FORGOT_PASSWORD_STATUS:
         //       if (p_payload[0] == SUCCESS) {
               //     akbi_set_fsm_state(FSM_STATE_FORGOT_PASSWD_SMS_SENT);
