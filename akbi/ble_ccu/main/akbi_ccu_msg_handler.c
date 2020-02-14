@@ -18,6 +18,8 @@ extern char ccu_serial_no[20];
 void akbi_process_rx_serial_data(char *ccu_msg,int length)
 {
     int    index;
+    int    type_in_msg;
+    int    length_in_msg;
     char   *p_payload;
 
     BT_CP_PROTOCOL_HDR  *p_protocol_hdr;
@@ -29,7 +31,9 @@ void akbi_process_rx_serial_data(char *ccu_msg,int length)
     printf(" Type        :  %02x\n", p_protocol_hdr->type);
     printf(" Length      :  %02x\n", p_protocol_hdr->length);
 
-    p_payload = ccu_msg + sizeof(BT_CP_PROTOCOL_HDR);
+    p_payload     = ccu_msg + sizeof(BT_CP_PROTOCOL_HDR);
+    type_in_msg   = p_protocol_hdr->type;
+    length_in_msg = p_protocol_hdr->length;
 
     switch(p_protocol_hdr->opcode)
     {
@@ -98,14 +102,29 @@ void akbi_process_rx_serial_data(char *ccu_msg,int length)
             }
 
         case BT_CP_OPCODE_CID_SELECT_A_WIFI_RESULT:
-                akbi_set_fsm_state(FSM_STATE_WIFI_CONNECT_COMPLETE);
-                ep_return_message[BLE_RET_MSG_RC_OFFSET] = p_payload[0];
-                return;
+            akbi_set_fsm_state(FSM_STATE_WIFI_CONNECT_COMPLETE);
+            ep_return_message[BLE_RET_MSG_RC_OFFSET] = p_payload[0];
+            return;
 
         case BT_CP_OPCODE_CID_WIFI_CONNECT_COMPLETED:
-                akbi_set_fsm_state(FSM_STATE_WIFI_CONNECT_COMPLETE);
+            akbi_set_fsm_state(FSM_STATE_WIFI_CONNECT_COMPLETE);
+            ep_return_message[BLE_RET_MSG_RC_OFFSET] = p_payload[0];
+            return;
+
+        case BT_CP_OPCODE_CID_CFG_PARAMS_SAVE_STATUS:
+            if(type_in_msg == TLV_TYPE_STORED_CFG_EMER_NUM_3){
+                akbi_set_fsm_state(FSM_STATE_SET_EMER_NUM_RECEIVED);
                 ep_return_message[BLE_RET_MSG_RC_OFFSET] = p_payload[0];
-                return;
+            }
+            if(type_in_msg == TLV_TYPE_STORED_CFG_PERSONAL_NUM_3){
+                akbi_set_fsm_state(FSM_STATE_SET_PERSONAL_NUM_RECEIVED);
+                ep_return_message[BLE_RET_MSG_RC_OFFSET] = p_payload[0];
+            }
+            break;
+
+
+
+
 
         /*case BT_CP_OPCODE_CID_CCU_SAVE_VOICE:
               if (p_protocol_hdr->type == ) {

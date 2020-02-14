@@ -105,11 +105,19 @@ int akbi_check_fsm_state_and_respond(char *ep_return_message)
         ret = 0;
         break;
 
-    case FSM_STATE_SET_EMER_NUM :
+    case FSM_STATE_SET_EMER_NUM_SENDING :
+        ret = 1;
+        break;
+
+    case FSM_STATE_SET_EMER_NUM_RECEIVED :
         ret = 0;
         break;
 
-    case FSM_STATE_SET_PERSONAL_NUM :
+    case FSM_STATE_SET_PERSONAL_NUM_SENDING :
+        ret = 1;
+        break;
+
+    case FSM_STATE_SET_PERSONAL_NUM_RECEIVED :
         ret = 0;
         break;
 

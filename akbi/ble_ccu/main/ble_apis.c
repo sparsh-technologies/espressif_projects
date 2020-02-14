@@ -325,6 +325,8 @@ int execute_store_emergency_number(char *i_cmd, char *i_ret_msg)
     int data_len_in_ble  = MOB_NO_SIZE;
     char i_emergency_number[data_len_in_ble];
 
+    akbi_set_fsm_state(FSM_STATE_SET_EMER_NUM_SENDING);
+
     memcpy(i_emergency_number,&i_cmd[BLE_CMD_MULTI_DATA_VALUE_FIXED_LEN_OFFSET],data_len_in_ble);
     memcpy(&i_ret_msg[BLE_RET_MSG_DATA_TYPE_OFFSET],&data_type,BLE_COMMAND_DATA_TYPE_SIZE);
 
@@ -334,14 +336,16 @@ int execute_store_emergency_number(char *i_cmd, char *i_ret_msg)
         case DID_EMERGENCY_FIRST_RESPONDER : {
             memcpy(this_ccu.conf_emergency_nos.first_responder,i_emergency_number,data_len_in_ble);
             memset(&i_ret_msg[BLE_RET_MSG_RC_OFFSET], SUCCESS, BLE_RETURN_RC_SIZE);
-            save_group_messages(p_recvd_msg_full,DID_EMERGENCY_FIRST_RESPONDER);
+            // save_group_messages(p_recvd_msg_full,DID_EMERGENCY_FIRST_RESPONDER);
+            ccu_sent_store_emergency_number_msg(p_recvd_msg_full);
             break;
         }
         case DID_EMERGENCY_CLOSE_RELATIVE : {
             memcpy(this_ccu.conf_emergency_nos.close_relative,i_emergency_number,data_len_in_ble);
             memset(&i_ret_msg[BLE_RET_MSG_RC_OFFSET], SUCCESS, BLE_RETURN_RC_SIZE);
-            save_group_messages(p_recvd_msg_full,DID_EMERGENCY_CLOSE_RELATIVE);
-            send_batch_messages(DID_EMERGENCY_CLOSE_RELATIVE,CID_STORE_EMERGENCY_NUMBERS);
+            // save_group_messages(p_recvd_msg_full,DID_EMERGENCY_CLOSE_RELATIVE);
+            // send_batch_messages(DID_EMERGENCY_CLOSE_RELATIVE,CID_STORE_EMERGENCY_NUMBERS);
+            ccu_sent_store_emergency_number_msg(p_recvd_msg_full);
             break;
         }
         default: {
@@ -355,9 +359,12 @@ int execute_store_emergency_number(char *i_cmd, char *i_ret_msg)
 
 int execute_store_personal_number(char *i_cmd, char *i_ret_msg)
 {
+
     char data_type       = i_cmd[BLE_CMD_MULTI_DATA_TYPE_OFFSET];
     int data_len_in_ble  = MOB_NO_SIZE;
     char i_personal_number[data_len_in_ble];
+
+    akbi_set_fsm_state(FSM_STATE_SET_PERSONAL_NUM_SENDING);
 
     memcpy(i_personal_number,&i_cmd[BLE_CMD_MULTI_DATA_VALUE_FIXED_LEN_OFFSET],data_len_in_ble);
     memcpy(&i_ret_msg[BLE_RET_MSG_DATA_TYPE_OFFSET],&data_type,BLE_COMMAND_DATA_TYPE_SIZE);
@@ -368,15 +375,17 @@ int execute_store_personal_number(char *i_cmd, char *i_ret_msg)
         case DID_PERSONAL_SECOND_NUMBER : {
             memcpy(this_ccu.conf_personal_nos.second_number,i_personal_number,data_len_in_ble);
             memset(&i_ret_msg[BLE_RET_MSG_RC_OFFSET], SUCCESS, BLE_RETURN_RC_SIZE);
-            save_group_messages(p_recvd_msg_full,DID_PERSONAL_SECOND_NUMBER);
+            ccu_sent_store_personal_number_msg(p_recvd_msg_full);
+            // save_group_messages(p_recvd_msg_full,DID_PERSONAL_SECOND_NUMBER);
             break;
         }
         case DID_PERSONAL_THIRD_NUMBER : {
             memcpy(this_ccu.conf_personal_nos.third_number,i_personal_number,data_len_in_ble);
             memset(&i_ret_msg[BLE_RET_MSG_RC_OFFSET], SUCCESS, BLE_RETURN_RC_SIZE);
             save_group_messages(p_recvd_msg_full,DID_PERSONAL_THIRD_NUMBER);
+            ccu_sent_store_personal_number_msg(p_recvd_msg_full);
             //ccu_sent_store_personal_number_msg();
-            send_batch_messages(DID_PERSONAL_THIRD_NUMBER,CID_STORE_PERSONAL_NUMBERS);
+            // send_batch_messages(DID_PERSONAL_THIRD_NUMBER,CID_STORE_PERSONAL_NUMBERS);
             break;
         }
         default: {
@@ -852,7 +861,7 @@ int read_ble_message(char *i_msg, char *i_ret_msg)
             }
             memcpy(ble_command,&i_msg[BLE_CMD_OFFSET + BLE_COMMAND_ID_SIZE],BLE_COMMAND_SIZE);
             execute_store_emergency_number(ble_command,i_ret_msg);
-            akbi_set_fsm_state(FSM_STATE_SET_EMER_NUM);
+            // akbi_set_fsm_state(FSM_STATE_SET_EMER_NUM);
             break;
 
         case CID_STORE_PERSONAL_NUMBERS :
