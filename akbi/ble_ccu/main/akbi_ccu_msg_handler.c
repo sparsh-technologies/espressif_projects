@@ -43,14 +43,19 @@ void akbi_process_rx_serial_data(char *ccu_msg,int length)
                 p_payload++;
             }
             printf("fw version: %s\n",firmware_version );
-            //skip type byte
-            p_payload+=2;
-            //save serial number
-            for(int i=0; i<10;i++ ){
-                ccu_serial_no[i] = p_payload[0];
-                p_payload++;
+            //type byte
+            p_payload++;
+            if(p_payload[0] == TLV_TYPE_CCU_READY_SERIAL_NUM){
+                p_payload++;//length
+                int serial_no_len = p_payload[0];
+                //save serial number
+                for(int i=0; i<serial_no_len;i++ ){
+                    p_payload++;
+                    ccu_serial_no[i] = p_payload[0];
+                }
+                printf("ccu SER no: %s\n",ccu_serial_no );
             }
-            printf("ccu SER no: %s\n",ccu_serial_no );
+
 
             break;
 
@@ -60,7 +65,7 @@ void akbi_process_rx_serial_data(char *ccu_msg,int length)
             */
             if (p_protocol_hdr->type == 0) {
               akbi_set_fsm_state(FSM_STATE_WIFI_SCAN_COMPLETE);
-              memset(&ep_return_message[BLE_RET_MSG_RC_OFFSET],SUCCESS,BLE_RETURN_RC_SIZE);
+              ep_return_message[BLE_RET_MSG_RC_OFFSET] = SUCCESS;
               memcpy(&ep_return_message[BLE_RET_MSG_SCANNED_SSID_COUNT_OFFSET],
                      &wifi_scan_report.ap_count,SCANNED_WIFI_COUNT_SIZE);
               return ;
@@ -73,7 +78,7 @@ void akbi_process_rx_serial_data(char *ccu_msg,int length)
                      */
                     memset(&wifi_scan_report, 0x00, sizeof(AKBI_WIFI_SCAN_REPORT));
                 }
-                memset(&ep_return_message[BLE_RET_MSG_RC_OFFSET],WIFI_SCANNING_IN_PROGRESS,BLE_RETURN_RC_SIZE);
+                ep_return_message[BLE_RET_MSG_RC_OFFSET] = WIFI_SCANNING_IN_PROGRESS;
                 /*
                 * Now, copy all the contents into the local datastructure.
                 */
@@ -88,37 +93,92 @@ void akbi_process_rx_serial_data(char *ccu_msg,int length)
         case BT_CP_OPCODE_CID_LOGIN_STATUS:
             if (p_payload[0] == SUCCESS) {
                 akbi_set_fsm_state(FSM_STATE_LOGIN_SUCCESS);
-                memset(&ep_return_message[BLE_RET_MSG_RC_OFFSET],SUCCESS,BLE_RETURN_RC_SIZE);
+                ep_return_message[BLE_RET_MSG_RC_OFFSET] = SUCCESS;
                 return;
             }
 
         case BT_CP_OPCODE_CID_SELECT_A_WIFI_RESULT:
                 akbi_set_fsm_state(FSM_STATE_WIFI_CONNECT_COMPLETE);
-                memset(&ep_return_message[BLE_RET_MSG_RC_OFFSET],p_payload[0],BLE_RETURN_RC_SIZE);
+                ep_return_message[BLE_RET_MSG_RC_OFFSET] = p_payload[0];
                 return;
 
         case BT_CP_OPCODE_CID_WIFI_CONNECT_COMPLETED:
                 akbi_set_fsm_state(FSM_STATE_WIFI_CONNECT_COMPLETE);
-                ets_delay_us(500000);
-                memset(&ep_return_message[BLE_RET_MSG_RC_OFFSET],p_payload[0],BLE_RETURN_RC_SIZE);
+                ep_return_message[BLE_RET_MSG_RC_OFFSET] = p_payload[0];
                 return;
-        // case BT_CP_OPCODE_CID_FORGOT_PASSWORD_STATUS:
-        //       if (p_payload[0] == SUCCESS) {
-              //     akbi_set_fsm_state(FSM_STATE_FORGOT_PASSWD_SMS_SENT);
-              //     memset(&ep_return_message[BLE_RET_MSG_RC_OFFSET],SUCCESS,BLE_RETURN_RC_SIZE);
-              //     return;
-          //     }else if (p_payload[0] == ERROR_MOB1_NO_NOT_CONFIGURED){
-                  // akbi_set_fsm_state(FSM_STATE_INIT);
-                  // memset(&ep_return_message[BLE_RET_MSG_RC_OFFSET],ERROR_MOB1_NO_NOT_CONFIGURED,BLE_RETURN_RC_SIZE);
-                  // return;
-            //  }
-            //     else if (p_payload[0] == ERROR_SENDING_TEXT_MSG){
-                    // akbi_set_fsm_state(FSM_STATE_INIT);
-                    // memset(&ep_return_message[ERROR_SENDING_TEXT_MSG],ERROR_MOB1_NO_NOT_CONFIGURED,BLE_RETURN_RC_SIZE);
-                    // return;
-              //  }        //      break;
-        // default:
-        //     break;
+
+        /*case BT_CP_OPCODE_CID_CCU_SAVE_VOICE:
+              if (p_protocol_hdr->type == ) {
+                  akbi_set_fsm_state(FSM_STATE_CCU_save_voice);
+                  ep_return_message[BLE_RET_MSG_RC_OFFSET] = ;
+                  return;
+              }
+              if (p_protocol_hdr->type == ) {
+                  akbi_set_fsm_state(FSM_STATE_INIT);
+                  ep_return_message[BLE_RET_MSG_RC_OFFSET] = ERROR_;
+                  return;
+              }
+              if (p_protocol_hdr->type == 0) {
+                  akbi_set_fsm_state(FSM_STATE_save_voice_cmplete);
+                  ep_return_message[BLE_RET_MSG_RC_OFFSET] = SUCCESS;
+                  return;
+              }
+              break;
+        */
+        /*case BT_CP_OPCODE_CID_CCU_ACTIVATE_STATUS:
+              if (p_payload[0] == SUCCESS) {
+                  akbi_set_fsm_state(FSM_STATE_CCU_ACTIVATED);
+                  ep_return_message[BLE_RET_MSG_RC_OFFSET] = SUCCESS;
+                  return;
+              }else if (p_payload[0] == ERROR_){
+                  akbi_set_fsm_state(FSM_STATE_INIT);
+                  ep_return_message[BLE_RET_MSG_RC_OFFSET] = ERROR_;
+                  return;
+              }
+              else if (p_payload[0] == ERROR_){
+                  akbi_set_fsm_state(FSM_STATE_INIT);
+                  ep_return_message[ERROR_SENDING_TEXT_MSG] = ERROR_;
+                  return;
+              }
+              break;
+          */
+          /*case BT_CP_OPCODE_CID_FORGOT_PASSWORD_STATUS:
+                if (p_payload[0] == SUCCESS) {
+                    akbi_set_fsm_state(FSM_STATE_FORGOT_PASSWD_SMS_SENT);
+                    ep_return_message[BLE_RET_MSG_RC_OFFSET] = SUCCESS;
+                    return;
+                }else if (p_payload[0] == ERROR_MOB1_NO_NOT_CONFIGURED){
+                    akbi_set_fsm_state(FSM_STATE_INIT);
+                    ep_return_message[BLE_RET_MSG_RC_OFFSET] = ERROR_MOB1_NO_NOT_CONFIGURED;
+                    return;
+                }
+                else if (p_payload[0] == ERROR_SENDING_TEXT_MSG){
+                    akbi_set_fsm_state(FSM_STATE_INIT);
+                    ep_return_message[BLE_RET_MSG_RC_OFFSET] = ERROR_MOB1_NO_NOT_CONFIGURED;
+                    return;
+                }
+                break;
+          */
+          /*case BT_CP_OPCODE_CID_CCU_CHANGE_PWD_STATUS:
+                if (p_payload[0] == SUCCESS) {
+                    akbi_set_fsm_state(FSM_STATE_CCU_PWD_CHANGED);
+                    ep_return_message[BLE_RET_MSG_RC_OFFSET] = SUCCESS;
+                    return;
+                }else if (p_payload[0] == ERROR_){
+                    akbi_set_fsm_state(FSM_STATE_INIT);
+                    ep_return_message[BLE_RET_MSG_RC_OFFSET] = ERROR_;
+                    return;
+                }
+                else if (p_payload[0] == ERROR_){
+                    akbi_set_fsm_state(FSM_STATE_INIT);
+                    ep_return_message[BLE_RET_MSG_RC_OFFSET] = ERROR_;
+                    return;
+                }
+                break;
+          */
+        default:
+            printf("undefined opcode from ccu\n" );
+            break;
 
         }
     return;

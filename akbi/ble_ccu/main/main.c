@@ -332,7 +332,7 @@ static void gatts_profile_a_event_handler(esp_gatts_cb_event_t event, esp_gatt_i
         gl_profile_tab[PROFILE_A_APP_ID].service_id.id.uuid.uuid.uuid16 = GATTS_SERVICE_UUID_A;
         //TODO: get serial number from processor and append with BLE_ADV_NAME
         //init BLE adv data and scan response data
-        memcpy(adv_ser_no,ccu_serial_no+6,ADV_SER_NO_SIZE);
+        memcpy(adv_ser_no,ccu_serial_no+5,ADV_SER_NO_SIZE);
         memset(adv_full_name,0x00,strlen(adv_full_name));
         memcpy(adv_full_name,BLE_ADV_NAME,strlen(BLE_ADV_NAME));
         memcpy(adv_full_name+strlen(BLE_ADV_NAME),adv_ser_no,ADV_SER_NO_SIZE);

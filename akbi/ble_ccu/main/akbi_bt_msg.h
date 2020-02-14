@@ -310,7 +310,7 @@ typedef struct __attribute__((__packed__)) _bt_cp_tlv_hdr_ {
 #define BT_CP_OPCODE_CID_CURRENT_CCU_SW_VER                       0x72
 #define BT_CP_OPCODE_CID_AVAILABLE_CCU_SW_VER                     0x73
 #define BT_CP_OPCODE_CID_LOGIN_STATUS                             0x74
-#define BT_CP_OPCODE_CID_CFG_PARAMS                               0x75
+#define BT_CP_OPCODE_CID_CFG_PARAMS_SAVE_STATUS                   0x75
 #define BT_CP_OPCODE_CID_SELECT_A_WIFI_RESULT                     0x76
 
 /*
@@ -359,7 +359,7 @@ typedef struct __attribute__((__packed__)) _bt_cp_tlv_hdr_ {
 #define TLV_TYPE_WIFI_MODE                                        0x03
 
 /*
- * TLV Types for BT_CP_OPCODE_CID_CFG_PARAMS Opcode
+ * TLV Types for BT_CP_OPCODE_CID_CFG_PARAMS_SAVE_STATUS Opcode
  */
 #define TLV_TYPE_STORED_CFG_EMER_NUM_1                            0x01
 #define TLV_TYPE_STORED_CFG_EMER_NUM_2                            0x02
@@ -377,6 +377,11 @@ typedef struct __attribute__((__packed__)) _bt_cp_tlv_hdr_ {
 #define TLV_TYPE_CCU_READY_SW_VER                                 0x01
 #define TLV_TYPE_CCU_READY_SERIAL_NUM                             0x02
 
+/*
+ * TLV Types for BT_CP_OPCODE_CID_SELECT_A_WIFI_RESULT  &
+ *               BT_CP_OPCODE_CID_WIFI_CONNECT_COMPLETED Opcode
+ */
+#define TLV_TYPE_WIFI_CONNECT_RESULT                              0x01
 
 
 #endif
