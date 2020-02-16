@@ -17,10 +17,11 @@ extern char ccu_serial_no[20];
 
 void akbi_process_rx_serial_data(char *ccu_msg,int length)
 {
-    int    index;
-    int    type_in_msg;
-    int    length_in_msg;
-    char   *p_payload;
+    int              index;
+    int              type_in_msg;
+    int              length_in_msg;
+    char             *p_payload;
+    BT_CP_TLV_HDR    *p_tlv;
 
     BT_CP_PROTOCOL_HDR  *p_protocol_hdr;
 
@@ -32,6 +33,8 @@ void akbi_process_rx_serial_data(char *ccu_msg,int length)
     printf(" Length      :  %02x\n", p_protocol_hdr->length);
 
     p_payload     = ccu_msg + sizeof(BT_CP_PROTOCOL_HDR);
+    p_tlv         = (BT_CP_TLV_HDR *) (ccu_msg + 0x03);
+
     type_in_msg   = p_protocol_hdr->type;
     length_in_msg = p_protocol_hdr->length;
 
@@ -39,6 +42,22 @@ void akbi_process_rx_serial_data(char *ccu_msg,int length)
     {
         case BT_CP_OPCODE_CID_CCU_READY:
             akbi_set_fsm_state(FSM_STATE_CCU_READY);
+
+            memset(firmware_version, 0x00, 10);
+            memset(ccu_serial_no, 0x00, 20);
+
+            /*
+             * Extract the firmware version from the packet
+             */
+
+            memcpy(firmware_version, p_tlv->data, p_tlv->length);
+            printf(" INFO : FW-Version : %s \n", firmware_version );
+
+            p_tlv = (BT_CP_TLV_HDR *)(ccu_msg + 0x03 + p_tlv->length); 
+            memcpy(ccu_serial_no, p_tlv->data, p_tlv->length);
+            printf(" INFO : SERIAL-NO : %s \n", (ccu_serial_no );
+
+#if 0
             printf("payload=%s\n",p_payload );
             memset(firmware_version,0x00,sizeof(firmware_version));
             //save firmware version
@@ -59,6 +78,7 @@ void akbi_process_rx_serial_data(char *ccu_msg,int length)
                 }
                 printf("ccu SER no: %s\n",ccu_serial_no );
             }
+#endif
 
 
             break;
