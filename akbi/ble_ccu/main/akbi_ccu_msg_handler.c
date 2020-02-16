@@ -57,7 +57,9 @@ void akbi_process_rx_serial_data(char *ccu_msg,int length)
 
             p_tlv = (BT_CP_TLV_HDR *)(ccu_msg + 0x03 + p_tlv->length); 
             memcpy(ccu_serial_no, p_tlv->data, p_tlv->length);
-            printf(" INFO : SERIAL-NO : %s \n", ccu_serial_no );
+			printf(" INFO : SERIAL-NO-TYPE : %x \n", p_tlv->type );
+			printf(" INFO : SERIAL-NO      : %d \n", p_tlv->length );
+            printf(" INFO : SERIAL-NO      : %s \n", ccu_serial_no );
 
             break;
 
