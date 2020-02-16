@@ -53,35 +53,11 @@ void akbi_process_rx_serial_data(char *ccu_msg,int length)
             akbi_dump_serial_pkt(ccu_msg, length);
 
             memcpy(firmware_version, p_tlv->data, p_tlv->length);
-            printf(" INFO : FW-Version : %s \n", firmware_version );
+            printf(" INFO : FW-Version      : %s \n", firmware_version );
 
             p_tlv = (BT_CP_TLV_HDR *)(ccu_msg + 0x03 + p_tlv->length); 
             memcpy(ccu_serial_no, p_tlv->data, p_tlv->length);
             printf(" INFO : SERIAL-NO : %s \n", ccu_serial_no );
-
-#if 0
-            printf("payload=%s\n",p_payload );
-            memset(firmware_version,0x00,sizeof(firmware_version));
-            //save firmware version
-            for(int i=0; i<p_protocol_hdr->length;i++ ){
-                firmware_version[i] = p_payload[0];
-                p_payload++;
-            }
-            printf("fw version: %s\n",firmware_version );
-            //type byte
-            p_payload++;
-            if(p_payload[0] == TLV_TYPE_CCU_READY_SERIAL_NUM){
-                p_payload++;//length
-                int serial_no_len = p_payload[0];
-                //save serial number
-                for(int i=0; i<serial_no_len;i++ ){
-                    p_payload++;
-                    ccu_serial_no[i] = p_payload[0];
-                }
-                printf("ccu SER no: %s\n",ccu_serial_no );
-            }
-#endif
-
 
             break;
 
