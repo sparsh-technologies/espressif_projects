@@ -746,9 +746,6 @@ void app_main(void)
     status[0] = 0x00;
 
     while(status[0] == 0){
-        #ifdef DEBUG_ENABLE
-        printf("CCU IS Booting\n");
-        #endif
         akbi_check_fsm_state_and_respond(status);
         ets_delay_us(100000);
     }
