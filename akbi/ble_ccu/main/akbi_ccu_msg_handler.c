@@ -5,6 +5,7 @@
 #include "akbi_msg.h"
 #include "akbi_ccu_api.h"
 #include "akbi_fsm.h"
+#include "akbi_serial_task.h"
 #include <rom/ets_sys.h>
 
 
@@ -26,11 +27,12 @@ void akbi_process_rx_serial_data(char *ccu_msg,int length)
     BT_CP_PROTOCOL_HDR  *p_protocol_hdr;
 
     p_protocol_hdr = (BT_CP_PROTOCOL_HDR *)ccu_msg;
-
+    #ifdef DEBUG_ENABLE
     printf(" Opcode      :  %02x\n",p_protocol_hdr->opcode );
     printf(" Trans ID    :  %02x\n", p_protocol_hdr->trans_id);
     printf(" Type        :  %02x\n", p_protocol_hdr->type);
     printf(" Length      :  %02x\n", p_protocol_hdr->length);
+    #endif
 
     p_payload     = ccu_msg + sizeof(BT_CP_PROTOCOL_HDR);
     p_tlv         = (BT_CP_TLV_HDR *) (ccu_msg + 0x03);
@@ -53,13 +55,13 @@ void akbi_process_rx_serial_data(char *ccu_msg,int length)
             akbi_dump_serial_pkt(ccu_msg, length);
 
             memcpy(firmware_version, p_tlv->data, p_tlv->length);
-            printf(" INFO : FW-Version      : %s \n", firmware_version );
+            // printf(" INFO : FW-Version      : %s \n", firmware_version );
 
-            p_tlv = (BT_CP_TLV_HDR *)(ccu_msg + 0x03 + p_tlv->length); 
+            p_tlv = (BT_CP_TLV_HDR *)(ccu_msg + 0x03 + p_tlv->length);
             memcpy(ccu_serial_no, p_tlv->data, p_tlv->length);
-			printf(" INFO : SERIAL-NO-TYPE : %x \n", p_tlv->type );
-			printf(" INFO : SERIAL-NO      : %d \n", p_tlv->length );
-            printf(" INFO : SERIAL-NO      : %s \n", ccu_serial_no );
+      			// printf(" INFO : SERIAL-NO-TYPE : %x \n", p_tlv->type );
+      			// printf(" INFO : SERIAL-NO      : %d \n", p_tlv->length );
+            // printf(" INFO : SERIAL-NO      : %s \n", ccu_serial_no );
 
             break;
 

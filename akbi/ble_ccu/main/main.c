@@ -51,13 +51,13 @@
 #define PROFILE_NUM                 1
 #define PROFILE_A_APP_ID            0
 #define MAX_RETURN_MSG_LENGTH       20
-#define DEBUG_ENABLE                0
+// #define DEBUG_ENABLE                0
 #define ADV_SER_NO_SIZE             4
 
 
 extern uint8_t return_data[15];
 char ep_return_message[MAX_RETURN_MSG_LENGTH];
-char adv_ser_no[ADV_SER_NO_SIZE];
+char adv_ser_no[ADV_SER_NO_SIZE+1];
 char adv_full_name[20];
 char firmware_version[10];
 char ccu_serial_no[20];
@@ -332,7 +332,8 @@ static void gatts_profile_a_event_handler(esp_gatts_cb_event_t event, esp_gatt_i
         gl_profile_tab[PROFILE_A_APP_ID].service_id.id.uuid.uuid.uuid16 = GATTS_SERVICE_UUID_A;
         //TODO: get serial number from processor and append with BLE_ADV_NAME
         //init BLE adv data and scan response data
-        memcpy(adv_ser_no,ccu_serial_no+5,ADV_SER_NO_SIZE);
+        memset(adv_ser_no,0x00,ADV_SER_NO_SIZE+1);
+        memcpy(adv_ser_no,ccu_serial_no+6,ADV_SER_NO_SIZE);
         memset(adv_full_name,0x00,strlen(adv_full_name));
         memcpy(adv_full_name,BLE_ADV_NAME,strlen(BLE_ADV_NAME));
         memcpy(adv_full_name+strlen(BLE_ADV_NAME),adv_ser_no,ADV_SER_NO_SIZE);
