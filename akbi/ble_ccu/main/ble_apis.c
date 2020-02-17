@@ -539,7 +539,7 @@ int execute_disconnect_from_wifi(char *i_ret_msg)
 {
     //TODO: Get the wifi status from the processor
     ccu_sent_disconnect_from_wifi();
-    this_ccu.conf_wifi.status = get_wifi_status();
+    // this_ccu.conf_wifi.status = get_wifi_status();
     //memcpy(&i_ret_msg[BLE_RET_MSG_RC_OFFSET],&this_ccu.conf_wifi.status,BLE_RETURN_RC_SIZE);
     return (int)i_ret_msg[BLE_RET_MSG_RC_OFFSET];
 }
@@ -553,14 +553,16 @@ int execute_store_address_visiting(char *i_cmd, char *i_ret_msg)
     unsigned char byte_offset = 0;
     unsigned char i_visited_locations_count = this_ccu.visited_locations_count;
 
-    if (this_ccu.interface_wifi.mode != ACCESS_POINT) {
+  /*  if (this_ccu.interface_wifi.mode != ACCESS_POINT) {
         if (0 != enable_ccu_access_point()) {
             memset(&i_ret_msg[BLE_RET_MSG_RC_OFFSET], ERROR_MY_AP_START, BLE_RETURN_RC_SIZE);
             return (int)i_ret_msg[BLE_RET_MSG_RC_OFFSET];
         }
-    }
+    }*/
 
-    memcpy(degree,&i_cmd[byte_offset],LAT_LONG_DEGREE_SIZE);
+    ccu_sent_address_visiting(i_cmd);
+
+/*    memcpy(degree,&i_cmd[byte_offset],LAT_LONG_DEGREE_SIZE);
     byte_offset += LAT_LONG_DEGREE_SIZE;
     memcpy(minute,&i_cmd[byte_offset],LAT_LONG_MINUTE_SIZE);
     byte_offset += LAT_LONG_MINUTE_SIZE;
@@ -618,10 +620,10 @@ int execute_store_address_visiting(char *i_cmd, char *i_ret_msg)
     }
 
     //this_ccu.visited_locations_count++;
-    memset(&i_ret_msg[BLE_RET_MSG_RC_OFFSET], SUCCESS, BLE_RETURN_RC_SIZE);
+    // memset(&i_ret_msg[BLE_RET_MSG_RC_OFFSET], SUCCESS, BLE_RETURN_RC_SIZE);
     memcpy(&i_ret_msg[BLE_RET_MSG_MY_SSID_OFFSET],this_ccu.interface_wifi.ssid,MY_SSID_SIZE);
     memcpy(&i_ret_msg[BLE_RET_MSG_MY_NETWORK_KEY_OFFSET],this_ccu.interface_wifi.network_key,MY_NETWORK_KEY_SIZE);
-
+*/
     return (int)i_ret_msg[BLE_RET_MSG_RC_OFFSET];
 }
 
@@ -706,6 +708,7 @@ int execute_ccu_activate(char *i_cmd,char *i_ret_msg)
 int update_ccu_sw(char *i_ret_msg)
 {
     //TODO: Get the upgrade status from the processor
+    akbi_set_fsm_state(FSM_STATE_FW_UPGRADE_IN_PROGRESS);
     ccu_sent_update_sw_msg();
     // this_ccu.fw_upgrades[].version = get_wifi_status();
     return 0;
@@ -714,7 +717,7 @@ int update_ccu_sw(char *i_ret_msg)
 int update_trip_info()
 {
     //TODO: Get the info status from the processor
-    akbi_set_fsm_state(FSM_STATE_FW_UPGRADE_IN_PROGRESS);
+    akbi_set_fsm_state(FSM_STATE_TRIP_INFO_UPLOAD_IN_PROGRESS);
     ccu_sent_upload_trip_info();
     return 0;
 
@@ -904,8 +907,8 @@ int read_ble_message(char *i_msg, char *i_ret_msg)
                 return ERROR_AUTHENTICATION;
             }
             memcpy(ble_command,&i_msg[BLE_CMD_OFFSET + BLE_COMMAND_ID_SIZE],BLE_COMMAND_SIZE);
-            execute_store_address_visiting(ble_command,i_ret_msg);
             akbi_set_fsm_state(FSM_STATE_CFG_SET_ADDRESS );
+            execute_store_address_visiting(ble_command,i_ret_msg);
             break;
 
         case CID_ENTER_LOCAL_HELP_NUMBERS :

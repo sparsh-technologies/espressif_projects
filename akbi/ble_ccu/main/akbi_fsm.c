@@ -106,10 +106,12 @@ int akbi_check_fsm_state_and_respond(char *ep_return_message)
         break;
 
     case FSM_STATE_SET_EMER_NUM_SENDING :
+printf("em num sending:\n" );
         ret = 1;
         break;
 
     case FSM_STATE_SET_EMER_NUM_RECEIVED :
+printf("emer no recvd \n" );
         ret = 0;
         break;
 
@@ -179,7 +181,7 @@ int akbi_check_fsm_state_and_respond(char *ep_return_message)
         break;
 
     case FSM_STATE_FW_UPGRADE_COMPLETE :
-        ret = 1;
+        ret = 0;
         break;
 
     case FSM_STATE_TRIP_INFO_UPLOAD_IN_PROGRESS :
@@ -187,10 +189,14 @@ int akbi_check_fsm_state_and_respond(char *ep_return_message)
         break;
 
     case FSM_STATE_TRIP_INFO_UPLOAD_COMPLETE :
-        ret = 1;
+        ret = 0;
         break;
 
     case FSM_STATE_CFG_SET_ADDRESS :
+        ret = 1;
+        break;
+
+    case FSM_STATE_CFG_SET_ADDRESS_COMPLETE :
         ret = 0;
         break;
 

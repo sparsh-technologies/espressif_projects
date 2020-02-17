@@ -10,6 +10,8 @@
 
 
 #define MAX_RETURN_MSG_LENGTH       20
+#define DEBUG_ENABLE
+
 
 AKBI_WIFI_SCAN_REPORT  wifi_scan_report;
 extern char ep_return_message[MAX_RETURN_MSG_LENGTH];
@@ -114,13 +116,22 @@ void akbi_process_rx_serial_data(char *ccu_msg,int length)
             return;
 
         case BT_CP_OPCODE_CID_CFG_PARAMS_SAVE_STATUS:
+            if(type_in_msg == TLV_TYPE_STORED_CFG_EMER_NUM_2){
+                akbi_set_fsm_state(FSM_STATE_SET_EMER_NUM_RECEIVED);
+printf("BT_CP_OPCODE_CID_CFG_PARAMS_SAVE_STATUS \n" );
+                ep_return_message[BLE_RET_MSG_RC_OFFSET] = 0x00;//p_payload[0];
+            }
             if(type_in_msg == TLV_TYPE_STORED_CFG_EMER_NUM_3){
                 akbi_set_fsm_state(FSM_STATE_SET_EMER_NUM_RECEIVED);
-                ep_return_message[BLE_RET_MSG_RC_OFFSET] = p_payload[0];
+                ep_return_message[BLE_RET_MSG_RC_OFFSET] =0x00;//p_payload[0];
+            }
+            if(type_in_msg == TLV_TYPE_STORED_CFG_PERSONAL_NUM_2){
+                akbi_set_fsm_state(FSM_STATE_SET_PERSONAL_NUM_RECEIVED);
+                ep_return_message[BLE_RET_MSG_RC_OFFSET] = 0x00;//p_payload[0];
             }
             if(type_in_msg == TLV_TYPE_STORED_CFG_PERSONAL_NUM_3){
                 akbi_set_fsm_state(FSM_STATE_SET_PERSONAL_NUM_RECEIVED);
-                ep_return_message[BLE_RET_MSG_RC_OFFSET] = p_payload[0];
+                ep_return_message[BLE_RET_MSG_RC_OFFSET] = 0x00;//p_payload[0];
             }
             break;
 

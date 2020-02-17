@@ -411,6 +411,34 @@ int ccu_sent_store_personal_number_msg(char *received_value_buffer)
     return (0);
 }
 
+int ccu_sent_address_visiting(char *received_value_buffer)
+{
+
+    BT_CP_PROTOCOL_HDR  *p_protocol_hdr;
+    char                *p;
+    char                p_tx_buffer[25];
+
+    int                 length;
+
+    memset(p_tx_buffer, 0x00, 25);
+    p_protocol_hdr = (BT_CP_PROTOCOL_HDR *)p_tx_buffer;
+
+    p_protocol_hdr->opcode   = BT_CP_OPCODE_CID_ADDRESS_VISITING;
+    p_protocol_hdr->trans_id = 44;
+    p_protocol_hdr->type     = 0;
+    p_protocol_hdr->length   = 0;//data_len;
+
+    p = p_tx_buffer + sizeof(BT_CP_PROTOCOL_HDR);
+    // memcpy(p, received_value_buffer, p_protocol_hdr->length);
+
+    length = sizeof(BT_CP_PROTOCOL_HDR) + p_protocol_hdr->length;
+    //printf(" INFO : Sent visiting address \n");
+
+    send_uart_message(p_tx_buffer, length);
+
+    return 0;
+}    
+
 /*
  * API to send Local number to CCU
  */

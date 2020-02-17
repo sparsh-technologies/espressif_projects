@@ -31,6 +31,7 @@
 #include "esp_timer.h"
 
 #define PKT_DUMP
+#define DEBUG_ENABLE
 
 #define AKBI_UART_BUFFER_SZ     ( 2 * 1024)
 
