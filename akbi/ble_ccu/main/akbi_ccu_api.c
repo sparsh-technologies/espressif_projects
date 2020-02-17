@@ -31,7 +31,7 @@ int ccu_sent_subg_clear_learning_msg(char *p_tx_buffer,char *ep_return_message)
     p_protocol_hdr->type     = 0;
     p_protocol_hdr->length   = 0;
 
-    printf(" INFO : Sent CLEAR_SUB_G_LEARN Cmd \n");
+    //printf(" INFO : Sent CLEAR_SUB_G_LEARN Cmd \n");
 
     length = sizeof(BT_CP_PROTOCOL_HDR) + p_protocol_hdr->length;
 
@@ -52,7 +52,7 @@ int ccu_sent_subg_learning_msg(char *p_tx_buffer,char *ep_return_message)
     p_protocol_hdr->type     = 0;
     p_protocol_hdr->length   = 0;
 
-    printf(" INFO : Sent START_SUB_G_LEARN Cmd \n");
+    //printf(" INFO : Sent START_SUB_G_LEARN Cmd \n");
 
     length = sizeof(BT_CP_PROTOCOL_HDR) + p_protocol_hdr->length;
     send_uart_message(p_tx_buffer, length );
@@ -81,7 +81,7 @@ int ccu_send_reg_msg(char *received_value_buffer,char *ep_return_message)
     memcpy(p,(received_value_buffer+BLE_MSG_MULTI_DATA_LEN_OFFSET+1), p_protocol_hdr->length);
 
     length = sizeof(BT_CP_PROTOCOL_HDR) + p_protocol_hdr->length;
-    printf(" INFO : Sent REGISTER Cmd Length(%d) \n", p_protocol_hdr->length);
+    //printf(" INFO : Sent REGISTER Cmd Length(%d) \n", p_protocol_hdr->length);
 
     send_uart_message(p_tx_buffer, length + 1);
 
@@ -109,7 +109,7 @@ int ccu_send_reg_msg_new(int type, char *received_value_buffer, int data_len)
     memcpy(p, received_value_buffer, p_protocol_hdr->length);
 
     length = sizeof(BT_CP_PROTOCOL_HDR) + p_protocol_hdr->length;
-    printf(" INFO : Sent REGISTER Cmd Length(%d) \n", p_protocol_hdr->length);
+    //printf(" INFO : Sent REGISTER Cmd Length(%d) \n", p_protocol_hdr->length);
 
     send_uart_message(p_tx_buffer, length);
 
@@ -123,7 +123,7 @@ int ccu_send_login_msg(char * password, int data_len)
     char                p_tx_buffer[25];
     char                *p;
 
-    printf(" INFO : Sending LOGIN Message \n");
+    //printf(" INFO : Sending LOGIN Message \n");
     p_protocol_hdr = (BT_CP_PROTOCOL_HDR *)p_tx_buffer;
 
     p_protocol_hdr->opcode   = BT_CP_OPCODE_CID_LOGIN;
@@ -146,8 +146,7 @@ int ccu_sent_scan_all_wifi_msg(char *ep_return_message)
     int                 length;
     //int                 count;
     char                p_tx_buffer[25];
-printf("5\n" );
-    printf(" INFO : Sending SCAN-ALL-WIFI Message \n");
+    //printf(" INFO : Sending SCAN-ALL-WIFI Message \n");
     p_protocol_hdr = (BT_CP_PROTOCOL_HDR *)p_tx_buffer;
 
     p_protocol_hdr->opcode   = BT_CP_OPCODE_CID_SCAN_WIFIS;
@@ -174,9 +173,9 @@ int ccu_sent_configure_wifi_credentials( unsigned char ap_id, char *p_passwd, in
     char                p_tx_buffer[100];
     BT_CP_TLV_HDR       *p_tlv_hdr;
 
-    printf(" INFO : Sending CONFIGURE-WIFI Message \n");
-    printf(" INFO : PASSWD : %s(%d) \n", p_passwd, strlen(p_passwd));
-    printf(" INFO : AP-ID  : %d \n", ap_id);
+    //printf(" INFO : Sending CONFIGURE-WIFI Message \n");
+    //printf(" INFO : PASSWD : %s(%d) \n", p_passwd, strlen(p_passwd));
+    //printf(" INFO : AP-ID  : %d \n", ap_id);
 
     memset(p_tx_buffer, 0x00, 100);
     p_protocol_hdr = (BT_CP_PROTOCOL_HDR *)p_tx_buffer;
@@ -219,7 +218,7 @@ int ccu_sent_connect_to_wifi()
     BT_CP_PROTOCOL_HDR  *p_protocol_hdr;
     int                 length;
 
-    printf(" INFO : Sending CONNECT-TO-WIFI Message \n");
+    //printf(" INFO : Sending CONNECT-TO-WIFI Message \n");
     p_protocol_hdr = (BT_CP_PROTOCOL_HDR *)p_tx_buffer;
 
     p_protocol_hdr->opcode   = BT_CP_OPCODE_CID_CONNECT_TO_WIFI;
@@ -241,7 +240,7 @@ int ccu_sent_disconnect_from_wifi()
     BT_CP_PROTOCOL_HDR  *p_protocol_hdr;
     int                 length;
 
-    printf(" INFO : Sending DISCONNECT-FROM-WIFI Message \n");
+    //printf(" INFO : Sending DISCONNECT-FROM-WIFI Message \n");
     p_protocol_hdr = (BT_CP_PROTOCOL_HDR *)p_tx_buffer;
 
     p_protocol_hdr->opcode   = BT_CP_OPCODE_CID_DISCONNECT_FROM_WIFI;
@@ -304,7 +303,7 @@ int ccu_sent_user_change_passwd_msg(char *received_value_buffer,char *ep_return_
     int                 length;
     char                *p;
 
-    printf(" INFO : Sending USER-CHANGE_PASSWD Message \n");
+    //printf(" INFO : Sending USER-CHANGE_PASSWD Message \n");
     p_protocol_hdr = (BT_CP_PROTOCOL_HDR *)p_tx_buffer;
 
     p_protocol_hdr->opcode   = BT_CP_OPCODE_CID_CHANGE_PASSWORD;
@@ -326,7 +325,7 @@ int ccu_sent_record_voice_msg(char *p_tx_buffer,char *ep_return_message)
     BT_CP_PROTOCOL_HDR  *p_protocol_hdr;
     int                 length;
 
-    printf(" INFO : Sending RECORD-VOICE Message \n");
+    //printf(" INFO : Sending RECORD-VOICE Message \n");
     p_protocol_hdr = (BT_CP_PROTOCOL_HDR *)p_tx_buffer;
 
     p_protocol_hdr->opcode   = BT_CP_OPCODE_CID_RECORD_PERSONAL_VOICE_MSG;
@@ -352,7 +351,7 @@ int ccu_sent_store_emergency_number_msg(char *received_value_buffer)
     char                *p;
     int  type = received_value_buffer[BLE_MSG_MULTI_DATA_TYPE_OFFSET];
 
-    printf(" INFO : Sending emergency-NUM Message \n");
+    //printf(" INFO : Sending emergency-NUM Message \n");
     p_protocol_hdr = (BT_CP_PROTOCOL_HDR *)p_tx_buffer;
 
     p_protocol_hdr->opcode   = BT_CP_OPCODE_CID_STORE_EMERGENCY_NUMBERS;
@@ -386,7 +385,7 @@ int ccu_sent_store_personal_number_msg(char *received_value_buffer)
     char                *p;
     int  type = received_value_buffer[BLE_MSG_MULTI_DATA_TYPE_OFFSET];
 
-    printf(" INFO : Sending PERSONAL-NUM Message \n");
+    //printf(" INFO : Sending PERSONAL-NUM Message \n");
     p_protocol_hdr = (BT_CP_PROTOCOL_HDR *)p_tx_buffer;
 
     p_protocol_hdr->opcode   = BT_CP_OPCODE_CID_STORE_PERSONAL_NUMBERS;
@@ -422,7 +421,7 @@ int ccu_sent_store_local_help_number_msg(char *received_value_buffer)
     int                 length;
     char                *p;
 
-    printf(" INFO : Sending local help-NUM Message \n");
+    //printf(" INFO : Sending local help-NUM Message \n");
     p_protocol_hdr = (BT_CP_PROTOCOL_HDR *)p_tx_buffer;
 
     p_protocol_hdr->opcode   = BT_CP_OPCODE_CID_ENTER_LOCAL_HELP_NUMBERS;
@@ -445,7 +444,7 @@ int ccu_sent_activate_system_msg()
     int                 length;
     char                p_tx_buffer[20];
 
-    printf(" INFO : Sending ACTIVATE-SYSTEM Message \n");
+    //printf(" INFO : Sending ACTIVATE-SYSTEM Message \n");
     p_protocol_hdr = (BT_CP_PROTOCOL_HDR *)p_tx_buffer;
 
     p_protocol_hdr->opcode   = BT_CP_OPCODE_CID_CCU_ACTIVATE;
@@ -466,7 +465,7 @@ int ccu_sent_update_sw_msg()
     int                 length;
     char                p_tx_buffer[20];
 
-    printf(" INFO : Sending UPGRADE-SOFTWARE Message \n");
+    //printf(" INFO : Sending UPGRADE-SOFTWARE Message \n");
     p_protocol_hdr = (BT_CP_PROTOCOL_HDR *)p_tx_buffer;
 
     p_protocol_hdr->opcode   = BT_CP_OPCODE_CID_UPDATE_CCU_SW;
@@ -487,7 +486,7 @@ int ccu_sent_upload_trip_info()
     int                 length;
     char                p_tx_buffer[20];
 
-    printf(" INFO : Sending TRIP_INFO Message \n");
+    //printf(" INFO : Sending TRIP_INFO Message \n");
     p_protocol_hdr = (BT_CP_PROTOCOL_HDR *)p_tx_buffer;
 
     p_protocol_hdr->opcode   = BT_CP_OPCODE_CID_UPLOAD_TRIP_INFO;

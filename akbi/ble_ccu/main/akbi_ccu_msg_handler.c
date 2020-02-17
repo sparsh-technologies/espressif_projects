@@ -52,7 +52,7 @@ void akbi_process_rx_serial_data(char *ccu_msg,int length)
              * Extract the firmware version from the packet
              */
 
-            akbi_dump_serial_pkt(ccu_msg, length);
+            // akbi_dump_serial_pkt(ccu_msg, length);
 
             memcpy(firmware_version, p_tlv->data, p_tlv->length);
             // printf(" INFO : FW-Version      : %s \n", firmware_version );
