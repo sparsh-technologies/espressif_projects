@@ -94,24 +94,26 @@ int akbi_check_fsm_state_and_respond(char *ep_return_message)
         break;
 
     case FSM_STATE_FORGOT_PASSWD_SMS_SENT :
-        ret = 1;
-        break;
-
-    case FSM_STATE_CHANGE_PASSWD :
         ret = 0;
         break;
 
-    case FSM_STATE_VOICE_RECORDING_IN_PRORESS :
+    case FSM_STATE_CHANGE_PASSWD :
+        ret = 0;//to be changed to 1
+        break;
+
+    case FSM_STATE_CHANGE_PASSWD_COMPLETE :
+        ret = 0;
+        break;
+
+    case FSM_STATE_VOICE_RECORDING_IN_PROGRESS :
         ret = 0;
         break;
 
     case FSM_STATE_SET_EMER_NUM_SENDING :
-printf("em num sending:\n" );
         ret = 1;
         break;
 
     case FSM_STATE_SET_EMER_NUM_RECEIVED :
-printf("emer no recvd \n" );
         ret = 0;
         break;
 
@@ -124,7 +126,7 @@ printf("emer no recvd \n" );
         break;
 
     case FSM_STATE_WIFI_SCAN_IN_PROGRESS :
-        printf(" INFO : Wifi Scanning in progress ,ssid_index = %d\n",ssid_index);
+        // printf(" INFO : Wifi Scanning in progress ,ssid_index = %d\n",ssid_index);
         //set ssid name to packets
         ret = 1;
         break;
@@ -153,9 +155,12 @@ printf("emer no recvd \n" );
         break;
 
 
+
+
     case FSM_STATE_WIFI_SELECT_IN_PROGRESS :
         ret = 0;
         break;
+
 
     case FSM_STATE_WIFI_CONNECT_IN_PROGRESS :
         printf("wifi connect in progress\n");

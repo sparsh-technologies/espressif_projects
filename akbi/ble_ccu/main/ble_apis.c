@@ -247,23 +247,14 @@ int execute_change_password(char *i_cmd, char *i_ret_msg)
     {
 
     case DID_CHANGE_PASSWORD_CURRENT:
-        if ((data_len_in_ble == strlen(this_ccu.password))&&(0 == memcmp(this_ccu.password, &i_cmd[BLE_CMD_MULTI_DATA_VALUE_OFFSET],strlen(this_ccu.password))))
-        {
-              this_ccu.data_status = this_ccu.data_status | FLAG_DATA_SET_CCU_PWD_MATCH;
-              i_ret_msg[BLE_RET_MSG_RC_OFFSET] = SUCCESS;
-              save_group_messages(p_recvd_msg_full,DID_CHANGE_PASSWORD_CURRENT);
-        }
-        else {
-            i_ret_msg[BLE_RET_MSG_RC_OFFSET] = ERROR_CHANGE_PASSWORD_MISMATCH;
-            return ERROR_CHANGE_PASSWORD_MISMATCH;
-        }
+        save_group_messages(p_recvd_msg_full,DID_CHANGE_PASSWORD_CURRENT);
         break;
 
     case DID_CHANGE_PASSWORD_NEW:
-        memset(this_ccu.new_password_to_be_set,0x00,sizeof(this_ccu.new_password_to_be_set));
-        memcpy(this_ccu.new_password_to_be_set,&i_cmd[BLE_CMD_MULTI_DATA_VALUE_OFFSET],data_len_in_ble);
-        this_ccu.data_status = this_ccu.data_status | FLAG_DATA_SET_CCU_NEW_PASSWORD;
-        i_ret_msg[BLE_RET_MSG_RC_OFFSET] = SUCCESS;
+        // memset(this_ccu.new_password_to_be_set,0x00,sizeof(this_ccu.new_password_to_be_set));
+        // memcpy(this_ccu.new_password_to_be_set,&i_cmd[BLE_CMD_MULTI_DATA_VALUE_OFFSET],data_len_in_ble);
+        // this_ccu.data_status = this_ccu.data_status | FLAG_DATA_SET_CCU_NEW_PASSWORD;
+        // i_ret_msg[BLE_RET_MSG_RC_OFFSET] = SUCCESS;
         save_group_messages(p_recvd_msg_full,DID_CHANGE_PASSWORD_NEW);
         send_batch_messages(DID_CHANGE_PASSWORD_NEW,CID_CHANGE_PASSWORD);
         break;
@@ -279,12 +270,12 @@ int execute_change_password(char *i_cmd, char *i_ret_msg)
      * replace the password.
      */
 
-    if ((this_ccu.data_status & (FLAG_DATA_SET_CCU_PWD_MATCH | FLAG_DATA_SET_CCU_NEW_PASSWORD)) == (FLAG_DATA_SET_CCU_PWD_MATCH | FLAG_DATA_SET_CCU_NEW_PASSWORD)) {
-        memcpy(this_ccu.password,this_ccu.new_password_to_be_set, PASS_SIZE);
-        i_ret_msg[BLE_RET_MSG_RC_OFFSET] = SUCCESS;
-        //Once copied, reset the flags.
-        this_ccu.data_status = this_ccu.data_status & (~(FLAG_DATA_SET_CCU_PWD_MATCH | FLAG_DATA_SET_CCU_NEW_PASSWORD));
-    }
+    // if ((this_ccu.data_status & (FLAG_DATA_SET_CCU_PWD_MATCH | FLAG_DATA_SET_CCU_NEW_PASSWORD)) == (FLAG_DATA_SET_CCU_PWD_MATCH | FLAG_DATA_SET_CCU_NEW_PASSWORD)) {
+    //     memcpy(this_ccu.password,this_ccu.new_password_to_be_set, PASS_SIZE);
+    //     i_ret_msg[BLE_RET_MSG_RC_OFFSET] = SUCCESS;
+    //     //Once copied, reset the flags.
+    //     this_ccu.data_status = this_ccu.data_status & (~(FLAG_DATA_SET_CCU_PWD_MATCH | FLAG_DATA_SET_CCU_NEW_PASSWORD));
+    // }
     return (int)i_ret_msg[BLE_RET_MSG_RC_OFFSET];
 }
 
@@ -304,19 +295,20 @@ int enable_ccu_wifi_station()
     return 0;
 }
 
-int execute_record_personal_voice_msg(char *i_ret_msg)
+int execute_record_personal_voice_msg()
 {
-    if (this_ccu.interface_wifi.mode != ACCESS_POINT) {
-        if (0 != enable_ccu_access_point()) {
-            memset(&i_ret_msg[BLE_RET_MSG_RC_OFFSET],ERROR_MY_AP_START,BLE_RETURN_RC_SIZE);
-            return (int)i_ret_msg[BLE_RET_MSG_RC_OFFSET];
-        }
-    }
-    memset(&i_ret_msg[BLE_RET_MSG_RC_OFFSET], SUCCESS, BLE_RETURN_RC_SIZE);
-    memcpy(&i_ret_msg[BLE_RET_MSG_MY_SSID_OFFSET],this_ccu.interface_wifi.ssid,SSID_SIZE);
+    // if (this_ccu.interface_wifi.mode != ACCESS_POINT) {
+    //     if (0 != enable_ccu_access_point()) {
+    //         memset(&i_ret_msg[BLE_RET_MSG_RC_OFFSET],ERROR_MY_AP_START,BLE_RETURN_RC_SIZE);
+    //         return (int)i_ret_msg[BLE_RET_MSG_RC_OFFSET];
+    //     }
+    // }
+    ccu_sent_record_voice_msg();
+    // memset(&i_ret_msg[BLE_RET_MSG_RC_OFFSET], SUCCESS, BLE_RETURN_RC_SIZE);
+    // memcpy(&i_ret_msg[BLE_RET_MSG_MY_SSID_OFFSET],this_ccu.interface_wifi.ssid,SSID_SIZE);
   //  memcpy(&i_ret_msg[BLE_RET_MSG_MY_NETWORK_KEY_OFFSET],this_ccu.interface_wifi.network_key,NETWORK_KEY_SIZE);
 
-    return (int)i_ret_msg[BLE_RET_MSG_RC_OFFSET];
+    return 0;
 }
 
 int execute_store_emergency_number(char *i_cmd, char *i_ret_msg)
@@ -562,7 +554,7 @@ int execute_store_address_visiting(char *i_cmd, char *i_ret_msg)
 
     ccu_sent_address_visiting(i_cmd);
 
-/*    memcpy(degree,&i_cmd[byte_offset],LAT_LONG_DEGREE_SIZE);
+    /*   memcpy(degree,&i_cmd[byte_offset],LAT_LONG_DEGREE_SIZE);
     byte_offset += LAT_LONG_DEGREE_SIZE;
     memcpy(minute,&i_cmd[byte_offset],LAT_LONG_MINUTE_SIZE);
     byte_offset += LAT_LONG_MINUTE_SIZE;
@@ -622,8 +614,8 @@ int execute_store_address_visiting(char *i_cmd, char *i_ret_msg)
     //this_ccu.visited_locations_count++;
     // memset(&i_ret_msg[BLE_RET_MSG_RC_OFFSET], SUCCESS, BLE_RETURN_RC_SIZE);
     memcpy(&i_ret_msg[BLE_RET_MSG_MY_SSID_OFFSET],this_ccu.interface_wifi.ssid,MY_SSID_SIZE);
-    memcpy(&i_ret_msg[BLE_RET_MSG_MY_NETWORK_KEY_OFFSET],this_ccu.interface_wifi.network_key,MY_NETWORK_KEY_SIZE);
-*/
+      memcpy(&i_ret_msg[BLE_RET_MSG_MY_NETWORK_KEY_OFFSET],this_ccu.interface_wifi.network_key,MY_NETWORK_KEY_SIZE);
+    */
     return (int)i_ret_msg[BLE_RET_MSG_RC_OFFSET];
 }
 
@@ -853,8 +845,8 @@ int read_ble_message(char *i_msg, char *i_ret_msg)
                 memset(&i_ret_msg[BLE_RET_MSG_RC_OFFSET], ERROR_AUTHENTICATION, BLE_RETURN_RC_SIZE);
                 return ERROR_AUTHENTICATION;
             }
-            execute_record_personal_voice_msg(i_ret_msg);
-            akbi_set_fsm_state(FSM_STATE_VOICE_RECORDING_IN_PRORESS);
+            akbi_set_fsm_state(FSM_STATE_VOICE_RECORDING_IN_PROGRESS);
+            execute_record_personal_voice_msg();
             break;
 
         case CID_STORE_EMERGENCY_NUMBERS :

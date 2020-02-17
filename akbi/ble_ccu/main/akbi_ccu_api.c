@@ -320,10 +320,11 @@ int ccu_sent_user_change_passwd_msg(char *received_value_buffer,char *ep_return_
     return (0);
 }
 
-int ccu_sent_record_voice_msg(char *p_tx_buffer,char *ep_return_message)
+int ccu_sent_record_voice_msg()
 {
     BT_CP_PROTOCOL_HDR  *p_protocol_hdr;
     int                 length;
+    char                p_tx_buffer[20];
 
     //printf(" INFO : Sending RECORD-VOICE Message \n");
     p_protocol_hdr = (BT_CP_PROTOCOL_HDR *)p_tx_buffer;
@@ -437,7 +438,7 @@ int ccu_sent_address_visiting(char *received_value_buffer)
     send_uart_message(p_tx_buffer, length);
 
     return 0;
-}    
+}
 
 /*
  * API to send Local number to CCU

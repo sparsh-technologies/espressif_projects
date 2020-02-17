@@ -53,7 +53,7 @@ int ccu_sent_user_forgot_passwd_msg();
 
 int ccu_sent_user_change_passwd_msg(char *received_value_buffer,char *ep_return_message);
 
-int ccu_sent_record_voice_msg(char *p_tx_buffer,char *ep_return_message);
+int ccu_sent_record_voice_msg();
 
 int ccu_sent_store_emergency_number_msg(char *received_value_buffer);
 
