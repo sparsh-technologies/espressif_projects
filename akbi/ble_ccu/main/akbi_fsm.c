@@ -93,12 +93,12 @@ int akbi_check_fsm_state_and_respond(char *ep_return_message)
         ret = 1;
         break;
 
-    case FSM_STATE_FORGOT_PASSWD_SMS_SENT :
+    case FSM_STATE_FORGOT_PASSWD_RESULT :
         ret = 0;
         break;
 
     case FSM_STATE_CHANGE_PASSWD :
-        ret = 0;//to be changed to 1
+        ret = 1;
         break;
 
     case FSM_STATE_CHANGE_PASSWD_COMPLETE :
@@ -106,6 +106,10 @@ int akbi_check_fsm_state_and_respond(char *ep_return_message)
         break;
 
     case FSM_STATE_VOICE_RECORDING_IN_PROGRESS :
+        ret = 1;
+        break;
+
+    case FSM_STATE_VOICE_RECORDING_COMPLETE :
         ret = 0;
         break;
 
@@ -177,7 +181,6 @@ int akbi_check_fsm_state_and_respond(char *ep_return_message)
         break;
 
     case FSM_STATE_WIFI_DISCONNECT_COMPLETE :
-        ep_return_message[BLE_RET_MSG_RC_OFFSET] = SUCCESS;
         ret = 0;
         break;
 
@@ -214,6 +217,10 @@ int akbi_check_fsm_state_and_respond(char *ep_return_message)
         break;
 
     case FSM_STATE_ACTIVATE_IN_PROGRESS :
+        ret = 1;
+        break;
+
+    case FSM_STATE_ACTIVATE_COMPLETE :
         ret = 0;
         break;
 

@@ -457,10 +457,8 @@ int ccu_sent_store_local_help_number_msg(char *received_value_buffer)
     p_protocol_hdr->trans_id = 44;
     p_protocol_hdr->type     = received_value_buffer[BLE_MSG_MULTI_DATA_TYPE_OFFSET];
     p_protocol_hdr->length   = received_value_buffer[BLE_MSG_MULTI_DATA_LEN_OFFSET];
-printf("lenth --:%d\n",p_protocol_hdr->length );
     p = p_tx_buffer + sizeof(BT_CP_PROTOCOL_HDR);
     memcpy(p, (received_value_buffer+BLE_MSG_MULTI_DATA_LEN_OFFSET+1), p_protocol_hdr->length);
-printf("p--:%s\n",p );
 
     length = sizeof(BT_CP_PROTOCOL_HDR) +p_protocol_hdr->length;
     send_uart_message(p_tx_buffer, length);

@@ -921,8 +921,8 @@ int read_ble_message(char *i_msg, char *i_ret_msg)
                 return ERROR_AUTHENTICATION;
             }
             memcpy(ble_command,&i_msg[BLE_CMD_OFFSET + BLE_COMMAND_ID_SIZE],BLE_COMMAND_SIZE);
-            execute_ccu_activate(ble_command,i_ret_msg);
             akbi_set_fsm_state(FSM_STATE_ACTIVATE_IN_PROGRESS);
+            execute_ccu_activate(ble_command,i_ret_msg);
             break;
 
         case CID_CONNECT_TO_WIFI :
