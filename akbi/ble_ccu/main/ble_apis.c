@@ -402,15 +402,17 @@ int execute_enter_local_help_number(char *i_cmd, char *i_ret_msg)
     switch (data_type) {
         case DID_LOCAL_HELP_FOURTH_NUMBER : {
             memcpy(this_ccu.visited_locations[i_visited_locations_count].fourth_phone_number,i_local_help_number,data_len_in_ble);
-            memset(&i_ret_msg[BLE_RET_MSG_RC_OFFSET], SUCCESS, BLE_RETURN_RC_SIZE);
-            save_group_messages(p_recvd_msg_full,DID_LOCAL_HELP_FOURTH_NUMBER);
+            // memset(&i_ret_msg[BLE_RET_MSG_RC_OFFSET], SUCCESS, BLE_RETURN_RC_SIZE);
+            // save_group_messages(p_recvd_msg_full,DID_LOCAL_HELP_FOURTH_NUMBER);
+            ccu_sent_store_local_help_number_msg(p_recvd_msg_full);
             break;
         }
         case DID_LOCAL_HELP_FIFTH_NUMBER : {
             memcpy(this_ccu.visited_locations[i_visited_locations_count].fifth_phone_number,i_local_help_number,data_len_in_ble);
-            memset(&i_ret_msg[BLE_RET_MSG_RC_OFFSET], SUCCESS, BLE_RETURN_RC_SIZE);
-            save_group_messages(p_recvd_msg_full,DID_LOCAL_HELP_FIFTH_NUMBER);
-            send_batch_messages(DID_LOCAL_HELP_FIFTH_NUMBER,CID_ENTER_LOCAL_HELP_NUMBERS);
+            // memset(&i_ret_msg[BLE_RET_MSG_RC_OFFSET], SUCCESS, BLE_RETURN_RC_SIZE);
+            // save_group_messages(p_recvd_msg_full,DID_LOCAL_HELP_FIFTH_NUMBER);
+            // send_batch_messages(DID_LOCAL_HELP_FIFTH_NUMBER,CID_ENTER_LOCAL_HELP_NUMBERS);
+            ccu_sent_store_local_help_number_msg(p_recvd_msg_full);
             break;
         }
         default: {
@@ -909,8 +911,8 @@ int read_ble_message(char *i_msg, char *i_ret_msg)
                 return ERROR_AUTHENTICATION;
             }
             memcpy(ble_command,&i_msg[BLE_CMD_OFFSET + BLE_COMMAND_ID_SIZE],BLE_COMMAND_SIZE);
+            akbi_set_fsm_state(FSM_STATE_CFG_SET_HELP_NUM_SENDING );
             execute_enter_local_help_number(ble_command,i_ret_msg);
-            akbi_set_fsm_state(FSM_STATE_CFG_SET_HELP_NUM );
             break;
 
         case CID_CCU_ACTIVATE :

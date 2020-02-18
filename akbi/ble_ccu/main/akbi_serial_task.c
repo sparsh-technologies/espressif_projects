@@ -218,7 +218,7 @@ void send_uart_message(const char* p_data, int length )
 
     memset(serial_tx_data, 0x00, 100);
     memcpy(serial_tx_data, p_data, length);
-
+    // printf("sending uart data:%s\n",p_data );
     for(i=0; i < length; i++) {
         data =  serial_tx_data[i];
         uart_write_bytes(UART_NUM_2, &data, 1);

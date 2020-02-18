@@ -116,22 +116,32 @@ void akbi_process_rx_serial_data(char *ccu_msg,int length)
             return;
 
         case BT_CP_OPCODE_CID_CFG_PARAMS_SAVE_STATUS:
-            if(type_in_msg == TLV_TYPE_STORED_CFG_EMER_NUM_2){
+            if((type_in_msg == TLV_TYPE_STORED_CFG_EMER_NUM_2)||(type_in_msg == TLV_TYPE_STORED_CFG_EMER_NUM_3)){
                 akbi_set_fsm_state(FSM_STATE_SET_EMER_NUM_RECEIVED);
-printf("BT_CP_OPCODE_CID_CFG_PARAMS_SAVE_STATUS \n" );
-                ep_return_message[BLE_RET_MSG_RC_OFFSET] = 0x00;//p_payload[0];
+                if(p_payload[0] == 0){
+                    ep_return_message[BLE_RET_MSG_RC_OFFSET] = 0x0B;
+                }
+                else if(p_payload[0] == 0x01){
+                    ep_return_message[BLE_RET_MSG_RC_OFFSET] = 0;
+                }
             }
-            if(type_in_msg == TLV_TYPE_STORED_CFG_EMER_NUM_3){
-                akbi_set_fsm_state(FSM_STATE_SET_EMER_NUM_RECEIVED);
-                ep_return_message[BLE_RET_MSG_RC_OFFSET] =0x00;//p_payload[0];
-            }
-            if(type_in_msg == TLV_TYPE_STORED_CFG_PERSONAL_NUM_2){
+            if((type_in_msg == TLV_TYPE_STORED_CFG_PERSONAL_NUM_2)||(type_in_msg == TLV_TYPE_STORED_CFG_PERSONAL_NUM_3)){
                 akbi_set_fsm_state(FSM_STATE_SET_PERSONAL_NUM_RECEIVED);
-                ep_return_message[BLE_RET_MSG_RC_OFFSET] = 0x00;//p_payload[0];
+                if(p_payload[0] == 0){
+                    ep_return_message[BLE_RET_MSG_RC_OFFSET] = 0x0C;
+                }
+                else if(p_payload[0] == 0x01){
+                    ep_return_message[BLE_RET_MSG_RC_OFFSET] = 0;
+                }
             }
-            if(type_in_msg == TLV_TYPE_STORED_CFG_PERSONAL_NUM_3){
-                akbi_set_fsm_state(FSM_STATE_SET_PERSONAL_NUM_RECEIVED);
-                ep_return_message[BLE_RET_MSG_RC_OFFSET] = 0x00;//p_payload[0];
+            if((type_in_msg == TLV_TYPE_STORED_CFG_LOCAL_NUM_1)||(type_in_msg == TLV_TYPE_STORED_CFG_LOCAL_NUM_2)){
+                akbi_set_fsm_state(FSM_STATE_CFG_SET_HELP_NUM_RECEIVED);
+                if(p_payload[0] == 0){
+                    ep_return_message[BLE_RET_MSG_RC_OFFSET] = 0x1C;
+                }
+                else if(p_payload[0] == 0x01){
+                    ep_return_message[BLE_RET_MSG_RC_OFFSET] = 0;
+                }
             }
             break;
 
