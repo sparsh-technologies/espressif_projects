@@ -101,7 +101,7 @@ int execute_register(char *i_cmd, char *i_ret_msg)
 
     case DID_REGISTER_PASSWORD :
         memcpy(this_ccu.password,&i_cmd[BLE_CMD_MULTI_DATA_VALUE_OFFSET],data_len_in_ble);
-        printf(" INFO : Passwd - %s(%d) \n", this_ccu.password, data_len_in_ble);
+        //printf(" INFO : Passwd - %s(%d) \n", this_ccu.password, data_len_in_ble);
         i_ret_msg[BLE_RET_MSG_RC_OFFSET] = SUCCESS;
 		    // To Be checked with Sathish
         this_ccu.paired_mob1.data_status = this_ccu.paired_mob1.data_status | FLAG_DATA_SET_MOB1_PASSWORD;
@@ -113,7 +113,7 @@ int execute_register(char *i_cmd, char *i_ret_msg)
     case DID_REGISTER_MOB_NO :
         memcpy(this_ccu.paired_mob1.mobile_number,
                &i_cmd[BLE_CMD_MULTI_DATA_VALUE_OFFSET],data_len_in_ble);
-        printf(" INFO : Mob-No - %s(%d) \n", this_ccu.paired_mob1.mobile_number, data_len_in_ble);
+        //printf(" INFO : Mob-No - %s(%d) \n", this_ccu.paired_mob1.mobile_number, data_len_in_ble);
         i_ret_msg[BLE_RET_MSG_RC_OFFSET] = SUCCESS;
         this_ccu.paired_mob1.data_status = this_ccu.paired_mob1.data_status | FLAG_DATA_SET_MOB1_NUM;
         //TODO-Store mobile number in EEPROM and populate error code
@@ -124,7 +124,7 @@ int execute_register(char *i_cmd, char *i_ret_msg)
     case DID_REGISTER_MOB_NAME :
         memcpy(this_ccu.paired_mob1.mobile_name,
                &i_cmd[BLE_CMD_MULTI_DATA_VALUE_OFFSET],data_len_in_ble);
-        printf(" INFO : Mob-Name - %s(%d) \n", this_ccu.paired_mob1.mobile_name, data_len_in_ble);
+        //printf(" INFO : Mob-Name - %s(%d) \n", this_ccu.paired_mob1.mobile_name, data_len_in_ble);
         i_ret_msg[BLE_RET_MSG_RC_OFFSET] = SUCCESS;
         this_ccu.paired_mob1.data_status = this_ccu.paired_mob1.data_status | FLAG_DATA_SET_MOB1_NAME;
         //TODO-Store mobile name in EEPROM and populate error code
@@ -135,7 +135,7 @@ int execute_register(char *i_cmd, char *i_ret_msg)
     case DID_REGISTER_ANDROID_ID_OR_UUID :
         memcpy(this_ccu.paired_mob1.android_id_or_uuid,
                &i_cmd[BLE_CMD_MULTI_DATA_VALUE_OFFSET],data_len_in_ble);
-        printf(" INFO : Mob-UUID - %s(%d) \n", this_ccu.paired_mob1.android_id_or_uuid,
+        //printf(" INFO : Mob-UUID - %s(%d) \n", this_ccu.paired_mob1.android_id_or_uuid,
                  data_len_in_ble);
         i_ret_msg[BLE_RET_MSG_RC_OFFSET] = SUCCESS;
         this_ccu.paired_mob1.data_status = this_ccu.paired_mob1.data_status | FLAG_DATA_SET_ANDROID_ID_OR_UUID;
@@ -188,8 +188,8 @@ int execute_login(char *i_cmd, char *i_ret_msg)
 
     memcpy(i_pwd,&i_cmd[BLE_CMD_SINGLE_DATA_VALUE_OFFSET],data_len_in_ble);
     #ifdef BLE_DEBUG
-    printf("data %s\n",i_pwd);
-    printf("In execute login #%s#%s#%d#\n",i_pwd, this_ccu.password,data_len_in_ble);
+    //printf("data %s\n",i_pwd);
+    //printf("In execute login #%s#%s#%d#\n",i_pwd, this_ccu.password,data_len_in_ble);
     #endif
     akbi_set_fsm_state(FSM_STATE_LOGIN);
     ccu_send_login_msg(i_pwd,data_len_in_ble);
@@ -225,7 +225,7 @@ int execute_forgot_password()
          * TODO - send the password and mobile number over the serial interface to the processor - connection manager.
          * Return 0x00 if text message is sent successfully. 01 if problem sending text
          */
-        printf("Password reset \n");
+        //printf("Password reset \n");
     return 0;
 }
 
@@ -961,7 +961,7 @@ int read_ble_message(char *i_msg, char *i_ret_msg)
             break;
         default :
             i_ret_msg[BLE_RET_MSG_RC_OFFSET] = ERROR_UNRECOGNIZED_COMMAND;
-            printf("Unrecognized Command #%x#\n",ble_cmd_id);
+            //printf("Unrecognized Command #%x#\n",ble_cmd_id);
             break;
 
         }

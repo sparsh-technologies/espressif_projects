@@ -17,6 +17,7 @@ AKBI_WIFI_SCAN_REPORT  wifi_scan_report;
 extern char ep_return_message[MAX_RETURN_MSG_LENGTH];
 extern char firmware_version[10];
 extern char ccu_serial_no[20];
+unsigned char post_result;
 
 void akbi_process_rx_serial_data(char *ccu_msg,int length)
 {
@@ -25,6 +26,7 @@ void akbi_process_rx_serial_data(char *ccu_msg,int length)
     int              length_in_msg;
     char             *p_payload;
     BT_CP_TLV_HDR    *p_tlv;
+    char *p;
 
     BT_CP_PROTOCOL_HDR  *p_protocol_hdr;
 
@@ -59,11 +61,23 @@ void akbi_process_rx_serial_data(char *ccu_msg,int length)
             memcpy(firmware_version, p_tlv->data, p_tlv->length);
             // printf(" INFO : FW-Version      : %s \n", firmware_version );
 
-            p_tlv = (BT_CP_TLV_HDR *)(ccu_msg + 0x03 + p_tlv->length);
+            p = p_tlv ;
+            p = p + 0x02 + p_tlv->length;
+            p_tlv = (BT_CP_TLV_HDR *) p ;
+
             memcpy(ccu_serial_no, p_tlv->data, p_tlv->length);
       			// printf(" INFO : SERIAL-NO-TYPE : %x \n", p_tlv->type );
-      			// printf(" INFO : SERIAL-NO      : %d \n", p_tlv->length );
+      			// printf(" INFO : SERIAL-NO len  : %d \n", p_tlv->length );
             // printf(" INFO : SERIAL-NO      : %s \n", ccu_serial_no );
+
+            p = p_tlv ;
+            p = p + 0x02 + p_tlv->length;
+            p_tlv = (BT_CP_TLV_HDR *) p ;
+
+            memcpy(&post_result, p_tlv->data, p_tlv->length);
+            // printf(" INFO : length           : %02x\n",  p_tlv->length );
+            // printf(" INFO : POST result      : %02x \n", post_result );
+
 
             break;
 
@@ -102,6 +116,7 @@ void akbi_process_rx_serial_data(char *ccu_msg,int length)
             if (p_payload[0] == SUCCESS) {
                 akbi_set_fsm_state(FSM_STATE_LOGIN_SUCCESS);
                 ep_return_message[BLE_RET_MSG_RC_OFFSET] = SUCCESS;
+                ep_return_message[BLE_RET_MSG_RC_OFFSET+1] = post_result;
                 return;
             }
 
