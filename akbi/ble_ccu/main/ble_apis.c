@@ -136,7 +136,7 @@ int execute_register(char *i_cmd, char *i_ret_msg)
         memcpy(this_ccu.paired_mob1.android_id_or_uuid,
                &i_cmd[BLE_CMD_MULTI_DATA_VALUE_OFFSET],data_len_in_ble);
         //printf(" INFO : Mob-UUID - %s(%d) \n", this_ccu.paired_mob1.android_id_or_uuid,
-                 data_len_in_ble);
+                // data_len_in_ble);
         i_ret_msg[BLE_RET_MSG_RC_OFFSET] = SUCCESS;
         this_ccu.paired_mob1.data_status = this_ccu.paired_mob1.data_status | FLAG_DATA_SET_ANDROID_ID_OR_UUID;
         //TODO-Store Android ID or UUID in EEPROM and populate error code
@@ -239,6 +239,9 @@ int execute_change_password(char *i_cmd, char *i_ret_msg)
     char data_type       = i_cmd[BLE_CMD_MULTI_DATA_TYPE_OFFSET];
     int data_len_in_ble  = (int)i_cmd[BLE_CMD_MULTI_DATA_LEN_OFFSET];
     char i_pwd[data_len_in_ble];
+    char p_password_new[20];
+    char p_password_current[20];
+
 
     memcpy(i_pwd,&i_cmd[BLE_CMD_MULTI_DATA_VALUE_OFFSET],data_len_in_ble);
     i_ret_msg[BLE_RET_MSG_DATA_TYPE_OFFSET] = data_type;
@@ -247,6 +250,8 @@ int execute_change_password(char *i_cmd, char *i_ret_msg)
     {
 
     case DID_CHANGE_PASSWORD_CURRENT:
+        i_ret_msg[BLE_RET_MSG_RC_OFFSET] = SUCCESS;
+        akbi_set_fsm_state(FSM_STATE_INIT);
         save_group_messages(p_recvd_msg_full,DID_CHANGE_PASSWORD_CURRENT);
         break;
 
@@ -256,7 +261,13 @@ int execute_change_password(char *i_cmd, char *i_ret_msg)
         // this_ccu.data_status = this_ccu.data_status | FLAG_DATA_SET_CCU_NEW_PASSWORD;
         // i_ret_msg[BLE_RET_MSG_RC_OFFSET] = SUCCESS;
         save_group_messages(p_recvd_msg_full,DID_CHANGE_PASSWORD_NEW);
-        send_batch_messages(DID_CHANGE_PASSWORD_NEW,CID_CHANGE_PASSWORD);
+        // send_batch_messages(DID_CHANGE_PASSWORD_NEW,CID_CHANGE_PASSWORD);
+
+        memset(p_password_new , 0x00, 20);
+        memset(p_password_current , 0x00, 20);
+        memcpy(p_password_current ,&saved_messages[0][BLE_MSG_MULTI_DATA_DATA_OFFSET],saved_messages[0][BLE_MSG_MULTI_DATA_LEN_OFFSET]);
+        memcpy(p_password_new ,&saved_messages[1][BLE_MSG_MULTI_DATA_DATA_OFFSET],saved_messages[1][BLE_MSG_MULTI_DATA_LEN_OFFSET]);
+        ccu_sent_user_change_passwd_msg(p_password_current, p_password_new );
         break;
 
     default:
@@ -833,10 +844,10 @@ int read_ble_message(char *i_msg, char *i_ret_msg)
             break;
 
         case CID_CHANGE_PASSWORD :
-            if (this_ccu.paired_mob1.authentication_status != AUTHENTICATED) {
-                i_ret_msg[BLE_RET_MSG_RC_OFFSET] = ERROR_AUTHENTICATION;
-                return ERROR_AUTHENTICATION;
-            }
+            // if (this_ccu.paired_mob1.authentication_status != AUTHENTICATED) {
+            //     i_ret_msg[BLE_RET_MSG_RC_OFFSET] = ERROR_AUTHENTICATION;
+            //     return ERROR_AUTHENTICATION;
+            // }
             memcpy(ble_command,&i_msg[BLE_CMD_OFFSET + BLE_COMMAND_ID_SIZE],BLE_COMMAND_SIZE);
             akbi_set_fsm_state(FSM_STATE_CHANGE_PASSWD);
             execute_change_password(ble_command,i_ret_msg);

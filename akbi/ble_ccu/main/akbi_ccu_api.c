@@ -296,25 +296,47 @@ int ccu_sent_user_forgot_passwd_msg()
     return (0);
 }
 
-int ccu_sent_user_change_passwd_msg(char *received_value_buffer,char *ep_return_message)
+int ccu_sent_user_change_passwd_msg(char *p_password_current,char *p_password_new)
 {
-    char                p_tx_buffer[20];
     BT_CP_PROTOCOL_HDR  *p_protocol_hdr;
-    int                 length;
     char                *p;
+    int                 length;
+    char                p_tx_buffer[100];
+    BT_CP_TLV_HDR       *p_tlv_hdr;
 
-    //printf(" INFO : Sending USER-CHANGE_PASSWD Message \n");
+    memset(p_tx_buffer,0x00,100);
+    printf(" INFO : Sending USER-CHANGE_PASSWD Message \n");
     p_protocol_hdr = (BT_CP_PROTOCOL_HDR *)p_tx_buffer;
 
     p_protocol_hdr->opcode   = BT_CP_OPCODE_CID_CHANGE_PASSWORD;
     p_protocol_hdr->trans_id = 44;
-    p_protocol_hdr->type     = 0;
-    p_protocol_hdr->length   = received_value_buffer[BLE_MSG_MULTI_DATA_LEN_OFFSET];;
 
+    /*
+     * Now set all the TLV data here.
+     */
     p = p_tx_buffer + sizeof(BT_CP_PROTOCOL_HDR);
-    memcpy(p, (received_value_buffer+BLE_MSG_MULTI_DATA_LEN_OFFSET+1), p_protocol_hdr->length);
+    p_protocol_hdr->type     = TLV_TYPE_CURRENT_PASSWD;
+    p_protocol_hdr->length   = strlen(p_password_current);
+    memcpy(p,p_password_current,strlen(p_password_current));
+    printf("p:%s\n",p );
+    p+=strlen(p_password_current);
 
-    length = sizeof(BT_CP_PROTOCOL_HDR) + p_protocol_hdr->length;
+    // p_tlv_hdr  = (BT_CP_TLV_HDR*)p;
+    // p_tlv_hdr->type   = TLV_TYPE_NEW_PASSWD;
+    // p_tlv_hdr->length = strlen(p_password_new);
+    p[0]=TLV_TYPE_NEW_PASSWD;
+    p++;
+    p[0]=strlen(p_password_new);
+    p++;
+    memcpy(p,p_password_new,strlen(p_password_new));
+
+    length = sizeof(BT_CP_PROTOCOL_HDR) + strlen(p_password_current) + sizeof(BT_CP_TLV_HDR) + strlen(p_password_new);
+
+    // printf("send_msg:\n");
+    // for (int i = 0; i < length; i++) {
+    //   printf("%02x ",p_tx_buffer[i] );
+    // }
+    // printf("\n" );
     send_uart_message(p_tx_buffer, length );
 
     return (0);
