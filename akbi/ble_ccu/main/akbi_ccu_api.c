@@ -318,7 +318,6 @@ int ccu_sent_user_change_passwd_msg(char *p_password_current,char *p_password_ne
     p_protocol_hdr->type     = TLV_TYPE_CURRENT_PASSWD;
     p_protocol_hdr->length   = strlen(p_password_current);
     memcpy(p,p_password_current,strlen(p_password_current));
-    printf("p:%s\n",p );
     p+=strlen(p_password_current);
 
     // p_tlv_hdr  = (BT_CP_TLV_HDR*)p;

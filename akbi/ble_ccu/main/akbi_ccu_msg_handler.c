@@ -116,7 +116,8 @@ void akbi_process_rx_serial_data(char *ccu_msg,int length)
             if (p_payload[0] == SUCCESS) {
                 akbi_set_fsm_state(FSM_STATE_LOGIN_SUCCESS);
                 ep_return_message[BLE_RET_MSG_RC_OFFSET] = SUCCESS;
-                ep_return_message[BLE_RET_MSG_RC_OFFSET+1] = post_result;
+                ep_return_message[BLE_RET_MSG_DATA_TYPE_OFFSET] = post_result;
+                memcpy(&ep_return_message[BLE_RET_MSG_FIRMWARE_VERSION_OFFSET],firmware_version,strlen(firmware_version));
                 return;
             }
 
@@ -176,24 +177,15 @@ void akbi_process_rx_serial_data(char *ccu_msg,int length)
             }
             break;
 
-        /*case BT_CP_OPCODE_CID_FORGOT_PASSWORD:
-              if (p_protocol_hdr->type == ) {
-                  akbi_set_fsm_state(FSM_STATE_FORGOT_PASSWD_RESULT);
-                  ep_return_message[BLE_RET_MSG_RC_OFFSET] = ;
-                  return;
-              }
-              if (p_protocol_hdr->type == ) {
-                  akbi_set_fsm_state(FSM_STATE_FORGOT_PASSWD_RESULT);
-                  ep_return_message[BLE_RET_MSG_RC_OFFSET] = ERROR_;
-                  return;
-              }
-              if (p_protocol_hdr->type == 0) {
-                  akbi_set_fsm_state(FSM_STATE_FORGOT_PASSWD_RESULT);
-                  ep_return_message[BLE_RET_MSG_RC_OFFSET] = SUCCESS;
-                  return;
-              }
+        case BT_CP_OPCODE_CID_FORGOT_PASSWORD:
+            if (p_payload[0] == 0x07) {
+              akbi_set_fsm_state(FSM_STATE_CHANGE_PASSWD_COMPLETE);
+              ep_return_message[BLE_RET_MSG_RC_OFFSET] = 0x07;
+              return;
+            }
+
               break;
-        */
+
 
         /*case BT_CP_OPCODE_CID_RECORD_PERSONAL_VOICE_MSG:
               if (p_protocol_hdr->type == ) {

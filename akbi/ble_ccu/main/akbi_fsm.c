@@ -143,7 +143,7 @@ int akbi_check_fsm_state_and_respond(char *ep_return_message)
 
     case FSM_STATE_WIFI_NAME_SEND_IN_PROGRESS :
 
-        memcpy(ep_return_message+RETURN_MSG_DATA_OFFSET,&wifi_report[ssid_index],12);
+        memcpy(ep_return_message+RETURN_MSG_DATA_OFFSET,&wifi_report[ssid_index],strlen(wifi_report[ssid_index]));
 
         if (wifi_report_length[ssid_index]>12) {
             memcpy(ep_return_message+RETURN_MSG_DATA_OFFSET,&wifi_report[ssid_index],10);
