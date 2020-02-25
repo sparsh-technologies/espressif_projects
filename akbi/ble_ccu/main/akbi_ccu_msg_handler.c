@@ -186,6 +186,10 @@ void akbi_process_rx_serial_data(char *ccu_msg,int length)
 
               break;
 
+        case BT_CP_OPCODE_CID_UPDATE_CCU_SW_STATUS:
+            akbi_set_fsm_state(FSM_STATE_FW_UPGRADE_COMPLETE);
+            ep_return_message[BLE_RET_MSG_RC_OFFSET] = p_payload[0];
+            break;
 
         /*case BT_CP_OPCODE_CID_RECORD_PERSONAL_VOICE_MSG:
               if (p_protocol_hdr->type == ) {
@@ -241,24 +245,7 @@ void akbi_process_rx_serial_data(char *ccu_msg,int length)
               }
               break;
         */
-        /*case BT_CP_OPCODE_CID_UPDATE_CCU_SW:
-              if (p_protocol_hdr->type == ) {
-                  akbi_set_fsm_state(FSM_STATE_FW_UPGRADE_COMPLETE);
-                  ep_return_message[BLE_RET_MSG_RC_OFFSET] = ;
-                  return;
-              }
-              if (p_protocol_hdr->type == ) {
-                  akbi_set_fsm_state(FSM_STATE_FW_UPGRADE_COMPLETE);
-                  ep_return_message[BLE_RET_MSG_RC_OFFSET] = ERROR_;
-                  return;
-              }
-              if (p_protocol_hdr->type == 0) {
-                  akbi_set_fsm_state(FSM_STATE_FW_UPGRADE_COMPLETE);
-                  ep_return_message[BLE_RET_MSG_RC_OFFSET] = SUCCESS;
-                  return;
-              }
-              break;
-        */
+
         /*case BT_CP_OPCODE_CID_UPLOAD_TRIP_INFO:
               if (p_protocol_hdr->type == ) {
                   akbi_set_fsm_state(FSM_STATE_TRIP_INFO_UPLOAD_COMPLETE);
