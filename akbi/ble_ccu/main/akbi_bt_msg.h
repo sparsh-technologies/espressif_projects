@@ -67,6 +67,7 @@
 #define CID_DISCONNECT_FROM_WIFI           0x0E
 #define CID_UPDATE_CCU_SW                  0x0F
 #define CID_UPLOAD_TRIP_INFO               0x10
+#define CID_SET_CCU_WIFI_MODE              0x11 
 
 #define DID_REGISTER_PASSWORD              0x01
 #define DID_REGISTER_MOB_NO                0x02
@@ -400,5 +401,6 @@ typedef struct __attribute__((__packed__)) _bt_cp_tlv_hdr_ {
 #define TLV_TYPE_WIFI_MODE_AP_NAME                                0x02
 #define TLV_TYPE_WIFI_MODE_AP_PASSWD                              0x03
 #define TLV_TYPE_WIFI_MODE_AP_MODE                                0x04
+#define TLV_TYPE_WIFI_MODE_STATION_MODE                           0x05
 
 #endif

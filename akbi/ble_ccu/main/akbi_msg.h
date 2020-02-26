@@ -45,6 +45,7 @@
 #define BLE_RET_MSG_MY_NETWORK_KEY_OFFSET         13
 #define BLE_RET_MSG_SCANNED_SSID_COUNT_OFFSET     8
 #define BLE_RET_MSG_FIRMWARE_VERSION_OFFSET       8
+#define BLE_RET_MSG_SERIAL_NUM_OFFSET             1
 
 #define BLE_MSG_MULTI_DATA_LEN_OFFSET             4
 #define BLE_MSG_MULTI_DATA_DATA_OFFSET            5
@@ -70,6 +71,7 @@
 #define READY_TO_SEND_REG_DATA_TO_SERIAL          0x0E
 #define WIFI_SCANNING_IN_PROGRESS                 0x77//for testing
 
+#define ADV_SER_NO_SIZE                           4
 #define BLE_RETURN_MAX_SIZE                       20
 #define MOB_NAME_SIZE                             15
 #define IMEI_NO_SIZE                              15

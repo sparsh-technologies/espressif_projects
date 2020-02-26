@@ -35,12 +35,14 @@ static char *p_recvd_msg_full;
 static char *p_return_msg_full;
 static int flag_set_recvd_msg_ptr = 0;
 static int flag_set_return_msg_ptr = 0;
+extern char adv_ser_no[5];
 
 /*
  * All extern API's are declared here.
  */
 extern int ccu_sent_scan_all_wifi_msg(char * ret_msg);
 extern int ccu_send_reg_msg_new(int type, char *received_value_buffer, int data_len);
+
 
 AKBI_WIFI_SCAN_REPORT  wifi_scan_report;
 
@@ -718,6 +720,11 @@ int update_ccu_sw(char *i_ret_msg)
     // this_ccu.fw_upgrades[].version = get_wifi_status();
     return 0;
 }
+int set_ccu_wifi_mode(unsigned char wifi_mode)
+{
+    ccu_sent_wifi_set_mode(wifi_mode);
+    return 0;
+}
 
 int update_trip_info()
 {
@@ -769,6 +776,8 @@ int read_ble_message(char *i_msg, char *i_ret_msg)
     source_app_type_identifier = i_msg[BLE_APP_TYPE_OFFSET];
     source_app_identifier      = i_msg[BLE_APP_OFFSET];
 
+    memset(ble_command,0x00,BLE_COMMAND_SIZE);
+
     if(flag_set_recvd_msg_ptr == 0){
       set_recvd_msg_pointer(i_msg);
     }
@@ -794,6 +803,7 @@ int read_ble_message(char *i_msg, char *i_ret_msg)
     ble_cmd_id                           = i_msg[BLE_CMD_OFFSET];
     i_ret_msg[BLE_RET_MSG_CCU_ID_OFFSET] = CCU_TYPE_ID;
     i_ret_msg[BLE_RET_MSG_CMD_ID_OFFSET] = ble_cmd_id;
+    memcpy(&i_ret_msg[BLE_RET_MSG_SERIAL_NUM_OFFSET],adv_ser_no,ADV_SER_NO_SIZE);
 
      /*
      * If this is the first register packet, set the app id in the data structure.
@@ -960,6 +970,15 @@ int read_ble_message(char *i_msg, char *i_ret_msg)
             }
             akbi_set_fsm_state(FSM_STATE_FW_UPGRADE_IN_PROGRESS);
             update_ccu_sw(i_ret_msg);
+            break;
+
+        case CID_SET_CCU_WIFI_MODE :
+            if (this_ccu.paired_mob1.authentication_status != AUTHENTICATED) {
+                memset(&i_ret_msg[BLE_RET_MSG_RC_OFFSET], ERROR_AUTHENTICATION, BLE_RETURN_RC_SIZE);
+                return ERROR_AUTHENTICATION;
+            }
+            akbi_set_fsm_state(FSM_STATE_WIFI_MODE_SET_IN_PROGRESS);
+            set_ccu_wifi_mode(i_msg[BLE_MSG_MULTI_DATA_TYPE_OFFSET]);
             break;
 
         case CID_UPLOAD_TRIP_INFO:

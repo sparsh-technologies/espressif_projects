@@ -57,7 +57,7 @@
 
 extern uint8_t return_data[15];
 char ep_return_message[MAX_RETURN_MSG_LENGTH];
-char adv_ser_no[ADV_SER_NO_SIZE+1];
+char adv_ser_no[5];
 char adv_full_name[20];
 char firmware_version[10];
 char ccu_serial_no[20];

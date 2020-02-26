@@ -31,6 +31,8 @@ int akbi_get_fsm_state()
 
 static char wifi_report[10][20];
 static int  wifi_report_length[10];
+char        ccu_ap_ssid[20];
+char        ccu_ap_passwd[20];
 
 static int ssid_index = 0;
 static int no_of_stored_ssids = 0;
@@ -221,6 +223,14 @@ int akbi_check_fsm_state_and_respond(char *ep_return_message)
         break;
 
     case FSM_STATE_ACTIVATE_COMPLETE :
+        ret = 0;
+        break;
+
+    case FSM_STATE_WIFI_MODE_SET_IN_PROGRESS :
+        ret = 1;
+        break;
+
+    case FSM_STATE_WIFI_MODE_SET_COMPLETE :
         ret = 0;
         break;
 

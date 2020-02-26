@@ -18,6 +18,8 @@ extern char ep_return_message[MAX_RETURN_MSG_LENGTH];
 extern char firmware_version[10];
 extern char ccu_serial_no[20];
 unsigned char post_result;
+extern char   ccu_ap_ssid[20];
+extern char   ccu_ap_passwd[20];
 
 void akbi_process_rx_serial_data(char *ccu_msg,int length)
 {
@@ -179,7 +181,7 @@ void akbi_process_rx_serial_data(char *ccu_msg,int length)
 
         case BT_CP_OPCODE_CID_FORGOT_PASSWORD:
             if (p_payload[0] == 0x07) {
-              akbi_set_fsm_state(FSM_STATE_CHANGE_PASSWD_COMPLETE);
+              akbi_set_fsm_state(FSM_STATE_FORGOT_PASSWD_RESULT);
               ep_return_message[BLE_RET_MSG_RC_OFFSET] = 0x07;
               return;
             }
@@ -191,9 +193,15 @@ void akbi_process_rx_serial_data(char *ccu_msg,int length)
             ep_return_message[BLE_RET_MSG_RC_OFFSET] = p_payload[0];
             break;
 
-        /*case BT_CP_OPCODE_CID_RECORD_PERSONAL_VOICE_MSG:
-              if (p_protocol_hdr->type == ) {
-                  akbi_set_fsm_state(FSM_STATE_VOICE_RECORDING_COMPLETE);
+        case BT_CP_OPCODE_CID_WIFI_SET_MODE_STATUS:
+            akbi_set_fsm_state(FSM_STATE_WIFI_MODE_SET_COMPLETE);
+            ep_return_message[BLE_RET_MSG_RC_OFFSET] = p_payload[0];
+            break;
+
+        /*case BT_CP_OPCODE_CID_RECORD_PERSONAL_VOICE_MSG_STATUS:
+              if (p_protocol_hdr->type == 1) {
+                  // akbi_set_fsm_state(FSM_STATE_VOICE_RECORDING_COMPLETE);
+                  memcpy(ccu_ap_ssid,p_payload, p_protocol_hdr->length);
                   ep_return_message[BLE_RET_MSG_RC_OFFSET] = ;
                   return;
               }
