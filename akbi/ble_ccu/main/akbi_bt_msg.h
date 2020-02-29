@@ -67,12 +67,14 @@
 #define CID_DISCONNECT_FROM_WIFI           0x0E
 #define CID_UPDATE_CCU_SW                  0x0F
 #define CID_UPLOAD_TRIP_INFO               0x10
-#define CID_SET_CCU_WIFI_MODE              0x11 
+#define CID_SET_CCU_WIFI_MODE              0x11
 
 #define DID_REGISTER_PASSWORD              0x01
 #define DID_REGISTER_MOB_NO                0x02
 #define DID_REGISTER_MOB_NAME              0x03
 #define DID_REGISTER_ANDROID_ID_OR_UUID    0x04
+#define DID_REGISTER_LAT                   0x05
+#define DID_REGISTER_LONG                  0x06
 #define DID_CHANGE_PASSWORD_CURRENT        0x01
 #define DID_CHANGE_PASSWORD_NEW            0x02
 #define DID_EMERGENCY_FIRST_RESPONDER      0x01
@@ -109,6 +111,8 @@ typedef struct _mob1_ {
     char mobile_number[MOB_NO_SIZE];
     char mobile_name[MOB_NAME_SIZE];
     char android_id_or_uuid[ANDROID_ID_OR_UUID_SIZE];
+    char latitude[LAT_LONG_SIZE];
+    char longitude[LAT_LONG_SIZE];
     AUTH_STATUS   authentication_status;
 
     /*
@@ -316,6 +320,9 @@ typedef struct __attribute__((__packed__)) _bt_cp_tlv_hdr_ {
 #define BT_CP_OPCODE_CID_WIFI_SET_MODE_STATUS                     0x77
 #define BT_CP_OPCODE_CID_CHANGE_PASSWORD_STATUS                   0x78
 #define BT_CP_OPCODE_CID_UPDATE_CCU_SW_STATUS                     0x79
+#define BT_CP_OPCODE_CID_RECORD_PERSONAL_VOICE_MSG_STATUS         0x7A
+#define BT_CP_OPCODE_CID_DISCONNECT_FROM_WIFI_STATUS              0x7B
+
 
 /*
  * All TVL Types are defined here.
@@ -329,6 +336,9 @@ typedef struct __attribute__((__packed__)) _bt_cp_tlv_hdr_ {
 #define TLV_TYPE_REGISTER_MOB_NUM                                 0x02
 #define TLV_TYPE_REGISTER_MOB_NAME                                0x03
 #define TLV_TYPE_REGISTER_UNIQUE_ID                               0x04
+#define TLV_TYPE_REGISTER_LAT_STRING                              0x05
+#define TLV_TYPE_REGISTER_LONG_STRING                             0x06
+
 
 /*
  * TLV for BT_CP_OPCODE_CID_CHANGE_PASSWORD Opcode

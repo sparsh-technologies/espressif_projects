@@ -133,6 +133,11 @@ void akbi_process_rx_serial_data(char *ccu_msg,int length)
             ep_return_message[BLE_RET_MSG_RC_OFFSET] = p_payload[0];
             return;
 
+        case BT_CP_OPCODE_CID_DISCONNECT_FROM_WIFI_STATUS:
+            akbi_set_fsm_state(FSM_STATE_WIFI_DISCONNECT_COMPLETE);
+            ep_return_message[BLE_RET_MSG_RC_OFFSET] = p_payload[0];
+            return;
+
         case BT_CP_OPCODE_CID_CFG_PARAMS_SAVE_STATUS:
             if((type_in_msg == TLV_TYPE_STORED_CFG_EMER_NUM_2)||(type_in_msg == TLV_TYPE_STORED_CFG_EMER_NUM_3)){
                 akbi_set_fsm_state(FSM_STATE_SET_EMER_NUM_RECEIVED);
@@ -198,25 +203,11 @@ void akbi_process_rx_serial_data(char *ccu_msg,int length)
             ep_return_message[BLE_RET_MSG_RC_OFFSET] = p_payload[0];
             break;
 
-        /*case BT_CP_OPCODE_CID_RECORD_PERSONAL_VOICE_MSG_STATUS:
-              if (p_protocol_hdr->type == 1) {
-                  // akbi_set_fsm_state(FSM_STATE_VOICE_RECORDING_COMPLETE);
-                  memcpy(ccu_ap_ssid,p_payload, p_protocol_hdr->length);
-                  ep_return_message[BLE_RET_MSG_RC_OFFSET] = ;
-                  return;
-              }
-              if (p_protocol_hdr->type == ) {
-                  akbi_set_fsm_state(FSM_STATE_VOICE_RECORDING_COMPLETE);
-                  ep_return_message[BLE_RET_MSG_RC_OFFSET] = ERROR_;
-                  return;
-              }
-              if (p_protocol_hdr->type == 0) {
-                  akbi_set_fsm_state(FSM_STATE_VOICE_RECORDING_COMPLETE);
-                  ep_return_message[BLE_RET_MSG_RC_OFFSET] = SUCCESS;
-                  return;
-              }
-              break;
-        */
+        case BT_CP_OPCODE_CID_RECORD_PERSONAL_VOICE_MSG_STATUS:
+            akbi_set_fsm_state(FSM_STATE_VOICE_RECORDING_COMPLETE);
+            ep_return_message[BLE_RET_MSG_RC_OFFSET] = p_payload[0];
+            break;
+
         /*case BT_CP_OPCODE_CID_ADDRESS_VISITING:
               if (p_protocol_hdr->type == ) {
                   akbi_set_fsm_state(FSM_STATE_CFG_SET_ADDRESS_COMPLETE);

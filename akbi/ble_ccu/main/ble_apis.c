@@ -97,6 +97,8 @@ int execute_register(char *i_cmd, char *i_ret_msg)
     char data_type                          = i_cmd[BLE_CMD_MULTI_DATA_TYPE_OFFSET];
     int  data_len_in_ble                    = (int)i_cmd[BLE_CMD_MULTI_DATA_LEN_OFFSET];
     i_ret_msg[BLE_RET_MSG_DATA_TYPE_OFFSET] = data_type;
+char lat[15] = "010.012742N";
+char longi[15] = "076.337381E" ;
 
     switch (data_type)
     {
@@ -146,6 +148,32 @@ int execute_register(char *i_cmd, char *i_ret_msg)
         ccu_send_reg_msg_new(DID_REGISTER_ANDROID_ID_OR_UUID,
                              this_ccu.paired_mob1.android_id_or_uuid,
                              data_len_in_ble);
+ets_delay_us(200000);
+ccu_send_reg_msg_new(0x05,lat,0x0A);
+ets_delay_us(200000);
+ccu_send_reg_msg_new(0x06,longi,0x0A);
+        break;
+
+    case DID_REGISTER_LAT :
+        memcpy(this_ccu.paired_mob1.latitude,
+               &i_cmd[BLE_CMD_MULTI_DATA_VALUE_OFFSET],data_len_in_ble);
+        //printf(" INFO : Mob-Name - %s(%d) \n", this_ccu.paired_mob1.mobile_name, data_len_in_ble);
+        i_ret_msg[BLE_RET_MSG_RC_OFFSET] = SUCCESS;
+        this_ccu.paired_mob1.data_status = this_ccu.paired_mob1.data_status | FLAG_DATA_SET_MOB1_NAME;
+        //TODO-Store mobile name in EEPROM and populate error code
+       // save_group_messages(p_recvd_msg_full,DID_REGISTER_MOB_NAME);
+        ccu_send_reg_msg_new(DID_REGISTER_LAT, this_ccu.paired_mob1.latitude, data_len_in_ble);
+        break;
+
+    case DID_REGISTER_LONG :
+        memcpy(this_ccu.paired_mob1.longitude,
+               &i_cmd[BLE_CMD_MULTI_DATA_VALUE_OFFSET],data_len_in_ble);
+        //printf(" INFO : Mob-Name - %s(%d) \n", this_ccu.paired_mob1.mobile_name, data_len_in_ble);
+        i_ret_msg[BLE_RET_MSG_RC_OFFSET] = SUCCESS;
+        this_ccu.paired_mob1.data_status = this_ccu.paired_mob1.data_status | FLAG_DATA_SET_MOB1_NAME;
+        //TODO-Store mobile name in EEPROM and populate error code
+       // save_group_messages(p_recvd_msg_full,DID_REGISTER_MOB_NAME);
+        ccu_send_reg_msg_new(DID_REGISTER_LONG, this_ccu.paired_mob1.longitude, data_len_in_ble);
         break;
 
     default :

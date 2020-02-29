@@ -240,7 +240,7 @@ int ccu_sent_disconnect_from_wifi()
     BT_CP_PROTOCOL_HDR  *p_protocol_hdr;
     int                 length;
 
-    //printf(" INFO : Sending DISCONNECT-FROM-WIFI Message \n");
+    printf(" INFO : Sending DISCONNECT-FROM-WIFI Message \n");
     p_protocol_hdr = (BT_CP_PROTOCOL_HDR *)p_tx_buffer;
 
     p_protocol_hdr->opcode   = BT_CP_OPCODE_CID_DISCONNECT_FROM_WIFI;
