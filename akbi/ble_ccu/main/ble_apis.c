@@ -551,31 +551,18 @@ int execute_select_a_wifi(char *i_cmd, char *i_ret_msg)
             break;
         }
     }
-
-
-    if (FLAG_DATA_SET_SEL_WIFI_ALL == (FLAG_DATA_SET_SEL_WIFI_ALL & this_ccu.conf_wifi.data_status)) {
-        //TODO: Get the wifi status from the processor
-        this_ccu.conf_wifi.status = get_wifi_status();
-        memcpy(&i_ret_msg[BLE_RET_MSG_RC_OFFSET],&this_ccu.conf_wifi.status,BLE_RETURN_RC_SIZE);
-    }
-    return (int)i_ret_msg[BLE_RET_MSG_RC_OFFSET];
+    return 0;
 }
 
 int execute_connect_to_wifi(char *i_ret_msg)
 {
-    //TODO: Get the wifi status from the processor
     ccu_sent_connect_to_wifi();
-    this_ccu.conf_wifi.status = get_wifi_status();
-    //memcpy(&i_ret_msg[BLE_RET_MSG_RC_OFFSET],&this_ccu.conf_wifi.status,BLE_RETURN_RC_SIZE);
     return (int)i_ret_msg[BLE_RET_MSG_RC_OFFSET];
 }
 
 int execute_disconnect_from_wifi(char *i_ret_msg)
 {
-    //TODO: Get the wifi status from the processor
     ccu_sent_disconnect_from_wifi();
-    // this_ccu.conf_wifi.status = get_wifi_status();
-    //memcpy(&i_ret_msg[BLE_RET_MSG_RC_OFFSET],&this_ccu.conf_wifi.status,BLE_RETURN_RC_SIZE);
     return (int)i_ret_msg[BLE_RET_MSG_RC_OFFSET];
 }
 
@@ -664,80 +651,41 @@ int execute_store_address_visiting(char *i_cmd, char *i_ret_msg)
 
 int execute_ccu_activate(char *i_cmd,char *i_ret_msg)
 {
-    char degree[LAT_LONG_DEGREE_SIZE];
-    char minute[LAT_LONG_MINUTE_SIZE];
-    char second[LAT_LONG_SECOND_SIZE];
-    char direction;
-    unsigned char byte_offset = 0;
-    unsigned char i_activations_count = this_ccu.activations_count;
+  char data_type       = i_cmd[BLE_CMD_MULTI_DATA_TYPE_OFFSET];
+  int  data_len_in_ble = (int)i_cmd[BLE_CMD_MULTI_DATA_LEN_OFFSET];
+  char i_data_value[data_len_in_ble];
+  char act_latitude[20];
+  char act_longitude[20];
 
-    ccu_sent_activate_system_msg();
-    //TODO: Send message to the processor to switch mode.
-    this_ccu.mode = MONITOR;
-    memcpy(degree,&i_cmd[byte_offset],LAT_LONG_DEGREE_SIZE);
-    byte_offset += LAT_LONG_DEGREE_SIZE;
-    memcpy(minute,&i_cmd[byte_offset],LAT_LONG_MINUTE_SIZE);
-    byte_offset += LAT_LONG_MINUTE_SIZE;
-    memcpy(second,&i_cmd[byte_offset],LAT_LONG_SECOND_SIZE);
-    byte_offset += LAT_LONG_SECOND_SIZE;
-    direction = i_cmd[byte_offset];
-    byte_offset += 1;
+  memcpy(i_data_value,&i_cmd[BLE_CMD_MULTI_DATA_VALUE_OFFSET],data_len_in_ble);
+  memcpy(&i_ret_msg[BLE_RET_MSG_DATA_TYPE_OFFSET],&data_type,BLE_COMMAND_DATA_TYPE_SIZE);
 
-    this_ccu.activations[i_activations_count].latitude.degree = atoi(degree);
-    this_ccu.activations[i_activations_count].latitude.minute = atoi(minute);
-    this_ccu.activations[i_activations_count].latitude.second = atoi(second);
+  switch (data_type) {
+      case DID_ACTIVATE_CCU_LATITUDE : {
+          memset(&i_ret_msg[BLE_RET_MSG_RC_OFFSET], SUCCESS, BLE_RETURN_RC_SIZE);
+          save_group_messages(p_recvd_msg_full,DID_ACTIVATE_CCU_LATITUDE);
+          break;
+      }
+      case DID_ACTIVATE_CCU_LONGITUDE : {
+          save_group_messages(p_recvd_msg_full,DID_SELECT_A_WIFI_NETWORK_KEY);
 
-    switch (direction)
-    {
-    case 'N' :
-        this_ccu.activations[i_activations_count].lat_dir = NORTH;
-        break;
+          memset(act_latitude , 0x00, 20);
+          memset(act_longitude , 0x00, 20);
+          memcpy(act_latitude ,&saved_messages[0][BLE_MSG_MULTI_DATA_DATA_OFFSET],saved_messages[1][BLE_MSG_MULTI_DATA_LEN_OFFSET]);
+          memcpy(act_longitude ,&saved_messages[1][BLE_MSG_MULTI_DATA_DATA_OFFSET],saved_messages[1][BLE_MSG_MULTI_DATA_LEN_OFFSET]);
+          akbi_set_fsm_state(FSM_STATE_ACTIVATE_IN_PROGRESS);
+          ccu_sent_activate_system_msg(act_latitude,act_longitude,4);
 
-    case 'S' :
-        this_ccu.activations[i_activations_count].lat_dir = SOUTH;
-        break;
-
-    default :
-        printf("Direction Parsing Error #%c#\n",direction);
-        break;
-
+          break;
+      }
+      default: {
+          memset(&i_ret_msg[BLE_RET_MSG_RC_OFFSET], ERROR_UNRECOGNIZED_DATA,
+                 BLE_RETURN_RC_SIZE);
+          break;
+      }
     }
 
-    memcpy(degree,&i_cmd[byte_offset],LAT_LONG_DEGREE_SIZE);
-    byte_offset += LAT_LONG_DEGREE_SIZE;
-    memcpy(minute,&i_cmd[byte_offset],LAT_LONG_MINUTE_SIZE);
-    byte_offset += LAT_LONG_MINUTE_SIZE;
-    memcpy(second,&i_cmd[byte_offset],LAT_LONG_SECOND_SIZE);
-    byte_offset += LAT_LONG_SECOND_SIZE;
-    direction = i_cmd[byte_offset];
-    byte_offset += 1;
-
-    //TODO: get the next vacant location in the visited_locations array
-    this_ccu.activations[i_activations_count].longitude.degree = atoi(degree);
-    this_ccu.activations[i_activations_count].longitude.minute = atoi(minute);
-    this_ccu.activations[i_activations_count].longitude.second = atoi(second);
-
-    switch (direction)
-    {
-    case 'E' :
-        this_ccu.activations[i_activations_count].long_dir = EAST;
-        break;
-
-    case 'W' :
-        this_ccu.activations[i_activations_count].long_dir = WEST;
-        break;
-
-    default :
-        printf("Direction Parsing Error #%c#\n",direction);
-        break;
-
-    }
-
-    //this_ccu.visited_locations_count++;
-    sprintf(this_ccu.activations[i_activations_count].time,"%ld",time(NULL));
-    memset(&i_ret_msg[BLE_RET_MSG_RC_OFFSET], SUCCESS, BLE_RETURN_RC_SIZE);
-
-    return (int)i_ret_msg[BLE_RET_MSG_RC_OFFSET];
+    return 0;
 }
 
 int update_ccu_sw(char *i_ret_msg)

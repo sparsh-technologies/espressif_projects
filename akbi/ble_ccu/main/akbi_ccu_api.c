@@ -487,22 +487,52 @@ int ccu_sent_store_local_help_number_msg(char *received_value_buffer)
     return (0);
 }
 
-int ccu_sent_activate_system_msg()
+int ccu_sent_activate_system_msg(char *p_latitude, char *p_longitude, int mode)
 {
     BT_CP_PROTOCOL_HDR  *p_protocol_hdr;
+    char                *p;
     int                 length;
-    char                p_tx_buffer[20];
+    char                p_tx_buffer[100];
+    BT_CP_TLV_HDR       *p_tlv_hdr;
 
-    //printf(" INFO : Sending ACTIVATE-SYSTEM Message \n");
+    //printf(" INFO : Sending CONFIGURE-WIFI Message \n");
+    //printf(" INFO : PASSWD : %s(%d) \n", p_passwd, strlen(p_passwd));
+    //printf(" INFO : AP-ID  : %d \n", ap_id);
+
+    memset(p_tx_buffer, 0x00, 100);
     p_protocol_hdr = (BT_CP_PROTOCOL_HDR *)p_tx_buffer;
-
     p_protocol_hdr->opcode   = BT_CP_OPCODE_CID_CCU_ACTIVATE;
     p_protocol_hdr->trans_id = 44;
-    p_protocol_hdr->type     = 0;
-    p_protocol_hdr->length   = 0;
+
+    /*
+     * Now set all the TLV data here.
+     */
+    p = p_tx_buffer + sizeof(BT_CP_PROTOCOL_HDR);
+    p_protocol_hdr->type     = TLV_TYPE_CCU_ACTIVATE_LATITUDE;
+    p_protocol_hdr->length   = strlen(p_latitude);
+    p = p + sizeof(BT_CP_PROTOCOL_HDR);
+    memcpy(p, p_latitude, strlen(p_latitude));
+
+    p = p + strlen(p_latitude);
+
+    p_tlv_hdr  = (BT_CP_TLV_HDR*)p;
+
+    p_tlv_hdr->type   = TLV_TYPE_CCU_ACTIVATE_LONGITUDE;
+    p_tlv_hdr->length = strlen(p_longitude);
+
+    memcpy(p_tlv_hdr->data, p_longitude, strlen(p_longitude));
+
+    length = sizeof(BT_CP_PROTOCOL_HDR) + strlen(p_latitude) + sizeof(BT_CP_TLV_HDR) + strlen(p_longitude);
+
+    p_tx_buffer[length] = 0x00;
+
+    printf("ptx buf =\n" );
+    for (size_t i = 0; i < length; i++) {
+        printf("%02x ",p_tx_buffer[i] );
+    }
+    printf("\n" );
 
 
-    length = sizeof(BT_CP_PROTOCOL_HDR) + p_protocol_hdr->length;
     send_uart_message(p_tx_buffer, length );
 
     return (0);
@@ -561,7 +591,7 @@ int ccu_sent_upload_trip_info(unsigned char wifi_mode)
     int                 length;
     char                p_tx_buffer[20];
 
-    //printf(" INFO : Sending TRIP_INFO Message \n");
+    printf(" INFO : Sending TRIP_INFO Message \n");
     p_protocol_hdr = (BT_CP_PROTOCOL_HDR *)p_tx_buffer;
 
     p_protocol_hdr->opcode   = BT_CP_OPCODE_CID_UPLOAD_TRIP_INFO;

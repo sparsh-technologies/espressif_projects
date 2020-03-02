@@ -70,6 +70,7 @@
 #define ERROR_MY_WIFI_STN_START                   0x0D
 #define READY_TO_SEND_REG_DATA_TO_SERIAL          0x0E
 #define WIFI_SCANNING_IN_PROGRESS                 0x77//for testing
+#define BLE_RET_POST_DATA_ERROR                   0x78
 
 #define ADV_SER_NO_SIZE                           4
 #define BLE_RETURN_MAX_SIZE                       20

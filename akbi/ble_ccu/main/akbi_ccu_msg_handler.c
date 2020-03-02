@@ -17,7 +17,8 @@ AKBI_WIFI_SCAN_REPORT  wifi_scan_report;
 extern char ep_return_message[MAX_RETURN_MSG_LENGTH];
 extern char firmware_version[10];
 extern char ccu_serial_no[20];
-unsigned char post_result;
+unsigned char post_result = 0;
+unsigned char post_result_code = 0;
 extern char   ccu_ap_ssid[20];
 extern char   ccu_ap_passwd[20];
 
@@ -79,6 +80,13 @@ void akbi_process_rx_serial_data(char *ccu_msg,int length)
             memcpy(&post_result, p_tlv->data, p_tlv->length);
             // printf(" INFO : length           : %02x\n",  p_tlv->length );
             // printf(" INFO : POST result      : %02x \n", post_result );
+            if (post_result != 0x00){
+                post_result_code = BLE_RET_POST_DATA_ERROR;
+            }
+            else{
+                post_result_code = 0x00;
+            }
+
 
 
             break;
@@ -117,9 +125,15 @@ void akbi_process_rx_serial_data(char *ccu_msg,int length)
         case BT_CP_OPCODE_CID_LOGIN_STATUS:
             if (p_payload[0] == SUCCESS) {
                 akbi_set_fsm_state(FSM_STATE_LOGIN_SUCCESS);
-                ep_return_message[BLE_RET_MSG_RC_OFFSET] = SUCCESS;
                 ep_return_message[BLE_RET_MSG_DATA_TYPE_OFFSET] = post_result;
-                memcpy(&ep_return_message[BLE_RET_MSG_FIRMWARE_VERSION_OFFSET],firmware_version,strlen(firmware_version));
+                if(post_result != 0x07){
+                   ep_return_message[BLE_RET_MSG_RC_OFFSET] = BLE_RET_POST_DATA_ERROR;
+                }
+                else{
+                    ep_return_message[BLE_RET_MSG_RC_OFFSET] = SUCCESS;
+                    memcpy(&ep_return_message[BLE_RET_MSG_FIRMWARE_VERSION_OFFSET],firmware_version,strlen(firmware_version));
+                }
+  ep_return_message[BLE_RET_MSG_RC_OFFSET] = SUCCESS;
                 return;
             }
 
@@ -208,24 +222,10 @@ void akbi_process_rx_serial_data(char *ccu_msg,int length)
             ep_return_message[BLE_RET_MSG_RC_OFFSET] = p_payload[0];
             break;
 
-        /*case BT_CP_OPCODE_CID_ADDRESS_VISITING:
-              if (p_protocol_hdr->type == ) {
-                  akbi_set_fsm_state(FSM_STATE_CFG_SET_ADDRESS_COMPLETE);
-                  ep_return_message[BLE_RET_MSG_RC_OFFSET] = ;
-                  return;
-              }
-              if (p_protocol_hdr->type == ) {
-                  akbi_set_fsm_state(FSM_STATE_CFG_SET_ADDRESS_COMPLETE);
-                  ep_return_message[BLE_RET_MSG_RC_OFFSET] = ERROR_;
-                  return;
-              }
-              if (p_protocol_hdr->type == 0) {
-                  akbi_set_fsm_state(FSM_STATE_CFG_SET_ADDRESS_COMPLETE);
-                  ep_return_message[BLE_RET_MSG_RC_OFFSET] = SUCCESS;
-                  return;
-              }
-              break;
-        */
+        case BT_CP_OPCODE_CID_ADDRESS_VISITING_STATUS:
+            akbi_set_fsm_state(FSM_STATE_CFG_SET_ADDRESS_COMPLETE);
+            ep_return_message[BLE_RET_MSG_RC_OFFSET] = p_payload[0];
+            break;
         /*case BT_CP_OPCODE_CID_CCU_ACTIVATE:
               if (p_protocol_hdr->type == ) {
                   akbi_set_fsm_state(FSM_STATE_ACTIVATE_COMPLETE);
