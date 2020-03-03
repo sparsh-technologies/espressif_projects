@@ -207,16 +207,16 @@ esp_err_t icom_read_mbus_reg_config(void)
     return ESP_OK;
 }
 
-void icom_config_read_task(void *param)
+void icom_init_config_subsys()
 {
     esp_err_t err;
 
-    nvs_flash_init();
+    err = nvs_flash_init();
+
+#if 0
 
     gpio_pad_select_gpio(GPIO_NUM_0);
     gpio_set_direction(GPIO_NUM_0, GPIO_MODE_DEF_INPUT);
-
-#if 0
 
     print_what_saved();
 
@@ -237,9 +237,7 @@ void icom_config_read_task(void *param)
         }
         vTaskDelay(200 / portTICK_PERIOD_MS);
     }
-#endif
 
-#if 1
     icom_read_mbus_reg_config();
 
     while (1) {
