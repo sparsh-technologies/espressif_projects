@@ -38,7 +38,7 @@ int icom_init_mbus_config_file()
 
 esp_err_t save_run_time(void)
 {
-    nvs_handle_t my_handle;
+    unsigned int my_handle;
     esp_err_t err;
 
     // Open
@@ -79,7 +79,7 @@ esp_err_t save_run_time(void)
 
 esp_err_t print_what_saved(void)
 {
-    nvs_handle_t my_handle;
+    unsigned int my_handle;
     esp_err_t err;
 
     // Open
@@ -120,19 +120,25 @@ esp_err_t print_what_saved(void)
 
 void icom_config_read_task(void *param)
 {
+    esp_err_t err;
+
+    nvs_flash_init();
 
     gpio_pad_select_gpio(GPIO_NUM_0);
     gpio_set_direction(GPIO_NUM_0, GPIO_MODE_DEF_INPUT);
+
+    print_what_saved();
 
     while (1) {
         if (gpio_get_level(GPIO_NUM_0) == 0) {
             vTaskDelay(1000 / portTICK_PERIOD_MS);
             if(gpio_get_level(GPIO_NUM_0) == 0) {
 
-#if 0
                 err = save_run_time();
-                if (err != ESP_OK) printf("Error (%s) saving run time blob to NVS!\n", esp_err_to_name(err));
-#endif
+
+                if (err != ESP_OK)
+                    printf("Error (%s) saving run time blob to NVS!\n", esp_err_to_name(err));
+
                 printf("Restarting ESP Module...\n");
                 fflush(stdout);
                 esp_restart();
