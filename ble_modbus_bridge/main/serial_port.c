@@ -46,6 +46,11 @@ const esp_timer_create_args_t oneshot_timer_args = {
     .name = "one-shot"
 };
 
+/*
+ * Forward declerations of static functions.
+ */
+static void oneshot_timer_callback(void* arg);
+
 static void deinit_uart()
 {
     close(uart_fd);
