@@ -12,6 +12,7 @@
  */
 
 #include <stdio.h>
+#include <string.h>
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
 #include "esp_system.h"
@@ -26,99 +27,6 @@ static ICOM_MODBUS_CFG_REG  startup_cfg;
 
 //static nvs_handle_t mbus_cfg_file_handle;
 static unsigned int mbus_cfg_file_handle;
-
-int icom_init_mbus_config_file()
-{
-    int     err;
-
-    err = nvs_open(STORAGE_NAMESPACE, NVS_READWRITE, &mbus_cfg_file_handle);
-
-    if (err != ESP_OK)
-        return (err);
-
-    return (0);
-}
-
-esp_err_t save_run_time(void)
-{
-    unsigned int my_handle;
-    esp_err_t err;
-
-    err = nvs_open(STORAGE_NAMESPACE, NVS_READWRITE, &my_handle);
-    if (err != ESP_OK) return err;
-
-    // Read the size of memory space required for blob
-    size_t required_size = 0;  // value will default to 0, if not set yet in NVS
-    err = nvs_get_blob(my_handle, "run_time", NULL, &required_size);
-    if (err != ESP_OK && err != ESP_ERR_NVS_NOT_FOUND) return err;
-
-    // Read previously saved blob if available
-    uint32_t* run_time = malloc(required_size + sizeof(uint32_t));
-    if (required_size > 0) {
-        err = nvs_get_blob(my_handle, "run_time", run_time, &required_size);
-        if (err != ESP_OK) {
-            free(run_time);
-            return err;
-        }
-    }
-
-    // Write value including previously saved blob if available
-    required_size += sizeof(uint32_t);
-    run_time[required_size / sizeof(uint32_t) - 1] = xTaskGetTickCount() * portTICK_PERIOD_MS;
-    err = nvs_set_blob(my_handle, "run_time", run_time, required_size);
-    free(run_time);
-
-    if (err != ESP_OK) return err;
-
-    // Commit
-    err = nvs_commit(my_handle);
-    if (err != ESP_OK) return err;
-
-    // Close
-    nvs_close(my_handle);
-    return ESP_OK;
-}
-
-esp_err_t print_what_saved(void)
-{
-    unsigned int my_handle;
-    esp_err_t err;
-
-    // Open
-    err = nvs_open(STORAGE_NAMESPACE, NVS_READWRITE, &my_handle);
-    if (err != ESP_OK) return err;
-
-    // Read restart counter
-    int32_t restart_counter = 0; // value will default to 0, if not set yet in NVS
-    err = nvs_get_i32(my_handle, "restart_conter", &restart_counter);
-    if (err != ESP_OK && err != ESP_ERR_NVS_NOT_FOUND) return err;
-    printf("Restart counter = %d\n", restart_counter);
-
-    // Read run time blob
-    size_t required_size = 0;  // value will default to 0, if not set yet in NVS
-    // obtain required memory space to store blob being read from NVS
-    err = nvs_get_blob(my_handle, "run_time", NULL, &required_size);
-    if (err != ESP_OK && err != ESP_ERR_NVS_NOT_FOUND) return err;
-    printf("Run time:\n");
-    if (required_size == 0) {
-        printf("Nothing saved yet!\n");
-    } else {
-        uint32_t* run_time = malloc(required_size);
-        err = nvs_get_blob(my_handle, "run_time", run_time, &required_size);
-        if (err != ESP_OK) {
-            free(run_time);
-            return err;
-        }
-        for (int i = 0; i < required_size / sizeof(uint32_t); i++) {
-            printf("%d: %d\n", i + 1, run_time[i]);
-        }
-        free(run_time);
-    }
-
-    // Close
-    nvs_close(my_handle);
-    return ESP_OK;
-}
 
 void populate_dummy_cfg()
 {
@@ -160,7 +68,7 @@ esp_err_t icom_write_mbus_reg_config(void)
 
     err = nvs_open(STORAGE_NAMESPACE, NVS_READWRITE, &my_handle);
 
-    if (err != ESP_OK) 
+    if (err != ESP_OK)
         return err;
 
     /*
@@ -169,11 +77,14 @@ esp_err_t icom_write_mbus_reg_config(void)
 
     err = nvs_get_blob(my_handle, "mbus_cfg", NULL, &required_size);
 
-    if (err != ESP_OK && err != ESP_ERR_NVS_NOT_FOUND) 
+    printf(" INFO : Size of BLOB : %d \n", required_size);
+
+    if ((err != ESP_OK) && (err != ESP_ERR_NVS_NOT_FOUND))
         return err;
 
     // Read previously saved blob if available
-    required_size = sizeof(ICOM_MODBUS_CFG_REG);
+//    required_size = sizeof(ICOM_MODBUS_CFG_REG);
+//    required_size = 4;
 
     run_time = malloc(sizeof(ICOM_MODBUS_CFG_REG));
 
@@ -182,6 +93,7 @@ esp_err_t icom_write_mbus_reg_config(void)
         err = nvs_get_blob(my_handle, "mbus_cfg", run_time, &required_size);
 
         if (err != ESP_OK) {
+			printf(" ERROR : nvs_get_blob Failed \n");
             free(run_time);
             return err;
         }
@@ -191,10 +103,15 @@ esp_err_t icom_write_mbus_reg_config(void)
 
     memcpy(p_mbus_cfg, &startup_cfg, sizeof(ICOM_MODBUS_CFG_REG));
 
+    required_size = sizeof(ICOM_MODBUS_CFG_REG);
+    printf(" INFO : Going to write %d bytes \n", required_size);
     err = nvs_set_blob(my_handle, "mbus_cfg", run_time, required_size);
     free(run_time);
 
-    if (err != ESP_OK) return err;
+    if (err != ESP_OK) {
+		printf(" ERROR : nvs_set_blob Failed \n");
+        return err;
+	}
 
     /*
      * Commit
@@ -202,7 +119,7 @@ esp_err_t icom_write_mbus_reg_config(void)
 
     err = nvs_commit(my_handle);
 
-    if (err != ESP_OK) 
+    if (err != ESP_OK)
         return err;
 
     /*
@@ -219,12 +136,12 @@ esp_err_t icom_read_mbus_reg_config(void)
     esp_err_t     err;
     size_t required_size = 0;
 
-    /* 
+    /*
      * Open the configuration space here
      */
 
     err = nvs_open(STORAGE_NAMESPACE, NVS_READWRITE, &my_handle);
-    if (err != ESP_OK) 
+    if (err != ESP_OK)
         return err;
 
     /*
@@ -233,7 +150,7 @@ esp_err_t icom_read_mbus_reg_config(void)
      */
 
     err = nvs_get_blob(my_handle, "mbus_cfg", NULL, &required_size);
-    if (err != ESP_OK && err != ESP_ERR_NVS_NOT_FOUND) 
+    if (err != ESP_OK && err != ESP_ERR_NVS_NOT_FOUND)
         return err;
 
     printf("Run time:\n");
@@ -282,7 +199,7 @@ esp_err_t icom_read_mbus_reg_config(void)
 
     }
 
-    /* 
+    /*
      * Close file handle
      */
 
@@ -322,6 +239,7 @@ void icom_config_read_task(void *param)
     }
 #endif
 
+#if 1
     icom_read_mbus_reg_config();
 
     while (1) {
@@ -346,5 +264,6 @@ void icom_config_read_task(void *param)
         }
         vTaskDelay(200 / portTICK_PERIOD_MS);
     }
+#endif
 
 }
