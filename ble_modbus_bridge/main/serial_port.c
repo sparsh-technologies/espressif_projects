@@ -28,6 +28,9 @@
 #include "lwip/netdb.h"
 #include "peripheral.h"
 
+#define GPIO_OUTPUT_IO_23                     23
+#define GPIO_OUTPUT_PIN_SEL  ((1ULL<<GPIO_OUTPUT_IO_23))
+
 int uart_fd = -1;
 
 uart_config_t uart_config = {
@@ -84,21 +87,55 @@ static void check_and_uart_data(int fd, const fd_set *rfds, const char *src_msg)
     }
 }
 
+static void configure_rs485_enable_line(void)
+{
+    gpio_config_t io_conf;
+
+    /*
+     * Configure the RS485 lines TX-Enable line here
+     */
+
+    io_conf.intr_type = GPIO_PIN_INTR_DISABLE;
+    io_conf.mode = GPIO_MODE_OUTPUT;
+    io_conf.pin_bit_mask = GPIO_OUTPUT_PIN_SEL;
+    io_conf.pull_down_en = 0;
+    io_conf.pull_up_en = 0;
+
+    gpio_config(&io_conf);
+
+}
+
+void icom_enable_rs485_tx()
+{
+    gpio_set_level(GPIO_OUTPUT_IO_23, 1);
+}
+
+void icom_disable_rs485_tx()
+{
+    gpio_set_level(GPIO_OUTPUT_IO_23, 0);
+}
+
+int icom_send_rs485_data(char *p_data, int length)
+{
+    uart_write_bytes(UART_NUM_2, p_data, length);
+    return (0);
+}
+
 void uart_modbus_task(void *param)
 {
     int     s;
     fd_set  rfds;
-    struct timeval tv;
-    char    *test_data = "Hello World";
+    struct timeval  tv;
 
     if(init_uart() != 0) {
         printf(" ERROR : Unable to open serial port \n");
         return;
     }
 
+    configure_rs485_enable_line();
+
     while (1) {
 
-#if 0
         tv.tv_sec = 5,
         tv.tv_usec = 0,
 
@@ -112,10 +149,7 @@ void uart_modbus_task(void *param)
         } else {
             check_and_uart_data(uart_fd, &rfds, "UART2");
         }
-#endif
-        vTaskDelay(10000);
-        printf("Txing Data : %s \n", test_data);
-        uart_write_bytes(UART_NUM_2, test_data, strlen(test_data));
+//        vTaskDelay(100);
 
     }
 
