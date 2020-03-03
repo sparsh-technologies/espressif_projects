@@ -30,6 +30,7 @@
 #include "serial_port.h"
 
 int uart_fd = -1;
+ICOM_SERIAL_PORT    icom_rs485_port;
 
 uart_config_t uart_config = {
     .baud_rate = 115200,
@@ -37,6 +38,11 @@ uart_config_t uart_config = {
     .parity    = UART_PARITY_DISABLE,
     .stop_bits = UART_STOP_BITS_1,
     .flow_ctrl = UART_HW_FLOWCTRL_DISABLE
+};
+
+const esp_timer_create_args_t oneshot_timer_args = {
+    .callback = &oneshot_timer_callback,
+    .name = "one-shot"
 };
 
 static void deinit_uart()
@@ -70,10 +76,38 @@ static int init_uart()
     return (0);
 }
 
+static void oneshot_timer_callback(void* arg)
+{
+    int    serial_data_bytes;
+
+    serial_data_bytes = icom_rs485_port.serial_data_bytes;
+
+#ifdef DEBUG_ENABLE
+    ESP_LOGI(TAG, " Serial Timer Expired Bytes: %d ", serial_data_bytes);
+    esp_log_buffer_hex(TAG, serial_rx_data, serial_data_bytes);
+#endif
+    icom_rs485_port.serial_rx_data[++serial_data_bytes] = '\0';
+    icom_rs485_port.serial_data_bytes   = serial_data_bytes;
+    icom_rs485_port.serial_data_bytes   = 0;
+    icom_rs485_port.serial_timer_state  = -1;
+}
+
+static void serial_port_timer_start()
+{
+    ESP_ERROR_CHECK(esp_timer_start_once(oneshot_timer, 100000));
+    icom_rs485_port.serial_timer_state = 1;
+}
+
+static void serial_port_timer_stop()
+{
+    ESP_ERROR_CHECK(esp_timer_stop(oneshot_timer));
+}
+
 static void read_data_from_rs485_port(int fd, const fd_set *rfds, const char *src_msg)
 {
-    int read_bytes;
+    int              read_bytes;
     unsigned char    data_byte;
+    int              serial_data_bytes;
 
     if (FD_ISSET(fd, rfds)) {
 
@@ -83,19 +117,21 @@ static void read_data_from_rs485_port(int fd, const fd_set *rfds, const char *sr
              * Once we get the first byte, start the one-shot timer. If the timer
              * gets fired, then it marks the end of packets.
              */
+            serial_data_bytes = icom_rs485_port.serial_data_bytes;
 
-
-            if (serial_timer_state != 1) {
+            if (icom_rs485_port.serial_timer_state != 1) {
 
                 /*
                  * If the timer is not started, then start the timer now.
                  */
-                serial_rx_data[serial_data_bytes++] = data_byte;
+                icom_rs485_port.serial_rx_data[serial_data_bytes++] = data_byte;
+                icom_rs485_port.serial_data_bytes = serial_data_bytes;
                 serial_port_timer_start();
-                serial_timer_state = 1;
+                icom_rs485_port.serial_timer_state = 1;
             } else {
                 serial_port_timer_stop();
                 serial_rx_data[serial_data_bytes++] = data_byte;
+                icom_rs485_port.serial_data_bytes = serial_data_bytes;
                 serial_port_timer_start();
             }
 
@@ -110,6 +146,8 @@ static void configure_rs485_enable_line(void)
 {
     gpio_config_t io_conf;
 
+    memset(&icom_rs485_port, 0x00, sizeof(ICOM_SERIAL_PORT));
+
     /*
      * Configure the RS485 lines TX-Enable line here
      */
@@ -122,6 +160,7 @@ static void configure_rs485_enable_line(void)
 
     gpio_config(&io_conf);
 
+    ESP_ERROR_CHECK(esp_timer_create(&oneshot_timer_args, &oneshot_timer));
 }
 
 void icom_enable_rs485_tx()

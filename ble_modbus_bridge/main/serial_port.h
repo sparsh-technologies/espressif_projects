@@ -19,10 +19,12 @@
 
 typedef struct _icom_serial_port_
 {
-    int    port_num;
-    int    baud_rate;
-    unsigned char    tx_buffer[MAX_TX_BUFFER_SZ];
-    unsigned char    rx_buffer[MAX_RX_BUFFER_SZ];
+    int              port_num;
+    int              baud_rate;
+    unsigned char    serial_tx_data[MAX_TX_BUFFER_SZ];
+    unsigned char    serial_rx_data[MAX_RX_BUFFER_SZ];
+    int              serial_data_bytes;
+    int              serial_timer_state;
 
 } ICOM_SERIAL_PORT;
 
