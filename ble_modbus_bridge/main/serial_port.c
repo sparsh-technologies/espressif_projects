@@ -27,9 +27,7 @@
 #include "lwip/sockets.h"
 #include "lwip/netdb.h"
 #include "peripheral.h"
-
-#define GPIO_OUTPUT_IO_23                     23
-#define GPIO_OUTPUT_PIN_SEL  ((1ULL<<GPIO_OUTPUT_IO_23))
+#include "serial_port.h"
 
 int uart_fd = -1;
 
@@ -72,19 +70,40 @@ static int init_uart()
     return (0);
 }
 
-static void check_and_uart_data(int fd, const fd_set *rfds, const char *src_msg)
+static void read_data_from_rs485_port(int fd, const fd_set *rfds, const char *src_msg)
 {
-    char buf[100];
     int read_bytes;
+    unsigned char    data_byte;
 
     if (FD_ISSET(fd, rfds)) {
-        if ((read_bytes = read(fd, buf, sizeof(buf)-1)) > 0) {
-            buf[read_bytes] = '\0';
-            printf( " INFO : %d bytes were received through %s: %s", read_bytes, src_msg, buf);
+
+        if ((read_bytes = read(fd, &data_byte, 1)) > 0) {
+
+            /*
+             * Once we get the first byte, start the one-shot timer. If the timer
+             * gets fired, then it marks the end of packets.
+             */
+
+
+            if (serial_timer_state != 1) {
+
+                /*
+                 * If the timer is not started, then start the timer now.
+                 */
+                serial_rx_data[serial_data_bytes++] = data_byte;
+                serial_port_timer_start();
+                serial_timer_state = 1;
+            } else {
+                serial_port_timer_stop();
+                serial_rx_data[serial_data_bytes++] = data_byte;
+                serial_port_timer_start();
+            }
+
         } else {
             printf(" ERROR : %s read error", src_msg);
         }
     }
+
 }
 
 static void configure_rs485_enable_line(void)
@@ -147,7 +166,7 @@ void uart_modbus_task(void *param)
         if (s < 0) {
             printf(" Select failed. \n");
         } else {
-            check_and_uart_data(uart_fd, &rfds, "UART2");
+            read_data_from_rs485_port(uart_fd, &rfds, "UART2");
         }
 //        vTaskDelay(100);
 
