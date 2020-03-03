@@ -5,6 +5,7 @@ set(COMPONENT_SRCS "bt_app_core.c"
                    "modbus.c"
                    "modbus-data.c"
                    "modbus-rtu.c"
+                   "icom_config_storage.c"
                    )
 set(COMPONENT_ADD_INCLUDEDIRS ".")
 
