@@ -32,6 +32,7 @@ typedef struct _icom_mbus_reg_info_
 typedef struct _icom_modbus_cfg_reg_
 {
     int                   slave_address;
+    int                   cfg_reg_count;
     ICOM_MBUS_REG_INFO    mbus_reg[MAX_CONFIGURABLE_REGISTERS];
 
 } ICOM_MODBUS_CFG_REG;
