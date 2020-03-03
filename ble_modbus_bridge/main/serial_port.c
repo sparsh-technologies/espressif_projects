@@ -89,6 +89,7 @@ void uart_modbus_task(void *param)
     int     s;
     fd_set  rfds;
     struct timeval tv;
+    char    *test_data = "Hello World";
 
     if(init_uart() != 0) {
         printf(" ERROR : Unable to open serial port \n");
@@ -97,6 +98,7 @@ void uart_modbus_task(void *param)
 
     while (1) {
 
+#if 0
         tv.tv_sec = 5,
         tv.tv_usec = 0,
 
@@ -110,6 +112,11 @@ void uart_modbus_task(void *param)
         } else {
             check_and_uart_data(uart_fd, &rfds, "UART2");
         }
+#endif
+        vTaskDelay(10000);
+        printf("Txing Data : %s \n", test_data);
+        uart_write_bytes(UART_NUM_2, test_data, strlen(test_data));
+
     }
 
     deinit_uart(uart_fd);
