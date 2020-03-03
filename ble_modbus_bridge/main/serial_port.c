@@ -41,15 +41,15 @@ uart_config_t uart_config = {
     .flow_ctrl = UART_HW_FLOWCTRL_DISABLE
 };
 
-const esp_timer_create_args_t oneshot_timer_args = {
-    .callback = &oneshot_timer_callback,
-    .name = "one-shot"
-};
-
 /*
  * Forward declerations of static functions.
  */
 static void oneshot_timer_callback(void* arg);
+
+const esp_timer_create_args_t oneshot_timer_args = {
+    .callback = &oneshot_timer_callback,
+    .name = "one-shot"
+};
 
 static void deinit_uart()
 {
@@ -136,7 +136,7 @@ static void read_data_from_rs485_port(int fd, const fd_set *rfds, const char *sr
                 icom_rs485_port.serial_timer_state = 1;
             } else {
                 serial_port_timer_stop();
-                serial_rx_data[serial_data_bytes++] = data_byte;
+                icom_rs485_port.serial_rx_data[serial_data_bytes++] = data_byte;
                 icom_rs485_port.serial_data_bytes = serial_data_bytes;
                 serial_port_timer_start();
             }

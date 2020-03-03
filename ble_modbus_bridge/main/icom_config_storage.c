@@ -21,7 +21,8 @@
 
 #define STORAGE_NAMESPACE "mbus_config"
 
-static nvs_handle_t mbus_cfg_file_handle;
+//static nvs_handle_t mbus_cfg_file_handle;
+static unsigned int mbus_cfg_file_handle;
 
 int icom_init_mbus_config_file()
 {
@@ -29,9 +30,10 @@ int icom_init_mbus_config_file()
 
     err = nvs_open(STORAGE_NAMESPACE, NVS_READWRITE, &mbus_cfg_file_handle);
 
-    if (err != ESP_OK) 
-        return err;
+    if (err != ESP_OK)
+        return (err);
 
+    return (0);
 }
 
 void icom_config_read_task(void *param)
@@ -46,7 +48,7 @@ void icom_config_read_task(void *param)
                 err = save_run_time();
                 if (err != ESP_OK) printf("Error (%s) saving run time blob to NVS!\n", esp_err_to_name(err));
 #endif
-                printf("Restarting...\n");
+                printf("Restarting ESP Module...\n");
                 fflush(stdout);
                 esp_restart();
             }
