@@ -31,6 +31,7 @@
 
 int uart_fd = -1;
 ICOM_SERIAL_PORT    icom_rs485_port;
+esp_timer_handle_t oneshot_timer = NULL;
 
 uart_config_t uart_config = {
     .baud_rate = 115200,
