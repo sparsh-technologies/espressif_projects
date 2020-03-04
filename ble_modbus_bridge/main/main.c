@@ -31,13 +31,19 @@ TaskHandle_t ble_task, uart_task, cfg_task;
 
 extern void ble_config_task(void *param);
 extern void uart_modbus_task(void *param);
-extern void icom_init_station_cfg();
+extern void icom_init_config_subsys(void);
+extern void icom_init_station_cfg(void);
 
 void app_main(void)
 {
 
     xTaskCreate(ble_config_task, "ble_config_task", 4*1024, &context1, 0, &ble_task);
     xTaskCreate(uart_modbus_task, "uart_modbus_task", 8*1024, &context2, 0, &uart_task);
+
+    /*
+     * Initialize the configuration sub-system here. After this, init the Wifi sub-system
+     */
+    icom_init_config_subsys();
 
     icom_init_station_cfg();
 
