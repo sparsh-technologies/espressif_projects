@@ -142,7 +142,7 @@ int icom_send_ipc_buffer(int task_id, ICOM_IPC_MSG *p_msg)
         }
 
     }
-
+    return (0);
 }
 
 unsigned int icom_recv_ipc_buffer(int task_id)
@@ -202,5 +202,5 @@ int icom_create_task_queue(int task_id)
         cfg_task_queue = xQueueCreate(10, 4);
 
     }
-
+    return (0);
 }

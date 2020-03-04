@@ -53,7 +53,7 @@ static esp_err_t event_handler(void *ctx, system_event_t *event)
 
     case SYSTEM_EVENT_STA_GOT_IP :
         printf( " INFO : Received SYSTEM_EVENT_STA_GOT_IP  Event \n");
-        printf( " INFO : Obtained IP:%s", ip4addr_ntoa(&event->event_info.got_ip.ip_info.ip));
+        printf( " INFO : Obtained IP:%s \n", ip4addr_ntoa(&event->event_info.got_ip.ip_info.ip));
         s_retry_num = 0;
         xEventGroupSetBits(s_wifi_event_group, WIFI_CONNECTED_BIT);
         break;
@@ -65,9 +65,9 @@ static esp_err_t event_handler(void *ctx, system_event_t *event)
             esp_wifi_connect();
             xEventGroupClearBits(s_wifi_event_group, WIFI_CONNECTED_BIT);
             s_retry_num++;
-            printf("retry to connect to the AP");
+            printf(" INFO : Retry to connect to the AP \n");
         }
-        printf("connect to the AP fail\n");
+        
         break;
 
     default:
@@ -117,12 +117,11 @@ void wifi_init_station()
         abort();
     }
 
-    printf(" INFO : Trying to connect to AP SSID:%s password:%s",
+    printf(" INFO : Trying to connect to AP SSID:%s password:%s \n",
              EXAMPLE_ESP_WIFI_SSID, EXAMPLE_ESP_WIFI_PASS);
 }
 
 void icom_init_station_cfg()
 {
-//    esp_err_t ret = nvs_flash_init();
     wifi_init_station();
 }
