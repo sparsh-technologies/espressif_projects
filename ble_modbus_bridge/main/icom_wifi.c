@@ -46,17 +46,21 @@ static esp_err_t event_handler(void *ctx, system_event_t *event)
 {
     switch(event->event_id) {
 
-    case SYSTEM_EVENT_STA_START:
+    case SYSTEM_EVENT_STA_START :
+        printf( " INFO : Received SYSTEM_EVENT_STA_START Event \n");
         esp_wifi_connect();
         break;
 
-    case SYSTEM_EVENT_STA_GOT_IP:
-        printf( "got ip:%s", ip4addr_ntoa(&event->event_info.got_ip.ip_info.ip));
+    case SYSTEM_EVENT_STA_GOT_IP :
+        printf( " INFO : Received SYSTEM_EVENT_STA_GOT_IP  Event \n");
+        printf( " INFO : Obtained IP:%s", ip4addr_ntoa(&event->event_info.got_ip.ip_info.ip));
         s_retry_num = 0;
         xEventGroupSetBits(s_wifi_event_group, WIFI_CONNECTED_BIT);
         break;
 
-    case SYSTEM_EVENT_STA_DISCONNECTED:
+    case SYSTEM_EVENT_STA_DISCONNECTED :
+        printf( " INFO : Received SYSTEM_EVENT_STA_DISCONNECTED  Event \n");
+
         if (s_retry_num < EXAMPLE_ESP_MAXIMUM_RETRY) {
             esp_wifi_connect();
             xEventGroupClearBits(s_wifi_event_group, WIFI_CONNECTED_BIT);
@@ -74,7 +78,7 @@ static esp_err_t event_handler(void *ctx, system_event_t *event)
     return ESP_OK;
 }
 
-void wifi_init_sta()
+void wifi_init_station()
 {
     esp_err_t    err_code;
 
@@ -120,5 +124,5 @@ void wifi_init_sta()
 void icom_init_station_cfg()
 {
 //    esp_err_t ret = nvs_flash_init();
-    wifi_init_sta();
+    wifi_init_station();
 }
