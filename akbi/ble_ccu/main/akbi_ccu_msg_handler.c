@@ -133,7 +133,6 @@ void akbi_process_rx_serial_data(char *ccu_msg,int length)
                     ep_return_message[BLE_RET_MSG_RC_OFFSET] = SUCCESS;
                     memcpy(&ep_return_message[BLE_RET_MSG_FIRMWARE_VERSION_OFFSET],firmware_version,strlen(firmware_version));
                 }
-  ep_return_message[BLE_RET_MSG_RC_OFFSET] = SUCCESS;
                 return;
             }
 
@@ -226,6 +225,11 @@ void akbi_process_rx_serial_data(char *ccu_msg,int length)
             akbi_set_fsm_state(FSM_STATE_CFG_SET_ADDRESS_COMPLETE);
             ep_return_message[BLE_RET_MSG_RC_OFFSET] = p_payload[0];
             break;
+
+        case BT_CP_OPCODE_CID_REQUEST_REBOOT_STATUS:
+            akbi_set_fsm_state(FSM_STATE_FW_REBOOT_MSG_ACKNOWLEDGED);
+            ep_return_message[BLE_RET_MSG_RC_OFFSET] = p_payload[0];
+            return;
         /*case BT_CP_OPCODE_CID_CCU_ACTIVATE:
               if (p_protocol_hdr->type == ) {
                   akbi_set_fsm_state(FSM_STATE_ACTIVATE_COMPLETE);

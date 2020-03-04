@@ -559,6 +559,27 @@ int ccu_sent_update_sw_msg()
     return (0);
 }
 
+int ccu_sent_reboot_ccu_msg()
+{
+    BT_CP_PROTOCOL_HDR  *p_protocol_hdr;
+    int                 length;
+    char                p_tx_buffer[20];
+
+    printf(" INFO : Sending reboot ccu Message \n");
+    p_protocol_hdr = (BT_CP_PROTOCOL_HDR *)p_tx_buffer;
+
+    p_protocol_hdr->opcode   = BT_CP_OPCODE_CID_REQUEST_REBOOT;
+    p_protocol_hdr->trans_id = 44;
+    p_protocol_hdr->type     = 0;
+    p_protocol_hdr->length   = 0;
+
+
+    length = sizeof(BT_CP_PROTOCOL_HDR) + p_protocol_hdr->length;
+    send_uart_message(p_tx_buffer, length );
+
+    return (0);
+}
+
 int ccu_sent_wifi_set_mode(unsigned char wifi_mode)
 {
     BT_CP_PROTOCOL_HDR  *p_protocol_hdr;
