@@ -16,6 +16,7 @@
 #include "freertos/task.h"
 #include "esp_system.h"
 #include "esp_spi_flash.h"
+#include "icom_ipc.h"
 
 typedef struct {
     int handle;
@@ -39,6 +40,11 @@ void app_main(void)
 {
 
     printf(" INFO : Starting Main Task \n");
+
+    /*
+     * Initializing IPC subsystem
+     */
+    icom_ipc_init();
 
     xTaskCreate(ble_config_task, "ble_config_task", 4*1024, &context1, 0, &ble_task);
     xTaskCreate(icom_modbus_task, "uart_modbus_task", 4*1024, &context2, 0, &uart_task);
