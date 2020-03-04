@@ -27,8 +27,11 @@
 #include "lwip/sockets.h"
 #include "lwip/netdb.h"
 #include "peripheral.h"
+#include "serial_port.h"
 
 int uart_fd = -1;
+ICOM_SERIAL_PORT    icom_rs485_port;
+esp_timer_handle_t oneshot_timer = NULL;
 
 uart_config_t uart_config = {
     .baud_rate = 115200,
@@ -36,6 +39,16 @@ uart_config_t uart_config = {
     .parity    = UART_PARITY_DISABLE,
     .stop_bits = UART_STOP_BITS_1,
     .flow_ctrl = UART_HW_FLOWCTRL_DISABLE
+};
+
+/*
+ * Forward declerations of static functions.
+ */
+static void oneshot_timer_callback(void* arg);
+
+const esp_timer_create_args_t oneshot_timer_args = {
+    .callback = &oneshot_timer_callback,
+    .name = "one-shot"
 };
 
 static void deinit_uart()
@@ -69,31 +82,123 @@ static int init_uart()
     return (0);
 }
 
-static void check_and_uart_data(int fd, const fd_set *rfds, const char *src_msg)
+static void oneshot_timer_callback(void* arg)
 {
-    char buf[100];
-    int read_bytes;
+    int    serial_data_bytes;
+
+    serial_data_bytes = icom_rs485_port.serial_data_bytes;
+
+#ifdef DEBUG_ENABLE
+    ESP_LOGI(TAG, " Serial Timer Expired Bytes: %d ", serial_data_bytes);
+    esp_log_buffer_hex(TAG, serial_rx_data, serial_data_bytes);
+#endif
+    icom_rs485_port.serial_rx_data[++serial_data_bytes] = '\0';
+    icom_rs485_port.serial_data_bytes   = serial_data_bytes;
+    icom_rs485_port.serial_data_bytes   = 0;
+    icom_rs485_port.serial_timer_state  = -1;
+}
+
+static void serial_port_timer_start()
+{
+    ESP_ERROR_CHECK(esp_timer_start_once(oneshot_timer, 100000));
+    icom_rs485_port.serial_timer_state = 1;
+}
+
+static void serial_port_timer_stop()
+{
+    ESP_ERROR_CHECK(esp_timer_stop(oneshot_timer));
+}
+
+static void read_data_from_rs485_port(int fd, const fd_set *rfds, const char *src_msg)
+{
+    int              read_bytes;
+    unsigned char    data_byte;
+    int              serial_data_bytes;
 
     if (FD_ISSET(fd, rfds)) {
-        if ((read_bytes = read(fd, buf, sizeof(buf)-1)) > 0) {
-            buf[read_bytes] = '\0';
-            printf( " INFO : %d bytes were received through %s: %s", read_bytes, src_msg, buf);
+
+        if ((read_bytes = read(fd, &data_byte, 1)) > 0) {
+
+            /*
+             * Once we get the first byte, start the one-shot timer. If the timer
+             * gets fired, then it marks the end of packets.
+             */
+            serial_data_bytes = icom_rs485_port.serial_data_bytes;
+
+            if (icom_rs485_port.serial_timer_state != 1) {
+
+                /*
+                 * If the timer is not started, then start the timer now.
+                 */
+                icom_rs485_port.serial_rx_data[serial_data_bytes++] = data_byte;
+                icom_rs485_port.serial_data_bytes = serial_data_bytes;
+                serial_port_timer_start();
+                icom_rs485_port.serial_timer_state = 1;
+            } else {
+                serial_port_timer_stop();
+                icom_rs485_port.serial_rx_data[serial_data_bytes++] = data_byte;
+                icom_rs485_port.serial_data_bytes = serial_data_bytes;
+                serial_port_timer_start();
+            }
+
         } else {
             printf(" ERROR : %s read error", src_msg);
         }
     }
+
 }
 
-void uart_modbus_task(void *param)
+static void configure_rs485_enable_line(void)
+{
+    gpio_config_t io_conf;
+
+    memset(&icom_rs485_port, 0x00, sizeof(ICOM_SERIAL_PORT));
+
+    /*
+     * Configure the RS485 lines TX-Enable line here
+     */
+
+    io_conf.intr_type = GPIO_PIN_INTR_DISABLE;
+    io_conf.mode = GPIO_MODE_OUTPUT;
+    io_conf.pin_bit_mask = GPIO_OUTPUT_PIN_SEL;
+    io_conf.pull_down_en = 0;
+    io_conf.pull_up_en = 0;
+
+    gpio_config(&io_conf);
+
+    ESP_ERROR_CHECK(esp_timer_create(&oneshot_timer_args, &oneshot_timer));
+}
+
+void icom_enable_rs485_tx()
+{
+    gpio_set_level(GPIO_OUTPUT_IO_23, 1);
+}
+
+void icom_disable_rs485_tx()
+{
+    gpio_set_level(GPIO_OUTPUT_IO_23, 0);
+}
+
+int icom_send_rs485_data(char *p_data, int length)
+{
+    uart_write_bytes(UART_NUM_2, p_data, length);
+    return (0);
+}
+
+void icom_modbus_task(void *param)
 {
     int     s;
     fd_set  rfds;
-    struct timeval tv;
+    struct timeval  tv;
+
+    printf(" INFO : Starting MODBUS protocol task \n");
 
     if(init_uart() != 0) {
         printf(" ERROR : Unable to open serial port \n");
         return;
     }
+
+    configure_rs485_enable_line();
 
     while (1) {
 
@@ -108,8 +213,10 @@ void uart_modbus_task(void *param)
         if (s < 0) {
             printf(" Select failed. \n");
         } else {
-            check_and_uart_data(uart_fd, &rfds, "UART2");
+            read_data_from_rs485_port(uart_fd, &rfds, "UART2");
         }
+//        vTaskDelay(100);
+
     }
 
     deinit_uart(uart_fd);

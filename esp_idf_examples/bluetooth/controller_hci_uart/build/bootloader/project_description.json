@@ -1,0 +1,18 @@
+{
+    "project_name":       "bootloader",
+    "project_path":       "C:/Users/user/Desktop/esp-idf-3/components/bootloader/subproject",
+    "build_dir":          "C:/Users/user/Desktop/esp-idf-3/examples/bluetooth/controller_hci_uart/build/bootloader",
+    "config_file":        "C:/Users/user/Desktop/esp-idf-3/examples/bluetooth/controller_hci_uart/sdkconfig",
+    "config_defaults":    "",
+    "app_elf":            "bootloader.elf",
+    "app_bin":            "bootloader.bin",
+    "git_revision":       "v3.3",
+    "phy_data_partition": "",
+    "monitor_baud" : "115200",
+    "config_environment" : {
+        "COMPONENT_KCONFIGS" : " C:/Users/user/Desktop/esp-idf-3/components/efuse/Kconfig C:/Users/user/Desktop/esp-idf-3/components/esp32/Kconfig C:/Users/user/Desktop/esp-idf-3/components/log/Kconfig C:/Users/user/Desktop/esp-idf-3/components/spi_flash/Kconfig",
+        "COMPONENT_KCONFIGS_PROJBUILD" : " C:/Users/user/Desktop/esp-idf-3/components/bootloader/Kconfig.projbuild C:/Users/user/Desktop/esp-idf-3/components/esptool_py/Kconfig.projbuild C:/Users/user/Desktop/esp-idf-3/components/partition_table/Kconfig.projbuild"
+    },
+    "build_components" : [ "soc", "esp32", "log", "bootloader", "spi_flash", "micro-ecc", "efuse", "bootloader_support", "main", "esptool_py", "partition_table" ],
+    "build_component_paths" : [ "C:/Users/user/Desktop/esp-idf-3/components/soc", "C:/Users/user/Desktop/esp-idf-3/components/esp32", "C:/Users/user/Desktop/esp-idf-3/components/log", "C:/Users/user/Desktop/esp-idf-3/components/bootloader", "C:/Users/user/Desktop/esp-idf-3/components/spi_flash", "C:/Users/user/Desktop/esp-idf-3/components/micro-ecc", "C:/Users/user/Desktop/esp-idf-3/components/efuse", "C:/Users/user/Desktop/esp-idf-3/components/bootloader_support", "C:/Users/user/Desktop/esp-idf-3/components/bootloader/subproject/main", "C:/Users/user/Desktop/esp-idf-3/components/esptool_py", "C:/Users/user/Desktop/esp-idf-3/components/partition_table" ]
+}
