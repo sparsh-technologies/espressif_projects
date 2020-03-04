@@ -42,7 +42,9 @@ const int WIFI_CONNECTED_BIT = BIT0;
 
 static int s_retry_num = 0;
 
-static esp_err_t event_handler(void *ctx, system_event_t *event)
+extern void mqtt_app_start(void);
+
+static esp_err_t wifi_event_handler(void *ctx, system_event_t *event)
 {
     switch(event->event_id) {
 
@@ -56,6 +58,11 @@ static esp_err_t event_handler(void *ctx, system_event_t *event)
         printf( " INFO : Obtained IP:%s \n", ip4addr_ntoa(&event->event_info.got_ip.ip_info.ip));
         s_retry_num = 0;
         xEventGroupSetBits(s_wifi_event_group, WIFI_CONNECTED_BIT);
+
+        /*
+         * Now send a message to MQTT Task to initiate a connection
+         */
+        mqtt_app_start();
         break;
 
     case SYSTEM_EVENT_STA_DISCONNECTED :
@@ -86,7 +93,7 @@ void wifi_init_station()
 
     tcpip_adapter_init();
 
-    err_code =  esp_event_loop_init(event_handler, NULL);
+    err_code =  esp_event_loop_init(wifi_event_handler, NULL);
     if (err_code != ESP_OK) {
         printf(" ERROR : Cannot create event loop \n");
         abort();
