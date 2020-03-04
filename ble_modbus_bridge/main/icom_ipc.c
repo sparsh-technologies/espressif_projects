@@ -27,8 +27,9 @@ static ICOM_IPC_MSG  *p_ipc_free_pool = NULL;
 
 int icom_ipc_init()
 {
-    ICOM_IPC_MSG    *p_ipc_msg, p_prev_ipc_msg;
+    ICOM_IPC_MSG    *p_ipc_msg, *p_prev_ipc_msg;
     unsigned char   *p_payload;
+    int             i;
 
     p_ipc_msg = (ICOM_IPC_MSG *)malloc (sizeof(ICOM_IPC_MSG) * ICOM_IPC_MAX_MSG_SZ);
 
@@ -36,15 +37,15 @@ int icom_ipc_init()
         printf(" ERROR : Not enough memory for IPC MSG buffers \n");
         return (1);
     }
-  
+
     /*
      * Chain all the allocated blocks here.
      */
- 
+
     p_ipc_free_pool = p_ipc_msg;
     p_prev_ipc_msg  = p_ipc_msg;
     p_ipc_msg++;
- 
+
     for(i = 0; i < (ICOM_IPC_MAX_MSG_SZ - 1); i++) {
 
         p_prev_ipc_msg->next = p_ipc_msg;
@@ -58,7 +59,7 @@ int icom_ipc_init()
      */
     p_payload = (unsigned char *)malloc (ICOM_IPC_MAX_MSG_SZ * ICOM_IPC_MAX_PAYLOAD_SZ);
 
-    if (p_payload == NULL) { 
+    if (p_payload == NULL) {
         printf(" ERROR : Not enough memory for IPC payload buffers \n");
         free(p_ipc_free_pool);
         p_ipc_free_pool = NULL;
@@ -78,22 +79,25 @@ int icom_ipc_init()
     }
 
     printf(" INFO : Create MSG and packet buffers successfully \n");
-
+    return (0);
 }
 
 ICOM_IPC_MSG *icom_alloc_ipc_buffer()
 {
+    ICOM_IPC_MSG *p_msg;
 
     if (p_ipc_free_pool == NULL) {
         return (NULL);
     }
 
-    
+    p_msg = p_ipc_free_pool;
+    p_ipc_free_pool = p_ipc_free_pool->next;
 
+    return (p_msg);
 }
 
 void icom_free_ipc_buffer(ICOM_IPC_MSG *p_msg)
 {
-
-
+    p_msg->next =  p_ipc_free_pool;
+    p_ipc_free_pool = p_msg;
 }
