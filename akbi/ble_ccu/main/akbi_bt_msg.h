@@ -68,6 +68,7 @@
 #define CID_UPDATE_CCU_SW                  0x0F
 #define CID_UPLOAD_TRIP_INFO               0x10
 #define CID_SET_CCU_WIFI_MODE              0x11
+#define CID_SET_CCU_REBOOT                 0x12
 
 #define DID_REGISTER_PASSWORD              0x01
 #define DID_REGISTER_MOB_NO                0x02
@@ -310,6 +311,7 @@ typedef struct __attribute__((__packed__)) _bt_cp_tlv_hdr_ {
 #define BT_CP_OPCODE_CID_UPLOAD_TRIP_INFO                         0x12
 #define BT_CP_OPCODE_CID_CCU_READY                                0x13
 #define BT_CP_OPCODE_CID_WIFI_SET_MODE                            0x14
+#define BT_CP_OPCODE_CID_REQUEST_REBOOT                           0x15
 
 
 #define BT_CP_OPCODE_CID_SCAN_WIFI_RESULT                         0x70
@@ -325,6 +327,7 @@ typedef struct __attribute__((__packed__)) _bt_cp_tlv_hdr_ {
 #define BT_CP_OPCODE_CID_RECORD_PERSONAL_VOICE_MSG_STATUS         0x7A
 #define BT_CP_OPCODE_CID_DISCONNECT_FROM_WIFI_STATUS              0x7B
 #define BT_CP_OPCODE_CID_ADDRESS_VISITING_STATUS                  0x7C
+#define BT_CP_OPCODE_CID_REQUEST_REBOOT_STATUS                    0x7D
 
 
 /*

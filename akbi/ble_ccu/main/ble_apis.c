@@ -690,12 +690,16 @@ int execute_ccu_activate(char *i_cmd,char *i_ret_msg)
 
 int update_ccu_sw(char *i_ret_msg)
 {
-    //TODO: Get the upgrade status from the processor
-    akbi_set_fsm_state(FSM_STATE_FW_UPGRADE_IN_PROGRESS);
     ccu_sent_update_sw_msg();
-    // this_ccu.fw_upgrades[].version = get_wifi_status();
     return 0;
 }
+
+int execute_reboot_ccu(char *i_ret_msg)
+{
+    ccu_sent_reboot_ccu_msg();
+    return 0;
+}
+
 int set_ccu_wifi_mode(unsigned char wifi_mode)
 {
     ccu_sent_wifi_set_mode(wifi_mode);
@@ -840,29 +844,29 @@ int read_ble_message(char *i_msg, char *i_ret_msg)
             break;
 
         case CID_RECORD_PERSONAL_VOICE_MSG :
-            if (this_ccu.paired_mob1.authentication_status != AUTHENTICATED) {
-                memset(&i_ret_msg[BLE_RET_MSG_RC_OFFSET], ERROR_AUTHENTICATION, BLE_RETURN_RC_SIZE);
-                return ERROR_AUTHENTICATION;
-            }
+            // if (this_ccu.paired_mob1.authentication_status != AUTHENTICATED) {
+            //     memset(&i_ret_msg[BLE_RET_MSG_RC_OFFSET], ERROR_AUTHENTICATION, BLE_RETURN_RC_SIZE);
+            //     return ERROR_AUTHENTICATION;
+            // }
             akbi_set_fsm_state(FSM_STATE_VOICE_RECORDING_IN_PROGRESS);
             execute_record_personal_voice_msg();
             break;
 
         case CID_STORE_EMERGENCY_NUMBERS :
-            if (this_ccu.paired_mob1.authentication_status != AUTHENTICATED) {
-                memset(&i_ret_msg[BLE_RET_MSG_RC_OFFSET], ERROR_AUTHENTICATION, BLE_RETURN_RC_SIZE);
-                return ERROR_AUTHENTICATION;
-            }
+            // if (this_ccu.paired_mob1.authentication_status != AUTHENTICATED) {
+            //     memset(&i_ret_msg[BLE_RET_MSG_RC_OFFSET], ERROR_AUTHENTICATION, BLE_RETURN_RC_SIZE);
+            //     return ERROR_AUTHENTICATION;
+            // }
             memcpy(ble_command,&i_msg[BLE_CMD_OFFSET + BLE_COMMAND_ID_SIZE],BLE_COMMAND_SIZE);
             execute_store_emergency_number(ble_command,i_ret_msg);
             // akbi_set_fsm_state(FSM_STATE_SET_EMER_NUM);
             break;
 
         case CID_STORE_PERSONAL_NUMBERS :
-            if (this_ccu.paired_mob1.authentication_status != AUTHENTICATED) {
-                memset(&i_ret_msg[BLE_RET_MSG_RC_OFFSET], ERROR_AUTHENTICATION, BLE_RETURN_RC_SIZE);
-                return ERROR_AUTHENTICATION;
-            }
+            // if (this_ccu.paired_mob1.authentication_status != AUTHENTICATED) {
+            //     memset(&i_ret_msg[BLE_RET_MSG_RC_OFFSET], ERROR_AUTHENTICATION, BLE_RETURN_RC_SIZE);
+            //     return ERROR_AUTHENTICATION;
+            // }
             memcpy(ble_command,&i_msg[BLE_CMD_OFFSET + BLE_COMMAND_ID_SIZE],BLE_COMMAND_SIZE);
             execute_store_personal_number(ble_command,i_ret_msg);
             //akbi_set_fsm_state(FSM_STATE_SET_PERSONAL_NUM );
@@ -870,10 +874,10 @@ int read_ble_message(char *i_msg, char *i_ret_msg)
 
         case CID_SCAN_WIFIS :
             memcpy(ble_command,&i_msg[BLE_CMD_OFFSET + BLE_COMMAND_ID_SIZE],BLE_COMMAND_SIZE);
-            if (this_ccu.paired_mob1.authentication_status != AUTHENTICATED) {
-                memset(&i_ret_msg[BLE_RET_MSG_RC_OFFSET], ERROR_AUTHENTICATION, BLE_RETURN_RC_SIZE);
-                return ERROR_AUTHENTICATION;
-            }
+            // if (this_ccu.paired_mob1.authentication_status != AUTHENTICATED) {
+            //     memset(&i_ret_msg[BLE_RET_MSG_RC_OFFSET], ERROR_AUTHENTICATION, BLE_RETURN_RC_SIZE);
+            //     return ERROR_AUTHENTICATION;
+            // }
             execute_scan_wifis(ble_command ,i_ret_msg);
             if((akbi_get_fsm_state()!=FSM_STATE_WIFI_SCAN_IN_PROGRESS)&&
                        (akbi_get_fsm_state()!=FSM_STATE_WIFI_SCAN_COMPLETE)&&
@@ -883,85 +887,90 @@ int read_ble_message(char *i_msg, char *i_ret_msg)
             break;
 
         case CID_SELECT_A_WIFI :
-            if (this_ccu.paired_mob1.authentication_status != AUTHENTICATED) {
-                memset(&i_ret_msg[BLE_RET_MSG_RC_OFFSET], ERROR_AUTHENTICATION, BLE_RETURN_RC_SIZE);
-                return ERROR_AUTHENTICATION;
-            }
+            // if (this_ccu.paired_mob1.authentication_status != AUTHENTICATED) {
+            //     memset(&i_ret_msg[BLE_RET_MSG_RC_OFFSET], ERROR_AUTHENTICATION, BLE_RETURN_RC_SIZE);
+            //     return ERROR_AUTHENTICATION;
+            // }
             memcpy(ble_command,&i_msg[BLE_CMD_OFFSET + BLE_COMMAND_ID_SIZE],BLE_COMMAND_SIZE);
             akbi_set_fsm_state(FSM_STATE_WIFI_SELECT_IN_PROGRESS );
             execute_select_a_wifi(ble_command,i_ret_msg);
             break;
 
         case CID_ADDRESS_VISITING :
-            if (this_ccu.paired_mob1.authentication_status != AUTHENTICATED) {
-                memset(&i_ret_msg[BLE_RET_MSG_RC_OFFSET], ERROR_AUTHENTICATION, BLE_RETURN_RC_SIZE);
-                return ERROR_AUTHENTICATION;
-            }
+            // if (this_ccu.paired_mob1.authentication_status != AUTHENTICATED) {
+            //     memset(&i_ret_msg[BLE_RET_MSG_RC_OFFSET], ERROR_AUTHENTICATION, BLE_RETURN_RC_SIZE);
+            //     return ERROR_AUTHENTICATION;
+            // }
             memcpy(ble_command,&i_msg[BLE_CMD_OFFSET + BLE_COMMAND_ID_SIZE],BLE_COMMAND_SIZE);
             akbi_set_fsm_state(FSM_STATE_CFG_SET_ADDRESS );
             execute_store_address_visiting(ble_command,i_ret_msg);
             break;
 
         case CID_ENTER_LOCAL_HELP_NUMBERS :
-            if (this_ccu.paired_mob1.authentication_status != AUTHENTICATED) {
-                memset(&i_ret_msg[BLE_RET_MSG_RC_OFFSET], ERROR_AUTHENTICATION, BLE_RETURN_RC_SIZE);
-                return ERROR_AUTHENTICATION;
-            }
+            // if (this_ccu.paired_mob1.authentication_status != AUTHENTICATED) {
+            //     memset(&i_ret_msg[BLE_RET_MSG_RC_OFFSET], ERROR_AUTHENTICATION, BLE_RETURN_RC_SIZE);
+            //     return ERROR_AUTHENTICATION;
+            // }
             memcpy(ble_command,&i_msg[BLE_CMD_OFFSET + BLE_COMMAND_ID_SIZE],BLE_COMMAND_SIZE);
             akbi_set_fsm_state(FSM_STATE_CFG_SET_HELP_NUM_SENDING );
             execute_enter_local_help_number(ble_command,i_ret_msg);
             break;
 
         case CID_CCU_ACTIVATE :
-            if (this_ccu.paired_mob1.authentication_status != AUTHENTICATED) {
-                memset(&i_ret_msg[BLE_RET_MSG_RC_OFFSET], ERROR_AUTHENTICATION, BLE_RETURN_RC_SIZE);
-                return ERROR_AUTHENTICATION;
-            }
+            // if (this_ccu.paired_mob1.authentication_status != AUTHENTICATED) {
+            //     memset(&i_ret_msg[BLE_RET_MSG_RC_OFFSET], ERROR_AUTHENTICATION, BLE_RETURN_RC_SIZE);
+            //     return ERROR_AUTHENTICATION;
+            // }
             memcpy(ble_command,&i_msg[BLE_CMD_OFFSET + BLE_COMMAND_ID_SIZE],BLE_COMMAND_SIZE);
             akbi_set_fsm_state(FSM_STATE_ACTIVATE_IN_PROGRESS);
             execute_ccu_activate(ble_command,i_ret_msg);
             break;
 
         case CID_CONNECT_TO_WIFI :
-            if (this_ccu.paired_mob1.authentication_status != AUTHENTICATED) {
-                memset(&i_ret_msg[BLE_RET_MSG_RC_OFFSET], ERROR_AUTHENTICATION, BLE_RETURN_RC_SIZE);
-                return ERROR_AUTHENTICATION;
-            }
+            // if (this_ccu.paired_mob1.authentication_status != AUTHENTICATED) {
+            //     memset(&i_ret_msg[BLE_RET_MSG_RC_OFFSET], ERROR_AUTHENTICATION, BLE_RETURN_RC_SIZE);
+            //     return ERROR_AUTHENTICATION;
+            // }
             memcpy(ble_command,&i_msg[BLE_CMD_OFFSET + BLE_COMMAND_ID_SIZE],BLE_COMMAND_SIZE);
             akbi_set_fsm_state(FSM_STATE_WIFI_CONNECT_IN_PROGRESS);
             execute_connect_to_wifi(i_ret_msg);
             break;
         case CID_DISCONNECT_FROM_WIFI :
-            if (this_ccu.paired_mob1.authentication_status != AUTHENTICATED) {
-                memset(&i_ret_msg[BLE_RET_MSG_RC_OFFSET], ERROR_AUTHENTICATION, BLE_RETURN_RC_SIZE);
-                return ERROR_AUTHENTICATION;
-            }
+            // if (this_ccu.paired_mob1.authentication_status != AUTHENTICATED) {
+            //     memset(&i_ret_msg[BLE_RET_MSG_RC_OFFSET], ERROR_AUTHENTICATION, BLE_RETURN_RC_SIZE);
+            //     return ERROR_AUTHENTICATION;
+            // }
             akbi_set_fsm_state(FSM_STATE_WIFI_DISCONNECT_IN_PROGRESS);
             execute_disconnect_from_wifi(i_ret_msg);
             break;
         case CID_UPDATE_CCU_SW :
-            if (this_ccu.paired_mob1.authentication_status != AUTHENTICATED) {
-                memset(&i_ret_msg[BLE_RET_MSG_RC_OFFSET], ERROR_AUTHENTICATION, BLE_RETURN_RC_SIZE);
-                return ERROR_AUTHENTICATION;
-            }
+            // if (this_ccu.paired_mob1.authentication_status != AUTHENTICATED) {
+            //     memset(&i_ret_msg[BLE_RET_MSG_RC_OFFSET], ERROR_AUTHENTICATION, BLE_RETURN_RC_SIZE);
+            //     return ERROR_AUTHENTICATION;
+            // }
             akbi_set_fsm_state(FSM_STATE_FW_UPGRADE_IN_PROGRESS);
             update_ccu_sw(i_ret_msg);
             break;
 
+        case CID_SET_CCU_REBOOT :
+            akbi_set_fsm_state(FSM_STATE_FW_REBOOT_MSG_SENDING);
+            execute_reboot_ccu(i_ret_msg);
+            break;
+
         case CID_SET_CCU_WIFI_MODE :
-            if (this_ccu.paired_mob1.authentication_status != AUTHENTICATED) {
-                memset(&i_ret_msg[BLE_RET_MSG_RC_OFFSET], ERROR_AUTHENTICATION, BLE_RETURN_RC_SIZE);
-                return ERROR_AUTHENTICATION;
-            }
+            // if (this_ccu.paired_mob1.authentication_status != AUTHENTICATED) {
+            //     memset(&i_ret_msg[BLE_RET_MSG_RC_OFFSET], ERROR_AUTHENTICATION, BLE_RETURN_RC_SIZE);
+            //     return ERROR_AUTHENTICATION;
+            // }
             akbi_set_fsm_state(FSM_STATE_WIFI_MODE_SET_IN_PROGRESS);
             set_ccu_wifi_mode(i_msg[BLE_MSG_MULTI_DATA_TYPE_OFFSET]);
             break;
 
         case CID_UPLOAD_TRIP_INFO:
-            if (this_ccu.paired_mob1.authentication_status != AUTHENTICATED) {
-                memset(&i_ret_msg[BLE_RET_MSG_RC_OFFSET], ERROR_AUTHENTICATION, BLE_RETURN_RC_SIZE);
-                return ERROR_AUTHENTICATION;
-            }
+            // if (this_ccu.paired_mob1.authentication_status != AUTHENTICATED) {
+            //     memset(&i_ret_msg[BLE_RET_MSG_RC_OFFSET], ERROR_AUTHENTICATION, BLE_RETURN_RC_SIZE);
+            //     return ERROR_AUTHENTICATION;
+            // }
             akbi_set_fsm_state(FSM_STATE_TRIP_INFO_UPLOAD_IN_PROGRESS);
             update_trip_info(i_ret_msg);
             break;
