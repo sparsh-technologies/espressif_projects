@@ -19,18 +19,18 @@
 #include "nvs_flash.h"
 #include "nvs.h"
 #include "driver/gpio.h"
-#include "icom_mobdus.h"
+#include "icom_config.h"
 
 #define STORAGE_NAMESPACE "config"
 
-static ICOM_MODBUS_CFG_REG  startup_cfg;
+static ICOM_STARTUP_CONFIG  startup_cfg;
 
 //static nvs_handle_t mbus_cfg_file_handle;
 static unsigned int mbus_cfg_file_handle;
 
 void populate_dummy_cfg()
 {
-    ICOM_MODBUS_CFG_REG  *p_mbus_cfg;
+    ICOM_STARTUP_CONFIG  *p_mbus_cfg;
     ICOM_MBUS_REG_INFO   *p_mbus_reg;
     int                  i;
 
@@ -60,11 +60,11 @@ void populate_dummy_cfg()
 
 esp_err_t icom_write_mbus_reg_config(void)
 {
-    unsigned int my_handle;
-    esp_err_t    err;
-    size_t       required_size = 0;  // value will default to 0, if not set yet in NVS
-    uint32_t     *run_time;
-    ICOM_MODBUS_CFG_REG  *p_mbus_cfg;
+    unsigned int         my_handle;
+    esp_err_t            err;
+    size_t               required_size = 0;  // value will default to 0, if not set yet in NVS
+    uint32_t             *run_time;
+    ICOM_STARTUP_CONFIG  *p_mbus_cfg;
 
     err = nvs_open(STORAGE_NAMESPACE, NVS_READWRITE, &my_handle);
 
@@ -83,10 +83,10 @@ esp_err_t icom_write_mbus_reg_config(void)
         return err;
 
     // Read previously saved blob if available
-//    required_size = sizeof(ICOM_MODBUS_CFG_REG);
+//    required_size = sizeof(ICOM_STARTUP_CONFIG);
 //    required_size = 4;
 
-    run_time = malloc(sizeof(ICOM_MODBUS_CFG_REG));
+    run_time = malloc(sizeof(ICOM_STARTUP_CONFIG));
 
     if (required_size > 0) {
 
@@ -99,11 +99,11 @@ esp_err_t icom_write_mbus_reg_config(void)
         }
     }
 
-    p_mbus_cfg = (ICOM_MODBUS_CFG_REG*)run_time;
+    p_mbus_cfg = (ICOM_STARTUP_CONFIG *)run_time;
 
-    memcpy(p_mbus_cfg, &startup_cfg, sizeof(ICOM_MODBUS_CFG_REG));
+    memcpy(p_mbus_cfg, &startup_cfg, sizeof(ICOM_STARTUP_CONFIG));
 
-    required_size = sizeof(ICOM_MODBUS_CFG_REG);
+    required_size = sizeof(ICOM_STARTUP_CONFIG);
     printf(" INFO : Going to write %d bytes \n", required_size);
     err = nvs_set_blob(my_handle, "mbus_cfg", run_time, required_size);
     free(run_time);
@@ -162,11 +162,11 @@ esp_err_t icom_read_mbus_reg_config(void)
     } else {
 
         uint32_t             *run_time;
-        ICOM_MODBUS_CFG_REG  *p_mbus_cfg;
+        ICOM_STARTUP_CONFIG  *p_mbus_cfg;
         ICOM_MBUS_REG_INFO   *p_mbus_reg;
         int                  i;
 
-        run_time = malloc(sizeof(ICOM_MODBUS_CFG_REG));
+        run_time = malloc(sizeof(ICOM_STARTUP_CONFIG));
 
         if (run_time == NULL) {
             printf(" ERROR : Not enough memory \n");
@@ -181,7 +181,7 @@ esp_err_t icom_read_mbus_reg_config(void)
             return err;
         }
 
-        p_mbus_cfg = (ICOM_MODBUS_CFG_REG*)run_time;
+        p_mbus_cfg = (ICOM_STARTUP_CONFIG *)run_time;
 
         printf(" Slave Address : %d \n", p_mbus_cfg->slave_address);
         printf(" Reg Count     : %d \n", p_mbus_cfg->cfg_reg_count);

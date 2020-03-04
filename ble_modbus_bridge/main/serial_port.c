@@ -185,11 +185,13 @@ int icom_send_rs485_data(char *p_data, int length)
     return (0);
 }
 
-void uart_modbus_task(void *param)
+void icom_modbus_task(void *param)
 {
     int     s;
     fd_set  rfds;
     struct timeval  tv;
+
+    printf(" INFO : Starting MODBUS protocol task \n");
 
     if(init_uart() != 0) {
         printf(" ERROR : Unable to open serial port \n");

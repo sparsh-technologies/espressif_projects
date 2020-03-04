@@ -507,6 +507,8 @@ void bt_app_gap_cb(esp_bt_gap_cb_event_t event, esp_bt_gap_cb_param_t *param)
 void ble_config_task(void *param)
 {
 
+    printf(" INFO : Starting BLE Configuration task \n");
+
 #if 0
 
   /* Initialize NVS — it is used to store PHY calibration data */
