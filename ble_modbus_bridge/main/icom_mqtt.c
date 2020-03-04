@@ -41,7 +41,7 @@ extern EventGroupHandle_t s_wifi_event_group;
 static esp_err_t mqtt_event_handler(esp_mqtt_event_handle_t event);
 
 esp_mqtt_client_config_t mqtt_cfg = {
-    .uri = "mqtt://iot.eclipse.org",
+    .uri = "mqtt://broker.hivemq.com",
     .event_handle = mqtt_event_handler,
 };
 
@@ -51,54 +51,55 @@ static esp_err_t mqtt_event_handler(esp_mqtt_event_handle_t event)
     int msg_id;
 
     // your_context_t *context = event->context;
+    printf(" INFO : MQTT_EVENT_HANDLER Invoked with Event (%d) \n", event->event_id);
 
     switch (event->event_id) {
 
     case MQTT_EVENT_CONNECTED:
-        ESP_LOGI(TAG, "MQTT_EVENT_CONNECTED");
+        printf(" INFO : MQTT_EVENT_CONNECTED");
         msg_id = esp_mqtt_client_publish(client, "/icom/qos1", "data_3", 0, 1, 0);
-        ESP_LOGI(TAG, "sent publish successful, msg_id=%d", msg_id);
+        printf(" INFO : Sent publish successful, msg_id=%d", msg_id);
 
         msg_id = esp_mqtt_client_subscribe(client, "/icom/qos0", 0);
-        ESP_LOGI(TAG, "sent subscribe successful, msg_id=%d", msg_id);
+        printf(" INFO : Sent subscribe successful, msg_id=%d", msg_id);
 
         msg_id = esp_mqtt_client_subscribe(client, "/icom/qos1", 1);
-        ESP_LOGI(TAG, "sent subscribe successful, msg_id=%d", msg_id);
+        printf(" INFO : Sent subscribe successful, msg_id=%d", msg_id);
 
         msg_id = esp_mqtt_client_unsubscribe(client, "/icom/qos1");
-        ESP_LOGI(TAG, "sent unsubscribe successful, msg_id=%d", msg_id);
+        printf(" INFO : Sent unsubscribe successful, msg_id=%d", msg_id);
         break;
 
     case MQTT_EVENT_DISCONNECTED:
-        ESP_LOGI(TAG, "MQTT_EVENT_DISCONNECTED");
+        printf(" INFO : MQTT_EVENT_DISCONNECTED");
         break;
 
     case MQTT_EVENT_SUBSCRIBED:
-        ESP_LOGI(TAG, "MQTT_EVENT_SUBSCRIBED, msg_id=%d", event->msg_id);
+        printf(" INFO : MQTT_EVENT_SUBSCRIBED, msg_id=%d", event->msg_id);
         msg_id = esp_mqtt_client_publish(client, "/icom/qos0", "data", 0, 0, 0);
-        ESP_LOGI(TAG, "sent publish successful, msg_id=%d", msg_id);
+        printf(" INFO : Sent publish successful, msg_id=%d", msg_id);
         break;
 
     case MQTT_EVENT_UNSUBSCRIBED:
-        ESP_LOGI(TAG, "MQTT_EVENT_UNSUBSCRIBED, msg_id=%d", event->msg_id);
+        printf(" INFO : MQTT_EVENT_UNSUBSCRIBED, msg_id=%d", event->msg_id);
         break;
 
     case MQTT_EVENT_PUBLISHED:
-        ESP_LOGI(TAG, "MQTT_EVENT_PUBLISHED, msg_id=%d", event->msg_id);
+        printf(" INFO : MQTT_EVENT_PUBLISHED, msg_id=%d", event->msg_id);
         break;
 
     case MQTT_EVENT_DATA:
-        ESP_LOGI(TAG, "MQTT_EVENT_DATA");
+        printf(" INFO : MQTT_EVENT_DATA");
         printf("TOPIC=%.*s\r\n", event->topic_len, event->topic);
         printf("DATA=%.*s\r\n", event->data_len, event->data);
         break;
 
     case MQTT_EVENT_ERROR:
-        ESP_LOGI(TAG, "MQTT_EVENT_ERROR");
+        printf(" INFO : MQTT_EVENT_ERROR");
         break;
 
     default:
-        ESP_LOGI(TAG, "Other event id:%d", event->event_id);
+        printf(" INFO : Other event id:%d", event->event_id);
         break;
     }
 
@@ -107,6 +108,7 @@ static esp_err_t mqtt_event_handler(esp_mqtt_event_handle_t event)
 
 void mqtt_app_start(void)
 {
+	printf(" INFO : About to start MQTT Client Application \n");
     esp_mqtt_client_handle_t client = esp_mqtt_client_init(&mqtt_cfg);
     esp_mqtt_client_start(client);
 }
