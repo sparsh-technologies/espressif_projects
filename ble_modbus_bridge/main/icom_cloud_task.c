@@ -39,24 +39,10 @@ void icom_cloud_task(void *param)
 
     while (1) {
 
-        tv.tv_sec = 5,
-        tv.tv_usec = 0,
-
-        FD_ZERO(&rfds);
-        FD_SET(uart_fd, &rfds);
-
-        s = select((uart_fd + 1), &rfds, NULL, NULL, &tv);
-
-        if (s < 0) {
-            printf(" Select failed. \n");
-        } else {
-            read_data_from_rs485_port(uart_fd, &rfds, "UART2");
-        }
-//        vTaskDelay(100);
+        vTaskDelay(100);
 
     }
 
-    deinit_uart(uart_fd);
     vTaskDelete(NULL);
 }
 
