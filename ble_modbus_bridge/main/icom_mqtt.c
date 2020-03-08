@@ -28,6 +28,7 @@
 #include "lwip/netdb.h"
 #include "esp_log.h"
 #include "mqtt_client.h"
+#include "icom_gpio.h"
 
 /* FreeRTOS event group to signal when we are connected*/
 extern EventGroupHandle_t s_wifi_event_group;
@@ -92,11 +93,11 @@ static esp_err_t mqtt_event_handler(esp_mqtt_event_handle_t event)
         printf("TOPIC=%.*s\r\n", event->topic_len, event->topic);
         printf("DATA=%.*s\r\n", event->data_len, event->data);
         if (strcmp(event->data, "1")) {
-
+            icom_set_port(GPIO_PORT_OUTPUT_IO_23, 1);
             break;
         }
         if (strcmp(event->data, "0")) {
-
+            icom_set_port(GPIO_PORT_OUTPUT_IO_23, 0);
             break;
         }
 
@@ -116,7 +117,7 @@ static esp_err_t mqtt_event_handler(esp_mqtt_event_handle_t event)
 
 void mqtt_app_start(void)
 {
-	printf(" INFO : About to start MQTT Client Application \n");
+    printf(" INFO : About to start MQTT Client Application \n");
     esp_mqtt_client_handle_t client = esp_mqtt_client_init(&mqtt_cfg);
     esp_mqtt_client_start(client);
 }

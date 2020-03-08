@@ -50,8 +50,10 @@ void app_main(void)
     icom_configure_gpio_port();
 
     xTaskCreate(ble_config_task, "ble_config_task", 4*1024, &context1, 0, &ble_task);
+#if 0
     xTaskCreate(icom_modbus_task, "uart_modbus_task", 4*1024, &context2, 0, &uart_task);
     xTaskCreate(icom_cloud_task, "icom_cloud_task", 8*1024, &context3, 0, &cloud_task);
+#endif
 
     /*
      * Initialize the configuration sub-system here. After this, init the Wifi sub-system
