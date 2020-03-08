@@ -22,8 +22,10 @@
 #include "lwip/err.h"
 #include "lwip/sys.h"
 
-#define EXAMPLE_ESP_WIFI_SSID      "Airplane"
-#define EXAMPLE_ESP_WIFI_PASS      "sruman23#"
+//#define EXAMPLE_ESP_WIFI_SSID      "Airplane"
+//#define EXAMPLE_ESP_WIFI_PASS      "sruman23#"
+#define EXAMPLE_ESP_WIFI_SSID      "essplair"
+#define EXAMPLE_ESP_WIFI_PASS      "eoxyssmart@1564"
 #define EXAMPLE_ESP_MAXIMUM_RETRY  10
 
 wifi_config_t wifi_config = {

@@ -89,9 +89,17 @@ static esp_err_t mqtt_event_handler(esp_mqtt_event_handle_t event)
         break;
 
     case MQTT_EVENT_DATA:
-        printf(" INFO : MQTT_EVENT_DATA");
         printf("TOPIC=%.*s\r\n", event->topic_len, event->topic);
         printf("DATA=%.*s\r\n", event->data_len, event->data);
+        if (strcmp(event->data, "1")) {
+
+            break;
+        }
+        if (strcmp(event->data, "0")) {
+
+            break;
+        }
+
         break;
 
     case MQTT_EVENT_ERROR:

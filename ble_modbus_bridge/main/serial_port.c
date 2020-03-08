@@ -169,6 +169,32 @@ static void configure_rs485_enable_line(void)
     ESP_ERROR_CHECK(esp_timer_create(&oneshot_timer_args, &oneshot_timer));
 }
 
+static void configure_gpio_enable_line(void)
+{
+    gpio_config_t io_conf;
+
+    /*
+     * Configure the GPIO line here
+     */
+
+    io_conf.intr_type = GPIO_PIN_INTR_DISABLE;
+    io_conf.mode = GPIO_MODE_OUTPUT;
+    io_conf.pin_bit_mask = GPIO_OUTPUT_PIN_SEL;
+    io_conf.pull_down_en = 0;
+    io_conf.pull_up_en = 0;
+
+    gpio_config(&io_conf);
+
+}
+
+void icom_set_port(unsigned char state)
+{
+    if (state == 0)
+        gpio_set_level(GPIO_OUTPUT_IO_23, 0);
+    else if (state == 0)
+        gpio_set_level(GPIO_OUTPUT_IO_23, 1);
+}
+
 void icom_enable_rs485_tx()
 {
     gpio_set_level(GPIO_OUTPUT_IO_23, 1);
