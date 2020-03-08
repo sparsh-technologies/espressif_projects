@@ -240,7 +240,7 @@ int ccu_sent_disconnect_from_wifi()
     BT_CP_PROTOCOL_HDR  *p_protocol_hdr;
     int                 length;
 
-    //printf(" INFO : Sending DISCONNECT-FROM-WIFI Message \n");
+    printf(" INFO : Sending DISCONNECT-FROM-WIFI Message \n");
     p_protocol_hdr = (BT_CP_PROTOCOL_HDR *)p_tx_buffer;
 
     p_protocol_hdr->opcode   = BT_CP_OPCODE_CID_DISCONNECT_FROM_WIFI;
@@ -296,25 +296,46 @@ int ccu_sent_user_forgot_passwd_msg()
     return (0);
 }
 
-int ccu_sent_user_change_passwd_msg(char *received_value_buffer,char *ep_return_message)
+int ccu_sent_user_change_passwd_msg(char *p_password_current,char *p_password_new)
 {
-    char                p_tx_buffer[20];
     BT_CP_PROTOCOL_HDR  *p_protocol_hdr;
-    int                 length;
     char                *p;
+    int                 length;
+    char                p_tx_buffer[100];
+    BT_CP_TLV_HDR       *p_tlv_hdr;
 
-    //printf(" INFO : Sending USER-CHANGE_PASSWD Message \n");
+    memset(p_tx_buffer,0x00,100);
+    printf(" INFO : Sending USER-CHANGE_PASSWD Message \n");
     p_protocol_hdr = (BT_CP_PROTOCOL_HDR *)p_tx_buffer;
 
     p_protocol_hdr->opcode   = BT_CP_OPCODE_CID_CHANGE_PASSWORD;
     p_protocol_hdr->trans_id = 44;
-    p_protocol_hdr->type     = 0;
-    p_protocol_hdr->length   = received_value_buffer[BLE_MSG_MULTI_DATA_LEN_OFFSET];;
 
+    /*
+     * Now set all the TLV data here.
+     */
     p = p_tx_buffer + sizeof(BT_CP_PROTOCOL_HDR);
-    memcpy(p, (received_value_buffer+BLE_MSG_MULTI_DATA_LEN_OFFSET+1), p_protocol_hdr->length);
+    p_protocol_hdr->type     = TLV_TYPE_CURRENT_PASSWD;
+    p_protocol_hdr->length   = strlen(p_password_current);
+    memcpy(p,p_password_current,strlen(p_password_current));
+    p+=strlen(p_password_current);
 
-    length = sizeof(BT_CP_PROTOCOL_HDR) + p_protocol_hdr->length;
+    // p_tlv_hdr  = (BT_CP_TLV_HDR*)p;
+    // p_tlv_hdr->type   = TLV_TYPE_NEW_PASSWD;
+    // p_tlv_hdr->length = strlen(p_password_new);
+    p[0]=TLV_TYPE_NEW_PASSWD;
+    p++;
+    p[0]=strlen(p_password_new);
+    p++;
+    memcpy(p,p_password_new,strlen(p_password_new));
+
+    length = sizeof(BT_CP_PROTOCOL_HDR) + strlen(p_password_current) + sizeof(BT_CP_TLV_HDR) + strlen(p_password_new);
+
+    // printf("send_msg:\n");
+    // for (int i = 0; i < length; i++) {
+    //   printf("%02x ",p_tx_buffer[i] );
+    // }
+    // printf("\n" );
     send_uart_message(p_tx_buffer, length );
 
     return (0);
@@ -326,7 +347,7 @@ int ccu_sent_record_voice_msg()
     int                 length;
     char                p_tx_buffer[20];
 
-    //printf(" INFO : Sending RECORD-VOICE Message \n");
+    printf(" INFO : Sending RECORD-VOICE Message \n");
     p_protocol_hdr = (BT_CP_PROTOCOL_HDR *)p_tx_buffer;
 
     p_protocol_hdr->opcode   = BT_CP_OPCODE_CID_RECORD_PERSONAL_VOICE_MSG;
@@ -457,32 +478,61 @@ int ccu_sent_store_local_help_number_msg(char *received_value_buffer)
     p_protocol_hdr->trans_id = 44;
     p_protocol_hdr->type     = received_value_buffer[BLE_MSG_MULTI_DATA_TYPE_OFFSET];
     p_protocol_hdr->length   = received_value_buffer[BLE_MSG_MULTI_DATA_LEN_OFFSET];
-
     p = p_tx_buffer + sizeof(BT_CP_PROTOCOL_HDR);
     memcpy(p, (received_value_buffer+BLE_MSG_MULTI_DATA_LEN_OFFSET+1), p_protocol_hdr->length);
 
-    length = p_protocol_hdr->length;
+    length = sizeof(BT_CP_PROTOCOL_HDR) +p_protocol_hdr->length;
     send_uart_message(p_tx_buffer, length);
 
     return (0);
 }
 
-int ccu_sent_activate_system_msg()
+int ccu_sent_activate_system_msg(char *p_latitude, char *p_longitude, int mode)
 {
     BT_CP_PROTOCOL_HDR  *p_protocol_hdr;
+    char                *p;
     int                 length;
-    char                p_tx_buffer[20];
+    char                p_tx_buffer[100];
+    BT_CP_TLV_HDR       *p_tlv_hdr;
 
-    //printf(" INFO : Sending ACTIVATE-SYSTEM Message \n");
+    //printf(" INFO : Sending CONFIGURE-WIFI Message \n");
+    //printf(" INFO : PASSWD : %s(%d) \n", p_passwd, strlen(p_passwd));
+    //printf(" INFO : AP-ID  : %d \n", ap_id);
+
+    memset(p_tx_buffer, 0x00, 100);
     p_protocol_hdr = (BT_CP_PROTOCOL_HDR *)p_tx_buffer;
-
     p_protocol_hdr->opcode   = BT_CP_OPCODE_CID_CCU_ACTIVATE;
     p_protocol_hdr->trans_id = 44;
-    p_protocol_hdr->type     = 0;
-    p_protocol_hdr->length   = 0;
+
+    /*
+     * Now set all the TLV data here.
+     */
+    p = p_tx_buffer + sizeof(BT_CP_PROTOCOL_HDR);
+    p_protocol_hdr->type     = TLV_TYPE_CCU_ACTIVATE_LATITUDE;
+    p_protocol_hdr->length   = strlen(p_latitude);
+    p = p + sizeof(BT_CP_PROTOCOL_HDR);
+    memcpy(p, p_latitude, strlen(p_latitude));
+
+    p = p + strlen(p_latitude);
+
+    p_tlv_hdr  = (BT_CP_TLV_HDR*)p;
+
+    p_tlv_hdr->type   = TLV_TYPE_CCU_ACTIVATE_LONGITUDE;
+    p_tlv_hdr->length = strlen(p_longitude);
+
+    memcpy(p_tlv_hdr->data, p_longitude, strlen(p_longitude));
+
+    length = sizeof(BT_CP_PROTOCOL_HDR) + strlen(p_latitude) + sizeof(BT_CP_TLV_HDR) + strlen(p_longitude);
+
+    p_tx_buffer[length] = 0x00;
+
+    printf("ptx buf =\n" );
+    for (size_t i = 0; i < length; i++) {
+        printf("%02x ",p_tx_buffer[i] );
+    }
+    printf("\n" );
 
 
-    length = sizeof(BT_CP_PROTOCOL_HDR) + p_protocol_hdr->length;
     send_uart_message(p_tx_buffer, length );
 
     return (0);
@@ -509,13 +559,60 @@ int ccu_sent_update_sw_msg()
     return (0);
 }
 
-int ccu_sent_upload_trip_info()
+int ccu_sent_reboot_ccu_msg()
 {
     BT_CP_PROTOCOL_HDR  *p_protocol_hdr;
     int                 length;
     char                p_tx_buffer[20];
 
-    //printf(" INFO : Sending TRIP_INFO Message \n");
+    printf(" INFO : Sending reboot ccu Message \n");
+    p_protocol_hdr = (BT_CP_PROTOCOL_HDR *)p_tx_buffer;
+
+    p_protocol_hdr->opcode   = BT_CP_OPCODE_CID_REQUEST_REBOOT;
+    p_protocol_hdr->trans_id = 44;
+    p_protocol_hdr->type     = 0;
+    p_protocol_hdr->length   = 0;
+
+
+    length = sizeof(BT_CP_PROTOCOL_HDR) + p_protocol_hdr->length;
+    send_uart_message(p_tx_buffer, length );
+
+    return (0);
+}
+
+int ccu_sent_wifi_set_mode(unsigned char wifi_mode)
+{
+    BT_CP_PROTOCOL_HDR  *p_protocol_hdr;
+    int                 length;
+    char                p_tx_buffer[20];
+    char                *p;
+
+    printf(" INFO : Sending WIFI-SET-MODE Message = %02x  \n",wifi_mode);
+    p_protocol_hdr = (BT_CP_PROTOCOL_HDR *)p_tx_buffer;
+
+    p_protocol_hdr->opcode   = BT_CP_OPCODE_CID_WIFI_SET_MODE;
+    p_protocol_hdr->trans_id = 44;
+    p_protocol_hdr->type     = 0;
+    p_protocol_hdr->length   = 0x01;
+
+    p = p_tx_buffer + sizeof(BT_CP_PROTOCOL_HDR);
+
+    p[0] = wifi_mode;
+
+
+    length = sizeof(BT_CP_PROTOCOL_HDR) + p_protocol_hdr->length;
+    send_uart_message(p_tx_buffer, length );
+
+    return (0);
+}
+
+int ccu_sent_upload_trip_info(unsigned char wifi_mode)
+{
+    BT_CP_PROTOCOL_HDR  *p_protocol_hdr;
+    int                 length;
+    char                p_tx_buffer[20];
+
+    printf(" INFO : Sending TRIP_INFO Message \n");
     p_protocol_hdr = (BT_CP_PROTOCOL_HDR *)p_tx_buffer;
 
     p_protocol_hdr->opcode   = BT_CP_OPCODE_CID_UPLOAD_TRIP_INFO;

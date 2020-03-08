@@ -1,0 +1,282 @@
+In archive C:/Users/user/Desktop/esp-idf-3/examples/bluetooth/controller_hci_uart/build/esp-idf/bt/libbt.a:
+
+bt.c.obj:     file format elf32-xtensa-le
+
+Sections:
+Idx Name          Size      VMA       LMA       File off  Algn
+  0 .iram1.52.literal 00000008  00000000  00000000  00000034  2**2
+                  CONTENTS, ALLOC, LOAD, RELOC, READONLY, CODE
+  1 .iram1.53.literal 0000000c  00000000  00000000  0000003c  2**2
+                  CONTENTS, ALLOC, LOAD, RELOC, READONLY, CODE
+  2 .literal.try_heap_caps_add_region 00000004  00000000  00000000  00000048  2**2
+                  CONTENTS, ALLOC, LOAD, RELOC, READONLY, CODE
+  3 .literal.btdm_sleep_enter_phase2_wrapper 00000018  00000000  00000000  0000004c  2**2
+                  CONTENTS, ALLOC, LOAD, RELOC, READONLY, CODE
+  4 .iram1.51.literal 00000004  00000000  00000000  00000064  2**2
+                  CONTENTS, ALLOC, LOAD, RELOC, READONLY, CODE
+  5 .iram1.49.literal 00000004  00000000  00000000  00000068  2**2
+                  CONTENTS, ALLOC, LOAD, RELOC, READONLY, CODE
+  6 .iram1.48.literal 0000000c  00000000  00000000  0000006c  2**2
+                  CONTENTS, ALLOC, LOAD, RELOC, READONLY, CODE
+  7 .iram1.46.literal 00000004  00000000  00000000  00000078  2**2
+                  CONTENTS, ALLOC, LOAD, RELOC, READONLY, CODE
+  8 .literal.task_delete_wrapper 00000004  00000000  00000000  0000007c  2**2
+                  CONTENTS, ALLOC, LOAD, RELOC, READONLY, CODE
+  9 .literal.task_create_wrapper 00000008  00000000  00000000  00000080  2**2
+                  CONTENTS, ALLOC, LOAD, RELOC, READONLY, CODE
+ 10 .iram1.45.literal 00000004  00000000  00000000  00000088  2**2
+                  CONTENTS, ALLOC, LOAD, RELOC, READONLY, CODE
+ 11 .iram1.42.literal 00000004  00000000  00000000  0000008c  2**2
+                  CONTENTS, ALLOC, LOAD, RELOC, READONLY, CODE
+ 12 .literal.queue_recv_wrapper 0000000c  00000000  00000000  00000090  2**2
+                  CONTENTS, ALLOC, LOAD, RELOC, READONLY, CODE
+ 13 .literal.mutex_lock_wrapper 00000004  00000000  00000000  0000009c  2**2
+                  CONTENTS, ALLOC, LOAD, RELOC, READONLY, CODE
+ 14 .literal.semphr_take_wrapper 0000000c  00000000  00000000  000000a0  2**2
+                  CONTENTS, ALLOC, LOAD, RELOC, READONLY, CODE
+ 15 .iram1.44.literal 00000004  00000000  00000000  000000ac  2**2
+                  CONTENTS, ALLOC, LOAD, RELOC, READONLY, CODE
+ 16 .literal.queue_send_wrapper 0000000c  00000000  00000000  000000b0  2**2
+                  CONTENTS, ALLOC, LOAD, RELOC, READONLY, CODE
+ 17 .literal.mutex_unlock_wrapper 00000004  00000000  00000000  000000bc  2**2
+                  CONTENTS, ALLOC, LOAD, RELOC, READONLY, CODE
+ 18 .literal.semphr_give_wrapper 00000004  00000000  00000000  000000c0  2**2
+                  CONTENTS, ALLOC, LOAD, RELOC, READONLY, CODE
+ 19 .literal.queue_delete_wrapper 00000004  00000000  00000000  000000c4  2**2
+                  CONTENTS, ALLOC, LOAD, RELOC, READONLY, CODE
+ 20 .literal.mutex_delete_wrapper 00000004  00000000  00000000  000000c8  2**2
+                  CONTENTS, ALLOC, LOAD, RELOC, READONLY, CODE
+ 21 .literal.semphr_delete_wrapper 00000004  00000000  00000000  000000cc  2**2
+                  CONTENTS, ALLOC, LOAD, RELOC, READONLY, CODE
+ 22 .literal.queue_create_wrapper 00000004  00000000  00000000  000000d0  2**2
+                  CONTENTS, ALLOC, LOAD, RELOC, READONLY, CODE
+ 23 .literal.mutex_create_wrapper 00000004  00000000  00000000  000000d4  2**2
+                  CONTENTS, ALLOC, LOAD, RELOC, READONLY, CODE
+ 24 .iram1.43.literal 00000004  00000000  00000000  000000d8  2**2
+                  CONTENTS, ALLOC, LOAD, RELOC, READONLY, CODE
+ 25 .literal.semphr_create_wrapper 00000004  00000000  00000000  000000dc  2**2
+                  CONTENTS, ALLOC, LOAD, RELOC, READONLY, CODE
+ 26 .iram1.41.literal 00000004  00000000  00000000  000000e0  2**2
+                  CONTENTS, ALLOC, LOAD, RELOC, READONLY, CODE
+ 27 .iram1.40.literal 00000010  00000000  00000000  000000e4  2**2
+                  CONTENTS, ALLOC, LOAD, RELOC, READONLY, CODE
+ 28 .iram1.39.literal 00000010  00000000  00000000  000000f4  2**2
+                  CONTENTS, ALLOC, LOAD, RELOC, READONLY, CODE
+ 29 .literal.malloc_internal_wrapper 00000008  00000000  00000000  00000104  2**2
+                  CONTENTS, ALLOC, LOAD, RELOC, READONLY, CODE
+ 30 .literal.btdm_controller_mem_init 00000018  00000000  00000000  0000010c  2**2
+                  CONTENTS, ALLOC, LOAD, RELOC, READONLY, CODE
+ 31 .literal.btdm_sleep_exit_phase3_wrapper 00000024  00000000  00000000  00000124  2**2
+                  CONTENTS, ALLOC, LOAD, RELOC, READONLY, CODE
+ 32 .literal.esp_vhci_host_check_send_available 00000004  00000000  00000000  00000148  2**2
+                  CONTENTS, ALLOC, LOAD, RELOC, READONLY, CODE
+ 33 .literal.esp_vhci_host_send_packet 00000010  00000000  00000000  0000014c  2**2
+                  CONTENTS, ALLOC, LOAD, RELOC, READONLY, CODE
+ 34 .literal.esp_vhci_host_register_callback 00000004  00000000  00000000  0000015c  2**2
+                  CONTENTS, ALLOC, LOAD, RELOC, READONLY, CODE
+ 35 .literal.esp_bt_controller_mem_release 00000044  00000000  00000000  00000160  2**2
+                  CONTENTS, ALLOC, LOAD, RELOC, READONLY, CODE
+ 36 .literal.esp_bt_mem_release 00000030  00000000  00000000  000001a4  2**2
+                  CONTENTS, ALLOC, LOAD, RELOC, READONLY, CODE
+ 37 .literal.esp_bt_controller_init 00000078  00000000  00000000  000001d4  2**2
+                  CONTENTS, ALLOC, LOAD, RELOC, READONLY, CODE
+ 38 .literal.esp_bt_controller_deinit 0000001c  00000000  00000000  0000024c  2**2
+                  CONTENTS, ALLOC, LOAD, RELOC, READONLY, CODE
+ 39 .literal.esp_bt_controller_enable 00000068  00000000  00000000  00000268  2**2
+                  CONTENTS, ALLOC, LOAD, RELOC, READONLY, CODE
+ 40 .literal.esp_bt_controller_disable 0000003c  00000000  00000000  000002d0  2**2
+                  CONTENTS, ALLOC, LOAD, RELOC, READONLY, CODE
+ 41 .literal.esp_bt_controller_get_status 00000004  00000000  00000000  0000030c  2**2
+                  CONTENTS, ALLOC, LOAD, RELOC, READONLY, CODE
+ 42 .literal.esp_ble_tx_power_set 00000004  00000000  00000000  00000310  2**2
+                  CONTENTS, ALLOC, LOAD, RELOC, READONLY, CODE
+ 43 .literal.esp_ble_tx_power_get 00000004  00000000  00000000  00000314  2**2
+                  CONTENTS, ALLOC, LOAD, RELOC, READONLY, CODE
+ 44 .literal.esp_bredr_tx_power_set 00000004  00000000  00000000  00000318  2**2
+                  CONTENTS, ALLOC, LOAD, RELOC, READONLY, CODE
+ 45 .literal.esp_bredr_tx_power_get 00000004  00000000  00000000  0000031c  2**2
+                  CONTENTS, ALLOC, LOAD, RELOC, READONLY, CODE
+ 46 .literal.esp_bt_sleep_enable 00000020  00000000  00000000  00000320  2**2
+                  CONTENTS, ALLOC, LOAD, RELOC, READONLY, CODE
+ 47 .literal.esp_bt_sleep_disable 00000020  00000000  00000000  00000340  2**2
+                  CONTENTS, ALLOC, LOAD, RELOC, READONLY, CODE
+ 48 .literal.esp_bt_controller_is_sleeping 0000000c  00000000  00000000  00000360  2**2
+                  CONTENTS, ALLOC, LOAD, RELOC, READONLY, CODE
+ 49 .literal.esp_bt_controller_wakeup_request 0000000c  00000000  00000000  0000036c  2**2
+                  CONTENTS, ALLOC, LOAD, RELOC, READONLY, CODE
+ 50 .literal.esp_bredr_sco_datapath_set 00000008  00000000  00000000  00000378  2**2
+                  CONTENTS, ALLOC, LOAD, RELOC, READONLY, CODE
+ 51 .literal.esp_ble_scan_dupilcate_list_flush 00000008  00000000  00000000  00000380  2**2
+                  CONTENTS, ALLOC, LOAD, RELOC, READONLY, CODE
+ 52 .text         00000000  00000000  00000000  00000388  2**0
+                  CONTENTS, ALLOC, LOAD, READONLY, CODE
+ 53 .data         00000000  00000000  00000000  00000388  2**0
+                  CONTENTS, ALLOC, LOAD, DATA
+ 54 .bss          00000000  00000000  00000000  00000388  2**0
+                  ALLOC
+ 55 .iram1.47     00000010  00000000  00000000  00000388  2**2
+                  CONTENTS, ALLOC, LOAD, READONLY, CODE
+ 56 .iram1.50     00000005  00000000  00000000  00000398  2**2
+                  CONTENTS, ALLOC, LOAD, READONLY, CODE
+ 57 .iram1.52     00000055  00000000  00000000  000003a0  2**2
+                  CONTENTS, ALLOC, LOAD, RELOC, READONLY, CODE
+ 58 .iram1.53     0000003c  00000000  00000000  000003f8  2**2
+                  CONTENTS, ALLOC, LOAD, RELOC, READONLY, CODE
+ 59 .iram1.54     00000018  00000000  00000000  00000434  2**2
+                  CONTENTS, ALLOC, LOAD, RELOC, READONLY, CODE
+ 60 .iram1.55     00000005  00000000  00000000  0000044c  2**2
+                  CONTENTS, ALLOC, LOAD, READONLY, CODE
+ 61 .text.btdm_sleep_enter_phase1_wrapper 00000005  00000000  00000000  00000454  2**2
+                  CONTENTS, ALLOC, LOAD, READONLY, CODE
+ 62 .text.btdm_config_mask_load 00000007  00000000  00000000  0000045c  2**2
+                  CONTENTS, ALLOC, LOAD, READONLY, CODE
+ 63 .text.try_heap_caps_add_region 0000001c  00000000  00000000  00000464  2**2
+                  CONTENTS, ALLOC, LOAD, RELOC, READONLY, CODE
+ 64 .text.btdm_sleep_enter_phase2_wrapper 0000003b  00000000  00000000  00000480  2**2
+                  CONTENTS, ALLOC, LOAD, RELOC, READONLY, CODE
+ 65 .iram1.51     0000000d  00000000  00000000  000004bc  2**2
+                  CONTENTS, ALLOC, LOAD, RELOC, READONLY, CODE
+ 66 .iram1.49     00000011  00000000  00000000  000004cc  2**2
+                  CONTENTS, ALLOC, LOAD, RELOC, READONLY, CODE
+ 67 .iram1.48     00000029  00000000  00000000  000004e0  2**2
+                  CONTENTS, ALLOC, LOAD, RELOC, READONLY, CODE
+ 68 .iram1.46     00000012  00000000  00000000  0000050c  2**2
+                  CONTENTS, ALLOC, LOAD, RELOC, READONLY, CODE
+ 69 .text.task_delete_wrapper 0000000e  00000000  00000000  00000520  2**2
+                  CONTENTS, ALLOC, LOAD, RELOC, READONLY, CODE
+ 70 .text.task_create_wrapper 00000024  00000000  00000000  00000530  2**2
+                  CONTENTS, ALLOC, LOAD, RELOC, READONLY, CODE
+ 71 .iram1.45     00000014  00000000  00000000  00000554  2**2
+                  CONTENTS, ALLOC, LOAD, RELOC, READONLY, CODE
+ 72 .iram1.42     00000014  00000000  00000000  00000568  2**2
+                  CONTENTS, ALLOC, LOAD, RELOC, READONLY, CODE
+ 73 .text.queue_recv_wrapper 00000031  00000000  00000000  0000057c  2**2
+                  CONTENTS, ALLOC, LOAD, RELOC, READONLY, CODE
+ 74 .text.mutex_lock_wrapper 00000015  00000000  00000000  000005b0  2**2
+                  CONTENTS, ALLOC, LOAD, RELOC, READONLY, CODE
+ 75 .text.semphr_take_wrapper 00000031  00000000  00000000  000005c8  2**2
+                  CONTENTS, ALLOC, LOAD, RELOC, READONLY, CODE
+ 76 .iram1.44     00000015  00000000  00000000  000005fc  2**2
+                  CONTENTS, ALLOC, LOAD, RELOC, READONLY, CODE
+ 77 .text.queue_send_wrapper 00000031  00000000  00000000  00000614  2**2
+                  CONTENTS, ALLOC, LOAD, RELOC, READONLY, CODE
+ 78 .text.mutex_unlock_wrapper 00000015  00000000  00000000  00000648  2**2
+                  CONTENTS, ALLOC, LOAD, RELOC, READONLY, CODE
+ 79 .text.semphr_give_wrapper 00000015  00000000  00000000  00000660  2**2
+                  CONTENTS, ALLOC, LOAD, RELOC, READONLY, CODE
+ 80 .text.queue_delete_wrapper 0000000e  00000000  00000000  00000678  2**2
+                  CONTENTS, ALLOC, LOAD, RELOC, READONLY, CODE
+ 81 .text.mutex_delete_wrapper 0000000e  00000000  00000000  00000688  2**2
+                  CONTENTS, ALLOC, LOAD, RELOC, READONLY, CODE
+ 82 .text.semphr_delete_wrapper 0000000e  00000000  00000000  00000698  2**2
+                  CONTENTS, ALLOC, LOAD, RELOC, READONLY, CODE
+ 83 .text.queue_create_wrapper 00000014  00000000  00000000  000006a8  2**2
+                  CONTENTS, ALLOC, LOAD, RELOC, READONLY, CODE
+ 84 .text.mutex_create_wrapper 00000010  00000000  00000000  000006bc  2**2
+                  CONTENTS, ALLOC, LOAD, RELOC, READONLY, CODE
+ 85 .iram1.43     00000011  00000000  00000000  000006cc  2**2
+                  CONTENTS, ALLOC, LOAD, RELOC, READONLY, CODE
+ 86 .text.semphr_create_wrapper 00000011  00000000  00000000  000006e0  2**2
+                  CONTENTS, ALLOC, LOAD, RELOC, READONLY, CODE
+ 87 .iram1.41     0000000b  00000000  00000000  000006f4  2**2
+                  CONTENTS, ALLOC, LOAD, RELOC, READONLY, CODE
+ 88 .iram1.40     00000023  00000000  00000000  00000700  2**2
+                  CONTENTS, ALLOC, LOAD, RELOC, READONLY, CODE
+ 89 .iram1.39     00000023  00000000  00000000  00000724  2**2
+                  CONTENTS, ALLOC, LOAD, RELOC, READONLY, CODE
+ 90 .text.malloc_internal_wrapper 00000012  00000000  00000000  00000748  2**2
+                  CONTENTS, ALLOC, LOAD, RELOC, READONLY, CODE
+ 91 .text.btdm_controller_mem_init 0000004f  00000000  00000000  0000075c  2**2
+                  CONTENTS, ALLOC, LOAD, RELOC, READONLY, CODE
+ 92 .text.btdm_sleep_exit_phase3_wrapper 00000063  00000000  00000000  000007ac  2**2
+                  CONTENTS, ALLOC, LOAD, RELOC, READONLY, CODE
+ 93 .text.esp_vhci_host_check_send_available 0000000d  00000000  00000000  00000810  2**2
+                  CONTENTS, ALLOC, LOAD, RELOC, READONLY, CODE
+ 94 .text.esp_vhci_host_send_packet 00000032  00000000  00000000  00000820  2**2
+                  CONTENTS, ALLOC, LOAD, RELOC, READONLY, CODE
+ 95 .text.esp_vhci_host_register_callback 00000014  00000000  00000000  00000854  2**2
+                  CONTENTS, ALLOC, LOAD, RELOC, READONLY, CODE
+ 96 .rodata.str1.4 000000ca  00000000  00000000  00000868  2**2
+                  CONTENTS, ALLOC, LOAD, READONLY, DATA
+ 97 .text.esp_bt_controller_mem_release 0000014d  00000000  00000000  00000934  2**2
+                  CONTENTS, ALLOC, LOAD, RELOC, READONLY, CODE
+ 98 .text.esp_bt_mem_release 00000068  00000000  00000000  00000a84  2**2
+                  CONTENTS, ALLOC, LOAD, RELOC, READONLY, CODE
+ 99 .text.esp_bt_controller_init 00000171  00000000  00000000  00000aec  2**2
+                  CONTENTS, ALLOC, LOAD, RELOC, READONLY, CODE
+100 .text.esp_bt_controller_deinit 00000041  00000000  00000000  00000c60  2**2
+                  CONTENTS, ALLOC, LOAD, RELOC, READONLY, CODE
+101 .text.esp_bt_controller_enable 00000115  00000000  00000000  00000ca4  2**2
+                  CONTENTS, ALLOC, LOAD, RELOC, READONLY, CODE
+102 .text.esp_bt_controller_disable 00000099  00000000  00000000  00000dbc  2**2
+                  CONTENTS, ALLOC, LOAD, RELOC, READONLY, CODE
+103 .text.esp_bt_controller_get_status 0000000a  00000000  00000000  00000e58  2**2
+                  CONTENTS, ALLOC, LOAD, RELOC, READONLY, CODE
+104 .text.esp_ble_tx_power_set 00000016  00000000  00000000  00000e64  2**2
+                  CONTENTS, ALLOC, LOAD, RELOC, READONLY, CODE
+105 .text.esp_ble_tx_power_get 00000010  00000000  00000000  00000e7c  2**2
+                  CONTENTS, ALLOC, LOAD, RELOC, READONLY, CODE
+106 .text.esp_bredr_tx_power_set 00000021  00000000  00000000  00000e8c  2**2
+                  CONTENTS, ALLOC, LOAD, RELOC, READONLY, CODE
+107 .text.esp_bredr_tx_power_get 00000016  00000000  00000000  00000eb0  2**2
+                  CONTENTS, ALLOC, LOAD, RELOC, READONLY, CODE
+108 .text.esp_bt_sleep_enable 00000057  00000000  00000000  00000ec8  2**2
+                  CONTENTS, ALLOC, LOAD, RELOC, READONLY, CODE
+109 .text.esp_bt_sleep_disable 00000059  00000000  00000000  00000f20  2**2
+                  CONTENTS, ALLOC, LOAD, RELOC, READONLY, CODE
+110 .text.esp_bt_controller_is_sleeping 0000002c  00000000  00000000  00000f7c  2**2
+                  CONTENTS, ALLOC, LOAD, RELOC, READONLY, CODE
+111 .text.esp_bt_controller_wakeup_request 0000001e  00000000  00000000  00000fa8  2**2
+                  CONTENTS, ALLOC, LOAD, RELOC, READONLY, CODE
+112 .text.esp_bredr_sco_datapath_set 0000001d  00000000  00000000  00000fc8  2**2
+                  CONTENTS, ALLOC, LOAD, RELOC, READONLY, CODE
+113 .text.esp_ble_scan_dupilcate_list_flush 0000001a  00000000  00000000  00000fe8  2**2
+                  CONTENTS, ALLOC, LOAD, RELOC, READONLY, CODE
+114 .rodata.__func__$6469 00000017  00000000  00000000  00001004  2**2
+                  CONTENTS, ALLOC, LOAD, READONLY, DATA
+115 .rodata.__func__$6460 00000013  00000000  00000000  0000101c  2**2
+                  CONTENTS, ALLOC, LOAD, READONLY, DATA
+116 .rodata.__func__$6446 0000001e  00000000  00000000  00001030  2**2
+                  CONTENTS, ALLOC, LOAD, READONLY, DATA
+117 .dram1.38     00000001  00000000  00000000  0000104e  2**0
+                  CONTENTS, ALLOC, LOAD, DATA
+118 .dram1.37     00000004  00000000  00000000  00001050  2**2
+                  CONTENTS, ALLOC, LOAD, DATA
+119 .dram1.36     00000008  00000000  00000000  00001054  2**2
+                  CONTENTS, ALLOC, LOAD, DATA
+120 .dram1.35     00000004  00000000  00000000  0000105c  2**2
+                  CONTENTS, ALLOC, LOAD, DATA
+121 .dram1.34     00000008  00000000  00000000  00001060  2**3
+                  CONTENTS, ALLOC, LOAD, DATA
+122 .dram1.33     00000004  00000000  00000000  00001068  2**2
+                  CONTENTS, ALLOC, LOAD, DATA
+123 .reserved_memory_address 00000020  00000000  00000000  0000106c  2**2
+                  CONTENTS, ALLOC, LOAD, DATA
+124 .data.btdm_dram_available_region 00000054  00000000  00000000  0000108c  2**2
+                  CONTENTS, ALLOC, LOAD, DATA
+125 .rodata.osi_funcs_ro 000000bc  00000000  00000000  000010e0  2**2
+                  CONTENTS, ALLOC, LOAD, RELOC, READONLY, DATA
+126 .debug_frame  00000580  00000000  00000000  0000119c  2**2
+                  CONTENTS, RELOC, READONLY, DEBUGGING
+127 .debug_info   000026c2  00000000  00000000  0000171c  2**0
+                  CONTENTS, RELOC, READONLY, DEBUGGING
+128 .debug_abbrev 0000033f  00000000  00000000  00003dde  2**0
+                  CONTENTS, READONLY, DEBUGGING
+129 .debug_loc    00000a92  00000000  00000000  0000411d  2**0
+                  CONTENTS, RELOC, READONLY, DEBUGGING
+130 .debug_aranges 000001e8  00000000  00000000  00004baf  2**0
+                  CONTENTS, RELOC, READONLY, DEBUGGING
+131 .debug_ranges 000001d8  00000000  00000000  00004d97  2**0
+                  CONTENTS, RELOC, READONLY, DEBUGGING
+132 .debug_line   00001024  00000000  00000000  00004f6f  2**0
+                  CONTENTS, RELOC, READONLY, DEBUGGING
+133 .debug_str    00001cea  00000000  00000000  00005f93  2**0
+                  CONTENTS, READONLY, DEBUGGING
+134 .comment      0000003c  00000000  00000000  00007c7d  2**0
+                  CONTENTS, READONLY
+135 .xtensa.info  00000038  00000000  00000000  00007cb9  2**0
+                  CONTENTS, READONLY
+136 .xt.lit       000001a0  00000000  00000000  00007cf1  2**0
+                  CONTENTS, RELOC, READONLY
+137 .xt.prop      0000117c  00000000  00000000  00007e91  2**0
+                  CONTENTS, RELOC, READONLY

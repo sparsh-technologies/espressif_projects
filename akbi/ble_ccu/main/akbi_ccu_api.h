@@ -67,6 +67,10 @@ int ccu_sent_activate_system_msg();
 
 int ccu_sent_update_sw_msg();
 
+int ccu_sent_reboot_ccu_msg();
+
+int ccu_sent_wifi_set_mode(unsigned char wifi_mode);
+
 int ccu_sent_upload_trip_info();
 
 #endif

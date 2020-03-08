@@ -51,13 +51,13 @@
 #define PROFILE_NUM                 1
 #define PROFILE_A_APP_ID            0
 #define MAX_RETURN_MSG_LENGTH       20
-#define DEBUG_ENABLE                
+#define DEBUG_ENABLE
 #define ADV_SER_NO_SIZE             4
 
 
 extern uint8_t return_data[15];
 char ep_return_message[MAX_RETURN_MSG_LENGTH];
-char adv_ser_no[ADV_SER_NO_SIZE+1];
+char adv_ser_no[5];
 char adv_full_name[20];
 char firmware_version[10];
 char ccu_serial_no[20];
@@ -133,10 +133,11 @@ static struct gatts_profile_inst gl_profile_tab[PROFILE_NUM] = {
 
 static void ble_init_adv_data(const char *name)
 {
-    const char *local_name = BLE_LOCAL_NAME;
-    int local_name_len = strlen(BLE_LOCAL_NAME);
+    // const char *local_name = BLE_LOCAL_NAME;
+    // int local_name_len = strlen(BLE_LOCAL_NAME);
     int len = strlen(name);
-    uint8_t raw_adv_data[len+5+local_name_len+2+3];
+    // uint8_t raw_adv_data[len+5+local_name_len+2+3];
+    uint8_t raw_adv_data[len+5];
 
     //flag
     raw_adv_data[0] = 2;
@@ -150,17 +151,17 @@ static void ble_init_adv_data(const char *name)
         raw_adv_data[i+5] = *(name++);
     }
     //shortened local name
-    raw_adv_data[len+5] = local_name_len + 1;
-    raw_adv_data[len+6] = 0x09;//shortened local name flag
-
-    for (int i = 0;i < local_name_len;i++)
-    {
-        raw_adv_data[i+5+len+2] = *(local_name++);
-    }
+    // raw_adv_data[len+5] = local_name_len + 1;
+    // raw_adv_data[len+6] = 0x09;//shortened local name flag
+    //
+    // for (int i = 0;i < local_name_len;i++)
+    // {
+    //     raw_adv_data[i+5+len+2] = *(local_name++);
+    // }
     //manufacturer specific data
-    raw_adv_data[local_name_len+5+len+2]   = 2;
-    raw_adv_data[local_name_len+5+len+2+1] = 0x47;
-    raw_adv_data[local_name_len+5+len+2+2] = 75;
+    // raw_adv_data[local_name_len+5+len+2]   = 2;
+    // raw_adv_data[local_name_len+5+len+2+1] = 0x47;
+    // raw_adv_data[local_name_len+5+len+2+2] = 75;
 
     //The length of adv data must be less than 31 bytes
     esp_err_t raw_adv_ret = esp_ble_gap_config_adv_data_raw(raw_adv_data, sizeof(raw_adv_data));
@@ -333,7 +334,7 @@ static void gatts_profile_a_event_handler(esp_gatts_cb_event_t event, esp_gatt_i
         //TODO: get serial number from processor and append with BLE_ADV_NAME
         //init BLE adv data and scan response data
         memset(adv_ser_no,0x00,ADV_SER_NO_SIZE+1);
-        memcpy(adv_ser_no,ccu_serial_no+6,ADV_SER_NO_SIZE);
+        memcpy(adv_ser_no,ccu_serial_no+5,ADV_SER_NO_SIZE);
         memset(adv_full_name,0x00,strlen(adv_full_name));
         memcpy(adv_full_name,BLE_ADV_NAME,strlen(BLE_ADV_NAME));
         memcpy(adv_full_name+strlen(BLE_ADV_NAME),adv_ser_no,ADV_SER_NO_SIZE);

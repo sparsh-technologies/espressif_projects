@@ -31,6 +31,8 @@ int akbi_get_fsm_state()
 
 static char wifi_report[10][20];
 static int  wifi_report_length[10];
+char        ccu_ap_ssid[20];
+char        ccu_ap_passwd[20];
 
 static int ssid_index = 0;
 static int no_of_stored_ssids = 0;
@@ -93,12 +95,12 @@ int akbi_check_fsm_state_and_respond(char *ep_return_message)
         ret = 1;
         break;
 
-    case FSM_STATE_FORGOT_PASSWD_SMS_SENT :
+    case FSM_STATE_FORGOT_PASSWD_RESULT :
         ret = 0;
         break;
 
     case FSM_STATE_CHANGE_PASSWD :
-        ret = 0;//to be changed to 1
+        ret = 1;
         break;
 
     case FSM_STATE_CHANGE_PASSWD_COMPLETE :
@@ -106,6 +108,10 @@ int akbi_check_fsm_state_and_respond(char *ep_return_message)
         break;
 
     case FSM_STATE_VOICE_RECORDING_IN_PROGRESS :
+        ret = 1;
+        break;
+
+    case FSM_STATE_VOICE_RECORDING_COMPLETE :
         ret = 0;
         break;
 
@@ -139,7 +145,7 @@ int akbi_check_fsm_state_and_respond(char *ep_return_message)
 
     case FSM_STATE_WIFI_NAME_SEND_IN_PROGRESS :
 
-        memcpy(ep_return_message+RETURN_MSG_DATA_OFFSET,&wifi_report[ssid_index],12);
+        memcpy(ep_return_message+RETURN_MSG_DATA_OFFSET,&wifi_report[ssid_index],strlen(wifi_report[ssid_index]));
 
         if (wifi_report_length[ssid_index]>12) {
             memcpy(ep_return_message+RETURN_MSG_DATA_OFFSET,&wifi_report[ssid_index],10);
@@ -177,7 +183,6 @@ int akbi_check_fsm_state_and_respond(char *ep_return_message)
         break;
 
     case FSM_STATE_WIFI_DISCONNECT_COMPLETE :
-        ep_return_message[BLE_RET_MSG_RC_OFFSET] = SUCCESS;
         ret = 0;
         break;
 
@@ -186,6 +191,14 @@ int akbi_check_fsm_state_and_respond(char *ep_return_message)
         break;
 
     case FSM_STATE_FW_UPGRADE_COMPLETE :
+        ret = 0;
+        break;
+
+    case FSM_STATE_FW_REBOOT_MSG_SENDING :
+        ret = 1;
+        break;
+
+    case FSM_STATE_FW_REBOOT_MSG_ACKNOWLEDGED :
         ret = 0;
         break;
 
@@ -205,11 +218,27 @@ int akbi_check_fsm_state_and_respond(char *ep_return_message)
         ret = 0;
         break;
 
-    case FSM_STATE_CFG_SET_HELP_NUM :
+    case FSM_STATE_CFG_SET_HELP_NUM_SENDING :
+        ret = 1;
+        break;
+
+    case FSM_STATE_CFG_SET_HELP_NUM_RECEIVED :
         ret = 0;
         break;
 
     case FSM_STATE_ACTIVATE_IN_PROGRESS :
+        ret = 1;
+        break;
+
+    case FSM_STATE_ACTIVATE_COMPLETE :
+        ret = 0;
+        break;
+
+    case FSM_STATE_WIFI_MODE_SET_IN_PROGRESS :
+        ret = 1;
+        break;
+
+    case FSM_STATE_WIFI_MODE_SET_COMPLETE :
         ret = 0;
         break;
 
