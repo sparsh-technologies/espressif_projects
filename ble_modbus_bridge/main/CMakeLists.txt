@@ -10,6 +10,7 @@ set(COMPONENT_SRCS "bt_app_core.c"
                    "icom_wifi.c"
                    "icom_ipc.c"
                    "icom_mqtt.c"
+				   "icom_gpio.c"
                    )
 set(COMPONENT_ADD_INCLUDEDIRS ".")
 

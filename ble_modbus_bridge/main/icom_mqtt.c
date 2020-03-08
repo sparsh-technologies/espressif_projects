@@ -28,9 +28,12 @@
 #include "lwip/netdb.h"
 #include "esp_log.h"
 #include "mqtt_client.h"
+#include "icom_gpio.h"
 
 /* FreeRTOS event group to signal when we are connected*/
 extern EventGroupHandle_t s_wifi_event_group;
+
+unsigned char  dio_port = 0;
 
 //const int WIFI_CONNECTED_BIT = BIT0;
 #define WIFI_CONNECTED_BIT     BIT0
@@ -57,16 +60,16 @@ static esp_err_t mqtt_event_handler(esp_mqtt_event_handle_t event)
 
     case MQTT_EVENT_CONNECTED:
         printf(" INFO : MQTT_EVENT_CONNECTED");
-        msg_id = esp_mqtt_client_publish(client, "/icom/qos1", "data_3", 0, 1, 0);
+        msg_id = esp_mqtt_client_publish(client, "/technomics/qos1", "data_3", 0, 1, 0);
         printf(" INFO : Sent publish successful, msg_id=%d", msg_id);
 
-        msg_id = esp_mqtt_client_subscribe(client, "/icom/qos0", 0);
+        msg_id = esp_mqtt_client_subscribe(client, "/technomics/qos0", 0);
         printf(" INFO : Sent subscribe successful, msg_id=%d", msg_id);
 
-        msg_id = esp_mqtt_client_subscribe(client, "/icom/qos1", 1);
+        msg_id = esp_mqtt_client_subscribe(client, "/technomics/qos1", 1);
         printf(" INFO : Sent subscribe successful, msg_id=%d", msg_id);
 
-        msg_id = esp_mqtt_client_unsubscribe(client, "/icom/qos1");
+        msg_id = esp_mqtt_client_unsubscribe(client, "/technomics/qos1");
         printf(" INFO : Sent unsubscribe successful, msg_id=%d", msg_id);
         break;
 
@@ -76,7 +79,7 @@ static esp_err_t mqtt_event_handler(esp_mqtt_event_handle_t event)
 
     case MQTT_EVENT_SUBSCRIBED:
         printf(" INFO : MQTT_EVENT_SUBSCRIBED, msg_id=%d", event->msg_id);
-        msg_id = esp_mqtt_client_publish(client, "/icom/qos0", "data", 0, 0, 0);
+        msg_id = esp_mqtt_client_publish(client, "/technomics/qos0", "data", 0, 0, 0);
         printf(" INFO : Sent publish successful, msg_id=%d", msg_id);
         break;
 
@@ -91,12 +94,16 @@ static esp_err_t mqtt_event_handler(esp_mqtt_event_handle_t event)
     case MQTT_EVENT_DATA:
         printf("TOPIC=%.*s\r\n", event->topic_len, event->topic);
         printf("DATA=%.*s\r\n", event->data_len, event->data);
-        if (strcmp(event->data, "1")) {
-
+        if (strncmp(event->data, "1", 1) == 0) {
+			printf(" INFO : Setting port to 1 \r\n");
+//            icom_set_port(GPIO_PORT_OUTPUT_IO_23, 1);
+			dio_port = 1;
             break;
         }
-        if (strcmp(event->data, "0")) {
-
+        if (strncmp(event->data, "0", 1) == 0) {
+			printf(" INFO : Setting port to 0 \r\n");
+//            icom_set_port(GPIO_PORT_OUTPUT_IO_23, 0);
+			dio_port = 0;
             break;
         }
 

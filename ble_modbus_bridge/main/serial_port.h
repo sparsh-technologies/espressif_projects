@@ -29,6 +29,7 @@ typedef struct _icom_serial_port_
 } ICOM_SERIAL_PORT;
 
 #define GPIO_OUTPUT_IO_23                     23
+//#define GPIO_OUTPUT_IO_23                     12
 #define GPIO_OUTPUT_PIN_SEL  ((1ULL<<GPIO_OUTPUT_IO_23))
 
 extern void icom_enable_rs485_tx(void);

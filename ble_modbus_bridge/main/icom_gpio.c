@@ -23,6 +23,7 @@
 #include "esp_vfs.h"
 #include "esp_vfs_dev.h"
 #include "icom_gpio.h"
+//#include "gpio_types.h"
 
 void icom_configure_gpio_port(void)
 {
@@ -31,7 +32,8 @@ void icom_configure_gpio_port(void)
     /*
      * Configure the GPIO line here
      */
-
+    printf(" INFO : Configuring GPIO port 23 \r\n");
+	
     io_conf.intr_type    = GPIO_PIN_INTR_DISABLE;
     io_conf.mode         = GPIO_MODE_OUTPUT;
     io_conf.pin_bit_mask = GPIO_PORT_OUTPUT_PIN_SEL;
@@ -39,15 +41,36 @@ void icom_configure_gpio_port(void)
     io_conf.pull_up_en   = 0;
 
     gpio_config(&io_conf);
+    gpio_set_level(GPIO_PORT_OUTPUT_IO_23, 1);
+	
+	io_conf.intr_type    = GPIO_PIN_INTR_DISABLE;
+    io_conf.mode         = GPIO_MODE_OUTPUT;
+    io_conf.pin_bit_mask = ((1ULL << 12));
+    io_conf.pull_down_en = 0;
+    io_conf.pull_up_en   = 1;
+	gpio_config(&io_conf);
+    gpio_set_level(14, 1);
+	
+	io_conf.intr_type    = GPIO_PIN_INTR_DISABLE;
+    io_conf.mode         = GPIO_MODE_OUTPUT;
+    io_conf.pin_bit_mask = ((1ULL << 13));
+    io_conf.pull_down_en = 1;
+    io_conf.pull_up_en   = 0;
+	gpio_config(&io_conf);
+    gpio_set_level(16, 1);
 
+	
+//    gpio_set_level(GPIO_PORT_OUTPUT_IO_23, 1);
 }
 
 void icom_set_port(int port_num, unsigned char state)
 {
+	printf(" INFO : Setting Port :%d to %d \r\n", port_num, state );
     if (state == 0)
-        gpio_set_level(port_num, 0);
+        gpio_set_level(GPIO_PORT_OUTPUT_IO_23, 0);
     else if (state == 0)
-        gpio_set_level(port_num, 1);
+        gpio_set_level(GPIO_PORT_OUTPUT_IO_23, 1);
+	
 }
 
 

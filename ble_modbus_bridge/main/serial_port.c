@@ -33,6 +33,8 @@ int uart_fd = -1;
 ICOM_SERIAL_PORT    icom_rs485_port;
 esp_timer_handle_t oneshot_timer = NULL;
 
+extern unsigned char  dio_port;
+
 uart_config_t uart_config = {
     .baud_rate = 115200,
     .data_bits = UART_DATA_8_BITS,
@@ -169,32 +171,6 @@ static void configure_rs485_enable_line(void)
     ESP_ERROR_CHECK(esp_timer_create(&oneshot_timer_args, &oneshot_timer));
 }
 
-static void configure_gpio_enable_line(void)
-{
-    gpio_config_t io_conf;
-
-    /*
-     * Configure the GPIO line here
-     */
-
-    io_conf.intr_type = GPIO_PIN_INTR_DISABLE;
-    io_conf.mode = GPIO_MODE_OUTPUT;
-    io_conf.pin_bit_mask = GPIO_OUTPUT_PIN_SEL;
-    io_conf.pull_down_en = 0;
-    io_conf.pull_up_en = 0;
-
-    gpio_config(&io_conf);
-
-}
-
-void icom_set_port(unsigned char state)
-{
-    if (state == 0)
-        gpio_set_level(GPIO_OUTPUT_IO_23, 0);
-    else if (state == 0)
-        gpio_set_level(GPIO_OUTPUT_IO_23, 1);
-}
-
 void icom_enable_rs485_tx()
 {
     gpio_set_level(GPIO_OUTPUT_IO_23, 1);
@@ -213,8 +189,8 @@ int icom_send_rs485_data(char *p_data, int length)
 
 void icom_modbus_task(void *param)
 {
-    int     s;
-    fd_set  rfds;
+    int             s, j;
+    fd_set          rfds;
     struct timeval  tv;
 
     printf(" INFO : Starting MODBUS protocol task \n");
@@ -226,8 +202,11 @@ void icom_modbus_task(void *param)
 
     configure_rs485_enable_line();
 
+    icom_enable_rs485_tx();
+	j = 0;
     while (1) {
 
+#if 0
         tv.tv_sec = 5,
         tv.tv_usec = 0,
 
@@ -241,7 +220,15 @@ void icom_modbus_task(void *param)
         } else {
             read_data_from_rs485_port(uart_fd, &rfds, "UART2");
         }
-//        vTaskDelay(100);
+#endif
+        if (dio_port == 1) {
+			printf(" INFO : Setting to high \r\n");
+            icom_enable_rs485_tx();
+		} else if(dio_port == 0){
+			printf(" INFO : Setting to low \r\n");
+			icom_disable_rs485_tx();
+		}
+        vTaskDelay(200);
 
     }
 
