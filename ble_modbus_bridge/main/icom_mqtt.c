@@ -123,7 +123,7 @@ static esp_err_t mqtt_event_handler(esp_mqtt_event_handle_t event)
 
 void mqtt_app_start(void)
 {
-	printf(" INFO : About to start MQTT Client Application \n");
+    printf(" INFO : About to start MQTT Client Application \n");
     esp_mqtt_client_handle_t client = esp_mqtt_client_init(&mqtt_cfg);
     esp_mqtt_client_start(client);
 }
@@ -134,4 +134,3 @@ void mqtt_wait_event()
 
     mqtt_app_start();
 }
-
