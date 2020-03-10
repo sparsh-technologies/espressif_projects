@@ -227,6 +227,8 @@ void akbi_process_rx_serial_data(char *ccu_msg,int length)
         case BT_CP_OPCODE_CID_REQUEST_REBOOT_STATUS:
             akbi_set_fsm_state(FSM_STATE_FW_REBOOT_MSG_ACKNOWLEDGED);
             ep_return_message[BLE_RET_MSG_RC_OFFSET] = p_payload[0];
+            ets_delay_us(3000000);
+            abort();
             return;
         /*case BT_CP_OPCODE_CID_CCU_ACTIVATE:
               if (p_protocol_hdr->type == ) {
