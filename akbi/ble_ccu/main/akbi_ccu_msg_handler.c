@@ -230,6 +230,16 @@ void akbi_process_rx_serial_data(char *ccu_msg,int length)
             ets_delay_us(3000000);
             abort();
             return;
+
+        case BT_CP_OPCODE_CID_UPLOAD_TRIP_INFO_STATUS:
+            akbi_set_fsm_state(FSM_STATE_TRIP_INFO_UPLOAD_COMPLETE);
+            if (p_payload[0] == 0x0f) {
+              ep_return_message[BLE_RET_MSG_RC_OFFSET] = SUCCESS;
+            }
+            else{
+              ep_return_message[BLE_RET_MSG_RC_OFFSET] = ERROR_INFO_NOT_UPLOADED;
+            }
+            break;
         /*case BT_CP_OPCODE_CID_CCU_ACTIVATE:
               if (p_protocol_hdr->type == ) {
                   akbi_set_fsm_state(FSM_STATE_ACTIVATE_COMPLETE);

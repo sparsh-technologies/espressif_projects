@@ -312,6 +312,7 @@ typedef struct __attribute__((__packed__)) _bt_cp_tlv_hdr_ {
 #define BT_CP_OPCODE_CID_CCU_READY                                0x13
 #define BT_CP_OPCODE_CID_WIFI_SET_MODE                            0x14
 #define BT_CP_OPCODE_CID_REQUEST_REBOOT                           0x15
+#define BT_CP_OPCODE_CID_CCU_DEACTIVATE                           0x16
 
 
 #define BT_CP_OPCODE_CID_SCAN_WIFI_RESULT                         0x70
@@ -328,7 +329,7 @@ typedef struct __attribute__((__packed__)) _bt_cp_tlv_hdr_ {
 #define BT_CP_OPCODE_CID_DISCONNECT_FROM_WIFI_STATUS              0x7B
 #define BT_CP_OPCODE_CID_ADDRESS_VISITING_STATUS                  0x7C
 #define BT_CP_OPCODE_CID_REQUEST_REBOOT_STATUS                    0x7D
-
+#define BT_CP_OPCODE_CID_UPLOAD_TRIP_INFO_STATUS                  0x7E
 
 /*
  * All TVL Types are defined here.
@@ -344,7 +345,21 @@ typedef struct __attribute__((__packed__)) _bt_cp_tlv_hdr_ {
 #define TLV_TYPE_REGISTER_UNIQUE_ID                               0x04
 #define TLV_TYPE_REGISTER_LAT_STRING                              0x05
 #define TLV_TYPE_REGISTER_LONG_STRING                             0x06
+#define TLV_TYPE_REGISTER_DATE                                    0x07
+#define TLV_TYPE_MOBILE_FW_VERSION                                0x08
+#define TLV_TYPE_UPLOAD_TRIP_INFO_STATUS_RESULT                   0x09
 
+/*
+ * TLV Types for BT_CP_OPCODE_CID_CCU_ACTIVATE Opcode
+ */
+#define TLV_TYPE_ACTIVATE_LAT_STRING                              0x01
+#define TLV_TYPE_ACTIVATE_LONG_STRING                             0x02
+
+/*
+ * TLV Types for BT_CP_OPCODE_CID_CCU_DEACTIVATE Opcode
+ */
+#define TLV_TYPE_DEACTIVATE_LAT_STRING                            0x01
+#define TLV_TYPE_DEACTIVATE_LONG_STRING                           0x02
 
 /*
  * TLV for BT_CP_OPCODE_CID_CHANGE_PASSWORD Opcode
@@ -425,5 +440,10 @@ typedef struct __attribute__((__packed__)) _bt_cp_tlv_hdr_ {
 #define TLV_TYPE_WIFI_MODE_AP_PASSWD                              0x03
 #define TLV_TYPE_WIFI_MODE_AP_MODE                                0x04
 #define TLV_TYPE_WIFI_MODE_STATION_MODE                           0x05
+
+/*
+ * TLV types for BT_CP_OPCODE_CID_DISCONNECT_FROM_WIFI_STATUS
+ */
+ #define TLV_TYPE_WIFI_DISCONNECT_RESULT                              0x01
 
 #endif
