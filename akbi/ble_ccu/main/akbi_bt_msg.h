@@ -330,6 +330,7 @@ typedef struct __attribute__((__packed__)) _bt_cp_tlv_hdr_ {
 #define BT_CP_OPCODE_CID_ADDRESS_VISITING_STATUS                  0x7C
 #define BT_CP_OPCODE_CID_REQUEST_REBOOT_STATUS                    0x7D
 #define BT_CP_OPCODE_CID_UPLOAD_TRIP_INFO_STATUS                  0x7E
+#define BT_CP_OPCODE_CID_CCU_ACTIVATE_STATUS                      0x7F
 
 /*
  * All TVL Types are defined here.
