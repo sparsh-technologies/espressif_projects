@@ -287,6 +287,13 @@ typedef struct __attribute__((__packed__)) _bt_cp_tlv_hdr_ {
     unsigned char       data[];
 } BT_CP_TLV_HDR;
 
+typedef struct _voice_data_details_ {
+
+    unsigned char       voice_msg_index;
+    unsigned char       length;
+
+} VOICE_DATA_DETAILS;
+
 /*
  * Various Opcodes are defined here.
  */

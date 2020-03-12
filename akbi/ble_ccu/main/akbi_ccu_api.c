@@ -341,11 +341,13 @@ int ccu_sent_user_change_passwd_msg(char *p_password_current,char *p_password_ne
     return (0);
 }
 
-int ccu_sent_record_voice_msg()
+int ccu_sent_record_voice_msg(char voice_msg_index, char voice_msg_length)
 {
     BT_CP_PROTOCOL_HDR  *p_protocol_hdr;
     int                 length;
     char                p_tx_buffer[20];
+    char                *p;
+    VOICE_DATA_DETAILS  *voice_details;
 
     printf(" INFO : Sending RECORD-VOICE Message \n");
     p_protocol_hdr = (BT_CP_PROTOCOL_HDR *)p_tx_buffer;
@@ -355,13 +357,43 @@ int ccu_sent_record_voice_msg()
     p_protocol_hdr->type     = 0;
     p_protocol_hdr->length   = 0;
 
+    p = p_tx_buffer + sizeof(BT_CP_PROTOCOL_HDR);
 
-    length = sizeof(BT_CP_PROTOCOL_HDR) + p_protocol_hdr->length;
+    voice_details = (VOICE_DATA_DETAILS *)p;
+
+    voice_details->voice_msg_index  = voice_msg_index;
+    voice_details->voice_msg_length = voice_msg_length;
+
+    length = sizeof(BT_CP_PROTOCOL_HDR) + p_protocol_hdr->length + sizeof(VOICE_DATA_DETAILS);
     send_uart_message(p_tx_buffer, length );
 
     return (0);
 }
 
+int ccu_sent_record_voice_msg_raw(char *voice_data, unsigned char chunk_length)
+{
+    BT_CP_PROTOCOL_HDR  *p_protocol_hdr;
+    int                 length;
+    char                p_tx_buffer[20];
+    char                *p;
+
+    printf(" INFO : Sending RECORD-VOICE Message \n");
+    p_protocol_hdr = (BT_CP_PROTOCOL_HDR *)p_tx_buffer;
+
+    p_protocol_hdr->opcode   = BT_CP_OPCODE_CID_RECORD_PERSONAL_VOICE_MSG;
+    p_protocol_hdr->trans_id = 44;
+    p_protocol_hdr->type     = TLV_TYPE_VOICE_MSG_RAW_DATA;
+    p_protocol_hdr->length   = chunk_length;
+
+    p = p_tx_buffer + sizeof(BT_CP_PROTOCOL_HDR);
+
+    memcpy(p , voice_data , 0x200);
+
+    length = sizeof(BT_CP_PROTOCOL_HDR) + p_protocol_hdr->length ;
+    send_uart_message(p_tx_buffer, length );
+
+    return (0);
+}
 /*
  * API to send Emerggency number to CCU
  */

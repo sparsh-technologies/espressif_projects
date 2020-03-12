@@ -36,6 +36,9 @@ static char *p_return_msg_full;
 static int flag_set_recvd_msg_ptr = 0;
 static int flag_set_return_msg_ptr = 0;
 extern char adv_ser_no[5];
+char flag_sending_voice_data = 0;
+extern char ep_return_message[20];
+
 
 /*
  * All extern API's are declared here.
@@ -338,17 +341,9 @@ int enable_ccu_wifi_station()
 
 int execute_record_personal_voice_msg()
 {
-    // if (this_ccu.interface_wifi.mode != ACCESS_POINT) {
-    //     if (0 != enable_ccu_access_point()) {
-    //         memset(&i_ret_msg[BLE_RET_MSG_RC_OFFSET],ERROR_MY_AP_START,BLE_RETURN_RC_SIZE);
-    //         return (int)i_ret_msg[BLE_RET_MSG_RC_OFFSET];
-    //     }
-    // }
+    flag_sending_voice_data = 0x01;
+    ep_return_message[BLE_RET_MSG_RC_OFFSET] = SUCCESS;
     ccu_sent_record_voice_msg();
-    // memset(&i_ret_msg[BLE_RET_MSG_RC_OFFSET], SUCCESS, BLE_RETURN_RC_SIZE);
-    // memcpy(&i_ret_msg[BLE_RET_MSG_MY_SSID_OFFSET],this_ccu.interface_wifi.ssid,SSID_SIZE);
-  //  memcpy(&i_ret_msg[BLE_RET_MSG_MY_NETWORK_KEY_OFFSET],this_ccu.interface_wifi.network_key,NETWORK_KEY_SIZE);
-
     return 0;
 }
 
@@ -844,12 +839,16 @@ int read_ble_message(char *i_msg, char *i_ret_msg)
             break;
 
         case CID_RECORD_PERSONAL_VOICE_MSG :
-            // if (this_ccu.paired_mob1.authentication_status != AUTHENTICATED) {
-            //     memset(&i_ret_msg[BLE_RET_MSG_RC_OFFSET], ERROR_AUTHENTICATION, BLE_RETURN_RC_SIZE);
-            //     return ERROR_AUTHENTICATION;
-            // }
-            akbi_set_fsm_state(FSM_STATE_VOICE_RECORDING_IN_PROGRESS);
-            execute_record_personal_voice_msg();
+
+            // akbi_set_fsm_state(FSM_STATE_VOICE_RECORDING_IN_PROGRESS);
+            if(flag_sending_voice_data){
+                store_and_send_voice_data(rx_pkt_buffer);
+            }
+            else{
+                char voice_msg_index = i_msg[3];
+                char voice_msg_length = i_msg[4];
+                execute_record_personal_voice_msg(voice_msg_index,voice_msg_length);
+            }
             break;
 
         case CID_STORE_EMERGENCY_NUMBERS :
@@ -982,6 +981,30 @@ int read_ble_message(char *i_msg, char *i_ret_msg)
         }
     }
     return i_ret_msg[BLE_RET_MSG_RC_OFFSET];
+}
+
+char voice_data_buffer[10][512];
+
+int store_and_send_voice_data(char * data)
+{
+    static int chunk_offset = 0x00;
+    static int buffer_number = 0x00;
+
+    if(data[3]==0x08){
+        ccu_sent_record_voice_msg_raw(&voice_data_buffer[buffer_number], chunk_offset);
+        buffer_number = 0x00;
+        chunk_offset = 0x00;
+        flag_sending_voice_data = 0x00;
+      }
+    memcpy( &voice_data_buffer[buffer_number][chunk_offset], &data[4] , 16);
+    chunk_offset += 16;
+
+    if(chunk_offset >= 512){
+        ccu_sent_record_voice_msg_raw(&voice_data_buffer[buffer_number],chunk_offset);
+        buffer_number ++;
+        chunk_offset = 0x00;
+    }
+    return 0;
 }
 
 int populate_serial_no_from_eeprom(char *i_ser)
