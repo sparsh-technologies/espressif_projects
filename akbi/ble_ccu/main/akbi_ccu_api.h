@@ -73,7 +73,7 @@ int ccu_sent_wifi_set_mode(unsigned char wifi_mode);
 
 int ccu_sent_upload_trip_info();
 
-int ccu_sent_record_voice_msg_raw(char *voice_data, unsigned char chunk_length);
+int ccu_sent_record_voice_msg_raw(char *voice_data, int chunk_length , char audio_number);
 
 
 #endif

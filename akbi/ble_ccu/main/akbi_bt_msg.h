@@ -201,6 +201,7 @@ typedef struct _fw_upgrade_log_ {
 
 } FW_UPGRADE_LOG;
 
+
 typedef struct _activation_log_ {
 
     char time[TIMESTAMP_SIZE];
@@ -289,8 +290,8 @@ typedef struct __attribute__((__packed__)) _bt_cp_tlv_hdr_ {
 
 typedef struct _voice_data_details_ {
 
-    unsigned char       voice_msg_index;
-    unsigned char       length;
+    unsigned char       msg_number;
+    unsigned int        length;
 
 } VOICE_DATA_DETAILS;
 
@@ -379,6 +380,7 @@ typedef struct _voice_data_details_ {
  * TLV Types for BT_CP_OPCODE_CID_RECORD_PERSONAL_VOICE_MSG Opcode
  */
 #define TLV_TYPE_PERSONAL_VOICE                                   0x01
+#define TLV_TYPE_VOICE_MSG_RAW_DATA                               0x02
 
 /*
  * TLV Types for BT_CP_OPCODE_CID_STORE_EMERGENCY_NUMBERS Opcode

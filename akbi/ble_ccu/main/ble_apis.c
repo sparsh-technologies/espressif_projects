@@ -17,10 +17,12 @@
 #include <time.h>
 #include "akbi_bt_msg.h"
 #include "akbi_msg.h"
+#include "esp_log.h"
 #include "akbi_serial_task.h"
 #include <rom/ets_sys.h>
 #include "akbi_ccu_api.h"
 #include "akbi_fsm.h"
+#define BT_BLE_COEX_TAG             "BLE_APIS"
 
 
 CCU this_ccu;
@@ -38,6 +40,7 @@ static int flag_set_return_msg_ptr = 0;
 extern char adv_ser_no[5];
 char flag_sending_voice_data = 0;
 extern char ep_return_message[20];
+int store_and_send_voice_data(char * data , char audio_number);
 
 
 /*
@@ -563,84 +566,9 @@ int execute_disconnect_from_wifi(char *i_ret_msg)
 
 int execute_store_address_visiting(char *i_cmd, char *i_ret_msg)
 {
-    char degree[LAT_LONG_DEGREE_SIZE];
-    char minute[LAT_LONG_MINUTE_SIZE];
-    char second[LAT_LONG_SECOND_SIZE];
-    char direction;
-    unsigned char byte_offset = 0;
-    unsigned char i_visited_locations_count = this_ccu.visited_locations_count;
-
-  /*  if (this_ccu.interface_wifi.mode != ACCESS_POINT) {
-        if (0 != enable_ccu_access_point()) {
-            memset(&i_ret_msg[BLE_RET_MSG_RC_OFFSET], ERROR_MY_AP_START, BLE_RETURN_RC_SIZE);
-            return (int)i_ret_msg[BLE_RET_MSG_RC_OFFSET];
-        }
-    }*/
 
     ccu_sent_address_visiting(i_cmd);
 
-    /*   memcpy(degree,&i_cmd[byte_offset],LAT_LONG_DEGREE_SIZE);
-    byte_offset += LAT_LONG_DEGREE_SIZE;
-    memcpy(minute,&i_cmd[byte_offset],LAT_LONG_MINUTE_SIZE);
-    byte_offset += LAT_LONG_MINUTE_SIZE;
-    memcpy(second,&i_cmd[byte_offset],LAT_LONG_SECOND_SIZE);
-    byte_offset += LAT_LONG_SECOND_SIZE;
-    direction = i_cmd[byte_offset];
-    byte_offset += 1;
-
-    this_ccu.visited_locations[i_visited_locations_count].latitude.degree = atoi(degree);
-    this_ccu.visited_locations[i_visited_locations_count].latitude.minute = atoi(minute);
-    this_ccu.visited_locations[i_visited_locations_count].latitude.second = atoi(second);
-
-    switch (direction) {
-        case 'N' : {
-            this_ccu.visited_locations[i_visited_locations_count].lat_dir = NORTH;
-            break;
-        }
-        case 'S' : {
-            this_ccu.visited_locations[i_visited_locations_count].lat_dir = SOUTH;
-            break;
-        }
-        default : {
-            printf("Direction Parsing Error #%c#\n",direction);
-            break;
-        }
-    }
-
-    memcpy(degree,&i_cmd[byte_offset],LAT_LONG_DEGREE_SIZE);
-    byte_offset += LAT_LONG_DEGREE_SIZE;
-    memcpy(minute,&i_cmd[byte_offset],LAT_LONG_MINUTE_SIZE);
-    byte_offset += LAT_LONG_MINUTE_SIZE;
-    memcpy(second,&i_cmd[byte_offset],LAT_LONG_SECOND_SIZE);
-    byte_offset += LAT_LONG_SECOND_SIZE;
-    direction = i_cmd[byte_offset];
-    byte_offset += 1;
-
-    //TODO: get the next vacant location in the visited_locations array
-    this_ccu.visited_locations[i_visited_locations_count].longitude.degree = atoi(degree);
-    this_ccu.visited_locations[i_visited_locations_count].longitude.minute = atoi(minute);
-    this_ccu.visited_locations[i_visited_locations_count].longitude.second = atoi(second);
-
-    switch (direction) {
-        case 'E' : {
-            this_ccu.visited_locations[i_visited_locations_count].long_dir = EAST;
-            break;
-        }
-        case 'W' : {
-            this_ccu.visited_locations[i_visited_locations_count].long_dir = WEST;
-            break;
-        }
-        default : {
-            printf("Direction Parsing Error #%c#\n",direction);
-            break;
-        }
-    }
-
-    //this_ccu.visited_locations_count++;
-    // memset(&i_ret_msg[BLE_RET_MSG_RC_OFFSET], SUCCESS, BLE_RETURN_RC_SIZE);
-    memcpy(&i_ret_msg[BLE_RET_MSG_MY_SSID_OFFSET],this_ccu.interface_wifi.ssid,MY_SSID_SIZE);
-      memcpy(&i_ret_msg[BLE_RET_MSG_MY_NETWORK_KEY_OFFSET],this_ccu.interface_wifi.network_key,MY_NETWORK_KEY_SIZE);
-    */
     return (int)i_ret_msg[BLE_RET_MSG_RC_OFFSET];
 }
 
@@ -750,6 +678,8 @@ int read_ble_message(char *i_msg, char *i_ret_msg)
     char ble_command[BLE_COMMAND_SIZE];
     source_app_type_identifier = i_msg[BLE_APP_TYPE_OFFSET];
     source_app_identifier      = i_msg[BLE_APP_OFFSET];
+    char voice_msg_index;
+    char voice_msg_length;
 
     memset(ble_command,0x00,BLE_COMMAND_SIZE);
 
@@ -840,13 +770,14 @@ int read_ble_message(char *i_msg, char *i_ret_msg)
 
         case CID_RECORD_PERSONAL_VOICE_MSG :
 
-            // akbi_set_fsm_state(FSM_STATE_VOICE_RECORDING_IN_PROGRESS);
+  voice_msg_index  = i_msg[4];
+  voice_msg_length = i_msg[4];
+            // printf("voice_msg_index %02x\n", voice_msg_index);
+            // printf("voice_msg_length %02x\n", voice_msg_length);
             if(flag_sending_voice_data){
-                store_and_send_voice_data(rx_pkt_buffer);
+                store_and_send_voice_data(i_msg , voice_msg_index);
             }
             else{
-                char voice_msg_index = i_msg[3];
-                char voice_msg_length = i_msg[4];
                 execute_record_personal_voice_msg(voice_msg_index,voice_msg_length);
             }
             break;
@@ -983,27 +914,33 @@ int read_ble_message(char *i_msg, char *i_ret_msg)
     return i_ret_msg[BLE_RET_MSG_RC_OFFSET];
 }
 
-char voice_data_buffer[10][512];
+char voice_data_buffer[10][256];
 
-int store_and_send_voice_data(char * data)
+int store_and_send_voice_data(char * data, char audio_number)
 {
     static int chunk_offset = 0x00;
     static int buffer_number = 0x00;
+    static int audio_total_size = 0x00;
 
     if(data[3]==0x08){
-        ccu_sent_record_voice_msg_raw(&voice_data_buffer[buffer_number], chunk_offset);
+        ccu_sent_record_voice_msg_raw(&voice_data_buffer[buffer_number], chunk_offset,audio_number);
         buffer_number = 0x00;
         chunk_offset = 0x00;
         flag_sending_voice_data = 0x00;
-      }
+    }
     memcpy( &voice_data_buffer[buffer_number][chunk_offset], &data[4] , 16);
+    // esp_log_buffer_hex(BT_BLE_COEX_TAG, &voice_data_buffer[buffer_number][chunk_offset], 16);
     chunk_offset += 16;
 
-    if(chunk_offset >= 512){
-        ccu_sent_record_voice_msg_raw(&voice_data_buffer[buffer_number],chunk_offset);
+    // if((chunk_offset >= 256)||(message_count >=total_count)){
+    if(chunk_offset >= 256){//256
+
+        ccu_sent_record_voice_msg_raw(&voice_data_buffer[buffer_number], chunk_offset,audio_number);
         buffer_number ++;
+        buffer_number = buffer_number%10;
         chunk_offset = 0x00;
     }
+
     return 0;
 }
 

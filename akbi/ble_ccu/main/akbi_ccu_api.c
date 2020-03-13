@@ -18,6 +18,11 @@
 #include "akbi_bt_msg.h"
 #include "akbi_msg.h"
 #include "akbi_serial_task.h"
+#include "esp_log.h"
+
+
+#define BT_BLE_COEX_TAG             "CCU_API"
+
 
 int ccu_sent_subg_clear_learning_msg(char *p_tx_buffer,char *ep_return_message)
 {
@@ -354,43 +359,57 @@ int ccu_sent_record_voice_msg(char voice_msg_index, char voice_msg_length)
 
     p_protocol_hdr->opcode   = BT_CP_OPCODE_CID_RECORD_PERSONAL_VOICE_MSG;
     p_protocol_hdr->trans_id = 44;
-    p_protocol_hdr->type     = 0;
+    p_protocol_hdr->type     = TLV_TYPE_PERSONAL_VOICE;
     p_protocol_hdr->length   = 0;
 
     p = p_tx_buffer + sizeof(BT_CP_PROTOCOL_HDR);
 
     voice_details = (VOICE_DATA_DETAILS *)p;
 
-    voice_details->voice_msg_index  = voice_msg_index;
-    voice_details->voice_msg_length = voice_msg_length;
+    voice_details->msg_number  = voice_msg_index;
+    voice_details->length = voice_msg_length;
 
     length = sizeof(BT_CP_PROTOCOL_HDR) + p_protocol_hdr->length + sizeof(VOICE_DATA_DETAILS);
+printf("===========crvm----\n" );
+for (int i = 0; i < 10; i++) {
+    printf("%02x ",p_tx_buffer[i] );
+}
+printf("---------------------\n" );
+
     send_uart_message(p_tx_buffer, length );
 
     return (0);
 }
 
-int ccu_sent_record_voice_msg_raw(char *voice_data, unsigned char chunk_length)
+int ccu_sent_record_voice_msg_raw(char *voice_data,unsigned int chunk_length,char audio_number)
 {
     BT_CP_PROTOCOL_HDR  *p_protocol_hdr;
     int                 length;
-    char                p_tx_buffer[20];
+    char                p_tx_buffer[270];
     char                *p;
+    VOICE_DATA_DETAILS  *p_audio_data;
 
-    printf(" INFO : Sending RECORD-VOICE Message \n");
+    printf(" INFO : Sending RECORD-VOICE Message RAW\n");
     p_protocol_hdr = (BT_CP_PROTOCOL_HDR *)p_tx_buffer;
 
     p_protocol_hdr->opcode   = BT_CP_OPCODE_CID_RECORD_PERSONAL_VOICE_MSG;
     p_protocol_hdr->trans_id = 44;
     p_protocol_hdr->type     = TLV_TYPE_VOICE_MSG_RAW_DATA;
-    p_protocol_hdr->length   = chunk_length;
+    p_protocol_hdr->length   = 0;
 
     p = p_tx_buffer + sizeof(BT_CP_PROTOCOL_HDR);
 
-    memcpy(p , voice_data , 0x200);
+    p_audio_data = (VOICE_DATA_DETAILS *)p;
 
-    length = sizeof(BT_CP_PROTOCOL_HDR) + p_protocol_hdr->length ;
-    send_uart_message(p_tx_buffer, length );
+    p_audio_data->msg_number = audio_number;
+    p_audio_data->length     = chunk_length;
+
+    p = p_tx_buffer + sizeof(BT_CP_PROTOCOL_HDR) + sizeof(VOICE_DATA_DETAILS);
+    memcpy(p , voice_data , chunk_length);
+
+    length = sizeof(BT_CP_PROTOCOL_HDR) + p_protocol_hdr->length +chunk_length ;
+
+    send_uart_message(p_tx_buffer, chunk_length);
 
     return (0);
 }
