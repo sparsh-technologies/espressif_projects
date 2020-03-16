@@ -288,7 +288,7 @@ typedef struct __attribute__((__packed__)) _bt_cp_tlv_hdr_ {
     unsigned char       data[];
 } BT_CP_TLV_HDR;
 
-typedef struct _voice_data_details_ {
+typedef struct __attribute__((__packed__)) _voice_data_details_ {
 
     unsigned char       msg_number;
     unsigned int        length;
