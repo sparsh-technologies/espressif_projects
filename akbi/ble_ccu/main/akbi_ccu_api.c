@@ -370,11 +370,11 @@ int ccu_sent_record_voice_msg(unsigned char voice_msg_index, unsigned int voice_
     voice_details->length = voice_msg_length;
 
     length = sizeof(BT_CP_PROTOCOL_HDR) + p_protocol_hdr->length + sizeof(VOICE_DATA_DETAILS);
-printf("===========crvm----\n" );
-for (int i = 0; i < 10; i++) {
-    printf("%02x ",p_tx_buffer[i] );
-}
-printf("---------------------\n" );
+// printf("===========crvm----\n" );
+// for (int i = 0; i < 10; i++) {
+//     printf("%02x ",p_tx_buffer[i] );
+// }
+// printf("---------------------\n" );
 
     send_uart_message(p_tx_buffer, length );
 
@@ -409,7 +409,6 @@ int ccu_sent_record_voice_msg_raw(char *voice_data,unsigned int chunk_length,uns
 
     // length = sizeof(BT_CP_PROTOCOL_HDR) + p_protocol_hdr->length +chunk_length + sizeof(VOICE_DATA_DETAILS) ;
     length = sizeof(BT_CP_PROTOCOL_HDR) + chunk_length + sizeof(VOICE_DATA_DETAILS) ;
-printf("size VOICE_DATA_DETAILS(%d) BT_CP_PROTOCOL_HDR(%d) chunk_length(%d)\n",sizeof(VOICE_DATA_DETAILS),sizeof(BT_CP_PROTOCOL_HDR),chunk_length );
     send_uart_message(p_tx_buffer, length);
 
     return (0);

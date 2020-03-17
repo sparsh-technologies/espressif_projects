@@ -330,9 +330,14 @@ int execute_change_password(char *i_cmd, char *i_ret_msg)
     return (int)i_ret_msg[BLE_RET_MSG_RC_OFFSET];
 }
 
-int execute_record_personal_voice_msg(unsigned char voice_msg_index,unsigned int first_byte, unsigned int second_byte)
+int execute_record_personal_voice_msg(unsigned char voice_msg_index,char * msg)
 {
-  voice_msg_length = first_byte*100 + second_byte;
+  if(msg[3]==0x03){
+    voice_msg_length = msg[5]*100 + msg[6];
+  }
+  else if(msg[3]==0x04){
+    voice_msg_length = msg[5]*1000 + msg[6]*10 +msg[7];
+  }
     flag_sending_voice_data = 0x01;
     ep_return_message[BLE_RET_MSG_RC_OFFSET] = SUCCESS;
     ccu_sent_record_voice_msg(voice_msg_index,voice_msg_length);
@@ -723,13 +728,13 @@ int read_ble_message(char *i_msg, char *i_ret_msg)
 
         case CID_RECORD_PERSONAL_VOICE_MSG :
 
-  voice_msg_index  = i_msg[4];
             if(flag_sending_voice_data){
+                voice_msg_index  = i_msg[3];
                 store_and_send_voice_data(i_msg , voice_msg_index);
             }
             else{
-                printf("received msg len %d\n",voice_msg_length );
-                execute_record_personal_voice_msg(voice_msg_index,i_msg[5],i_msg[6]);
+                voice_msg_index  = i_msg[4];
+                execute_record_personal_voice_msg(voice_msg_index,i_msg);
             }
             break;
 
@@ -779,7 +784,7 @@ int read_ble_message(char *i_msg, char *i_ret_msg)
 
         case CID_ADDRESS_VISITING :
 
-  voice_msg_index  = i_msg[4];
+  voice_msg_index  = i_msg[3];
   // voice_msg_length = i_msg[4];
 
                   if(flag_sending_voice_data){
@@ -876,7 +881,7 @@ int store_and_send_address_visiting_audio_data(char * data, char audio_number)
     static int buffer_number = 0x00;
     static int audio_total_size = 0x00;
 
-    if(data[4]==0x08){
+    if(data[3]==0x08){
         ccu_sent_address_visiting_raw(&voice_data_buffer[buffer_number], chunk_offset,audio_number);
         buffer_number = 0x00;
         chunk_offset = 0x00;
@@ -905,7 +910,7 @@ int store_and_send_voice_data(char * data, char audio_number)
     static int buffer_number = 0x00;
     static unsigned int received_audio_size = 0x00;
 
-    if(data[4]==0x08){
+    if(audio_number==0x08){
         ccu_sent_record_voice_msg_raw(&voice_data_buffer[buffer_number], chunk_offset,audio_number);
         buffer_number = 0x00;
         chunk_offset = 0x00;

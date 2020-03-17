@@ -352,8 +352,8 @@ static void gatts_profile_a_event_handler(esp_gatts_cb_event_t event, esp_gatt_i
         esp_gatt_rsp_t rsp;
 
         #ifdef DEBUG_ENABLE
-        // ESP_LOGI(BT_BLE_COEX_TAG, "GATT_READ_EVT, conn_id %d, trans_id %d, handle %d\n",
-        //          param->read.conn_id, param->read.trans_id, param->read.handle);
+        ESP_LOGI(BT_BLE_COEX_TAG, "GATT_READ_EVT, conn_id %d, trans_id %d, handle %d\n",
+                 param->read.conn_id, param->read.trans_id, param->read.handle);
         #endif
 
         memset(&rsp, 0, sizeof(esp_gatt_rsp_t));
@@ -391,8 +391,8 @@ static void gatts_profile_a_event_handler(esp_gatts_cb_event_t event, esp_gatt_i
          * When the Mobile phone sends the data, the control comes through this path.
          */
         #ifdef DEBUG_ENABLE
-        ESP_LOGI(BT_BLE_COEX_TAG, "GATT_WRITE_EVT, conn_id %d, trans_id %d, handle %d",
-                       param->write.conn_id, param->write.trans_id, param->write.handle);
+        // ESP_LOGI(BT_BLE_COEX_TAG, "GATT_WRITE_EVT, conn_id %d, trans_id %d, handle %d",
+        //                param->write.conn_id, param->write.trans_id, param->write.handle);
         #endif
 
         if (!param->write.is_prep){
@@ -404,7 +404,7 @@ static void gatts_profile_a_event_handler(esp_gatts_cb_event_t event, esp_gatt_i
 
             #ifdef DEBUG_ENABLE
             ESP_LOGI(BT_BLE_COEX_TAG, "GATT_WRITE_EVT, value len %d, value :", param->write.len);
-            esp_log_buffer_char(BT_BLE_COEX_TAG, param->write.value, param->write.len);
+            // esp_log_buffer_char(BT_BLE_COEX_TAG, param->write.value, param->write.len);
             esp_log_buffer_hex(BT_BLE_COEX_TAG, param->write.value, param->write.len);
             #endif
 

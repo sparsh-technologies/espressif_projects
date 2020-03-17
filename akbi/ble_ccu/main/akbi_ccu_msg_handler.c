@@ -129,9 +129,9 @@ void akbi_process_rx_serial_data(char *ccu_msg,int length)
                    ep_return_message[BLE_RET_MSG_RC_OFFSET] = BLE_RET_POST_DATA_ERROR;
                 }
                 else{
-                    ep_return_message[BLE_RET_MSG_RC_OFFSET] = SUCCESS;
                     memcpy(&ep_return_message[BLE_RET_MSG_FIRMWARE_VERSION_OFFSET],firmware_version,strlen(firmware_version));
                 }
+  ep_return_message[BLE_RET_MSG_RC_OFFSET] = SUCCESS;//(workaround) need to remove 
                 return;
             }
 

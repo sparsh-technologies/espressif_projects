@@ -82,7 +82,7 @@
 #define BLE_APP_AUTH_TOKEN_SIZE       2
 #define FILE_NAME_SIZE                30
 #define PERSONAL_VOICE_MESSAGES_COUNT 6
-#define VOICE_DATA_BUFFER_NUM         5
+#define VOICE_DATA_BUFFER_NUM         4
 
 
 
