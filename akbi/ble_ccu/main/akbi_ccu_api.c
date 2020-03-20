@@ -354,7 +354,7 @@ int ccu_sent_record_voice_msg(unsigned char voice_msg_index, unsigned int voice_
     char                *p;
     VOICE_DATA_DETAILS  *voice_details;
 
-    printf(" INFO : Sending RECORD-VOICE Message \n");
+    // printf(" INFO : Sending RECORD-VOICE Message. index(%d) \n",voice_msg_index);
     p_protocol_hdr = (BT_CP_PROTOCOL_HDR *)p_tx_buffer;
 
     p_protocol_hdr->opcode   = BT_CP_OPCODE_CID_RECORD_PERSONAL_VOICE_MSG;
@@ -389,7 +389,7 @@ int ccu_sent_record_voice_msg_raw(char *voice_data,unsigned int chunk_length,uns
     char                *p;
     VOICE_DATA_DETAILS  *p_audio_data;
 
-    printf(" INFO : Sending RECORD-VOICE Message RAW\n");
+    // printf(" INFO : Sending RECORD-VOICE Message RAW  index(%d)\n",audio_number);
     p_protocol_hdr = (BT_CP_PROTOCOL_HDR *)p_tx_buffer;
 
     p_protocol_hdr->opcode   = BT_CP_OPCODE_CID_RECORD_PERSONAL_VOICE_MSG;

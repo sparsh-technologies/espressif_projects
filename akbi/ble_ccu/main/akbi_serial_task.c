@@ -221,10 +221,6 @@ void send_uart_message(const char* p_data, int length )
 
     memset(serial_tx_data, 0x00, 100);
     memcpy(serial_tx_data, p_data, length);
-// printf("Serial %02x,%02x,%02x,%02x \n",serial_tx_data[0],serial_tx_data[1],serial_tx_data[length-2],serial_tx_data[length-1]);
-// printf("length %02x\n", length);
-// ESP_LOGI(BT_BLE_COEX_TAG, "serial fn data(%02x) \n",length);
-// esp_log_buffer_hex(BT_BLE_COEX_TAG , p_data, length);
 
     for(i=0; i < length; i++) {
         data =  serial_tx_data[i];

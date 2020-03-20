@@ -403,7 +403,7 @@ static void gatts_profile_a_event_handler(esp_gatts_cb_event_t event, esp_gatt_i
             memset(ep_return_message, 0x00, MAX_RETURN_MSG_LENGTH);
 
             #ifdef DEBUG_ENABLE
-            ESP_LOGI(BT_BLE_COEX_TAG, "GATT_WRITE_EVT, value len %d, value :", param->write.len);
+            // ESP_LOGI(BT_BLE_COEX_TAG, "GATT_WRITE_EVT, value len %d, value :", param->write.len);
             // esp_log_buffer_char(BT_BLE_COEX_TAG, param->write.value, param->write.len);
             esp_log_buffer_hex(BT_BLE_COEX_TAG, param->write.value, param->write.len);
             #endif

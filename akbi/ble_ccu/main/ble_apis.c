@@ -332,15 +332,21 @@ int execute_change_password(char *i_cmd, char *i_ret_msg)
 
 int execute_record_personal_voice_msg(unsigned char voice_msg_index,char * msg)
 {
-  if(msg[3]==0x03){
-    voice_msg_length = msg[5]*100 + msg[6];
-  }
-  else if(msg[3]==0x04){
-    voice_msg_length = msg[5]*1000 + msg[6]*10 +msg[7];
-  }
-    flag_sending_voice_data = 0x01;
+    if(msg[3]==0x03){//less than 10 kb
+        voice_msg_length = msg[5]*100 + msg[6];
+    }
+    else if(msg[3]==0x04){//more than 10 kb
+        voice_msg_length = msg[5]*1000 + msg[6]*10 +msg[7];
+    }
     ep_return_message[BLE_RET_MSG_RC_OFFSET] = SUCCESS;
+
+    /*
+     * explicit delay for ccu to distinguish between packets
+     */
+    ets_delay_us(250*1000);
     ccu_sent_record_voice_msg(voice_msg_index,voice_msg_length);
+    
+    flag_sending_voice_data = 0x01;
     return 0;
 }
 
@@ -891,13 +897,12 @@ int store_and_send_address_visiting_audio_data(char * data, char audio_number)
     memcpy( &voice_data_buffer[buffer_number][chunk_offset], &data[4] , 16);
     chunk_offset += 16;
 
-    // if((chunk_offset >= 256)||(message_count >=total_count)){
     if(chunk_offset >= 256){//256
 
         ccu_sent_address_visiting_raw(&voice_data_buffer[buffer_number], chunk_offset,audio_number);
         buffer_number ++;
         buffer_number = buffer_number%VOICE_DATA_BUFFER_NUM;
-printf("buff num %d,%02x\n",buffer_number,buffer_number );
+        printf("buff num %d,%02x\n",buffer_number,buffer_number );
         chunk_offset = 0x00;
     }
 
@@ -910,7 +915,19 @@ int store_and_send_voice_data(char * data, char audio_number)
     static int buffer_number = 0x00;
     static unsigned int received_audio_size = 0x00;
 
-    if(audio_number==0x08){
+    // esp_log_buffer_hex(BT_BLE_COEX_TAG, &voice_data_buffer[buffer_number][chunk_offset], 16);
+
+    memcpy( &voice_data_buffer[buffer_number][chunk_offset], &data[4] , 16);
+    received_audio_size += 16;
+    chunk_offset += 16;
+
+    if (received_audio_size >= voice_msg_length){
+        chunk_offset -= 16 - (voice_msg_length %16);
+        /*
+         * explicit delay for ccu to distinguish between packets
+         */
+        ets_delay_us(250*1000);
+
         ccu_sent_record_voice_msg_raw(&voice_data_buffer[buffer_number], chunk_offset,audio_number);
         buffer_number = 0x00;
         chunk_offset = 0x00;
@@ -918,32 +935,18 @@ int store_and_send_voice_data(char * data, char audio_number)
         received_audio_size = 0x00;
         return 0;
     }
-    memcpy( &voice_data_buffer[buffer_number][chunk_offset], &data[4] , 16);
-    // esp_log_buffer_hex(BT_BLE_COEX_TAG, &voice_data_buffer[buffer_number][chunk_offset], 16);
-    received_audio_size += 16;
-    chunk_offset += 16;
 
-    if (received_audio_size >= voice_msg_length){
-printf("received > len  . chunk_offset(%d)\n",chunk_offset );
-printf("(%d) > (%d)\n",received_audio_size,voice_msg_length );
-        chunk_offset -= 16 - (voice_msg_length %16);
-    }
-
-
-
-    // if((chunk_offset >= 256)||(message_count >=total_count)){
     if(chunk_offset >= 256){//256
-
         ccu_sent_record_voice_msg_raw(&voice_data_buffer[buffer_number], chunk_offset,audio_number);
         buffer_number ++;
         buffer_number = buffer_number%VOICE_DATA_BUFFER_NUM;
-printf("buff num %d,%02x\n",buffer_number,buffer_number );
         chunk_offset = 0x00;
     }
 
     return 0;
 }
 
+#if 0
 int populate_serial_no_from_eeprom(char *i_ser)
 {
     //TODO - access EEPROM
@@ -1028,3 +1031,4 @@ void print_ccu()
 
     printf("\n\n******** CCU DATA END ********\n");
 }
+#endif
