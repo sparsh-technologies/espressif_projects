@@ -350,11 +350,11 @@ int ccu_sent_record_voice_msg(unsigned char voice_msg_index, unsigned int voice_
 {
     BT_CP_PROTOCOL_HDR  *p_protocol_hdr;
     int                 length;
-    char                p_tx_buffer[20];
+    char                p_tx_buffer[25];
     char                *p;
     VOICE_DATA_DETAILS  *voice_details;
 
-    // printf(" INFO : Sending RECORD-VOICE Message. index(%d) \n",voice_msg_index);
+    memset(p_tx_buffer, 0x00, 25);
     p_protocol_hdr = (BT_CP_PROTOCOL_HDR *)p_tx_buffer;
 
     p_protocol_hdr->opcode   = BT_CP_OPCODE_CID_RECORD_PERSONAL_VOICE_MSG;
@@ -370,11 +370,6 @@ int ccu_sent_record_voice_msg(unsigned char voice_msg_index, unsigned int voice_
     voice_details->length = voice_msg_length;
 
     length = sizeof(BT_CP_PROTOCOL_HDR) + p_protocol_hdr->length + sizeof(VOICE_DATA_DETAILS);
-// printf("===========crvm----\n" );
-// for (int i = 0; i < 10; i++) {
-//     printf("%02x ",p_tx_buffer[i] );
-// }
-// printf("---------------------\n" );
 
     send_uart_message(p_tx_buffer, length );
 
@@ -407,7 +402,6 @@ int ccu_sent_record_voice_msg_raw(char *voice_data,unsigned int chunk_length,uns
     p = p_tx_buffer + sizeof(BT_CP_PROTOCOL_HDR) + sizeof(VOICE_DATA_DETAILS);
     memcpy(p , voice_data , chunk_length);
 
-    // length = sizeof(BT_CP_PROTOCOL_HDR) + p_protocol_hdr->length +chunk_length + sizeof(VOICE_DATA_DETAILS) ;
     length = sizeof(BT_CP_PROTOCOL_HDR) + chunk_length + sizeof(VOICE_DATA_DETAILS) ;
     send_uart_message(p_tx_buffer, length);
 
@@ -484,28 +478,35 @@ int ccu_sent_store_personal_number_msg(char *received_value_buffer)
     return (0);
 }
 
-int ccu_sent_address_visiting(char *received_value_buffer,unsigned int voice_msg_length)
+int ccu_sent_address_visiting(unsigned char voice_msg_index, unsigned int voice_msg_length)
 {
 
     BT_CP_PROTOCOL_HDR  *p_protocol_hdr;
-    char                *p;
-    char                p_tx_buffer[25];
-
     int                 length;
+    char                p_tx_buffer[25];
+    char                *p;
+    VOICE_DATA_DETAILS  *voice_details;
+
 
     memset(p_tx_buffer, 0x00, 25);
     p_protocol_hdr = (BT_CP_PROTOCOL_HDR *)p_tx_buffer;
 
     p_protocol_hdr->opcode   = BT_CP_OPCODE_CID_ADDRESS_VISITING;
     p_protocol_hdr->trans_id = 44;
-    p_protocol_hdr->type     = 0;
-    p_protocol_hdr->length   = 0;//data_len;
+    p_protocol_hdr->type     = TLV_TYPE_ADDRESS_VISITING_VOICE;
+    p_protocol_hdr->length   = 0;
 
     p = p_tx_buffer + sizeof(BT_CP_PROTOCOL_HDR);
-    // memcpy(p, received_value_buffer, p_protocol_hdr->length);
 
-    length = sizeof(BT_CP_PROTOCOL_HDR) + p_protocol_hdr->length;
-    //printf(" INFO : Sent visiting address \n");
+    voice_details = (VOICE_DATA_DETAILS *)p;
+
+    voice_details->msg_number  = voice_msg_index;
+    voice_details->length = voice_msg_length;
+
+    voice_details->msg_number  = voice_msg_index;
+    voice_details->length = voice_msg_length;
+
+    length = sizeof(BT_CP_PROTOCOL_HDR) + p_protocol_hdr->length + sizeof(VOICE_DATA_DETAILS);
 
     send_uart_message(p_tx_buffer, length);
 
@@ -538,8 +539,7 @@ int ccu_sent_address_visiting_raw(char *voice_data,unsigned int chunk_length,uns
     p = p_tx_buffer + sizeof(BT_CP_PROTOCOL_HDR) + sizeof(VOICE_DATA_DETAILS);
     memcpy(p , voice_data , chunk_length);
 
-    length = sizeof(BT_CP_PROTOCOL_HDR) + p_protocol_hdr->length +chunk_length ;
-
+    length = sizeof(BT_CP_PROTOCOL_HDR) + chunk_length + sizeof(VOICE_DATA_DETAILS) ;
     send_uart_message(p_tx_buffer, length);
 
     return (0);

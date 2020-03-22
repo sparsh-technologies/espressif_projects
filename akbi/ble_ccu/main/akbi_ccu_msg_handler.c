@@ -114,6 +114,14 @@ void akbi_process_rx_serial_data(char *ccu_msg,int length)
                 */
                 index = p_protocol_hdr->type;
 
+                /*
+                 * workaround to tackle problem with ssid length 13
+                 */
+                if (p_protocol_hdr->length == 0x0a) {
+                    if(p_payload[0x0b] != 0x00){
+                        p_protocol_hdr->length = 0x0d;
+                    }
+                }
                 strncpy(wifi_scan_report.ap_name[index-1], p_payload, p_protocol_hdr->length);
                 save_ssids(wifi_scan_report.ap_name[index-1],index-1,p_protocol_hdr->length);
                 wifi_scan_report.ap_count++;
@@ -131,7 +139,7 @@ void akbi_process_rx_serial_data(char *ccu_msg,int length)
                 else{
                     memcpy(&ep_return_message[BLE_RET_MSG_FIRMWARE_VERSION_OFFSET],firmware_version,strlen(firmware_version));
                 }
-  ep_return_message[BLE_RET_MSG_RC_OFFSET] = SUCCESS;//(workaround) need to remove 
+  ep_return_message[BLE_RET_MSG_RC_OFFSET] = SUCCESS;//(workaround) need to remove
                 return;
             }
 

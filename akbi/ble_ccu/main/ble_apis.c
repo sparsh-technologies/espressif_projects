@@ -107,8 +107,8 @@ int execute_register(char *i_cmd, char *i_ret_msg)
     char data_type                          = i_cmd[BLE_CMD_MULTI_DATA_TYPE_OFFSET];
     int  data_len_in_ble                    = (int)i_cmd[BLE_CMD_MULTI_DATA_LEN_OFFSET];
     i_ret_msg[BLE_RET_MSG_DATA_TYPE_OFFSET] = data_type;
-char lat[15] = "010.012742N";
-char longi[15] = "076.337381E" ;
+// char lat[15] = "010.012742N";
+// char longi[15] = "076.337381E" ;
 
     switch (data_type)
     {
@@ -158,10 +158,10 @@ char longi[15] = "076.337381E" ;
         ccu_send_reg_msg_new(DID_REGISTER_ANDROID_ID_OR_UUID,
                              this_ccu.paired_mob1.android_id_or_uuid,
                              data_len_in_ble);
-ets_delay_us(200000);
-ccu_send_reg_msg_new(0x05,lat,0x0A);
-ets_delay_us(200000);
-ccu_send_reg_msg_new(0x06,longi,0x0A);
+// ets_delay_us(200000);
+// ccu_send_reg_msg_new(0x05,lat,0x0A);
+// ets_delay_us(200000);
+// ccu_send_reg_msg_new(0x06,longi,0x0A);
         break;
 
     case DID_REGISTER_LAT :
@@ -184,6 +184,17 @@ ccu_send_reg_msg_new(0x06,longi,0x0A);
         //TODO-Store mobile name in EEPROM and populate error code
        // save_group_messages(p_recvd_msg_full,DID_REGISTER_MOB_NAME);
         ccu_send_reg_msg_new(DID_REGISTER_LONG, this_ccu.paired_mob1.longitude, data_len_in_ble);
+        break;
+
+    case DID_REGISTER_MOB_FW_VER :
+        memcpy(this_ccu.paired_mob1.longitude,
+               &i_cmd[BLE_CMD_MULTI_DATA_VALUE_OFFSET],data_len_in_ble);
+        //printf(" INFO : Mob-Name - %s(%d) \n", this_ccu.paired_mob1.mobile_name, data_len_in_ble);
+        i_ret_msg[BLE_RET_MSG_RC_OFFSET] = SUCCESS;
+        this_ccu.paired_mob1.data_status = this_ccu.paired_mob1.data_status | FLAG_DATA_SET_MOB1_NAME;
+        //TODO-Store mobile name in EEPROM and populate error code
+       // save_group_messages(p_recvd_msg_full,DID_REGISTER_MOB_NAME);
+        ccu_send_reg_msg_new(DID_REGISTER_MOB_FW_VER, this_ccu.paired_mob1.longitude, data_len_in_ble);
         break;
 
     default :
@@ -343,9 +354,9 @@ int execute_record_personal_voice_msg(unsigned char voice_msg_index,char * msg)
     /*
      * explicit delay for ccu to distinguish between packets
      */
-    ets_delay_us(250*1000);
+    ets_delay_us(200*1000);
     ccu_sent_record_voice_msg(voice_msg_index,voice_msg_length);
-    
+
     flag_sending_voice_data = 0x01;
     return 0;
 }
@@ -559,14 +570,23 @@ int execute_disconnect_from_wifi(char *i_ret_msg)
     return (int)i_ret_msg[BLE_RET_MSG_RC_OFFSET];
 }
 
-int execute_store_address_visiting(unsigned char voice_msg_index,unsigned int voice_msg_length)
+int execute_store_address_visiting(unsigned char voice_msg_index,char * msg)
 {
+    if(msg[3]==0x03){//less than 10 kb
+        voice_msg_length = msg[5]*100 + msg[6];
+    }
+    else if(msg[3]==0x04){//more than 10 kb
+        voice_msg_length = msg[5]*1000 + msg[6]*10 +msg[7];
+    }
+    ep_return_message[BLE_RET_MSG_RC_OFFSET] = SUCCESS;
+
+    /*
+     * explicit delay for ccu to distinguish between packets
+     */
+    ets_delay_us(200*1000);
+    ccu_sent_address_visiting(voice_msg_index,voice_msg_length);
 
     flag_sending_voice_data = 0x01;
-    ep_return_message[BLE_RET_MSG_RC_OFFSET] = SUCCESS;
-    ccu_sent_address_visiting(voice_msg_index,voice_msg_length);
-    return 0;
-
     return 0;
 }
 
@@ -790,15 +810,14 @@ int read_ble_message(char *i_msg, char *i_ret_msg)
 
         case CID_ADDRESS_VISITING :
 
-  voice_msg_index  = i_msg[3];
-  // voice_msg_length = i_msg[4];
-
-                  if(flag_sending_voice_data){
-                      store_and_send_address_visiting_audio_data(i_msg , voice_msg_index);
-                  }
-                  else{
-                      execute_store_address_visiting(voice_msg_index,voice_msg_length);
-                  }
+            if(flag_sending_voice_data){
+                voice_msg_index  = i_msg[3];
+                store_and_send_address_visiting_audio_data(i_msg , voice_msg_index);
+            }
+            else{
+                voice_msg_index  = i_msg[4];
+                execute_store_address_visiting(voice_msg_index,voice_msg_length);
+            }
             break;
 
         case CID_ENTER_LOCAL_HELP_NUMBERS :
@@ -885,37 +904,7 @@ int store_and_send_address_visiting_audio_data(char * data, char audio_number)
 {
     static int chunk_offset = 0x00;
     static int buffer_number = 0x00;
-    static int audio_total_size = 0x00;
-
-    if(data[3]==0x08){
-        ccu_sent_address_visiting_raw(&voice_data_buffer[buffer_number], chunk_offset,audio_number);
-        buffer_number = 0x00;
-        chunk_offset = 0x00;
-        flag_sending_voice_data = 0x00;
-        return 0;
-    }
-    memcpy( &voice_data_buffer[buffer_number][chunk_offset], &data[4] , 16);
-    chunk_offset += 16;
-
-    if(chunk_offset >= 256){//256
-
-        ccu_sent_address_visiting_raw(&voice_data_buffer[buffer_number], chunk_offset,audio_number);
-        buffer_number ++;
-        buffer_number = buffer_number%VOICE_DATA_BUFFER_NUM;
-        printf("buff num %d,%02x\n",buffer_number,buffer_number );
-        chunk_offset = 0x00;
-    }
-
-    return 0;
-}
-
-int store_and_send_voice_data(char * data, char audio_number)
-{
-    static int chunk_offset = 0x00;
-    static int buffer_number = 0x00;
     static unsigned int received_audio_size = 0x00;
-
-    // esp_log_buffer_hex(BT_BLE_COEX_TAG, &voice_data_buffer[buffer_number][chunk_offset], 16);
 
     memcpy( &voice_data_buffer[buffer_number][chunk_offset], &data[4] , 16);
     received_audio_size += 16;
@@ -926,7 +915,7 @@ int store_and_send_voice_data(char * data, char audio_number)
         /*
          * explicit delay for ccu to distinguish between packets
          */
-        ets_delay_us(250*1000);
+        ets_delay_us(200*1000);
 
         ccu_sent_record_voice_msg_raw(&voice_data_buffer[buffer_number], chunk_offset,audio_number);
         buffer_number = 0x00;
@@ -937,6 +926,50 @@ int store_and_send_voice_data(char * data, char audio_number)
     }
 
     if(chunk_offset >= 256){//256
+      /*
+       * explicit delay for ccu to distinguish between packets
+       */
+      ets_delay_us(200*1000);
+        ccu_sent_record_voice_msg_raw(&voice_data_buffer[buffer_number], chunk_offset,audio_number);
+        buffer_number ++;
+        buffer_number = buffer_number%VOICE_DATA_BUFFER_NUM;
+        chunk_offset = 0x00;
+    }
+
+
+    return 0;
+}
+
+int store_and_send_voice_data(char * data, char audio_number)
+{
+    static int chunk_offset = 0x00;
+    static int buffer_number = 0x00;
+    static unsigned int received_audio_size = 0x00;
+
+    memcpy( &voice_data_buffer[buffer_number][chunk_offset], &data[4] , 16);
+    received_audio_size += 16;
+    chunk_offset += 16;
+
+    if (received_audio_size >= voice_msg_length){
+        chunk_offset -= 16 - (voice_msg_length %16);
+        /*
+         * explicit delay for ccu to distinguish between packets
+         */
+        ets_delay_us(200*1000);
+
+        ccu_sent_record_voice_msg_raw(&voice_data_buffer[buffer_number], chunk_offset,audio_number);
+        buffer_number = 0x00;
+        chunk_offset = 0x00;
+        flag_sending_voice_data = 0x00;
+        received_audio_size = 0x00;
+        return 0;
+    }
+
+    if(chunk_offset >= 256){//256
+      /*
+       * explicit delay for ccu to distinguish between packets
+       */
+      ets_delay_us(200*1000);
         ccu_sent_record_voice_msg_raw(&voice_data_buffer[buffer_number], chunk_offset,audio_number);
         buffer_number ++;
         buffer_number = buffer_number%VOICE_DATA_BUFFER_NUM;
