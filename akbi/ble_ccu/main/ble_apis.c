@@ -583,8 +583,8 @@ int execute_store_address_visiting(unsigned char voice_msg_index,char * msg)
     /*
      * explicit delay for ccu to distinguish between packets
      */
-    ets_delay_us(200*1000);
     ccu_sent_address_visiting(voice_msg_index,voice_msg_length);
+    ets_delay_us(200*1000);
 
     flag_sending_voice_data = 0x01;
     return 0;
@@ -753,7 +753,6 @@ int read_ble_message(char *i_msg, char *i_ret_msg)
             break;
 
         case CID_RECORD_PERSONAL_VOICE_MSG :
-
             if(flag_sending_voice_data){
                 voice_msg_index  = i_msg[3];
                 store_and_send_voice_data(i_msg , voice_msg_index);
@@ -816,7 +815,7 @@ int read_ble_message(char *i_msg, char *i_ret_msg)
             }
             else{
                 voice_msg_index  = i_msg[4];
-                execute_store_address_visiting(voice_msg_index,voice_msg_length);
+                execute_store_address_visiting(voice_msg_index,i_msg);
             }
             break;
 
@@ -917,7 +916,7 @@ int store_and_send_address_visiting_audio_data(char * data, char audio_number)
          */
         ets_delay_us(200*1000);
 
-        ccu_sent_record_voice_msg_raw(&voice_data_buffer[buffer_number], chunk_offset,audio_number);
+        ccu_sent_address_visiting_raw(&voice_data_buffer[buffer_number], chunk_offset,audio_number);
         buffer_number = 0x00;
         chunk_offset = 0x00;
         flag_sending_voice_data = 0x00;
@@ -930,7 +929,7 @@ int store_and_send_address_visiting_audio_data(char * data, char audio_number)
        * explicit delay for ccu to distinguish between packets
        */
       ets_delay_us(200*1000);
-        ccu_sent_record_voice_msg_raw(&voice_data_buffer[buffer_number], chunk_offset,audio_number);
+        ccu_sent_address_visiting_raw(&voice_data_buffer[buffer_number], chunk_offset,audio_number);
         buffer_number ++;
         buffer_number = buffer_number%VOICE_DATA_BUFFER_NUM;
         chunk_offset = 0x00;

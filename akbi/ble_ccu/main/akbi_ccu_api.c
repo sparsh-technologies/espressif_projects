@@ -521,7 +521,7 @@ int ccu_sent_address_visiting_raw(char *voice_data,unsigned int chunk_length,uns
     char                *p;
     VOICE_DATA_DETAILS  *p_audio_data;
 
-    printf(" INFO : Sending Enter address visiting Message RAW\n");
+    // printf(" INFO : Sending Enter address visiting Message RAW\n");
     p_protocol_hdr = (BT_CP_PROTOCOL_HDR *)p_tx_buffer;
 
     p_protocol_hdr->opcode   = BT_CP_OPCODE_CID_ADDRESS_VISITING;
