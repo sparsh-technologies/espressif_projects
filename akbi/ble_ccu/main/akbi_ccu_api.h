@@ -53,13 +53,13 @@ int ccu_sent_user_forgot_passwd_msg();
 
 int ccu_sent_user_change_passwd_msg(char *received_value_buffer,char *ep_return_message);
 
-int ccu_sent_record_voice_msg();
+int ccu_sent_record_voice_msg(unsigned char voice_msg_index, unsigned int voice_msg_length);
 
 int ccu_sent_store_emergency_number_msg(char *received_value_buffer);
 
 int ccu_sent_store_personal_number_msg(char *received_value_buffer);
 
-int ccu_sent_address_visiting(char *received_value_buffer);
+int ccu_sent_address_visiting(char *received_value_buffer ,unsigned int total_len);
 
 int ccu_sent_store_local_help_number_msg(char *received_value_buffer);
 
@@ -72,5 +72,11 @@ int ccu_sent_reboot_ccu_msg();
 int ccu_sent_wifi_set_mode(unsigned char wifi_mode);
 
 int ccu_sent_upload_trip_info();
+
+int ccu_sent_record_voice_msg_raw(char *voice_data,unsigned int chunk_length,unsigned char audio_number);
+
+int ccu_sent_address_visiting_raw(char *voice_data,unsigned int chunk_length,unsigned char audio_number);
+
+
 
 #endif

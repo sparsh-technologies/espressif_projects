@@ -17,10 +17,12 @@
 #include <time.h>
 #include "akbi_bt_msg.h"
 #include "akbi_msg.h"
+#include "esp_log.h"
 #include "akbi_serial_task.h"
 #include <rom/ets_sys.h>
 #include "akbi_ccu_api.h"
 #include "akbi_fsm.h"
+#define BT_BLE_COEX_TAG             "BLE_APIS"
 
 
 CCU this_ccu;
@@ -36,6 +38,14 @@ static char *p_return_msg_full;
 static int flag_set_recvd_msg_ptr = 0;
 static int flag_set_return_msg_ptr = 0;
 extern char adv_ser_no[5];
+char flag_sending_voice_data = 0;
+extern char ep_return_message[20];
+unsigned int voice_msg_length;
+
+
+int store_and_send_voice_data(char * data , char audio_number);
+int store_and_send_address_visiting_audio_data(char * data, char audio_number);
+
 
 /*
  * All extern API's are declared here.
@@ -97,8 +107,8 @@ int execute_register(char *i_cmd, char *i_ret_msg)
     char data_type                          = i_cmd[BLE_CMD_MULTI_DATA_TYPE_OFFSET];
     int  data_len_in_ble                    = (int)i_cmd[BLE_CMD_MULTI_DATA_LEN_OFFSET];
     i_ret_msg[BLE_RET_MSG_DATA_TYPE_OFFSET] = data_type;
-char lat[15] = "010.012742N";
-char longi[15] = "076.337381E" ;
+// char lat[15] = "010.012742N";
+// char longi[15] = "076.337381E" ;
 
     switch (data_type)
     {
@@ -148,10 +158,10 @@ char longi[15] = "076.337381E" ;
         ccu_send_reg_msg_new(DID_REGISTER_ANDROID_ID_OR_UUID,
                              this_ccu.paired_mob1.android_id_or_uuid,
                              data_len_in_ble);
-ets_delay_us(200000);
-ccu_send_reg_msg_new(0x05,lat,0x0A);
-ets_delay_us(200000);
-ccu_send_reg_msg_new(0x06,longi,0x0A);
+// ets_delay_us(200000);
+// ccu_send_reg_msg_new(0x05,lat,0x0A);
+// ets_delay_us(200000);
+// ccu_send_reg_msg_new(0x06,longi,0x0A);
         break;
 
     case DID_REGISTER_LAT :
@@ -174,6 +184,17 @@ ccu_send_reg_msg_new(0x06,longi,0x0A);
         //TODO-Store mobile name in EEPROM and populate error code
        // save_group_messages(p_recvd_msg_full,DID_REGISTER_MOB_NAME);
         ccu_send_reg_msg_new(DID_REGISTER_LONG, this_ccu.paired_mob1.longitude, data_len_in_ble);
+        break;
+
+    case DID_REGISTER_MOB_FW_VER :
+        memcpy(this_ccu.paired_mob1.longitude,
+               &i_cmd[BLE_CMD_MULTI_DATA_VALUE_OFFSET],data_len_in_ble);
+        //printf(" INFO : Mob-Name - %s(%d) \n", this_ccu.paired_mob1.mobile_name, data_len_in_ble);
+        i_ret_msg[BLE_RET_MSG_RC_OFFSET] = SUCCESS;
+        this_ccu.paired_mob1.data_status = this_ccu.paired_mob1.data_status | FLAG_DATA_SET_MOB1_NAME;
+        //TODO-Store mobile name in EEPROM and populate error code
+       // save_group_messages(p_recvd_msg_full,DID_REGISTER_MOB_NAME);
+        ccu_send_reg_msg_new(DID_REGISTER_MOB_FW_VER, this_ccu.paired_mob1.longitude, data_len_in_ble);
         break;
 
     default :
@@ -320,35 +341,23 @@ int execute_change_password(char *i_cmd, char *i_ret_msg)
     return (int)i_ret_msg[BLE_RET_MSG_RC_OFFSET];
 }
 
-int enable_ccu_access_point()
+int execute_record_personal_voice_msg(unsigned char voice_msg_index,char * msg)
 {
-    //TODO: send the AP start request to the processor over serial interface
-    this_ccu.interface_wifi.mode = ACCESS_POINT;
-    memcpy(this_ccu.interface_wifi.ssid,&MY_SSID_TEST,MY_SSID_SIZE);
-    memcpy(this_ccu.interface_wifi.network_key,&MY_NETWORK_KEY_TEST,MY_NETWORK_KEY_SIZE);
-    return 0;
-}
+    if(msg[3]==0x03){//less than 10 kb
+        voice_msg_length = msg[5]*100 + msg[6];
+    }
+    else if(msg[3]==0x04){//more than 10 kb
+        voice_msg_length = msg[5]*1000 + msg[6]*10 +msg[7];
+    }
+    ep_return_message[BLE_RET_MSG_RC_OFFSET] = SUCCESS;
 
-int enable_ccu_wifi_station()
-{
-    //TODO: send the AP start request to the processor over serial interface
-    this_ccu.interface_wifi.mode = STATION;
-    return 0;
-}
+    /*
+     * explicit delay for ccu to distinguish between packets
+     */
+    ets_delay_us(200*1000);
+    ccu_sent_record_voice_msg(voice_msg_index,voice_msg_length);
 
-int execute_record_personal_voice_msg()
-{
-    // if (this_ccu.interface_wifi.mode != ACCESS_POINT) {
-    //     if (0 != enable_ccu_access_point()) {
-    //         memset(&i_ret_msg[BLE_RET_MSG_RC_OFFSET],ERROR_MY_AP_START,BLE_RETURN_RC_SIZE);
-    //         return (int)i_ret_msg[BLE_RET_MSG_RC_OFFSET];
-    //     }
-    // }
-    ccu_sent_record_voice_msg();
-    // memset(&i_ret_msg[BLE_RET_MSG_RC_OFFSET], SUCCESS, BLE_RETURN_RC_SIZE);
-    // memcpy(&i_ret_msg[BLE_RET_MSG_MY_SSID_OFFSET],this_ccu.interface_wifi.ssid,SSID_SIZE);
-  //  memcpy(&i_ret_msg[BLE_RET_MSG_MY_NETWORK_KEY_OFFSET],this_ccu.interface_wifi.network_key,NETWORK_KEY_SIZE);
-
+    flag_sending_voice_data = 0x01;
     return 0;
 }
 
@@ -506,11 +515,6 @@ int execute_scan_wifis(char *i_cmd ,char *i_ret_msg)
     return (int)i_ret_msg[BLE_RET_MSG_RC_OFFSET];
 }
 
-int get_wifi_status()
-{
-    //TODO: Pass on the request to connect wifi to the processor.
-    return SERVER_CONNECTED;
-}
 
 int execute_select_a_wifi(char *i_cmd, char *i_ret_msg)
 {
@@ -566,87 +570,24 @@ int execute_disconnect_from_wifi(char *i_ret_msg)
     return (int)i_ret_msg[BLE_RET_MSG_RC_OFFSET];
 }
 
-int execute_store_address_visiting(char *i_cmd, char *i_ret_msg)
+int execute_store_address_visiting(unsigned char voice_msg_index,char * msg)
 {
-    char degree[LAT_LONG_DEGREE_SIZE];
-    char minute[LAT_LONG_MINUTE_SIZE];
-    char second[LAT_LONG_SECOND_SIZE];
-    char direction;
-    unsigned char byte_offset = 0;
-    unsigned char i_visited_locations_count = this_ccu.visited_locations_count;
-
-  /*  if (this_ccu.interface_wifi.mode != ACCESS_POINT) {
-        if (0 != enable_ccu_access_point()) {
-            memset(&i_ret_msg[BLE_RET_MSG_RC_OFFSET], ERROR_MY_AP_START, BLE_RETURN_RC_SIZE);
-            return (int)i_ret_msg[BLE_RET_MSG_RC_OFFSET];
-        }
-    }*/
-
-    ccu_sent_address_visiting(i_cmd);
-
-    /*   memcpy(degree,&i_cmd[byte_offset],LAT_LONG_DEGREE_SIZE);
-    byte_offset += LAT_LONG_DEGREE_SIZE;
-    memcpy(minute,&i_cmd[byte_offset],LAT_LONG_MINUTE_SIZE);
-    byte_offset += LAT_LONG_MINUTE_SIZE;
-    memcpy(second,&i_cmd[byte_offset],LAT_LONG_SECOND_SIZE);
-    byte_offset += LAT_LONG_SECOND_SIZE;
-    direction = i_cmd[byte_offset];
-    byte_offset += 1;
-
-    this_ccu.visited_locations[i_visited_locations_count].latitude.degree = atoi(degree);
-    this_ccu.visited_locations[i_visited_locations_count].latitude.minute = atoi(minute);
-    this_ccu.visited_locations[i_visited_locations_count].latitude.second = atoi(second);
-
-    switch (direction) {
-        case 'N' : {
-            this_ccu.visited_locations[i_visited_locations_count].lat_dir = NORTH;
-            break;
-        }
-        case 'S' : {
-            this_ccu.visited_locations[i_visited_locations_count].lat_dir = SOUTH;
-            break;
-        }
-        default : {
-            printf("Direction Parsing Error #%c#\n",direction);
-            break;
-        }
+    if(msg[3]==0x03){//less than 10 kb
+        voice_msg_length = msg[5]*100 + msg[6];
     }
-
-    memcpy(degree,&i_cmd[byte_offset],LAT_LONG_DEGREE_SIZE);
-    byte_offset += LAT_LONG_DEGREE_SIZE;
-    memcpy(minute,&i_cmd[byte_offset],LAT_LONG_MINUTE_SIZE);
-    byte_offset += LAT_LONG_MINUTE_SIZE;
-    memcpy(second,&i_cmd[byte_offset],LAT_LONG_SECOND_SIZE);
-    byte_offset += LAT_LONG_SECOND_SIZE;
-    direction = i_cmd[byte_offset];
-    byte_offset += 1;
-
-    //TODO: get the next vacant location in the visited_locations array
-    this_ccu.visited_locations[i_visited_locations_count].longitude.degree = atoi(degree);
-    this_ccu.visited_locations[i_visited_locations_count].longitude.minute = atoi(minute);
-    this_ccu.visited_locations[i_visited_locations_count].longitude.second = atoi(second);
-
-    switch (direction) {
-        case 'E' : {
-            this_ccu.visited_locations[i_visited_locations_count].long_dir = EAST;
-            break;
-        }
-        case 'W' : {
-            this_ccu.visited_locations[i_visited_locations_count].long_dir = WEST;
-            break;
-        }
-        default : {
-            printf("Direction Parsing Error #%c#\n",direction);
-            break;
-        }
+    else if(msg[3]==0x04){//more than 10 kb
+        voice_msg_length = msg[5]*1000 + msg[6]*10 +msg[7];
     }
+    ep_return_message[BLE_RET_MSG_RC_OFFSET] = SUCCESS;
 
-    //this_ccu.visited_locations_count++;
-    // memset(&i_ret_msg[BLE_RET_MSG_RC_OFFSET], SUCCESS, BLE_RETURN_RC_SIZE);
-    memcpy(&i_ret_msg[BLE_RET_MSG_MY_SSID_OFFSET],this_ccu.interface_wifi.ssid,MY_SSID_SIZE);
-      memcpy(&i_ret_msg[BLE_RET_MSG_MY_NETWORK_KEY_OFFSET],this_ccu.interface_wifi.network_key,MY_NETWORK_KEY_SIZE);
-    */
-    return (int)i_ret_msg[BLE_RET_MSG_RC_OFFSET];
+    /*
+     * explicit delay for ccu to distinguish between packets
+     */
+    ccu_sent_address_visiting(voice_msg_index,voice_msg_length);
+    ets_delay_us(200*1000);
+
+    flag_sending_voice_data = 0x01;
+    return 0;
 }
 
 int execute_ccu_activate(char *i_cmd,char *i_ret_msg)
@@ -717,32 +658,6 @@ int update_trip_info()
 
 
 /*
-* Function to synchronize the data structure ,'this_ccu', with that in the ccu
-*/
-int syncronize_with_ccu()
-{
-    //code
-    return 0;
-}
-
-/*
-* Function to check and update the 'this_ccu' structure ,if needed
-*/
-int check_for_this_ccu_data_change()
-{
-  #if 0
-    if (get_structure_ver_in_ccu() == this_ccu.structure_data_version){
-        return 0;
-    }
-    else{
-        return 1;
-    }
-  #endif
-  return 0;
-}
-
-
-/*
  * This API will read the packets from the mobile phone and process the packets.
  */
 
@@ -755,6 +670,7 @@ int read_ble_message(char *i_msg, char *i_ret_msg)
     char ble_command[BLE_COMMAND_SIZE];
     source_app_type_identifier = i_msg[BLE_APP_TYPE_OFFSET];
     source_app_identifier      = i_msg[BLE_APP_OFFSET];
+    char voice_msg_index;
 
     memset(ble_command,0x00,BLE_COMMAND_SIZE);
 
@@ -763,13 +679,6 @@ int read_ble_message(char *i_msg, char *i_ret_msg)
     }
     if(flag_set_return_msg_ptr == 0){
       set_return_msg_pointer(i_ret_msg);
-    }
-
-    if (check_for_this_ccu_data_change()) {
-        int err = syncronize_with_ccu();
-        if (err) {
-            printf("syncronization with ccu failed\n");
-        }
     }
 
     if (source_app_type_identifier == MOB1_APP_TYPE_ID) {
@@ -844,12 +753,14 @@ int read_ble_message(char *i_msg, char *i_ret_msg)
             break;
 
         case CID_RECORD_PERSONAL_VOICE_MSG :
-            // if (this_ccu.paired_mob1.authentication_status != AUTHENTICATED) {
-            //     memset(&i_ret_msg[BLE_RET_MSG_RC_OFFSET], ERROR_AUTHENTICATION, BLE_RETURN_RC_SIZE);
-            //     return ERROR_AUTHENTICATION;
-            // }
-            akbi_set_fsm_state(FSM_STATE_VOICE_RECORDING_IN_PROGRESS);
-            execute_record_personal_voice_msg();
+            if(flag_sending_voice_data){
+                voice_msg_index  = i_msg[3];
+                store_and_send_voice_data(i_msg , voice_msg_index);
+            }
+            else{
+                voice_msg_index  = i_msg[4];
+                execute_record_personal_voice_msg(voice_msg_index,i_msg);
+            }
             break;
 
         case CID_STORE_EMERGENCY_NUMBERS :
@@ -897,13 +808,15 @@ int read_ble_message(char *i_msg, char *i_ret_msg)
             break;
 
         case CID_ADDRESS_VISITING :
-            // if (this_ccu.paired_mob1.authentication_status != AUTHENTICATED) {
-            //     memset(&i_ret_msg[BLE_RET_MSG_RC_OFFSET], ERROR_AUTHENTICATION, BLE_RETURN_RC_SIZE);
-            //     return ERROR_AUTHENTICATION;
-            // }
-            memcpy(ble_command,&i_msg[BLE_CMD_OFFSET + BLE_COMMAND_ID_SIZE],BLE_COMMAND_SIZE);
-            akbi_set_fsm_state(FSM_STATE_CFG_SET_ADDRESS );
-            execute_store_address_visiting(ble_command,i_ret_msg);
+
+            if(flag_sending_voice_data){
+                voice_msg_index  = i_msg[3];
+                store_and_send_address_visiting_audio_data(i_msg , voice_msg_index);
+            }
+            else{
+                voice_msg_index  = i_msg[4];
+                execute_store_address_visiting(voice_msg_index,i_msg);
+            }
             break;
 
         case CID_ENTER_LOCAL_HELP_NUMBERS :
@@ -984,6 +897,88 @@ int read_ble_message(char *i_msg, char *i_ret_msg)
     return i_ret_msg[BLE_RET_MSG_RC_OFFSET];
 }
 
+char voice_data_buffer[VOICE_DATA_BUFFER_NUM][256];
+
+int store_and_send_address_visiting_audio_data(char * data, char audio_number)
+{
+    static int chunk_offset = 0x00;
+    static int buffer_number = 0x00;
+    static unsigned int received_audio_size = 0x00;
+
+    memcpy( &voice_data_buffer[buffer_number][chunk_offset], &data[4] , 16);
+    received_audio_size += 16;
+    chunk_offset += 16;
+
+    if (received_audio_size >= voice_msg_length){
+        chunk_offset -= 16 - (voice_msg_length %16);
+        /*
+         * explicit delay for ccu to distinguish between packets
+         */
+        ets_delay_us(200*1000);
+
+        ccu_sent_address_visiting_raw(&voice_data_buffer[buffer_number], chunk_offset,audio_number);
+        buffer_number = 0x00;
+        chunk_offset = 0x00;
+        flag_sending_voice_data = 0x00;
+        received_audio_size = 0x00;
+        return 0;
+    }
+
+    if(chunk_offset >= 256){//256
+      /*
+       * explicit delay for ccu to distinguish between packets
+       */
+      ets_delay_us(200*1000);
+        ccu_sent_address_visiting_raw(&voice_data_buffer[buffer_number], chunk_offset,audio_number);
+        buffer_number ++;
+        buffer_number = buffer_number%VOICE_DATA_BUFFER_NUM;
+        chunk_offset = 0x00;
+    }
+
+
+    return 0;
+}
+
+int store_and_send_voice_data(char * data, char audio_number)
+{
+    static int chunk_offset = 0x00;
+    static int buffer_number = 0x00;
+    static unsigned int received_audio_size = 0x00;
+
+    memcpy( &voice_data_buffer[buffer_number][chunk_offset], &data[4] , 16);
+    received_audio_size += 16;
+    chunk_offset += 16;
+
+    if (received_audio_size >= voice_msg_length){
+        chunk_offset -= 16 - (voice_msg_length %16);
+        /*
+         * explicit delay for ccu to distinguish between packets
+         */
+        ets_delay_us(200*1000);
+
+        ccu_sent_record_voice_msg_raw(&voice_data_buffer[buffer_number], chunk_offset,audio_number);
+        buffer_number = 0x00;
+        chunk_offset = 0x00;
+        flag_sending_voice_data = 0x00;
+        received_audio_size = 0x00;
+        return 0;
+    }
+
+    if(chunk_offset >= 256){//256
+      /*
+       * explicit delay for ccu to distinguish between packets
+       */
+      ets_delay_us(200*1000);
+        ccu_sent_record_voice_msg_raw(&voice_data_buffer[buffer_number], chunk_offset,audio_number);
+        buffer_number ++;
+        buffer_number = buffer_number%VOICE_DATA_BUFFER_NUM;
+        chunk_offset = 0x00;
+    }
+
+    return 0;
+}
+
+#if 0
 int populate_serial_no_from_eeprom(char *i_ser)
 {
     //TODO - access EEPROM
@@ -1068,3 +1063,4 @@ void print_ccu()
 
     printf("\n\n******** CCU DATA END ********\n");
 }
+#endif

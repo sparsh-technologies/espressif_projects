@@ -29,7 +29,10 @@
 #include "peripheral.h"
 #include "akbi_ccu_msg_handler.h"
 #include "esp_timer.h"
+#include "esp_log.h"
 
+
+#define BT_BLE_COEX_TAG             "SERIAL"
 #define PKT_DUMP
 #define DEBUG_ENABLE
 
@@ -54,7 +57,7 @@ static void oneshot_timer_callback(void* arg);
 QueueHandle_t uart_queue;
 
 uart_config_t uart_config = {
-    .baud_rate = 19200,
+    .baud_rate = 38400,
     .data_bits = UART_DATA_8_BITS,
     .parity    = UART_PARITY_DISABLE,
     .stop_bits = UART_STOP_BITS_1,
@@ -218,6 +221,7 @@ void send_uart_message(const char* p_data, int length )
 
     memset(serial_tx_data, 0x00, 100);
     memcpy(serial_tx_data, p_data, length);
+
     for(i=0; i < length; i++) {
         data =  serial_tx_data[i];
         uart_write_bytes(UART_NUM_2, &data, 1);

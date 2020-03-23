@@ -18,6 +18,11 @@
 #include "akbi_bt_msg.h"
 #include "akbi_msg.h"
 #include "akbi_serial_task.h"
+#include "esp_log.h"
+
+
+#define BT_BLE_COEX_TAG             "CCU_API"
+
 
 int ccu_sent_subg_clear_learning_msg(char *p_tx_buffer,char *ep_return_message)
 {
@@ -341,27 +346,67 @@ int ccu_sent_user_change_passwd_msg(char *p_password_current,char *p_password_ne
     return (0);
 }
 
-int ccu_sent_record_voice_msg()
+int ccu_sent_record_voice_msg(unsigned char voice_msg_index, unsigned int voice_msg_length)
 {
     BT_CP_PROTOCOL_HDR  *p_protocol_hdr;
     int                 length;
-    char                p_tx_buffer[20];
+    char                p_tx_buffer[25];
+    char                *p;
+    VOICE_DATA_DETAILS  *voice_details;
 
-    printf(" INFO : Sending RECORD-VOICE Message \n");
+    memset(p_tx_buffer, 0x00, 25);
     p_protocol_hdr = (BT_CP_PROTOCOL_HDR *)p_tx_buffer;
 
     p_protocol_hdr->opcode   = BT_CP_OPCODE_CID_RECORD_PERSONAL_VOICE_MSG;
     p_protocol_hdr->trans_id = 44;
-    p_protocol_hdr->type     = 0;
+    p_protocol_hdr->type     = TLV_TYPE_PERSONAL_VOICE;
     p_protocol_hdr->length   = 0;
 
+    p = p_tx_buffer + sizeof(BT_CP_PROTOCOL_HDR);
 
-    length = sizeof(BT_CP_PROTOCOL_HDR) + p_protocol_hdr->length;
+    voice_details = (VOICE_DATA_DETAILS *)p;
+
+    voice_details->msg_number  = voice_msg_index;
+    voice_details->length = voice_msg_length;
+
+    length = sizeof(BT_CP_PROTOCOL_HDR) + p_protocol_hdr->length + sizeof(VOICE_DATA_DETAILS);
+
     send_uart_message(p_tx_buffer, length );
 
     return (0);
 }
 
+int ccu_sent_record_voice_msg_raw(char *voice_data,unsigned int chunk_length,unsigned char audio_number)
+{
+    BT_CP_PROTOCOL_HDR  *p_protocol_hdr;
+    int                 length;
+    char                p_tx_buffer[270];
+    char                *p;
+    VOICE_DATA_DETAILS  *p_audio_data;
+
+    // printf(" INFO : Sending RECORD-VOICE Message RAW  index(%d)\n",audio_number);
+    p_protocol_hdr = (BT_CP_PROTOCOL_HDR *)p_tx_buffer;
+
+    p_protocol_hdr->opcode   = BT_CP_OPCODE_CID_RECORD_PERSONAL_VOICE_MSG;
+    p_protocol_hdr->trans_id = 44;
+    p_protocol_hdr->type     = TLV_TYPE_VOICE_MSG_RAW_DATA;
+    p_protocol_hdr->length   = 0;
+
+    p = p_tx_buffer + sizeof(BT_CP_PROTOCOL_HDR);
+
+    p_audio_data = (VOICE_DATA_DETAILS *)p;
+
+    p_audio_data->msg_number = audio_number;
+    p_audio_data->length     = chunk_length;
+
+    p = p_tx_buffer + sizeof(BT_CP_PROTOCOL_HDR) + sizeof(VOICE_DATA_DETAILS);
+    memcpy(p , voice_data , chunk_length);
+
+    length = sizeof(BT_CP_PROTOCOL_HDR) + chunk_length + sizeof(VOICE_DATA_DETAILS) ;
+    send_uart_message(p_tx_buffer, length);
+
+    return (0);
+}
 /*
  * API to send Emerggency number to CCU
  */
@@ -433,32 +478,71 @@ int ccu_sent_store_personal_number_msg(char *received_value_buffer)
     return (0);
 }
 
-int ccu_sent_address_visiting(char *received_value_buffer)
+int ccu_sent_address_visiting(unsigned char voice_msg_index, unsigned int voice_msg_length)
 {
 
     BT_CP_PROTOCOL_HDR  *p_protocol_hdr;
-    char                *p;
-    char                p_tx_buffer[25];
-
     int                 length;
+    char                p_tx_buffer[25];
+    char                *p;
+    VOICE_DATA_DETAILS  *voice_details;
+
 
     memset(p_tx_buffer, 0x00, 25);
     p_protocol_hdr = (BT_CP_PROTOCOL_HDR *)p_tx_buffer;
 
     p_protocol_hdr->opcode   = BT_CP_OPCODE_CID_ADDRESS_VISITING;
     p_protocol_hdr->trans_id = 44;
-    p_protocol_hdr->type     = 0;
-    p_protocol_hdr->length   = 0;//data_len;
+    p_protocol_hdr->type     = TLV_TYPE_ADDRESS_VISITING_VOICE;
+    p_protocol_hdr->length   = 0;
 
     p = p_tx_buffer + sizeof(BT_CP_PROTOCOL_HDR);
-    // memcpy(p, received_value_buffer, p_protocol_hdr->length);
 
-    length = sizeof(BT_CP_PROTOCOL_HDR) + p_protocol_hdr->length;
-    //printf(" INFO : Sent visiting address \n");
+    voice_details = (VOICE_DATA_DETAILS *)p;
+
+    voice_details->msg_number  = voice_msg_index;
+    voice_details->length = voice_msg_length;
+
+    voice_details->msg_number  = voice_msg_index;
+    voice_details->length = voice_msg_length;
+
+    length = sizeof(BT_CP_PROTOCOL_HDR) + p_protocol_hdr->length + sizeof(VOICE_DATA_DETAILS);
 
     send_uart_message(p_tx_buffer, length);
 
     return 0;
+}
+
+int ccu_sent_address_visiting_raw(char *voice_data,unsigned int chunk_length,unsigned char audio_number)
+{
+    BT_CP_PROTOCOL_HDR  *p_protocol_hdr;
+    int                 length;
+    char                p_tx_buffer[270];
+    char                *p;
+    VOICE_DATA_DETAILS  *p_audio_data;
+
+    // printf(" INFO : Sending Enter address visiting Message RAW\n");
+    p_protocol_hdr = (BT_CP_PROTOCOL_HDR *)p_tx_buffer;
+
+    p_protocol_hdr->opcode   = BT_CP_OPCODE_CID_ADDRESS_VISITING;
+    p_protocol_hdr->trans_id = 44;
+    p_protocol_hdr->type     = TLV_TYPE_VOICE_MSG_RAW_DATA;
+    p_protocol_hdr->length   = 0;
+
+    p = p_tx_buffer + sizeof(BT_CP_PROTOCOL_HDR);
+
+    p_audio_data = (VOICE_DATA_DETAILS *)p;
+
+    p_audio_data->msg_number = audio_number;
+    p_audio_data->length     = chunk_length;
+
+    p = p_tx_buffer + sizeof(BT_CP_PROTOCOL_HDR) + sizeof(VOICE_DATA_DETAILS);
+    memcpy(p , voice_data , chunk_length);
+
+    length = sizeof(BT_CP_PROTOCOL_HDR) + chunk_length + sizeof(VOICE_DATA_DETAILS) ;
+    send_uart_message(p_tx_buffer, length);
+
+    return (0);
 }
 
 /*

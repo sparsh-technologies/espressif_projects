@@ -76,6 +76,7 @@
 #define DID_REGISTER_ANDROID_ID_OR_UUID    0x04
 #define DID_REGISTER_LAT                   0x05
 #define DID_REGISTER_LONG                  0x06
+#define DID_REGISTER_MOB_FW_VER            0x07
 #define DID_CHANGE_PASSWORD_CURRENT        0x01
 #define DID_CHANGE_PASSWORD_NEW            0x02
 #define DID_EMERGENCY_FIRST_RESPONDER      0x01
@@ -201,6 +202,7 @@ typedef struct _fw_upgrade_log_ {
 
 } FW_UPGRADE_LOG;
 
+
 typedef struct _activation_log_ {
 
     char time[TIMESTAMP_SIZE];
@@ -287,6 +289,13 @@ typedef struct __attribute__((__packed__)) _bt_cp_tlv_hdr_ {
     unsigned char       data[];
 } BT_CP_TLV_HDR;
 
+typedef struct __attribute__((__packed__)) _voice_data_details_ {
+
+    unsigned char       msg_number;
+    unsigned int        length;
+
+} VOICE_DATA_DETAILS;
+
 /*
  * Various Opcodes are defined here.
  */
@@ -330,6 +339,7 @@ typedef struct __attribute__((__packed__)) _bt_cp_tlv_hdr_ {
 #define BT_CP_OPCODE_CID_ADDRESS_VISITING_STATUS                  0x7C
 #define BT_CP_OPCODE_CID_REQUEST_REBOOT_STATUS                    0x7D
 #define BT_CP_OPCODE_CID_UPLOAD_TRIP_INFO_STATUS                  0x7E
+#define BT_CP_OPCODE_CID_CCU_ACTIVATE_STATUS                      0x7F
 
 /*
  * All TVL Types are defined here.
@@ -345,8 +355,8 @@ typedef struct __attribute__((__packed__)) _bt_cp_tlv_hdr_ {
 #define TLV_TYPE_REGISTER_UNIQUE_ID                               0x04
 #define TLV_TYPE_REGISTER_LAT_STRING                              0x05
 #define TLV_TYPE_REGISTER_LONG_STRING                             0x06
-#define TLV_TYPE_REGISTER_DATE                                    0x07
-#define TLV_TYPE_MOBILE_FW_VERSION                                0x08
+#define TLV_TYPE_MOBILE_FW_VERSION                                0x07
+#define TLV_TYPE_REGISTER_DATE                                    0x08
 #define TLV_TYPE_UPLOAD_TRIP_INFO_STATUS_RESULT                   0x09
 
 /*
@@ -371,6 +381,13 @@ typedef struct __attribute__((__packed__)) _bt_cp_tlv_hdr_ {
  * TLV Types for BT_CP_OPCODE_CID_RECORD_PERSONAL_VOICE_MSG Opcode
  */
 #define TLV_TYPE_PERSONAL_VOICE                                   0x01
+#define TLV_TYPE_VOICE_MSG_RAW_DATA                               0x02
+
+/*
+ * TLV Types for BT_CP_OPCODE_CID_ADDRESS_VISITING Opcode
+ */
+#define TLV_TYPE_ADDRESS_VISITING_VOICE                           0x01
+#define TLV_TYPE_ADDRESS_VISITING_MSG_RAW_DATA                    0x02
 
 /*
  * TLV Types for BT_CP_OPCODE_CID_STORE_EMERGENCY_NUMBERS Opcode

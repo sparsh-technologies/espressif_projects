@@ -114,6 +114,14 @@ void akbi_process_rx_serial_data(char *ccu_msg,int length)
                 */
                 index = p_protocol_hdr->type;
 
+                /*
+                 * workaround to tackle problem with ssid length 13
+                 */
+                if (p_protocol_hdr->length == 0x0a) {
+                    if(p_payload[0x0b] != 0x00){
+                        p_protocol_hdr->length = 0x0d;
+                    }
+                }
                 strncpy(wifi_scan_report.ap_name[index-1], p_payload, p_protocol_hdr->length);
                 save_ssids(wifi_scan_report.ap_name[index-1],index-1,p_protocol_hdr->length);
                 wifi_scan_report.ap_count++;
@@ -124,13 +132,14 @@ void akbi_process_rx_serial_data(char *ccu_msg,int length)
             if (p_payload[0] == SUCCESS) {
                 akbi_set_fsm_state(FSM_STATE_LOGIN_SUCCESS);
                 ep_return_message[BLE_RET_MSG_DATA_TYPE_OFFSET] = post_result;
+      printf("POST_RESULT=%02x\n",post_result );
                 if(post_result != 0x07){
                    ep_return_message[BLE_RET_MSG_RC_OFFSET] = BLE_RET_POST_DATA_ERROR;
                 }
                 else{
-                    ep_return_message[BLE_RET_MSG_RC_OFFSET] = SUCCESS;
                     memcpy(&ep_return_message[BLE_RET_MSG_FIRMWARE_VERSION_OFFSET],firmware_version,strlen(firmware_version));
                 }
+  ep_return_message[BLE_RET_MSG_RC_OFFSET] = SUCCESS;//(workaround) need to remove
                 return;
             }
 
@@ -240,6 +249,13 @@ void akbi_process_rx_serial_data(char *ccu_msg,int length)
               ep_return_message[BLE_RET_MSG_RC_OFFSET] = ERROR_INFO_NOT_UPLOADED;
             }
             break;
+
+
+        case BT_CP_OPCODE_CID_CCU_ACTIVATE_STATUS:
+            akbi_set_fsm_state(FSM_STATE_ACTIVATE_COMPLETE);
+            ep_return_message[BLE_RET_MSG_RC_OFFSET] = p_payload[0];
+            break;
+
         /*case BT_CP_OPCODE_CID_CCU_ACTIVATE:
               if (p_protocol_hdr->type == ) {
                   akbi_set_fsm_state(FSM_STATE_ACTIVATE_COMPLETE);
