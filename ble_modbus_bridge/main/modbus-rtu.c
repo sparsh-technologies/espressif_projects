@@ -16,11 +16,11 @@
 #include <sys/select.h>
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
-#include "modbus_types.h"
-#include "modbus.h"
-#include "modbus-private.h"
-#include "modbus-rtu.h"
-#include "modbus-rtu-private.h"
+#include "include/modbus_types.h"
+#include "include/modbus.h"
+#include "include/modbus-private.h"
+#include "include/modbus-rtu.h"
+#include "include/modbus-rtu-private.h"
 
 /* Table of CRC values for high-order byte */
 static const uint8_t table_crc_hi[] = {

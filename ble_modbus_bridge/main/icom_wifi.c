@@ -24,8 +24,8 @@
 
 //#define EXAMPLE_ESP_WIFI_SSID      "Airplane"
 //#define EXAMPLE_ESP_WIFI_PASS      "sruman23#"
-#define EXAMPLE_ESP_WIFI_SSID      "technomics"
-#define EXAMPLE_ESP_WIFI_PASS      "technomics"
+#define EXAMPLE_ESP_WIFI_SSID      "technomics1"
+#define EXAMPLE_ESP_WIFI_PASS      "technomics1"
 #define EXAMPLE_ESP_MAXIMUM_RETRY  10
 
 wifi_config_t wifi_config = {

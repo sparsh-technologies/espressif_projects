@@ -26,14 +26,14 @@
 #include "tcpip_adapter.h"
 #include "lwip/sockets.h"
 #include "lwip/netdb.h"
-#include "peripheral.h"
-#include "serial_port.h"
+#include "include/peripheral.h"
+#include "include/serial_port.h"
 
 int uart_fd = -1;
 ICOM_SERIAL_PORT    icom_rs485_port;
 esp_timer_handle_t oneshot_timer = NULL;
 
-extern unsigned char  dio_port;
+unsigned char  dio_port = 0;
 
 uart_config_t uart_config = {
     .baud_rate = 115200,
@@ -192,6 +192,7 @@ void icom_modbus_task(void *param)
     int             s, j;
     fd_set          rfds;
     struct timeval  tv;
+    int             current_state = 0;
 
     printf(" INFO : Starting MODBUS protocol task \n");
 
@@ -201,8 +202,11 @@ void icom_modbus_task(void *param)
     }
 
     configure_rs485_enable_line();
-
+#if 0
     icom_enable_rs485_tx();
+#endif
+	icom_disable_rs485_tx();
+	
 	j = 0;
     while (1) {
 
@@ -221,13 +225,21 @@ void icom_modbus_task(void *param)
             read_data_from_rs485_port(uart_fd, &rfds, "UART2");
         }
 #endif
+
         if (dio_port == 1) {
-			printf(" INFO : Setting to high \r\n");
-            icom_enable_rs485_tx();
+            if (current_state == 0) {
+			    printf(" INFO : Setting to high \r\n");
+                icom_enable_rs485_tx();
+				current_state = 1;
+			}
 		} else if(dio_port == 0){
-			printf(" INFO : Setting to low \r\n");
-			icom_disable_rs485_tx();
+            if (current_state == 1) {
+			    printf(" INFO : Setting to low \r\n");
+			    icom_disable_rs485_tx();
+                current_state = 0;
+            }
 		}
+
         vTaskDelay(200);
 
     }
