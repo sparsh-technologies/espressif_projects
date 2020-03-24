@@ -77,6 +77,7 @@
 #define DID_REGISTER_LAT                   0x05
 #define DID_REGISTER_LONG                  0x06
 #define DID_REGISTER_MOB_FW_VER            0x07
+#define DID_REGISTER_REG_DATE              0x08
 #define DID_CHANGE_PASSWORD_CURRENT        0x01
 #define DID_CHANGE_PASSWORD_NEW            0x02
 #define DID_EMERGENCY_FIRST_RESPONDER      0x01

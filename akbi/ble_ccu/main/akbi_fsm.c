@@ -29,8 +29,8 @@ int akbi_get_fsm_state()
     return bt_state;
 }
 
-static char wifi_report[30][50];
-static int  wifi_report_length[30];
+static char wifi_report[50][50];
+static int  wifi_report_length[50];
 char        ccu_ap_ssid[20];
 char        ccu_ap_passwd[20];
 

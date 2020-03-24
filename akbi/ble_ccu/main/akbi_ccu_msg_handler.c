@@ -122,6 +122,14 @@ void akbi_process_rx_serial_data(char *ccu_msg,int length)
                         p_protocol_hdr->length = 0x0d;
                     }
                 }
+                /*
+                 * workaround to tackle problem with ssid ssid_index
+                 */
+                 if (index==0x0a) {
+                     if (strlen(wifi_scan_report.ap_name[0x0b])) {
+                         index = 0x0d;
+                     }
+                 }
                 strncpy(wifi_scan_report.ap_name[index-1], p_payload, p_protocol_hdr->length);
                 save_ssids(wifi_scan_report.ap_name[index-1],index-1,p_protocol_hdr->length);
                 wifi_scan_report.ap_count++;

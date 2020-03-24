@@ -27,16 +27,11 @@
 
 CCU this_ccu;
 
-const char  SER_NO_TEST[SER_NO_SIZE]                 = {0x41,0x42,0x43,0x44,0x45,0x46,0x47,0x48};
-const char  MY_SSID_TEST[SSID_SIZE]               = {0x41,0x42,0x43,0x44,0x45,0x46};
-const char  MY_NETWORK_KEY_TEST[NETWORK_KEY_SIZE] = {0x41,0x42,0x43,0x44,0x45,0x46};
 int return_msg_len                                = BLE_RETURN_MAX_SIZE;
 int searched_ssid_count_index                     = 0;
 static char saved_messages[4][21];
 static char *p_recvd_msg_full;
-static char *p_return_msg_full;
 static int flag_set_recvd_msg_ptr = 0;
-static int flag_set_return_msg_ptr = 0;
 extern char adv_ser_no[5];
 char flag_sending_voice_data = 0;
 extern char ep_return_message[20];
@@ -60,41 +55,12 @@ void set_recvd_msg_pointer(char *received_value_buffer){
     p_recvd_msg_full = received_value_buffer;
     flag_set_recvd_msg_ptr = 1;
 }
-void set_return_msg_pointer(char *ep_return_message){
-    p_return_msg_full = ep_return_message;
-    flag_set_return_msg_ptr = 1;
-}
 
 
 int save_group_messages(char *received_value_buffer,int type_id)
 {
     memcpy(saved_messages[type_id-1],received_value_buffer,BLE_MESSAGE_SIZE);
     return 0;
-}
-
-//to send all messages altogether
-void send_batch_messages(int no_of_messages,int ble_cmd_id)
-{
-    for(int i=0 ; i< no_of_messages ; i++){
-        switch(ble_cmd_id){
-            case CID_REGISTER:
-                ccu_send_reg_msg(saved_messages[i],p_return_msg_full);
-                break;
-            case CID_CHANGE_PASSWORD:
-                ccu_sent_user_change_passwd_msg(saved_messages[i],p_return_msg_full);
-                break;
-            case CID_STORE_EMERGENCY_NUMBERS:
-                ccu_sent_store_emergency_number_msg(saved_messages[i]);
-                break;
-            case CID_STORE_PERSONAL_NUMBERS:
-                ccu_sent_store_personal_number_msg(saved_messages[i]);
-                break;
-            case CID_ENTER_LOCAL_HELP_NUMBERS:
-                ccu_sent_store_local_help_number_msg(saved_messages[i]);
-                break;
-        }
-        ets_delay_us(500000);
-    }
 }
 
 /*
@@ -107,94 +73,48 @@ int execute_register(char *i_cmd, char *i_ret_msg)
     char data_type                          = i_cmd[BLE_CMD_MULTI_DATA_TYPE_OFFSET];
     int  data_len_in_ble                    = (int)i_cmd[BLE_CMD_MULTI_DATA_LEN_OFFSET];
     i_ret_msg[BLE_RET_MSG_DATA_TYPE_OFFSET] = data_type;
-// char lat[15] = "010.012742N";
-// char longi[15] = "076.337381E" ;
 
     switch (data_type)
     {
 
     case DID_REGISTER_PASSWORD :
-        memcpy(this_ccu.password,&i_cmd[BLE_CMD_MULTI_DATA_VALUE_OFFSET],data_len_in_ble);
-        //printf(" INFO : Passwd - %s(%d) \n", this_ccu.password, data_len_in_ble);
         i_ret_msg[BLE_RET_MSG_RC_OFFSET] = SUCCESS;
-		    // To Be checked with Sathish
-        this_ccu.paired_mob1.data_status = this_ccu.paired_mob1.data_status | FLAG_DATA_SET_MOB1_PASSWORD;
-        ccu_send_reg_msg_new(DID_REGISTER_PASSWORD, this_ccu.password, data_len_in_ble);
-
-        // save_group_messages(p_recvd_msg_full,DID_REGISTER_PASSWORD);
+        ccu_send_reg_msg_new(TLV_TYPE_REGISTER_PASSWORD,&i_cmd[BLE_CMD_MULTI_DATA_VALUE_OFFSET], data_len_in_ble);
         break;
 
     case DID_REGISTER_MOB_NO :
-        memcpy(this_ccu.paired_mob1.mobile_number,
-               &i_cmd[BLE_CMD_MULTI_DATA_VALUE_OFFSET],data_len_in_ble);
-        //printf(" INFO : Mob-No - %s(%d) \n", this_ccu.paired_mob1.mobile_number, data_len_in_ble);
         i_ret_msg[BLE_RET_MSG_RC_OFFSET] = SUCCESS;
-        this_ccu.paired_mob1.data_status = this_ccu.paired_mob1.data_status | FLAG_DATA_SET_MOB1_NUM;
-        //TODO-Store mobile number in EEPROM and populate error code
-       // save_group_messages(p_recvd_msg_full,DID_REGISTER_MOB_NO);
-        ccu_send_reg_msg_new(DID_REGISTER_MOB_NO, this_ccu.paired_mob1.mobile_number, data_len_in_ble);
+        ccu_send_reg_msg_new(TLV_TYPE_REGISTER_MOB_NUM, &i_cmd[BLE_CMD_MULTI_DATA_VALUE_OFFSET], data_len_in_ble);
         break;
 
     case DID_REGISTER_MOB_NAME :
-        memcpy(this_ccu.paired_mob1.mobile_name,
-               &i_cmd[BLE_CMD_MULTI_DATA_VALUE_OFFSET],data_len_in_ble);
-        //printf(" INFO : Mob-Name - %s(%d) \n", this_ccu.paired_mob1.mobile_name, data_len_in_ble);
         i_ret_msg[BLE_RET_MSG_RC_OFFSET] = SUCCESS;
-        this_ccu.paired_mob1.data_status = this_ccu.paired_mob1.data_status | FLAG_DATA_SET_MOB1_NAME;
-        //TODO-Store mobile name in EEPROM and populate error code
-       // save_group_messages(p_recvd_msg_full,DID_REGISTER_MOB_NAME);
-        ccu_send_reg_msg_new(DID_REGISTER_MOB_NAME, this_ccu.paired_mob1.mobile_name, data_len_in_ble);
+        ccu_send_reg_msg_new(TLV_TYPE_REGISTER_MOB_NAME, &i_cmd[BLE_CMD_MULTI_DATA_VALUE_OFFSET], data_len_in_ble);
         break;
 
     case DID_REGISTER_ANDROID_ID_OR_UUID :
-        memcpy(this_ccu.paired_mob1.android_id_or_uuid,
-               &i_cmd[BLE_CMD_MULTI_DATA_VALUE_OFFSET],data_len_in_ble);
-        //printf(" INFO : Mob-UUID - %s(%d) \n", this_ccu.paired_mob1.android_id_or_uuid,
-                // data_len_in_ble);
         i_ret_msg[BLE_RET_MSG_RC_OFFSET] = SUCCESS;
-        this_ccu.paired_mob1.data_status = this_ccu.paired_mob1.data_status | FLAG_DATA_SET_ANDROID_ID_OR_UUID;
-        //TODO-Store Android ID or UUID in EEPROM and populate error code
-       // save_group_messages(p_recvd_msg_full,DID_REGISTER_ANDROID_ID_OR_UUID);
-        ccu_send_reg_msg_new(DID_REGISTER_ANDROID_ID_OR_UUID,
-                             this_ccu.paired_mob1.android_id_or_uuid,
-                             data_len_in_ble);
-// ets_delay_us(200000);
-// ccu_send_reg_msg_new(0x05,lat,0x0A);
-// ets_delay_us(200000);
-// ccu_send_reg_msg_new(0x06,longi,0x0A);
+        ccu_send_reg_msg_new(TLV_TYPE_REGISTER_UNIQUE_ID,&i_cmd[BLE_CMD_MULTI_DATA_VALUE_OFFSET],data_len_in_ble);
         break;
 
     case DID_REGISTER_LAT :
-        memcpy(this_ccu.paired_mob1.latitude,
-               &i_cmd[BLE_CMD_MULTI_DATA_VALUE_OFFSET],data_len_in_ble);
-        //printf(" INFO : Mob-Name - %s(%d) \n", this_ccu.paired_mob1.mobile_name, data_len_in_ble);
         i_ret_msg[BLE_RET_MSG_RC_OFFSET] = SUCCESS;
-        this_ccu.paired_mob1.data_status = this_ccu.paired_mob1.data_status | FLAG_DATA_SET_MOB1_NAME;
-        //TODO-Store mobile name in EEPROM and populate error code
-       // save_group_messages(p_recvd_msg_full,DID_REGISTER_MOB_NAME);
-        ccu_send_reg_msg_new(DID_REGISTER_LAT, this_ccu.paired_mob1.latitude, data_len_in_ble);
+        ccu_send_reg_msg_new(TLV_TYPE_REGISTER_LAT_STRING, &i_cmd[BLE_CMD_MULTI_DATA_VALUE_OFFSET], data_len_in_ble);
         break;
 
     case DID_REGISTER_LONG :
-        memcpy(this_ccu.paired_mob1.longitude,
-               &i_cmd[BLE_CMD_MULTI_DATA_VALUE_OFFSET],data_len_in_ble);
-        //printf(" INFO : Mob-Name - %s(%d) \n", this_ccu.paired_mob1.mobile_name, data_len_in_ble);
         i_ret_msg[BLE_RET_MSG_RC_OFFSET] = SUCCESS;
-        this_ccu.paired_mob1.data_status = this_ccu.paired_mob1.data_status | FLAG_DATA_SET_MOB1_NAME;
-        //TODO-Store mobile name in EEPROM and populate error code
-       // save_group_messages(p_recvd_msg_full,DID_REGISTER_MOB_NAME);
-        ccu_send_reg_msg_new(DID_REGISTER_LONG, this_ccu.paired_mob1.longitude, data_len_in_ble);
+        ccu_send_reg_msg_new(TLV_TYPE_REGISTER_LONG_STRING,  &i_cmd[BLE_CMD_MULTI_DATA_VALUE_OFFSET], data_len_in_ble);
         break;
 
     case DID_REGISTER_MOB_FW_VER :
-        memcpy(this_ccu.paired_mob1.longitude,
-               &i_cmd[BLE_CMD_MULTI_DATA_VALUE_OFFSET],data_len_in_ble);
-        //printf(" INFO : Mob-Name - %s(%d) \n", this_ccu.paired_mob1.mobile_name, data_len_in_ble);
         i_ret_msg[BLE_RET_MSG_RC_OFFSET] = SUCCESS;
-        this_ccu.paired_mob1.data_status = this_ccu.paired_mob1.data_status | FLAG_DATA_SET_MOB1_NAME;
-        //TODO-Store mobile name in EEPROM and populate error code
-       // save_group_messages(p_recvd_msg_full,DID_REGISTER_MOB_NAME);
-        ccu_send_reg_msg_new(DID_REGISTER_MOB_FW_VER, this_ccu.paired_mob1.longitude, data_len_in_ble);
+        ccu_send_reg_msg_new(TLV_TYPE_MOBILE_FW_VERSION, &i_cmd[BLE_CMD_MULTI_DATA_VALUE_OFFSET], data_len_in_ble);
+        break;
+
+    case DID_REGISTER_REG_DATE :
+        i_ret_msg[BLE_RET_MSG_RC_OFFSET] = SUCCESS;
+        ccu_send_reg_msg_new(TLV_TYPE_REGISTER_DATE, &i_cmd[BLE_CMD_MULTI_DATA_VALUE_OFFSET], data_len_in_ble);
         break;
 
     default :
@@ -202,28 +122,6 @@ int execute_register(char *i_cmd, char *i_ret_msg)
         break;
     }
 
-    /*
-     * If all information is obtained from the mobile for registration, register the
-     * CCU with the Web Application once when the SSID gets configured.
-     * mob1.data_status will be set to the bit value [00001111] if all mob1 data is saved.
-     * Also the 2nd bit of ccu.data_status will be set if password is set.
-     */
-
-    if (this_ccu.paired_mob1.data_status == FLAG_DATA_SET_MOB1_ALL){
-       //all messages are saved. now send messages altogether
-      // send_batch_messages(DID_REGISTER_ANDROID_ID_OR_UUID,CID_REGISTER);
-       //return READY_TO_SEND_REG_DATA_TO_SERIAL;
-    }
-
-   /*
-    * The below if condition and processing needs to be moved to 'Select A WiFi'
-    * and 'Connect to WiFi' sections.
-    */
-
-    if ((this_ccu.paired_mob1.data_status == FLAG_DATA_SET_MOB1_ALL) &&
-        ((this_ccu.data_status & FLAG_DATA_SET_CCU_PASSWORD) == FLAG_DATA_SET_CCU_PASSWORD)) {
-        //TODO - register with the web application to get the user id. Send the data via serial interface
-    }
     return i_ret_msg[BLE_RET_MSG_RC_OFFSET];
 }
 
@@ -312,7 +210,6 @@ int execute_change_password(char *i_cmd, char *i_ret_msg)
         // this_ccu.data_status = this_ccu.data_status | FLAG_DATA_SET_CCU_NEW_PASSWORD;
         // i_ret_msg[BLE_RET_MSG_RC_OFFSET] = SUCCESS;
         save_group_messages(p_recvd_msg_full,DID_CHANGE_PASSWORD_NEW);
-        // send_batch_messages(DID_CHANGE_PASSWORD_NEW,CID_CHANGE_PASSWORD);
 
         memset(p_password_new , 0x00, 20);
         memset(p_password_current , 0x00, 20);
@@ -378,15 +275,12 @@ int execute_store_emergency_number(char *i_cmd, char *i_ret_msg)
         case DID_EMERGENCY_FIRST_RESPONDER : {
             memcpy(this_ccu.conf_emergency_nos.first_responder,i_emergency_number,data_len_in_ble);
             memset(&i_ret_msg[BLE_RET_MSG_RC_OFFSET], SUCCESS, BLE_RETURN_RC_SIZE);
-            // save_group_messages(p_recvd_msg_full,DID_EMERGENCY_FIRST_RESPONDER);
             ccu_sent_store_emergency_number_msg(p_recvd_msg_full);
             break;
         }
         case DID_EMERGENCY_CLOSE_RELATIVE : {
             memcpy(this_ccu.conf_emergency_nos.close_relative,i_emergency_number,data_len_in_ble);
             memset(&i_ret_msg[BLE_RET_MSG_RC_OFFSET], SUCCESS, BLE_RETURN_RC_SIZE);
-            // save_group_messages(p_recvd_msg_full,DID_EMERGENCY_CLOSE_RELATIVE);
-            // send_batch_messages(DID_EMERGENCY_CLOSE_RELATIVE,CID_STORE_EMERGENCY_NUMBERS);
             ccu_sent_store_emergency_number_msg(p_recvd_msg_full);
             break;
         }
@@ -676,9 +570,6 @@ int read_ble_message(char *i_msg, char *i_ret_msg)
 
     if(flag_set_recvd_msg_ptr == 0){
       set_recvd_msg_pointer(i_msg);
-    }
-    if(flag_set_return_msg_ptr == 0){
-      set_return_msg_pointer(i_ret_msg);
     }
 
     if (source_app_type_identifier == MOB1_APP_TYPE_ID) {
