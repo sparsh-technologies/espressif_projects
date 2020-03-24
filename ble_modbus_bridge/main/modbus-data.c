@@ -14,9 +14,9 @@
 #include <sys/time.h>
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
-#include "modbus_types.h"
-#include "modbus.h"
-#include "modbus-private.h"
+#include "include/modbus_types.h"
+#include "include/modbus.h"
+#include "include/modbus-private.h"
 
 static inline uint16_t bswap_16(uint16_t x)
 {

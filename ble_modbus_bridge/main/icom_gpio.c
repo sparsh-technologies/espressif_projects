@@ -22,8 +22,7 @@
 #include "esp_log.h"
 #include "esp_vfs.h"
 #include "esp_vfs_dev.h"
-#include "icom_gpio.h"
-//#include "gpio_types.h"
+#include "include/icom_gpio.h"
 
 void icom_configure_gpio_port(void)
 {

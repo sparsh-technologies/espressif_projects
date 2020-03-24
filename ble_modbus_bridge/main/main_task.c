@@ -16,8 +16,8 @@
 #include "freertos/task.h"
 #include "esp_system.h"
 #include "esp_spi_flash.h"
-#include "icom_ipc.h"
-#include "icom_gpio.h"
+#include "include/icom_ipc.h"
+#include "include/icom_gpio.h"
 
 typedef struct {
     int handle;

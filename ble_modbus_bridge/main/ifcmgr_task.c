@@ -1,6 +1,6 @@
 /*
  ****************************************************************************************
- * icom_cloud_task.c
+ * serial_port.c
  *
  * Author    : Biju Nair
  * Ver       : 1.0
@@ -27,19 +27,26 @@
 #include "lwip/sockets.h"
 #include "lwip/netdb.h"
 #include "include/peripheral.h"
-#include "include/icom_config.h"
+#include "include/serial_port.h"
 
-void icom_cloud_task(void *param)
+extern unsigned char  dio_port;
+
+void icom_modbus_task(void *param)
 {
-    int     s;
-    fd_set  rfds;
-    struct timeval  tv;
+    int     current_state;
 
-    printf(" INFO : Starting cloud task \n");
+    printf(" INFO : Starting IfcMgr task \n");
 
     while (1) {
 
-        vTaskDelay(100);
+        if (dio_port == 1) {
+            printf(" INFO : Setting to high \r\n");
+            icom_enable_rs485_tx();
+        } else if(dio_port == 0){
+            printf(" INFO : Setting to low \r\n");
+            icom_disable_rs485_tx();
+		}
+        vTaskDelay(200);
 
     }
 

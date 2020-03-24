@@ -1,5 +1,5 @@
 set(COMPONENT_SRCS "bt_app_core.c"
-                   "main.c"
+                   "main_task.c"
                    "serial_port.c"
                    "ble_task.c"
                    "modbus.c"
@@ -10,7 +10,8 @@ set(COMPONENT_SRCS "bt_app_core.c"
                    "icom_wifi.c"
                    "icom_ipc.c"
                    "icom_mqtt.c"
-				   "icom_gpio.c"
+                   "icom_gpio.c"
+                   "ifcmgr_task.c"
                    )
 set(COMPONENT_ADD_INCLUDEDIRS ".")
 

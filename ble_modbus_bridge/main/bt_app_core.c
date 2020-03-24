@@ -15,7 +15,7 @@
 #include "freertos/queue.h"
 #include "freertos/task.h"
 #include "esp_log.h"
-#include "bt_app_core.h"
+#include "include/bt_app_core.h"
 #include "freertos/ringbuf.h"
 
 static void bt_app_task_handler(void *arg);

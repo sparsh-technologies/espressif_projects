@@ -19,7 +19,7 @@
 #include "nvs_flash.h"
 #include "nvs.h"
 #include "driver/gpio.h"
-#include "icom_config.h"
+#include "include/icom_config.h"
 
 #define STORAGE_NAMESPACE "config"
 
