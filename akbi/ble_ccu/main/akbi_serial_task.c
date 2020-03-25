@@ -46,7 +46,7 @@ typedef struct {
 int uart_fd = -1;
 static int flag_set_ret_ptr = 0;
 char serial_rx_data[500];
-char serial_tx_data[100];
+char serial_tx_data[500];
 esp_timer_handle_t oneshot_timer = NULL;
 static int serial_timer_state = -1;
 static int serial_data_bytes = 0;
@@ -219,7 +219,7 @@ void send_uart_message(const char* p_data, int length )
     int     ret, i;
     char    data;
 
-    memset(serial_tx_data, 0x00, 100);
+    memset(serial_tx_data, 0x00, 500);
     memcpy(serial_tx_data, p_data, length);
 
     for(i=0; i < length; i++) {

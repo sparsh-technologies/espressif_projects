@@ -18,7 +18,6 @@ extern char ep_return_message[MAX_RETURN_MSG_LENGTH];
 extern char firmware_version[10];
 extern char ccu_serial_no[20];
 unsigned char post_result = 0;
-unsigned char post_result_code = 0;
 extern char   ccu_ap_ssid[20];
 extern char   ccu_ap_passwd[20];
 
@@ -78,12 +77,6 @@ void akbi_process_rx_serial_data(char *ccu_msg,int length)
             memcpy(&post_result, p_tlv->data, p_tlv->length);
             // printf(" INFO : length           : %02x\n",  p_tlv->length );
             // printf(" INFO : POST result      : %02x \n", post_result );
-            if (post_result != 0x00){
-                post_result_code = BLE_RET_POST_DATA_ERROR;
-            }
-            else{
-                post_result_code = 0x00;
-            }
 
 
 
@@ -130,7 +123,7 @@ void akbi_process_rx_serial_data(char *ccu_msg,int length)
                          index = 0x0d;
                      }
                  }
-                strncpy(wifi_scan_report.ap_name[index-1], p_payload, p_protocol_hdr->length);
+                memcpy(wifi_scan_report.ap_name[index-1], p_payload, p_protocol_hdr->length);
                 save_ssids(wifi_scan_report.ap_name[index-1],index-1,p_protocol_hdr->length);
                 wifi_scan_report.ap_count++;
                 break;
@@ -140,14 +133,13 @@ void akbi_process_rx_serial_data(char *ccu_msg,int length)
             if (p_payload[0] == SUCCESS) {
                 akbi_set_fsm_state(FSM_STATE_LOGIN_SUCCESS);
                 ep_return_message[BLE_RET_MSG_DATA_TYPE_OFFSET] = post_result;
-      printf("POST_RESULT=%02x\n",post_result );
                 if(post_result != 0x07){
                    ep_return_message[BLE_RET_MSG_RC_OFFSET] = BLE_RET_POST_DATA_ERROR;
                 }
                 else{
                     memcpy(&ep_return_message[BLE_RET_MSG_FIRMWARE_VERSION_OFFSET],firmware_version,strlen(firmware_version));
+                    ep_return_message[BLE_RET_MSG_RC_OFFSET] = SUCCESS;
                 }
-  ep_return_message[BLE_RET_MSG_RC_OFFSET] = SUCCESS;//(workaround) need to remove
                 return;
             }
 
