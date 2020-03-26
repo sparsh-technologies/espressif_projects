@@ -11,8 +11,12 @@ set(COMPONENT_SRCS "bt_app_core.c"
                    "icom_ipc.c"
                    "icom_mqtt.c"
                    "icom_gpio.c"
+                   "icom_modbus_task.c"
+                   "icom_timer_api.c"
                    "ifcmgr_task.c"
                    )
-set(COMPONENT_ADD_INCLUDEDIRS ".")
+set(COMPONENT_ADD_INCLUDEDIRS "."
+                              "include"
+    )
 
 register_component()
