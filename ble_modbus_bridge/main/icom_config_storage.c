@@ -265,3 +265,96 @@ void icom_init_config_subsys()
 #endif
 
 }
+
+int icom_get_configured_modbus_register_count()
+{
+    return (startup_cfg.cfg_reg_count);
+}
+
+ICOM_MBUS_REG_INFO *icom_get_configured_modbus_register(int index)
+{
+    /*
+     * Do some defensive checks
+     */
+    if (index > MAX_CONFIGURABLE_REGISTERS)
+        return (NULL);
+
+    return (&startup_cfg.mbus_reg[index]);
+}
+
+int icom_get_configured_http_server(char *p_http_server)
+{
+    if (strlen(startup_cfg.http_server) == 0)
+        return (1);
+
+    strcpy(p_http_server, startup_cfg.http_server);
+    return (0);
+}
+
+int icom_get_configured_mqtt_broker(char *p_mqtt_broker)
+{
+    if (strlen(startup_cfg.mqtt_broker) == 0)
+        return (1);
+
+    strcpy(p_mqtt_broker, startup_cfg.mqtt_broker);
+    return (0);
+}
+
+int icom_get_configured_mqtt_broker_username(char *p_mqtt_broker_username)
+{
+    if (strlen(startup_cfg.mqtt_broker_username) == 0)
+        return (1);
+
+    strcpy(p_mqtt_broker_username, startup_cfg.mqtt_broker_username);
+    return (0);
+}
+
+int icom_get_configured_mqtt_broker_passwd(char *p_mqtt_broker_passwd)
+{
+    if (strlen(startup_cfg.mqtt_broker_passwd) == 0)
+        return (1);
+
+    strcpy(p_mqtt_broker_passwd, startup_cfg.mqtt_broker_passwd);
+    return (0);
+}
+
+/*
+ * All set API's are here.
+ */
+
+int icom_set_configured_http_server(char *p_http_server)
+{
+    if (strlen(p_http_server) == 0)
+        return (1);
+
+    strcpy(startup_cfg.http_server, p_http_server);
+    return (0);
+}
+
+int icom_set_configured_mqtt_broker(char *p_mqtt_broker)
+{
+    if (strlen(p_mqtt_broker) == 0)
+        return (1);
+
+    strcpy(startup_cfg.mqtt_broker, p_mqtt_broker);
+    return (0);
+}
+
+int icom_set_configured_mqtt_broker_username(char *p_mqtt_broker_username)
+{
+    if (strlen(p_mqtt_broker_username) == 0)
+        return (1);
+
+    strcpy(startup_cfg.mqtt_broker_username, p_mqtt_broker_username);
+    return (0);
+}
+
+int icom_set_configured_mqtt_broker_passwd(char *p_mqtt_broker_passwd)
+{
+    if (strlen(p_mqtt_broker_passwd) == 0)
+        return (1);
+
+    strcpy(startup_cfg.mqtt_broker_passwd, p_mqtt_broker_passwd);
+    return (0);
+}
+
