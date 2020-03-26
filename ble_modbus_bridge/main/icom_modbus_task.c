@@ -32,7 +32,7 @@
 int icom_modbus_init()
 {
 
-
+    return (0);
 }
 
 void icom_modbus_task(void *param)

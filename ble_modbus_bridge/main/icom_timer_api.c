@@ -24,7 +24,7 @@
 static void modbus_polling_timer_callback(void* arg);
 
 const esp_timer_create_args_t modbus_timer_args = {
-    .callback = &oneshot_timer_callback,
+    .callback = &modbus_polling_timer_callback,
     .name = "modbus-one-shot"
 };
 
