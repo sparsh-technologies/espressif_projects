@@ -36,7 +36,7 @@ void populate_dummy_cfg()
 
     p_mbus_cfg = &startup_cfg;
     p_mbus_cfg->slave_address = 100;
-    p_mbus_cfg->cfg_reg_count = 100;
+    p_mbus_cfg->cfg_reg_count = 1;
 
     printf(" Slave Address : %d \n", p_mbus_cfg->slave_address);
     printf(" Reg Count     : %d \n", p_mbus_cfg->cfg_reg_count);

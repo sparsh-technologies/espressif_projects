@@ -61,6 +61,8 @@ void icom_modbus_task(void *param)
 
     printf(" INFO : Starting ICOM-MODBUS task \n");
 
+    icom_create_task_queue(ICOM_TASK_ID_MODBUS_MGR);
+
     modbus_reg_count = icom_get_configured_modbus_register_count();
     if (modbus_reg_count > 0) {
         icom_modbus_init(modbus_reg_count);

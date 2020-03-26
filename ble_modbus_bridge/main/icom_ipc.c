@@ -29,6 +29,7 @@ static xQueueHandle  main_task_queue        = NULL;
 static xQueueHandle  cfg_task_queue         = NULL;
 static xQueueHandle  ble_config_task_queue  = NULL;
 static xQueueHandle  icom_modbus_task_queue = NULL;
+static xQueueHandle  icom_serial_task_queue = NULL;
 
 int icom_ipc_init()
 {
@@ -145,41 +146,56 @@ int icom_send_ipc_buffer(int task_id, ICOM_IPC_MSG *p_msg)
     return (0);
 }
 
-unsigned int icom_recv_ipc_buffer(int task_id)
+ICOM_IPC_MSG *icom_recv_ipc_buffer(int task_id)
 {
     unsigned int    msg_address;
+    ICOM_IPC_MSG    *p_ipc_msg = NULL;
 
     if (task_id == ICOM_TASK_ID_MAIN) {
 
-        if (pdTRUE == xQueueReceive(main_task_queue, &msg_address, (portTickType)portMAX_DELAY)) {
+        if (pdTRUE == xQueueReceive(main_task_queue, &msg_address, 
+                                    (portTickType)portMAX_DELAY)) {
             printf(" ERROR : xQueue send failed");
-            return (0);
+            return (NULL);
         }
 
     } else if (task_id == ICOM_TASK_ID_BLE_MGR ) {
 
-        if (pdTRUE == xQueueReceive(ble_config_task_queue, &msg_address, (portTickType)portMAX_DELAY)) {
+        if (pdTRUE == xQueueReceive(ble_config_task_queue, &msg_address, 
+                                    (portTickType)portMAX_DELAY)) {
             printf(" ERROR : xQueue send failed");
-            return (0);
+            return (NULL);
         }
 
     } else if (task_id == ICOM_TASK_ID_MODBUS_MGR ) {
 
-        if (pdTRUE == xQueueReceive(icom_modbus_task_queue, &msg_address, (portTickType)portMAX_DELAY)) {
+        if (pdTRUE == xQueueReceive(icom_modbus_task_queue, &msg_address, 
+                                    (portTickType)portMAX_DELAY)) {
             printf(" ERROR : xQueue send failed");
-            return (0);
+            return (NULL);
         }
 
-    } else if (task_id == ICOM_TASK_ID_CFG_MGR ) {
+    } else if (task_id == ICOM_TASK_ID_CLOUD_MGR ) {
 
-        if (pdTRUE == xQueueReceive(cfg_task_queue, &msg_address, (portTickType)portMAX_DELAY)) {
+        if (pdTRUE == xQueueReceive(cfg_task_queue, &msg_address, 
+                                    (portTickType)portMAX_DELAY)) {
             printf(" ERROR : xQueue send failed");
-            return (0);
+            return (NULL);
+        }
+
+    } else if (task_id == ICOM_TASK_ID_SERIAL_MGR ) {
+
+        if (pdTRUE == xQueueReceive(icom_serial_task_queue, &msg_address, 
+                                   (portTickType)portMAX_DELAY)) {
+            printf(" ERROR : xQueue send failed");
+            return (NULL);
         }
 
     }
 
-    return (msg_address);
+    p_ipc_msg = (ICOM_IPC_MSG *)msg_address;
+
+    return (p_ipc_msg);
 }
 
 int icom_create_task_queue(int task_id)
@@ -197,10 +213,15 @@ int icom_create_task_queue(int task_id)
 
         icom_modbus_task_queue = xQueueCreate(10, 4);
 
-    } else if (task_id == ICOM_TASK_ID_CFG_MGR ) {
+    } else if (task_id == ICOM_TASK_ID_CLOUD_MGR ) {
 
         cfg_task_queue = xQueueCreate(10, 4);
 
+    } else if (task_id == ICOM_TASK_ID_SERIAL_MGR ) {
+
+        icom_serial_task_queue = xQueueCreate(10, 4);
+
     }
+
     return (0);
 }

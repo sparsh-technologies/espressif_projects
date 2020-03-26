@@ -44,6 +44,8 @@ void app_main(void)
 
     printf(" INFO : Starting Main Task \n");
 
+    icom_create_task_queue(ICOM_TASK_ID_MAIN);
+
     /*
      * Initializing IPC subsystem
      */
@@ -60,9 +62,9 @@ void app_main(void)
      * Now create all worker threads here.
      */
 
-    xTaskCreate(ble_config_task, "ble_config_task", 4*1024, &context1, 0, &ble_task);
+    xTaskCreate(ble_config_task, "BLE Task", 4*1024, &context1, 0, &ble_task);
     xTaskCreate(icom_serial_task, "Serial Port Task", 4*1024, &context2, 0, &uart_task);
-    xTaskCreate(icom_cloud_task, "icom_cloud_task", 8*1024, &context3, 0, &cloud_task);
+    xTaskCreate(icom_cloud_task, "Cloud Task", 8*1024, &context3, 0, &cloud_task);
     xTaskCreate(icom_modbus_task, "MODBUS RTU Task", 4*1024, &context4, 0, &modbus_task);
 
 //    icom_init_station_cfg();

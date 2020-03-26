@@ -22,6 +22,7 @@ typedef struct _icom_ipc_msg_
     struct _icom_ipc_msg_  *next;
     unsigned char          sender_id;
     unsigned char          receiver_id;
+    unsigned char          opcode;
     unsigned char          data_sz;
     unsigned char          *data_ptr;
 
