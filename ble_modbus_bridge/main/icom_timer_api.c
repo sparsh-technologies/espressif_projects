@@ -21,23 +21,39 @@
 #include "freertos/task.h"
 #include "icom_modbus.h"
 
+#define TIMER_FREQUENCY    (10000000)
+
+void icom_start_modbus_register_poll_timer(ICOM_MBUS_REG_INFO *p_mbus_reg_info);
+
 static void modbus_polling_timer_callback(void* arg);
 
-const esp_timer_create_args_t modbus_timer_args = {
+esp_timer_create_args_t modbus_timer_args = {
     .callback = &modbus_polling_timer_callback,
     .name = "modbus-one-shot"
 };
 
 static void modbus_polling_timer_callback(void* arg)
 {
-    printf(" INFO : Timer fired \n");
+    ICOM_MBUS_REG_INFO *p_mbus_reg_info;
 
+    p_mbus_reg_info = (ICOM_MBUS_REG_INFO *)arg;
+
+    printf(" INFO : Timer fired :%p \n", arg);
+#if 1
+    printf(" INFO : Timer Type (%x) Addr(%x) Freq(%d) \n", 
+             p_mbus_reg_info->reg_type,
+             p_mbus_reg_info->reg_address,
+             p_mbus_reg_info->polling_freq_msec);
+
+    icom_start_modbus_register_poll_timer(p_mbus_reg_info);
+#endif
 }
 
 void icom_create_modbus_register_poll_timer(ICOM_MBUS_REG_INFO *p_mbus_reg_info)
 {
-    printf(" INFO : Creating Timer \n");
+    printf(" INFO : Creating Timer : %p \n", p_mbus_reg_info);
 
+    modbus_timer_args.arg = p_mbus_reg_info;
     ESP_ERROR_CHECK(esp_timer_create(&modbus_timer_args, &p_mbus_reg_info->poll_timer));
 }
 
@@ -45,6 +61,6 @@ void icom_start_modbus_register_poll_timer(ICOM_MBUS_REG_INFO *p_mbus_reg_info)
 {
     printf(" INFO : Starting Timer \n");
 
-    ESP_ERROR_CHECK(esp_timer_create(p_mbus_reg_info, &p_mbus_reg_info->poll_timer));
+    ESP_ERROR_CHECK(esp_timer_start_once(p_mbus_reg_info->poll_timer, TIMER_FREQUENCY));
 }
 

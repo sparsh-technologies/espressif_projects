@@ -36,7 +36,7 @@ void populate_dummy_cfg()
 
     p_mbus_cfg = &startup_cfg;
     p_mbus_cfg->slave_address = 100;
-    p_mbus_cfg->cfg_reg_count = 10;
+    p_mbus_cfg->cfg_reg_count = 100;
 
     printf(" Slave Address : %d \n", p_mbus_cfg->slave_address);
     printf(" Reg Count     : %d \n", p_mbus_cfg->cfg_reg_count);
@@ -47,7 +47,7 @@ void populate_dummy_cfg()
 
         p_mbus_reg->reg_type = 0x01;
         p_mbus_reg->reg_address = i;
-        p_mbus_reg->polling_freq_msec = 100;
+        p_mbus_reg->polling_freq_msec = 5000;
 
         printf(" Reg Type      : %d \n", p_mbus_reg->reg_type);
         printf(" Reg Address   : %d \n", p_mbus_reg->reg_address);

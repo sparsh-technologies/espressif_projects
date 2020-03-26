@@ -34,6 +34,8 @@ TaskHandle_t ble_task, uart_task, cloud_task, modbus_task;
 extern void ble_config_task(void *param);
 extern void icom_serial_task(void *param);
 extern void icom_cloud_task(void *param);
+extern void icom_modbus_task(void *param);
+
 extern void icom_init_config_subsys(void);
 extern void icom_init_station_cfg(void);
 
