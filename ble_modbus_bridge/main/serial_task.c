@@ -187,7 +187,7 @@ int icom_send_rs485_data(char *p_data, int length)
     return (0);
 }
 
-void icom_modbus_task(void *param)
+void icom_serial_task(void *param)
 {
     int             s, j;
     fd_set          rfds;

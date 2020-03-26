@@ -1,6 +1,6 @@
 set(COMPONENT_SRCS "bt_app_core.c"
                    "main_task.c"
-                   "serial_port.c"
+                   "serial_task.c"
                    "ble_task.c"
                    "modbus.c"
                    "modbus-data.c"

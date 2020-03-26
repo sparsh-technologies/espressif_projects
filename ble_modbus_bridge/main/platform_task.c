@@ -31,11 +31,11 @@
 
 extern unsigned char  dio_port;
 
-void icom_modbus_task(void *param)
+void platform_task(void *param)
 {
     int     current_state;
 
-    printf(" INFO : Starting IfcMgr task \n");
+    printf(" INFO : Starting Platform task \n");
 
     while (1) {
 

@@ -29,10 +29,10 @@ task_context_t context2={};
 task_context_t context3={};
 task_context_t context4={};
 
-TaskHandle_t ble_task, uart_task, cloud_task;
+TaskHandle_t ble_task, uart_task, cloud_task, modbus_task;
 
 extern void ble_config_task(void *param);
-extern void icom_modbus_task(void *param);
+extern void icom_serial_task(void *param);
 extern void icom_cloud_task(void *param);
 extern void icom_init_config_subsys(void);
 extern void icom_init_station_cfg(void);
@@ -50,8 +50,9 @@ void app_main(void)
 //    icom_configure_gpio_port();
 
     xTaskCreate(ble_config_task, "ble_config_task", 4*1024, &context1, 0, &ble_task);
-    xTaskCreate(icom_modbus_task, "uart_modbus_task", 4*1024, &context2, 0, &uart_task);
+    xTaskCreate(icom_serial_task, "Serial Port Task", 4*1024, &context2, 0, &uart_task);
     xTaskCreate(icom_cloud_task, "icom_cloud_task", 8*1024, &context3, 0, &cloud_task);
+    xTaskCreate(icom_modbus_task, "MODBUS RTU Task", 4*1024, &context4, 0, &modbus_task);
 
     /*
      * Initialize the configuration sub-system here. After this, init the Wifi sub-system
