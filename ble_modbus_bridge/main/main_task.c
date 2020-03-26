@@ -49,17 +49,21 @@ void app_main(void)
 
 //    icom_configure_gpio_port();
 
-    xTaskCreate(ble_config_task, "ble_config_task", 4*1024, &context1, 0, &ble_task);
-    xTaskCreate(icom_serial_task, "Serial Port Task", 4*1024, &context2, 0, &uart_task);
-    xTaskCreate(icom_cloud_task, "icom_cloud_task", 8*1024, &context3, 0, &cloud_task);
-    xTaskCreate(icom_modbus_task, "MODBUS RTU Task", 4*1024, &context4, 0, &modbus_task);
-
     /*
      * Initialize the configuration sub-system here. After this, init the Wifi sub-system
      */
     icom_init_config_subsys();
 
-    icom_init_station_cfg();
+    /*
+     * Now create all worker threads here.
+     */
+
+    xTaskCreate(ble_config_task, "ble_config_task", 4*1024, &context1, 0, &ble_task);
+    xTaskCreate(icom_serial_task, "Serial Port Task", 4*1024, &context2, 0, &uart_task);
+    xTaskCreate(icom_cloud_task, "icom_cloud_task", 8*1024, &context3, 0, &cloud_task);
+    xTaskCreate(icom_modbus_task, "MODBUS RTU Task", 4*1024, &context4, 0, &modbus_task);
+
+//    icom_init_station_cfg();
 
     vTaskDelay(pdMS_TO_TICKS(1000));
 

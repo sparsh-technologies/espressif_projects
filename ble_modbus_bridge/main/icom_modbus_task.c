@@ -26,11 +26,31 @@
 #include "tcpip_adapter.h"
 #include "lwip/sockets.h"
 #include "lwip/netdb.h"
-#include "include/peripheral.h"
-#include "include/icom_config.h"
+#include "peripheral.h"
+#include "icom_config.h"
+#include "icom_timer_api.h"
 
-int icom_modbus_init()
+int icom_modbus_init(int reg_count)
 {
+    int    i;
+    ICOM_MBUS_REG_INFO   *p_mbus_reg;
+
+    for(i=0; i<reg_count; i++) {
+
+        p_mbus_reg = icom_get_configured_modbus_register(i);
+
+        icom_create_modbus_register_poll_timer(p_mbus_reg);
+    }
+
+    /*
+     * After creating all the timers, now start these timers.
+     */
+    for(i=0; i<reg_count; i++) {
+
+        p_mbus_reg = icom_get_configured_modbus_register(i);
+
+        icom_start_modbus_register_poll_timer(p_mbus_reg);
+    }
 
     return (0);
 }
@@ -43,7 +63,7 @@ void icom_modbus_task(void *param)
 
     modbus_reg_count = icom_get_configured_modbus_register_count();
     if (modbus_reg_count > 0) {
-        icom_modbus_init();
+        icom_modbus_init(modbus_reg_count);
     }
     
     while (1) {

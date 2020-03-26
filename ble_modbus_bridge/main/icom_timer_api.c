@@ -34,11 +34,17 @@ static void modbus_polling_timer_callback(void* arg)
 
 }
 
-static void icom_create_modbus_register_poll_timer(ICOM_MBUS_REG_INFO *p_mbus_reg_info)
+void icom_create_modbus_register_poll_timer(ICOM_MBUS_REG_INFO *p_mbus_reg_info)
 {
     printf(" INFO : Creating Timer \n");
 
     ESP_ERROR_CHECK(esp_timer_create(&modbus_timer_args, &p_mbus_reg_info->poll_timer));
 }
 
+void icom_start_modbus_register_poll_timer(ICOM_MBUS_REG_INFO *p_mbus_reg_info)
+{
+    printf(" INFO : Starting Timer \n");
+
+    ESP_ERROR_CHECK(esp_timer_create(p_mbus_reg_info, &p_mbus_reg_info->poll_timer));
+}
 
