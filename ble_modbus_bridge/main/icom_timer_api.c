@@ -20,6 +20,7 @@
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
 #include "icom_modbus.h"
+#include "icom_timer_api.h"
 
 #define TIMER_FREQUENCY    (10000000)
 
