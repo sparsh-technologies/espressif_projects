@@ -37,7 +37,7 @@ extern int icom_ipc_init(void);
 extern ICOM_IPC_MSG *icom_alloc_ipc_buffer(void);
 extern void icom_free_ipc_buffer(ICOM_IPC_MSG *p_msg);
 extern int icom_create_task_queue(int task_id);
-extern ICOM_IPC_MSG *icom_recv_ipc_buffer(int task_id);
+extern int icom_recv_ipc_buffer(ICOM_IPC_MSG *p_ipc_msg, int task_id);
 extern int icom_send_ipc_buffer(int task_id, ICOM_IPC_MSG *p_msg);
 
 #endif

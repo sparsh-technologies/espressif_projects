@@ -34,7 +34,7 @@
 void icom_cloud_task(void *param)
 {
     int     s;
-    ICOM_IPC_MSG      *p_ipc_msg;
+    ICOM_IPC_MSG      *p_ipc_msg, ipc_msg;
 
     printf(" INFO : Starting cloud task \n");
 
@@ -42,7 +42,7 @@ void icom_cloud_task(void *param)
 
     while (1) {
 
-        p_ipc_msg = icom_recv_ipc_buffer(ICOM_TASK_ID_CLOUD_MGR);
+        p_ipc_msg = icom_recv_ipc_buffer(&ipc_msg, ICOM_TASK_ID_CLOUD_MGR);
 
         if (p_ipc_msg == NULL) {
             vTaskDelay(1000);

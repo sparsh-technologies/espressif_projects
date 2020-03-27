@@ -151,17 +151,17 @@ int icom_send_ipc_buffer(int task_id, ICOM_IPC_MSG *p_msg)
     return (0);
 }
 
-ICOM_IPC_MSG *icom_recv_ipc_buffer(int task_id)
+int icom_recv_ipc_buffer(ICOM_IPC_MSG *p_ipc_msg, int task_id)
 {
     unsigned int    msg_address;
-    ICOM_IPC_MSG    *p_ipc_msg = NULL, ipc_msg;
+    ICOM_IPC_MSG    ipc_msg;
 
     if (task_id == ICOM_TASK_ID_MAIN) {
 
         if (pdTRUE == xQueueReceive(main_task_queue, &msg_address,
                                     (portTickType)portMAX_DELAY)) {
             printf(" ERROR : xQueue receive failed in Main task \n");
-            return (NULL);
+            return (1);
         }
 
     } else if (task_id == ICOM_TASK_ID_BLE_MGR ) {
@@ -169,7 +169,7 @@ ICOM_IPC_MSG *icom_recv_ipc_buffer(int task_id)
         if (pdTRUE == xQueueReceive(ble_config_task_queue, &msg_address,
                                     (portTickType)portMAX_DELAY)) {
             printf(" ERROR : xQueue receive failed in BLE task \n");
-            return (NULL);
+            return (1);
         }
 
     } else if (task_id == ICOM_TASK_ID_MODBUS_MGR ) {
@@ -177,14 +177,14 @@ ICOM_IPC_MSG *icom_recv_ipc_buffer(int task_id)
         if (pdTRUE == xQueueReceive(icom_modbus_task_queue, &msg_address,
                                     (portTickType)portMAX_DELAY)) {
             printf(" ERROR : xQueue receive failed in Modbus task \n");
-            return (NULL);
+            return (1);
         }
 
     } else if (task_id == ICOM_TASK_ID_CLOUD_MGR ) {
 
         if (pdTRUE == xQueueReceive(icom_cloud_task_queue, &ipc_msg, 200)) {
             printf(" ERROR : xQueue receive failed in cloud task \n");
-            return (NULL);
+            return (1);
         }
 
     } else if (task_id == ICOM_TASK_ID_SERIAL_MGR ) {
@@ -192,14 +192,12 @@ ICOM_IPC_MSG *icom_recv_ipc_buffer(int task_id)
         if (pdTRUE == xQueueReceive(icom_serial_task_queue, &msg_address,
                                    (portTickType)portMAX_DELAY)) {
             printf(" ERROR : xQueue receive failed in serial task \n");
-            return (NULL);
+            return (1);
         }
 
     }
 
-    p_ipc_msg = (ICOM_IPC_MSG *)msg_address;
-
-    return (p_ipc_msg);
+    return (0);
 }
 
 int icom_create_task_queue(int task_id)
