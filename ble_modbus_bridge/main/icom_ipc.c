@@ -117,7 +117,7 @@ int icom_send_ipc_buffer(int task_id, ICOM_IPC_MSG *p_msg)
 
     if (task_id == ICOM_TASK_ID_MAIN) {
 
-        printf(" INFO : Sending Address: %p to Main task \n", msg_address);
+        printf(" INFO : Sending Address: %x to Main task \n", msg_address);
         if (xQueueSend(main_task_queue, &msg_address, 10 / portTICK_RATE_MS) != pdTRUE) {
             printf(" ERROR : xQueue send failed");
             return (1);
@@ -125,7 +125,7 @@ int icom_send_ipc_buffer(int task_id, ICOM_IPC_MSG *p_msg)
 
     } else if (task_id == ICOM_TASK_ID_BLE_MGR ) {
 
-        printf(" INFO : Sending Address: %p to BLE task \n", msg_address);
+        printf(" INFO : Sending Address: %x to BLE task \n", msg_address);
         if (xQueueSend(ble_config_task_queue, &msg_address, 10 / portTICK_RATE_MS) != pdTRUE) {
             printf(" ERROR : xQueue send failed");
             return (1);
@@ -133,7 +133,7 @@ int icom_send_ipc_buffer(int task_id, ICOM_IPC_MSG *p_msg)
 
     } else if (task_id == ICOM_TASK_ID_MODBUS_MGR ) {
 
-        printf(" INFO : Sending Address: %p to Modbus task \n", msg_address);
+        printf(" INFO : Sending Address: %x to Modbus task \n", msg_address);
         if (xQueueSend(icom_modbus_task_queue, &msg_address, 10 / portTICK_RATE_MS) != pdTRUE) {
             printf(" ERROR : xQueue send failed");
             return (1);
@@ -141,7 +141,7 @@ int icom_send_ipc_buffer(int task_id, ICOM_IPC_MSG *p_msg)
 
     } else if (task_id == ICOM_TASK_ID_CLOUD_MGR ) {
 
-        printf(" INFO : Sending Address: %p to Cloud task \n", msg_address);
+        printf(" INFO : Sending Address: %x to Cloud task \n", msg_address);
         if (xQueueSend(icom_cloud_task_queue, &msg_address, 10 / portTICK_RATE_MS) != pdTRUE) {
             printf(" ERROR : xQueue send failed");
             return (1);
