@@ -33,8 +33,7 @@
 
 void icom_cloud_task(void *param)
 {
-    int     s;
-    ICOM_IPC_MSG      *p_ipc_msg, ipc_msg;
+    ICOM_IPC_MSG      ipc_msg;
 
     printf(" INFO : Starting cloud task \n");
 
@@ -42,17 +41,16 @@ void icom_cloud_task(void *param)
 
     while (1) {
 
+        memset(&ipc_msg, 0x00, sizeof(ICOM_IPC_MSG));
         icom_recv_ipc_buffer(&ipc_msg, ICOM_TASK_ID_CLOUD_MGR);
 
         switch(ipc_msg.opcode)
         {
 
         default :
-            printf(" INFO : Rcvd unknown IPC opcode in cloud task : %d \n", p_ipc_msg->opcode);
+            printf(" INFO : Rcvd unknown IPC opcode in cloud task : %d \n", ipc_msg.opcode);
             break;
         }
-
-        icom_free_ipc_buffer(p_ipc_msg);
 
         vTaskDelay(100);
 
