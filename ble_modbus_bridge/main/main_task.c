@@ -19,6 +19,7 @@
 #include "icom_ipc.h"
 #include "icom_gpio.h"
 #include "icom_task.h"
+#include "icom_timer_api.h"
 
 typedef struct {
     int handle;
@@ -42,7 +43,7 @@ extern void icom_modbus_task(void *param);
 extern void icom_init_config_subsys(void);
 extern void icom_init_station_cfg(void);
 
-int icom_healthping_timer_callback(void *)
+int icom_healthping_timer_callback(void *p_arg)
 {
     printf(" INFO : PING Timer fired \n");
     return (0);
@@ -55,9 +56,10 @@ int icom_main_task_init()
         printf(" ERROR : Cannot create timer in main-task \n");
         return (1);
     }
-
-    printf(" INFO : Created and started Ping timer \n");
-    icom_start_timer(p_main_task_timer, 5, 1);
+    
+    printf(" INFO : Created and started Ping timer : %p \n", icom_healthping_timer_callback);
+    printf(" INFO : Ping timer address : %p \n", &icom_healthping_timer_callback);
+    icom_start_timer(p_main_task_timer, 10, 1);
 
     return (0);
 }

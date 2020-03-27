@@ -213,7 +213,7 @@ void icom_init_config_subsys()
 
     err = nvs_flash_init();
 
-    populate_dummy_cfg();
+//    populate_dummy_cfg();
 
 #if 0
 
