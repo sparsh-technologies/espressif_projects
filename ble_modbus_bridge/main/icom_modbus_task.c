@@ -33,10 +33,21 @@
 #include "icom_task.h"
 #include "modbus.h"
 
+#define MODBUS_TTY_PORT         "/dev/uart/2"
+
 static modbus_t          *p_modbus_rtu_ctx = NULL;
 static ICOM_TIMER_HNDL   *p_modbus_rtu_client_timer = NULL;
 static unsigned char     modbus_client_connect_flag = 0;
 ICOM_MBUS_RT_REG_INFO    mbus_reg_rt_info[MAX_CONFIGURABLE_REGISTERS];
+QueueHandle_t            uart_queue;
+
+uart_config_t uart_config = {
+    .baud_rate = 38400,
+    .data_bits = UART_DATA_8_BITS,
+    .parity    = UART_PARITY_DISABLE,
+    .stop_bits = UART_STOP_BITS_1,
+    .flow_ctrl = UART_HW_FLOWCTRL_DISABLE
+};
 
 int icom_modbus_connect_to_client()
 {
@@ -116,7 +127,16 @@ int icom_create_modbus_rtu_poll_timers()
 
 int icom_modbus_init()
 {
-    p_modbus_rtu_ctx = modbus_new_rtu("/dev/ttyO1", 9600, 'N', 8, 1);
+
+    /*
+     * Install UART driver 
+     */
+
+    uart_param_config(UART_NUM_2, &uart_config);
+    uart_set_pin(UART_NUM_2, 17, 16, ECHO_TEST_RTS, ECHO_TEST_CTS);
+    uart_driver_install(UART_NUM_2, AKBI_UART_BUFFER_SZ, AKBI_UART_BUFFER_SZ, 10, &uart_queue, 0);
+
+    p_modbus_rtu_ctx = modbus_new_rtu(MODBUS_TTY_PORT, 9600, 'N', 8, 1);
     printf(" INFO : MODBUS RTU Context : %p \n", p_modbus_rtu_ctx);
 
     /*
