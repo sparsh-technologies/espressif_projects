@@ -106,7 +106,7 @@ ICOM_TIMER_HNDL *icom_create_timer(unsigned short int timer_id, ICOM_TIMER_CALLB
 
 int icom_start_timer(ICOM_TIMER_HNDL *p_timer, unsigned int timeout, unsigned char repeat_flag)
 {
-    p_timer->timeout = timeout;
+    p_timer->timeout = timeout * 100000;
     p_timer->repeat_flag = repeat_flag;
     ESP_ERROR_CHECK(esp_timer_start_once(p_timer->poll_timer, p_timer->timeout));
     return (0);

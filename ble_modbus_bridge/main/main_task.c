@@ -32,6 +32,8 @@ task_context_t context4={};
 
 TaskHandle_t ble_task, uart_task, cloud_task, modbus_task;
 
+static ICOM_TIMER_HNDL *p_main_task_timer = NULL;
+
 extern void ble_config_task(void *param);
 extern void icom_serial_task(void *param);
 extern void icom_cloud_task(void *param);
@@ -40,12 +42,34 @@ extern void icom_modbus_task(void *param);
 extern void icom_init_config_subsys(void);
 extern void icom_init_station_cfg(void);
 
+int icom_healthping_timer_callback(void *)
+{
+    printf(" INFO : PING Timer fired \n");
+    return (0);
+}
+
+int icom_main_task_init()
+{
+    p_main_task_timer = icom_create_timer(HEALTH_PING_TIMER_ID, icom_healthping_timer_callback);
+    if (p_main_task_timer == NULL) {
+        printf(" ERROR : Cannot create timer in main-task \n");
+        return (1);
+    }
+
+    printf(" INFO : Created and started Ping timer \n");
+    icom_start_timer(p_main_task_timer, 5, 1);
+
+    return (0);
+}
+
 void app_main(void)
 {
 
     printf(" INFO : Starting Main Task \n");
 
     icom_create_task_queue(ICOM_TASK_ID_MAIN);
+
+    icom_main_task_init();
 
     /*
      * Initializing IPC subsystem
