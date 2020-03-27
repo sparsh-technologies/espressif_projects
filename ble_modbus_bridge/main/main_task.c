@@ -12,6 +12,7 @@
  */
 
 #include <stdio.h>
+#include <string.h>
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
 #include "esp_system.h"
@@ -45,21 +46,13 @@ extern void icom_init_station_cfg(void);
 
 int icom_healthping_timer_callback(void *p_arg)
 {
-    ICOM_IPC_MSG    *p_ipc_msg = NULL;
+    ICOM_IPC_MSG    ipc_msg;
 
     printf(" INFO : PING Timer fired \n");
 
-    p_ipc_msg = icom_alloc_ipc_buffer();
-    if (p_ipc_msg == NULL) {
-        printf(" ERROR : No IPC block for sending ping message \n");
-        return (1);
-    }
-
-    printf(" INFO : Sending IPC block : %p \n", p_ipc_msg);
-
-    p_ipc_msg->opcode = IPC_OPCODE_PING;
-
-    icom_send_ipc_buffer(ICOM_TASK_ID_CLOUD_MGR , p_ipc_msg);
+    memset(&ipc_msg, 0x00, sizeof(ICOM_IPC_MSG));
+    ipc_msg.opcode = IPC_OPCODE_PING;
+    icom_send_ipc_buffer(ICOM_TASK_ID_CLOUD_MGR , &ipc_msg);
 
     return (0);
 }

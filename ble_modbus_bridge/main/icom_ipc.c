@@ -158,7 +158,7 @@ int icom_recv_ipc_buffer(ICOM_IPC_MSG *p_ipc_msg, int task_id)
 
     if (task_id == ICOM_TASK_ID_MAIN) {
 
-        if (pdTRUE == xQueueReceive(main_task_queue, &msg_address,
+        if (pdPASS != xQueueReceive(main_task_queue, &msg_address,
                                     (portTickType)portMAX_DELAY)) {
             printf(" ERROR : xQueue receive failed in Main task \n");
             return (1);
@@ -166,7 +166,7 @@ int icom_recv_ipc_buffer(ICOM_IPC_MSG *p_ipc_msg, int task_id)
 
     } else if (task_id == ICOM_TASK_ID_BLE_MGR ) {
 
-        if (pdTRUE == xQueueReceive(ble_config_task_queue, &msg_address,
+        if (pdPASS != xQueueReceive(ble_config_task_queue, &msg_address,
                                     (portTickType)portMAX_DELAY)) {
             printf(" ERROR : xQueue receive failed in BLE task \n");
             return (1);
@@ -174,7 +174,7 @@ int icom_recv_ipc_buffer(ICOM_IPC_MSG *p_ipc_msg, int task_id)
 
     } else if (task_id == ICOM_TASK_ID_MODBUS_MGR ) {
 
-        if (pdTRUE == xQueueReceive(icom_modbus_task_queue, &msg_address,
+        if (pdPASS != xQueueReceive(icom_modbus_task_queue, &msg_address,
                                     (portTickType)portMAX_DELAY)) {
             printf(" ERROR : xQueue receive failed in Modbus task \n");
             return (1);
@@ -182,14 +182,15 @@ int icom_recv_ipc_buffer(ICOM_IPC_MSG *p_ipc_msg, int task_id)
 
     } else if (task_id == ICOM_TASK_ID_CLOUD_MGR ) {
 
-        if (pdTRUE == xQueueReceive(icom_cloud_task_queue, &ipc_msg, 200)) {
+        if (pdPASS != xQueueReceive(icom_cloud_task_queue, p_ipc_msg, 
+                                   (portTickType)portMAX_DELAY)) {
             printf(" ERROR : xQueue receive failed in cloud task \n");
             return (1);
         }
 
     } else if (task_id == ICOM_TASK_ID_SERIAL_MGR ) {
 
-        if (pdTRUE == xQueueReceive(icom_serial_task_queue, &msg_address,
+        if (pdPASS != xQueueReceive(icom_serial_task_queue, &msg_address,
                                    (portTickType)portMAX_DELAY)) {
             printf(" ERROR : xQueue receive failed in serial task \n");
             return (1);
