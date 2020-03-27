@@ -71,7 +71,7 @@ int icom_modbus_client_connect_timer_callback(void *p_arg)
 
 int icom_create_modbus_rtu_poll_timers()
 {
-    int                  modbus_reg_count;
+    int                  modbus_reg_count, i;
     ICOM_MBUS_REG_INFO   *p_mbus_reg;
 
     modbus_reg_count = icom_get_configured_modbus_register_count();
@@ -80,14 +80,14 @@ int icom_create_modbus_rtu_poll_timers()
 
     if (modbus_reg_count > 0) {
 
-        printf(" INFO : Creating %d timers for MODBUS RTU polling \n", modbus_reg_count);a
+        printf(" INFO : Creating %d timers for MODBUS RTU polling \n", modbus_reg_count);
 
         /*
          * Create timers for each and every configured registers. Also, copy relevent
          * information to run-time-db of MODBUS registers.
          */
 
-        for(i=0; i<reg_count; i++) {
+        for(i=0; i < modbus_reg_count; i++) {
 
             p_mbus_reg                      = icom_get_configured_modbus_register(i);
             mbus_reg_rt_info[i].reg_address = p_mbus_reg->reg_address;
@@ -98,7 +98,7 @@ int icom_create_modbus_rtu_poll_timers()
         /*
          * After creating all the timers, now start these timers.
          */
-        for(i=0; i<reg_count; i++) {
+        for(i=0; i<modbus_reg_count; i++) {
 
             p_mbus_reg = icom_get_configured_modbus_register(i);
 
@@ -117,6 +117,7 @@ int icom_create_modbus_rtu_poll_timers()
 int icom_modbus_init()
 {
     p_modbus_rtu_ctx = modbus_new_rtu("/dev/ttyO1", 9600, 'N', 8, 1);
+    printf(" INFO : MODBUS RTU Context : %p \n", p_modbus_rtu_ctx);
 
     /*
      * Now try connecting to the client. If the connection fails, then create a timer
@@ -142,13 +143,12 @@ int icom_modbus_init()
 
 void icom_modbus_task(void *param)
 {
-    int     modbus_reg_count;
 
     printf(" INFO : Starting ICOM-MODBUS task \n");
 
     icom_create_task_queue(ICOM_TASK_ID_MODBUS_MGR);
 
-    icom_modbus_init(modbus_reg_count);
+    icom_modbus_init();
     
     while (1) {
 

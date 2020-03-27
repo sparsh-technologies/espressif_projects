@@ -92,7 +92,7 @@ int icom_ipc_init()
 
 ICOM_IPC_MSG *icom_alloc_ipc_buffer()
 {
-    ICOM_IPC_MSG *p_msg;
+    ICOM_IPC_MSG *p_msg = NULL;
 #if 0
     if (p_ipc_free_pool == NULL) {
         return (NULL);

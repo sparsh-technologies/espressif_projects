@@ -14,13 +14,6 @@ set(COMPONENT_SRCS "bt_app_core.c"
                    "icom_mqtt.c"
                    "icom_gpio.c"
                    "icom_timer_api.c"
-                   "esp_avrc_api.c"
-                   "esp_bt_device.c"
-                   "esp_bt_main.c"
-                   "esp_gap_ble_api.c"
-                   "esp_gap_bt_api.c"
-                   "esp_gatt_common_api.c"
-                   "esp_gatts_api.c"
                    )
 
 set(COMPONENT_ADD_INCLUDEDIRS "."
