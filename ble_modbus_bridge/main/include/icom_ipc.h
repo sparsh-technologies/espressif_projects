@@ -28,6 +28,11 @@ typedef struct _icom_ipc_msg_
 
 } ICOM_IPC_MSG;
 
+/*
+ * Various Opcodes are defined here.
+ */
+#define IPC_OPCODE_PING                                0x01
+
 extern int icom_ipc_init(void);
 extern ICOM_IPC_MSG *icom_alloc_ipc_buffer(void);
 extern void icom_free_ipc_buffer(ICOM_IPC_MSG *p_msg);
