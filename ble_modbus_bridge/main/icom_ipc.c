@@ -33,6 +33,7 @@ static xQueueHandle  icom_serial_task_queue = NULL;
 
 int icom_ipc_init()
 {
+#if 0
     ICOM_IPC_MSG    *p_ipc_msg, *p_prev_ipc_msg;
     unsigned char   *p_payload;
     int             i;
@@ -83,6 +84,7 @@ int icom_ipc_init()
         p_payload           = p_payload + ICOM_IPC_MAX_PAYLOAD_SZ;
         p_ipc_msg++;
     }
+#endif
 
     printf(" INFO : Create MSG and packet buffers successfully \n");
     return (0);
@@ -91,21 +93,24 @@ int icom_ipc_init()
 ICOM_IPC_MSG *icom_alloc_ipc_buffer()
 {
     ICOM_IPC_MSG *p_msg;
-
+#if 0
     if (p_ipc_free_pool == NULL) {
         return (NULL);
     }
 
     p_msg = p_ipc_free_pool;
     p_ipc_free_pool = p_ipc_free_pool->next;
+#endif
 
     return (p_msg);
 }
 
 void icom_free_ipc_buffer(ICOM_IPC_MSG *p_msg)
 {
+#if 0
     p_msg->next =  p_ipc_free_pool;
     p_ipc_free_pool = p_msg;
+#endif
 }
 
 int icom_send_ipc_buffer(int task_id, ICOM_IPC_MSG *p_msg)
