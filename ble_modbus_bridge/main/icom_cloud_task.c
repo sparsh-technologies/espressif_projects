@@ -26,8 +26,9 @@
 #include "tcpip_adapter.h"
 #include "lwip/sockets.h"
 #include "lwip/netdb.h"
-#include "include/peripheral.h"
-#include "include/icom_config.h"
+#include "peripheral.h"
+#include "icom_config.h"
+#include "icom_ipc.h"
 
 void icom_cloud_task(void *param)
 {
