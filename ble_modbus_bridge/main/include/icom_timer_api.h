@@ -23,7 +23,7 @@ typedef struct _icon_timer_hndl_
     unsigned short int    timer_id;
     esp_timer_handle_t    poll_timer;
     unsigned int          timeout;
-    unsigned char         repeat_flag
+    unsigned char         repeat_flag;
     ICOM_TIMER_CALLBACK   *p_callback; 
 
 } ICOM_TIMER_HNDL;
