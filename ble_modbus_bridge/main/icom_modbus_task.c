@@ -29,6 +29,7 @@
 #include "peripheral.h"
 #include "icom_config.h"
 #include "icom_timer_api.h"
+#include "icom_ipc.h"
 
 int icom_modbus_init(int reg_count)
 {

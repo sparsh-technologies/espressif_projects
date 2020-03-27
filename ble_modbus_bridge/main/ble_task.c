@@ -33,6 +33,7 @@
 #include "nvs_flash.h"
 #include "esp_system.h"
 #include "icom_task.h"
+#include "icom_ipc.h"
 
 #if 0
 
