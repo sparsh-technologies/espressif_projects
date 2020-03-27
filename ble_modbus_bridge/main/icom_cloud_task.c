@@ -29,6 +29,7 @@
 #include "peripheral.h"
 #include "icom_config.h"
 #include "icom_ipc.h"
+#include "icom_task.h"
 
 void icom_cloud_task(void *param)
 {
