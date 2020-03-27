@@ -18,6 +18,7 @@
 #include "esp_spi_flash.h"
 #include "icom_ipc.h"
 #include "icom_gpio.h"
+#include "icom_task.h"
 
 typedef struct {
     int handle;
