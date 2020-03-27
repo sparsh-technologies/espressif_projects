@@ -114,8 +114,10 @@ int icom_send_ipc_buffer(int task_id, ICOM_IPC_MSG *p_msg)
 
     msg_address = (unsigned int)p_msg;
 
+
     if (task_id == ICOM_TASK_ID_MAIN) {
 
+        printf(" INFO : Sending Address: %p to Main task \n", msg_address);
         if (xQueueSend(main_task_queue, &msg_address, 10 / portTICK_RATE_MS) != pdTRUE) {
             printf(" ERROR : xQueue send failed");
             return (1);
@@ -123,6 +125,7 @@ int icom_send_ipc_buffer(int task_id, ICOM_IPC_MSG *p_msg)
 
     } else if (task_id == ICOM_TASK_ID_BLE_MGR ) {
 
+        printf(" INFO : Sending Address: %p to BLE task \n", msg_address);
         if (xQueueSend(ble_config_task_queue, &msg_address, 10 / portTICK_RATE_MS) != pdTRUE) {
             printf(" ERROR : xQueue send failed");
             return (1);
@@ -130,6 +133,7 @@ int icom_send_ipc_buffer(int task_id, ICOM_IPC_MSG *p_msg)
 
     } else if (task_id == ICOM_TASK_ID_MODBUS_MGR ) {
 
+        printf(" INFO : Sending Address: %p to Modbus task \n", msg_address);
         if (xQueueSend(icom_modbus_task_queue, &msg_address, 10 / portTICK_RATE_MS) != pdTRUE) {
             printf(" ERROR : xQueue send failed");
             return (1);
@@ -137,6 +141,7 @@ int icom_send_ipc_buffer(int task_id, ICOM_IPC_MSG *p_msg)
 
     } else if (task_id == ICOM_TASK_ID_CLOUD_MGR ) {
 
+        printf(" INFO : Sending Address: %p to Cloud task \n", msg_address);
         if (xQueueSend(icom_cloud_task_queue, &msg_address, 10 / portTICK_RATE_MS) != pdTRUE) {
             printf(" ERROR : xQueue send failed");
             return (1);
@@ -204,22 +209,27 @@ int icom_create_task_queue(int task_id)
     if (task_id == ICOM_TASK_ID_MAIN) {
 
         main_task_queue = xQueueCreate(10, 4);
+        printf(" INFO : Creating Queue : %x for Main task \n", main_task_queue);
 
     } else if (task_id == ICOM_TASK_ID_BLE_MGR ) {
 
         ble_config_task_queue = xQueueCreate(10, 4);
+        printf(" INFO : Creating Queue : %x for BLE task \n", ble_config_task_queue);
 
     } else if (task_id == ICOM_TASK_ID_MODBUS_MGR ) {
 
         icom_modbus_task_queue = xQueueCreate(10, 4);
+        printf(" INFO : Creating Queue : %x for Modbus task \n", icom_modbus_task_queue);
 
     } else if (task_id == ICOM_TASK_ID_CLOUD_MGR ) {
 
         icom_cloud_task_queue = xQueueCreate(10, 4);
+        printf(" INFO : Creating Queue : %x for Cloud task \n", icom_cloud_task_queue);
 
     } else if (task_id == ICOM_TASK_ID_SERIAL_MGR ) {
 
         icom_serial_task_queue = xQueueCreate(10, 4);
+        printf(" INFO : Creating Queue : %x for Serial task \n", icom_serial_task_queue);
 
     }
 

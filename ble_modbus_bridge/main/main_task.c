@@ -55,6 +55,8 @@ int icom_healthping_timer_callback(void *p_arg)
         return (1);
     }
 
+    printf(" INFO : Sending IPC block : %p \n", p_ipc_msg);
+
     p_ipc_msg->opcode = IPC_OPCODE_PING;
 
     icom_send_ipc_buffer(ICOM_TASK_ID_CLOUD_MGR , p_ipc_msg);
