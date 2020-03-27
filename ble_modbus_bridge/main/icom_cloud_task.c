@@ -42,14 +42,9 @@ void icom_cloud_task(void *param)
 
     while (1) {
 
-        p_ipc_msg = icom_recv_ipc_buffer(&ipc_msg, ICOM_TASK_ID_CLOUD_MGR);
+        icom_recv_ipc_buffer(&ipc_msg, ICOM_TASK_ID_CLOUD_MGR);
 
-        if (p_ipc_msg == NULL) {
-            vTaskDelay(1000);
-            continue;
-        }
-
-        switch(p_ipc_msg->opcode)
+        switch(ipc_msg.opcode)
         {
 
         default :
