@@ -29,7 +29,15 @@ typedef struct _icom_mbus_reg_info_
     unsigned short int    reg_address;
     unsigned short int    polling_freq_msec;   // Register polling frequency in msec
     esp_timer_handle_t    poll_timer;
+
 } ICOM_MBUS_REG_INFO;
+
+typedef struct _icom_mbus_rt_reg_info_
+{
+    unsigned short int    reg_address;
+    unsigned short int    reg_value;
+
+} ICOM_MBUS_RT_REG_INFO;
 
 #endif
 
