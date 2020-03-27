@@ -209,27 +209,27 @@ int icom_create_task_queue(int task_id)
     if (task_id == ICOM_TASK_ID_MAIN) {
 
         main_task_queue = xQueueCreate(10, 4);
-        printf(" INFO : Creating Queue : %x for Main task \n", main_task_queue);
+        printf(" INFO : Creating Queue : %p for Main task \n", main_task_queue);
 
     } else if (task_id == ICOM_TASK_ID_BLE_MGR ) {
 
         ble_config_task_queue = xQueueCreate(10, 4);
-        printf(" INFO : Creating Queue : %x for BLE task \n", ble_config_task_queue);
+        printf(" INFO : Creating Queue : %p for BLE task \n", ble_config_task_queue);
 
     } else if (task_id == ICOM_TASK_ID_MODBUS_MGR ) {
 
         icom_modbus_task_queue = xQueueCreate(10, 4);
-        printf(" INFO : Creating Queue : %x for Modbus task \n", icom_modbus_task_queue);
+        printf(" INFO : Creating Queue : %p for Modbus task \n", icom_modbus_task_queue);
 
     } else if (task_id == ICOM_TASK_ID_CLOUD_MGR ) {
 
         icom_cloud_task_queue = xQueueCreate(10, 4);
-        printf(" INFO : Creating Queue : %x for Cloud task \n", icom_cloud_task_queue);
+        printf(" INFO : Creating Queue : %p for Cloud task \n", icom_cloud_task_queue);
 
     } else if (task_id == ICOM_TASK_ID_SERIAL_MGR ) {
 
         icom_serial_task_queue = xQueueCreate(10, 4);
-        printf(" INFO : Creating Queue : %x for Serial task \n", icom_serial_task_queue);
+        printf(" INFO : Creating Queue : %p for Serial task \n", icom_serial_task_queue);
 
     }
 
