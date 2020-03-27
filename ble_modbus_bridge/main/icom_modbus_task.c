@@ -33,6 +33,7 @@
 #include "icom_task.h"
 #include "modbus.h"
 
+#define ICOM_UART_BUFFER_SZ     (2 * 1024)
 #define MODBUS_TTY_PORT         "/dev/uart/2"
 
 static modbus_t          *p_modbus_rtu_ctx = NULL;
@@ -41,7 +42,7 @@ static unsigned char     modbus_client_connect_flag = 0;
 ICOM_MBUS_RT_REG_INFO    mbus_reg_rt_info[MAX_CONFIGURABLE_REGISTERS];
 QueueHandle_t            uart_queue;
 
-uart_config_t uart_config = {
+uart_config_t modbus_uart_config = {
     .baud_rate = 38400,
     .data_bits = UART_DATA_8_BITS,
     .parity    = UART_PARITY_DISABLE,
@@ -53,11 +54,12 @@ int icom_modbus_connect_to_client()
 {
     if (modbus_connect(p_modbus_rtu_ctx) == -1) {
     
-        printf(" ERROR : Cannot connect to the client device \n");
+        printf(" MODBUS-TASK : ERROR - Cannot connect to the client device \n");
         return (1);
     }
 
     modbus_client_connect_flag = 1;
+    printf(" MODBUS-TASK : Connected to MODBUS-RTU port \n");
 
     return (0);
 }
@@ -67,6 +69,7 @@ int icom_modbus_client_connect_timer_callback(void *p_arg)
     ICOM_TIMER_HNDL    *p_timer;
 
     p_timer = (ICOM_TIMER_HNDL *)p_arg;
+    printf(" MODBUS-TASK : ERROR - Cannot connect to the client device \n");
 
     /*
      * Try connecting to the client. If it succeeds, then we can delete the timer. If not,
@@ -87,7 +90,7 @@ int icom_create_modbus_rtu_poll_timers()
 
     modbus_reg_count = icom_get_configured_modbus_register_count();
 
-    printf(" INFO : Creating MODBUS RTU polling timers \n");
+    printf(" MODBUS-TASK :  Creating MODBUS RTU polling timers \n");
 
     if (modbus_reg_count > 0) {
 
@@ -132,12 +135,12 @@ int icom_modbus_init()
      * Install UART driver 
      */
 
-    uart_param_config(UART_NUM_2, &uart_config);
+    uart_param_config(UART_NUM_2, &modbus_uart_config);
     uart_set_pin(UART_NUM_2, 17, 16, ECHO_TEST_RTS, ECHO_TEST_CTS);
-    uart_driver_install(UART_NUM_2, AKBI_UART_BUFFER_SZ, AKBI_UART_BUFFER_SZ, 10, &uart_queue, 0);
+    uart_driver_install(UART_NUM_2, ICOM_UART_BUFFER_SZ, ICOM_UART_BUFFER_SZ, 10, &uart_queue, 0);
 
     p_modbus_rtu_ctx = modbus_new_rtu(MODBUS_TTY_PORT, 9600, 'N', 8, 1);
-    printf(" INFO : MODBUS RTU Context : %p \n", p_modbus_rtu_ctx);
+    printf(" MODBUS-TASK : MODBUS RTU Context : %p \n", p_modbus_rtu_ctx);
 
     /*
      * Now try connecting to the client. If the connection fails, then create a timer
@@ -164,12 +167,14 @@ int icom_modbus_init()
 void icom_modbus_task(void *param)
 {
 
-    printf(" INFO : Starting ICOM-MODBUS task \n");
+    printf(" MODBUS-TASK :  Starting ICOM-MODBUS task \n");
 
     icom_create_task_queue(ICOM_TASK_ID_MODBUS_MGR);
 
     icom_modbus_init();
     
+    icom_create_modbus_rtu_poll_timers();
+
     while (1) {
 
         vTaskDelay(100);

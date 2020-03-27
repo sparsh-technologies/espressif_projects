@@ -43,6 +43,7 @@ static void modbus_polling_timer_callback(void* arg)
 {
     ICOM_MBUS_REG_INFO *p_mbus_reg_info;
 
+    printf(" MODBUS-POLL : Invoked MODBUS polling callback \n");
     p_mbus_reg_info = (ICOM_MBUS_REG_INFO *)arg;
     icom_start_modbus_register_poll_timer(p_mbus_reg_info);
 

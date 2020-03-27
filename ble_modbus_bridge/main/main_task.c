@@ -67,7 +67,7 @@ int icom_main_task_init()
     
     printf(" INFO : Created and started Ping timer : %p \n", icom_healthping_timer_callback);
     printf(" INFO : Ping timer address : %p \n", &icom_healthping_timer_callback);
-    icom_start_timer(p_main_task_timer, 10, 1);
+    icom_start_timer(p_main_task_timer, 30, 1);
 
     return (0);
 }
@@ -98,7 +98,7 @@ void app_main(void)
      */
 
     xTaskCreate(ble_config_task, "BLE Task", 4*1024, &context1, 0, &ble_task);
-    xTaskCreate(icom_serial_task, "Serial Port Task", 4*1024, &context2, 0, &uart_task);
+//    xTaskCreate(icom_serial_task, "Serial Port Task", 4*1024, &context2, 0, &uart_task);
     xTaskCreate(icom_cloud_task, "Cloud Task", 8*1024, &context3, 0, &cloud_task);
     xTaskCreate(icom_modbus_task, "MODBUS RTU Task", 4*1024, &context4, 0, &modbus_task);
 
