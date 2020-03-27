@@ -21,8 +21,8 @@
 #include "freertos/task.h"
 #include "esp_log.h"
 #include "esp_vfs.h"
-#include "include/icom_ipc.h"
-#include "include/icom_task.h"
+#include "icom_ipc.h"
+#include "icom_task.h"
 
 static ICOM_IPC_MSG  *p_ipc_free_pool       = NULL;
 static xQueueHandle  main_task_queue        = NULL;
