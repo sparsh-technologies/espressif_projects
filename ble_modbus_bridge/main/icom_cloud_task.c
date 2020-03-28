@@ -27,6 +27,8 @@
 #include "lwip/sockets.h"
 #include "lwip/netdb.h"
 #include "peripheral.h"
+#include "icom_timer_api.h"
+#include "icom_modbus.h"
 #include "icom_config.h"
 #include "icom_ipc.h"
 #include "icom_task.h"

@@ -31,8 +31,6 @@ typedef struct _icon_timer_hndl_
 
 extern ICOM_TIMER_HNDL *icom_create_timer(unsigned short int timer_id, ICOM_TIMER_CALLBACK *p);
 extern int icom_start_timer(ICOM_TIMER_HNDL *p_timer, unsigned int timeout, unsigned char repeat);
-extern void icom_create_modbus_register_poll_timer(ICOM_MBUS_REG_INFO *p_mbus_reg_info);
-extern void icom_start_modbus_register_poll_timer(ICOM_MBUS_REG_INFO *p_mbus_reg_info);
 
 #endif
 

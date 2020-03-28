@@ -47,11 +47,11 @@ void populate_dummy_cfg()
 
         p_mbus_reg->reg_type = 0x01;
         p_mbus_reg->reg_address = i;
-        p_mbus_reg->polling_freq_msec = 5000;
+        p_mbus_reg->polling_freq_sec = 5;
 
         printf(" Reg Type      : %d \n", p_mbus_reg->reg_type);
         printf(" Reg Address   : %d \n", p_mbus_reg->reg_address);
-        printf(" Polling Time  : %d \n", p_mbus_reg->polling_freq_msec);
+        printf(" Polling Time  : %d \n", p_mbus_reg->polling_freq_sec);
 
     }
 
@@ -191,7 +191,7 @@ esp_err_t icom_read_mbus_reg_config(void)
             p_mbus_reg = &(p_mbus_cfg->mbus_reg[i]);
             printf(" Reg Type      : %d \n", p_mbus_reg->reg_type);
             printf(" Reg Address   : %d \n", p_mbus_reg->reg_address);
-            printf(" Polling Time  : %d \n", p_mbus_reg->polling_freq_msec);
+            printf(" Polling Time  : %d \n", p_mbus_reg->polling_freq_sec);
 
         }
 
