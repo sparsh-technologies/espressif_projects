@@ -28,56 +28,29 @@ void icom_start_modbus_register_poll_timer(ICOM_MBUS_REG_INFO *p_mbus_reg_info);
 
 static void modbus_polling_timer_callback(void* arg);
 static void generic_polling_timer_callback(void* arg);
-#if 0
-esp_timer_create_args_t modbus_timer_args = {
-    .callback = &modbus_polling_timer_callback,
-    .name = "modbus-one-shot"
-};
-#endif
+
 esp_timer_create_args_t generic_timer_args = {
     .callback = &generic_polling_timer_callback,
-    .name = "modbus-one-shot"
+    .name = "icom-one-shot"
 };
-
-#if 0
-static void modbus_polling_timer_callback(void* arg)
-{
-    ICOM_MBUS_REG_INFO *p_mbus_reg_info;
-
-    printf(" MODBUS-POLL : Invoked MODBUS polling callback \n");
-    p_mbus_reg_info = (ICOM_MBUS_REG_INFO *)arg;
-    icom_start_modbus_register_poll_timer(p_mbus_reg_info);
-
-}
-#endif
 
 static void generic_polling_timer_callback(void* arg)
 {
     ICOM_TIMER_HNDL *p_timer_hndl;
 
     p_timer_hndl = (ICOM_TIMER_HNDL *)arg;
+    if (p_timer_hndl == NULL)
+        return;
 
-    (p_timer_hndl->p_callback)(p_timer_hndl);
+    (p_timer_hndl->p_callback)(p_icom_timer_hndl->p_callback_context);
 
     if (p_timer_hndl->repeat_flag)
         icom_start_timer(p_timer_hndl, p_timer_hndl->timeout, p_timer_hndl->repeat_flag);
 
 }
 
-#if 0
-void icom_create_modbus_register_poll_timer(ICOM_MBUS_REG_INFO *p_mbus_reg_info)
-{
-    modbus_timer_args.arg = p_mbus_reg_info;
-    ESP_ERROR_CHECK(esp_timer_create(&modbus_timer_args, &p_mbus_reg_info->poll_timer));
-}
-
-void icom_start_modbus_register_poll_timer(ICOM_MBUS_REG_INFO *p_mbus_reg_info)
-{
-    ESP_ERROR_CHECK(esp_timer_start_once(p_mbus_reg_info->poll_timer, TIMER_FREQUENCY));
-}
-#endif
-
-ICOM_TIMER_HNDL *icom_create_timer(unsigned short int timer_id, ICOM_TIMER_CALLBACK *p_callback)
+ICOM_TIMER_HNDL *icom_create_timer(unsigned short int timer_id, ICOM_TIMER_CALLBACK *p_callback,
+                                   void *p_callback_ctx)
 {
     ICOM_TIMER_HNDL *p_icom_timer_hndl = NULL;
 
@@ -86,9 +59,10 @@ ICOM_TIMER_HNDL *icom_create_timer(unsigned short int timer_id, ICOM_TIMER_CALLB
         return (NULL);
     }
 
-    p_icom_timer_hndl->timer_id   = timer_id;
-    p_icom_timer_hndl->p_callback = p_callback;
-    generic_timer_args.arg = p_icom_timer_hndl;
+    p_icom_timer_hndl->timer_id           = timer_id;
+    p_icom_timer_hndl->p_callback         = p_callback;
+    p_icom_timer_hndl->p_callback_context = p_callback_ctx;
+    generic_timer_args.arg                = p_icom_timer_hndl;
     ESP_ERROR_CHECK(esp_timer_create(&generic_timer_args, &p_icom_timer_hndl->poll_timer));
 
     return (p_icom_timer_hndl);

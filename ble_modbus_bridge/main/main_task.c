@@ -59,7 +59,8 @@ int icom_healthping_timer_callback(void *p_arg)
 
 int icom_main_task_init()
 {
-    p_main_task_timer = icom_create_timer(HEALTH_PING_TIMER_ID, icom_healthping_timer_callback);
+    p_main_task_timer = icom_create_timer(HEALTH_PING_TIMER_ID, 
+                                          icom_healthping_timer_callback, NULL);
     if (p_main_task_timer == NULL) {
         printf(" ERROR : Cannot create timer in main-task \n");
         return (1);

@@ -33,8 +33,9 @@
 #include "icom_task.h"
 #include "modbus.h"
 
-#define ICOM_UART_BUFFER_SZ     (2 * 1024)
-#define MODBUS_TTY_PORT         "/dev/uart/2"
+#define ICOM_UART_BUFFER_SZ                 (2 * 1024)
+#define MODBUS_TTY_PORT                     "/dev/uart/2"
+#define ICOM_MODBUS_REG_COUNT               1
 
 static modbus_t          *p_modbus_rtu_ctx = NULL;
 static ICOM_TIMER_HNDL   *p_modbus_rtu_client_timer = NULL;
@@ -85,7 +86,76 @@ int icom_modbus_client_connect_timer_callback(void *p_arg)
 
 int icom_modbus_rtu_reg_poll_callback(void *p_arg)
 {
+    int                    reg_count ;
+    ICOM_MBUS_REG_INFO     *p_mbus_conf_reg = NULL;
+    ICOM_MBUS_RT_REG_INFO  *p_mbus_rt_reg = NULL;
+
     printf(" MODBUS-TIMER : Invoked MODBUS polling timer routine \n");
+
+    p_mbus_rt_reg = (ICOM_MBUS_RT_REG_INFO *)p_arg;
+    if (p_mbus_rt_reg == NULL) {
+        printf(" ERROR : Cannot find a valid RT info \n");
+        return (1);
+    }
+
+    p_mbus_conf_reg = p_mbus_rt_reg->p_mbus_conf_reg;
+    if (p_mbus_conf_reg == NULL) {
+        printf(" ERROR : Cannot find a valid CFG info \n");
+        return (2);
+    }
+
+    /*
+     * Now based on what type of register it is, we need to read the data from the 
+     * MODBUS client.
+     */
+
+    switch(p_mbus_conf_reg->reg_type) {
+
+    case ICOM_MBUS_COIL_STATUS_REG :
+
+        reg_count = modbus_read_bits(p_modbus_rtu_ctx, 
+                                     p_mbus_conf_reg->reg_address, 
+                                     ICOM_MODBUS_REG_COUNT, 
+                                     &(p_mbus_rt_reg->reg_bits));
+
+        if (reg_count != ICOM_MODBUS_REG_COUNT) {
+            printf(" ERROR : Failed to read COIL Registers \n");
+        }
+
+    case ICOM_MBUS_INPUT_STATUS_REG :
+
+        reg_count = modbus_read_input_bits(p_modbus_rtu_ctx, 
+                                           p_mbus_conf_reg->reg_address, 
+                                           ICOM_MODBUS_REG_COUNT, 
+                                           &(p_mbus_rt_reg->reg_bits));
+
+        if (reg_count != ICOM_MODBUS_REG_COUNT) {
+            printf(" ERROR : Failed to read STATUS Registers \n");
+        }
+
+    case ICOM_MBUS_HOLDING_REG :
+
+        reg_count = modbus_read_registers(p_modbus_rtu_ctx, p_mbus_conf_reg->reg_address, 
+                                          ICOM_MODBUS_REG_COUNT, 
+                                          &(p_mbus_rt_reg->reg_value));
+
+        if (reg_count != ICOM_MODBUS_REG_COUNT) {
+            printf(" ERROR : Failed to read HOLDING Registers \n");
+        }
+        break;
+
+    case ICOM_MBUS_INPUT_REG :
+
+        reg_count = modbus_read_input_registers(p_modbus_rtu_ctx, 
+                                                p_mbus_conf_reg->reg_address, 
+                                                ICOM_MODBUS_REG_COUNT, 
+                                                &(p_mbus_rt_reg->reg_value));
+
+        if (reg_count != ICOM_MODBUS_REG_COUNT) {
+            printf(" ERROR : Failed to read INPUT Registers \n");
+        }
+        break;
+
     return (0);
 }
 
@@ -109,13 +179,12 @@ int icom_create_modbus_rtu_poll_timers()
 
         for(i=0; i < modbus_reg_count; i++) {
 
-            p_mbus_reg                      = icom_get_configured_modbus_register(i);
-            mbus_reg_rt_info[i].reg_address = p_mbus_reg->reg_address;
-
-//            icom_create_modbus_register_poll_timer(p_mbus_reg);
-//            icom_start_modbus_register_poll_timer(p_mbus_reg);
-            mbus_reg_rt_info[i].timer_handle = icom_create_timer(HEALTH_PING_TIMER_ID, 
-                                                                 icom_modbus_rtu_reg_poll_callback);
+            p_mbus_reg                          = icom_get_configured_modbus_register(i);
+            mbus_reg_rt_info[i].reg_address     = p_mbus_reg->reg_address;
+            mbus_reg_rt_info[i].p_mbus_conf_reg = p_mbus_reg;
+            mbus_reg_rt_info[i].timer_handle    = icom_create_timer(HEALTH_PING_TIMER_ID, 
+                                                                    icom_modbus_rtu_reg_poll_callback,
+                                                                    &mbus_reg_rt_info[i]);
 
             /*
              * If the timer has been registered successfully, then start the timer now.

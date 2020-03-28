@@ -36,8 +36,10 @@ typedef struct _icom_mbus_reg_info_
 typedef struct _icom_mbus_rt_reg_info_
 {
     unsigned short int    reg_address;
+    unsigned char         reg_bits;
     unsigned short int    reg_value;
     ICOM_TIMER_HNDL       *timer_handle;  
+    ICOM_MBUS_REG_INFO    *p_mbus_conf_reg;
 
 } ICOM_MBUS_RT_REG_INFO;
 
