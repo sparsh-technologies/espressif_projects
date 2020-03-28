@@ -32,6 +32,7 @@
 #include "icom_ipc.h"
 #include "icom_task.h"
 #include "modbus.h"
+#include "modbus-private.h"
 
 #define ICOM_UART_BUFFER_SZ                 (2 * 1024)
 #define MODBUS_TTY_PORT                     "/dev/uart/2"
@@ -108,11 +109,11 @@ int icom_modbus_rtu_reg_poll_callback(void *p_arg)
      * Now based on what type of register it is, we need to read the data from the 
      * MODBUS client.
      */
-
+#if 1
     switch(p_mbus_conf_reg->reg_type) {
 
     case ICOM_MBUS_COIL_STATUS_REG :
-
+        printf(" INFO : Performing COIL Read \n");
         reg_count = modbus_read_bits(p_modbus_rtu_ctx, 
                                      p_mbus_conf_reg->reg_address, 
                                      ICOM_MODBUS_REG_COUNT, 
@@ -123,7 +124,7 @@ int icom_modbus_rtu_reg_poll_callback(void *p_arg)
         }
 
     case ICOM_MBUS_INPUT_STATUS_REG :
-
+        printf(" INFO : Performing STATUS Read \n");
         reg_count = modbus_read_input_bits(p_modbus_rtu_ctx, 
                                            p_mbus_conf_reg->reg_address, 
                                            ICOM_MODBUS_REG_COUNT, 
@@ -134,7 +135,7 @@ int icom_modbus_rtu_reg_poll_callback(void *p_arg)
         }
 
     case ICOM_MBUS_HOLDING_REG :
-
+        printf(" INFO : Performing HOLDING Read \n");
         reg_count = modbus_read_registers(p_modbus_rtu_ctx, p_mbus_conf_reg->reg_address, 
                                           ICOM_MODBUS_REG_COUNT, 
                                           &(p_mbus_rt_reg->reg_value));
@@ -145,7 +146,7 @@ int icom_modbus_rtu_reg_poll_callback(void *p_arg)
         break;
 
     case ICOM_MBUS_INPUT_REG :
-
+        printf(" INFO : Performing INPUT Read \n");
         reg_count = modbus_read_input_registers(p_modbus_rtu_ctx, 
                                                 p_mbus_conf_reg->reg_address, 
                                                 ICOM_MODBUS_REG_COUNT, 
@@ -155,7 +156,8 @@ int icom_modbus_rtu_reg_poll_callback(void *p_arg)
             printf(" ERROR : Failed to read INPUT Registers \n");
         }
         break;
-
+    }
+#endif
     return (0);
 }
 
@@ -202,20 +204,28 @@ int icom_create_modbus_rtu_poll_timers()
     return (0);
 }
 
+int icom_open_modbus_port(modbus_t *p_ctx)
+{
+    uart_param_config(UART_NUM_2, &modbus_uart_config);
+    uart_set_pin(UART_NUM_2, 17, 16, ECHO_TEST_RTS, ECHO_TEST_CTS);
+    uart_driver_install(UART_NUM_2, ICOM_UART_BUFFER_SZ, ICOM_UART_BUFFER_SZ, 10, &uart_queue, 0);
+
+    if ((p_ctx->s = open(MODBUS_TTY_PORT, O_RDWR | O_NONBLOCK)) == -1) {
+        printf(" ERROR : Cannot open UART1");
+        return (1);
+    }
+
+    printf(" MODBUS-TASK : Opened serial port successfully. FD(%d) \n", p_ctx->s);
+    esp_vfs_dev_uart_use_driver(2);
+    return (0);
+}
+
 /*
  * API to initialize the MODBUS module
  */
 
 int icom_modbus_init()
 {
-
-    /*
-     * Install UART driver 
-     */
-
-    uart_param_config(UART_NUM_2, &modbus_uart_config);
-    uart_set_pin(UART_NUM_2, 17, 16, ECHO_TEST_RTS, ECHO_TEST_CTS);
-    uart_driver_install(UART_NUM_2, ICOM_UART_BUFFER_SZ, ICOM_UART_BUFFER_SZ, 10, &uart_queue, 0);
 
     p_modbus_rtu_ctx = modbus_new_rtu(MODBUS_TTY_PORT, 9600, 'N', 8, 1);
     printf(" MODBUS-TASK : MODBUS RTU Context : %p \n", p_modbus_rtu_ctx);
@@ -228,7 +238,8 @@ int icom_modbus_init()
     if (icom_modbus_connect_to_client() != 0) {
 
         p_modbus_rtu_client_timer = icom_create_timer(HEALTH_PING_TIMER_ID, 
-                                                      icom_modbus_client_connect_timer_callback);
+                                                      icom_modbus_client_connect_timer_callback,
+                                                      NULL);
         if (p_modbus_rtu_client_timer == NULL) {
             printf(" ERROR : Cannot create modbus-client-connect timer \n");
             return (1);

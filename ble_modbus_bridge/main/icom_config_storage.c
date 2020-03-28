@@ -45,7 +45,7 @@ void populate_dummy_cfg()
 
         p_mbus_reg = &(p_mbus_cfg->mbus_reg[i]);
 
-        p_mbus_reg->reg_type = 0x01;
+        p_mbus_reg->reg_type = 0x03;
         p_mbus_reg->reg_address = i;
         p_mbus_reg->polling_freq_sec = 5;
 

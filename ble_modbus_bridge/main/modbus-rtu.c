@@ -22,6 +22,8 @@
 #include "include/modbus-rtu.h"
 #include "include/modbus-rtu-private.h"
 
+extern int icom_open_modbus_port(modbus_t *p_ctx);
+
 /* Table of CRC values for high-order byte */
 static const uint8_t table_crc_hi[] = {
     0x00, 0xC1, 0x81, 0x40, 0x01, 0xC0, 0x80, 0x41, 0x01, 0xC0,
@@ -276,6 +278,13 @@ static int _modbus_rtu_connect(modbus_t *ctx)
                ctx_rtu->device, ctx_rtu->baud, ctx_rtu->parity,
                ctx_rtu->data_bit, ctx_rtu->stop_bit);
     }
+
+    /*
+     * For ESP32 platform, do the following open here.
+     */
+    icom_open_modbus_port(ctx);
+
+#if 0
 
 #if defined(_WIN32)
 
@@ -603,7 +612,7 @@ static int _modbus_rtu_connect(modbus_t *ctx)
         return -1;
     }
 #endif
-
+#endif
     return 0;
 }
 
