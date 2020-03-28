@@ -14,8 +14,6 @@
 #ifndef _ICOM_TIMER_API_H_
 #define _ICOM_TIMER_API_H_
 
-#include "icom_modbus.h"
-
 typedef int    (* ICOM_TIMER_CALLBACK)(void *p);
 
 typedef struct _icon_timer_hndl_
