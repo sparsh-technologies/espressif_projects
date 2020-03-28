@@ -15,6 +15,7 @@
 #define _ICOM_MODBUS_H_
 
 #include "esp_timer.h"
+#include "icom_timer_api.h"
 
 #define ICOM_MBUS_COIL_STATUS_REG                      0x01
 #define ICOM_MBUS_INPUT_STATUS_REG                     0x02
@@ -27,7 +28,7 @@ typedef struct _icom_mbus_reg_info_
 {
     unsigned char         reg_type;            // Specify as Coil, Input status or holding reg
     unsigned short int    reg_address;
-    unsigned short int    polling_freq_msec;   // Register polling frequency in msec
+    unsigned short int    polling_freq_sec;    // Register polling frequency in sec
     esp_timer_handle_t    poll_timer;
 
 } ICOM_MBUS_REG_INFO;
@@ -36,6 +37,7 @@ typedef struct _icom_mbus_rt_reg_info_
 {
     unsigned short int    reg_address;
     unsigned short int    reg_value;
+    ICOM_TIMER_HNDL       *timer_handle;  
 
 } ICOM_MBUS_RT_REG_INFO;
 

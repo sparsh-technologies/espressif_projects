@@ -83,6 +83,12 @@ int icom_modbus_client_connect_timer_callback(void *p_arg)
     return (0);
 }
 
+int icom_modbus_rtu_reg_poll_callback(void *p_arg)
+{
+    printf(" MODBUS-TIMER : Invoked MODBUS polling timer routine \n");
+    return (0);
+}
+
 int icom_create_modbus_rtu_poll_timers()
 {
     int                  modbus_reg_count, i;
@@ -106,17 +112,20 @@ int icom_create_modbus_rtu_poll_timers()
             p_mbus_reg                      = icom_get_configured_modbus_register(i);
             mbus_reg_rt_info[i].reg_address = p_mbus_reg->reg_address;
 
-            icom_create_modbus_register_poll_timer(p_mbus_reg);
-        }
+//            icom_create_modbus_register_poll_timer(p_mbus_reg);
+//            icom_start_modbus_register_poll_timer(p_mbus_reg);
+            mbus_reg_rt_info[i].timer_handle = icom_create_timer(HEALTH_PING_TIMER_ID, 
+                                                                 icom_modbus_rtu_reg_poll_callback);
 
-        /*
-         * After creating all the timers, now start these timers.
-         */
-        for(i=0; i<modbus_reg_count; i++) {
+            /*
+             * If the timer has been registered successfully, then start the timer now.
+             */
+            if (mbus_reg_rt_info[i].timer_handle != NULL) {
 
-            p_mbus_reg = icom_get_configured_modbus_register(i);
+                icom_start_timer(mbus_reg_rt_info[i].timer_handle, 
+                                 p_mbus_reg->polling_freq_sec, 1);
 
-            icom_start_modbus_register_poll_timer(p_mbus_reg);
+            }
         }
 
     }

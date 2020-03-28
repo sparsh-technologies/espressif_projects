@@ -28,17 +28,18 @@ void icom_start_modbus_register_poll_timer(ICOM_MBUS_REG_INFO *p_mbus_reg_info);
 
 static void modbus_polling_timer_callback(void* arg);
 static void generic_polling_timer_callback(void* arg);
-
+#if 0
 esp_timer_create_args_t modbus_timer_args = {
     .callback = &modbus_polling_timer_callback,
     .name = "modbus-one-shot"
 };
-
+#endif
 esp_timer_create_args_t generic_timer_args = {
     .callback = &generic_polling_timer_callback,
     .name = "modbus-one-shot"
 };
 
+#if 0
 static void modbus_polling_timer_callback(void* arg)
 {
     ICOM_MBUS_REG_INFO *p_mbus_reg_info;
@@ -48,6 +49,7 @@ static void modbus_polling_timer_callback(void* arg)
     icom_start_modbus_register_poll_timer(p_mbus_reg_info);
 
 }
+#endif
 
 static void generic_polling_timer_callback(void* arg)
 {
@@ -62,6 +64,7 @@ static void generic_polling_timer_callback(void* arg)
 
 }
 
+#if 0
 void icom_create_modbus_register_poll_timer(ICOM_MBUS_REG_INFO *p_mbus_reg_info)
 {
     modbus_timer_args.arg = p_mbus_reg_info;
@@ -72,6 +75,7 @@ void icom_start_modbus_register_poll_timer(ICOM_MBUS_REG_INFO *p_mbus_reg_info)
 {
     ESP_ERROR_CHECK(esp_timer_start_once(p_mbus_reg_info->poll_timer, TIMER_FREQUENCY));
 }
+#endif
 
 ICOM_TIMER_HNDL *icom_create_timer(unsigned short int timer_id, ICOM_TIMER_CALLBACK *p_callback)
 {
