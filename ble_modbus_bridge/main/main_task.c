@@ -43,6 +43,7 @@ extern void icom_modbus_task(void *param);
 
 extern void icom_init_config_subsys(void);
 extern void icom_init_station_cfg(void);
+extern void icom_bt_init(void);
 
 int icom_healthping_timer_callback(void *p_arg)
 {
@@ -86,6 +87,8 @@ void app_main(void)
      * Initializing IPC subsystem
      */
     icom_ipc_init();
+
+    icom_bt_init();
 
 //    icom_configure_gpio_port();
 

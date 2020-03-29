@@ -14,6 +14,8 @@ set(COMPONENT_SRCS "bt_app_core.c"
                    "icom_mqtt.c"
                    "icom_gpio.c"
                    "icom_timer_api.c"
+                   "icom_bt.c"
+                   "bt_app_core.c"
                    )
 
 set(COMPONENT_ADD_INCLUDEDIRS "."
