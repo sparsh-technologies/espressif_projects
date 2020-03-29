@@ -43,7 +43,7 @@ int ccu_sent_scan_all_wifi_msg(char *ret_msg);
 
 int ccu_sent_configure_wifi_credentials(unsigned char ap_id, char *p_passwd, int mode);
 
-int ccu_sent_connect_to_wifi();
+int ccu_sent_connect_to_wifi(char * timestamp);
 
 int ccu_sent_disconnect_from_wifi();
 
@@ -63,9 +63,9 @@ int ccu_sent_address_visiting(char *received_value_buffer ,unsigned int total_le
 
 int ccu_sent_store_local_help_number_msg(char *received_value_buffer);
 
-int ccu_sent_activate_system_msg();
+int ccu_sent_activate_system_msg(char *p_latitude, char *p_longitude,char *timestamp, int mode);
 
-int ccu_sent_update_sw_msg();
+int ccu_sent_update_sw_msg(char * timestamp);
 
 int ccu_sent_reboot_ccu_msg();
 

@@ -216,6 +216,10 @@ void akbi_process_rx_serial_data(char *ccu_msg,int length)
         case BT_CP_OPCODE_CID_UPDATE_CCU_SW_STATUS:
             akbi_set_fsm_state(FSM_STATE_FW_UPGRADE_COMPLETE);
             ep_return_message[BLE_RET_MSG_RC_OFFSET] = p_payload[0];
+            if(p_payload[0] == 0x00){
+                ets_delay_us(3000000);
+                abort();
+            }
             break;
 
         case BT_CP_OPCODE_CID_WIFI_SET_MODE_STATUS:
