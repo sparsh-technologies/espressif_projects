@@ -42,7 +42,7 @@ static void generic_polling_timer_callback(void* arg)
     if (p_timer_hndl == NULL)
         return;
 
-    (p_timer_hndl->p_callback)(p_icom_timer_hndl->p_callback_context);
+    (p_timer_hndl->p_callback)(p_timer_hndl->p_callback_context);
 
     if (p_timer_hndl->repeat_flag)
         icom_start_timer(p_timer_hndl, p_timer_hndl->timeout, p_timer_hndl->repeat_flag);
