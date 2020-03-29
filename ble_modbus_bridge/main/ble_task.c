@@ -32,6 +32,8 @@
 #include "nvs.h"
 #include "nvs_flash.h"
 #include "esp_system.h"
+#include "icom_task.h"
+#include "icom_ipc.h"
 
 #if 0
 
@@ -508,6 +510,8 @@ void ble_config_task(void *param)
 {
 
     printf(" INFO : Starting BLE Configuration task \n");
+
+    icom_create_task_queue(ICOM_TASK_ID_BLE_MGR);
 
 #if 0
 

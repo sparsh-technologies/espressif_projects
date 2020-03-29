@@ -19,17 +19,23 @@
 
 typedef struct _icom_ipc_msg_
 {
-    struct _icom_ipc_msg_  *next;
-    unsigned char          sender_id;
-    unsigned char          receiver_id;
+    unsigned char          opcode;
     unsigned char          data_sz;
-    unsigned char          *data_ptr;
+    unsigned char          data[14];
 
 } ICOM_IPC_MSG;
+
+/*
+ * Various Opcodes are defined here.
+ */
+#define IPC_OPCODE_PING                                0x01
 
 extern int icom_ipc_init(void);
 extern ICOM_IPC_MSG *icom_alloc_ipc_buffer(void);
 extern void icom_free_ipc_buffer(ICOM_IPC_MSG *p_msg);
+extern int icom_create_task_queue(int task_id);
+extern int icom_recv_ipc_buffer(ICOM_IPC_MSG *p_ipc_msg, int task_id);
+extern int icom_send_ipc_buffer(int task_id, ICOM_IPC_MSG *p_msg);
 
 #endif
 

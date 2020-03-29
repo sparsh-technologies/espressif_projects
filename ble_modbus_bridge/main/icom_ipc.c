@@ -21,17 +21,19 @@
 #include "freertos/task.h"
 #include "esp_log.h"
 #include "esp_vfs.h"
-#include "include/icom_ipc.h"
-#include "include/icom_task.h"
+#include "icom_ipc.h"
+#include "icom_task.h"
 
 static ICOM_IPC_MSG  *p_ipc_free_pool       = NULL;
 static xQueueHandle  main_task_queue        = NULL;
-static xQueueHandle  cfg_task_queue         = NULL;
+static xQueueHandle  icom_cloud_task_queue       = NULL;
 static xQueueHandle  ble_config_task_queue  = NULL;
 static xQueueHandle  icom_modbus_task_queue = NULL;
+static xQueueHandle  icom_serial_task_queue = NULL;
 
 int icom_ipc_init()
 {
+#if 0
     ICOM_IPC_MSG    *p_ipc_msg, *p_prev_ipc_msg;
     unsigned char   *p_payload;
     int             i;
@@ -82,6 +84,7 @@ int icom_ipc_init()
         p_payload           = p_payload + ICOM_IPC_MAX_PAYLOAD_SZ;
         p_ipc_msg++;
     }
+#endif
 
     printf(" INFO : Create MSG and packet buffers successfully \n");
     return (0);
@@ -89,55 +92,55 @@ int icom_ipc_init()
 
 ICOM_IPC_MSG *icom_alloc_ipc_buffer()
 {
-    ICOM_IPC_MSG *p_msg;
-
+    ICOM_IPC_MSG *p_msg = NULL;
+#if 0
     if (p_ipc_free_pool == NULL) {
         return (NULL);
     }
 
     p_msg = p_ipc_free_pool;
     p_ipc_free_pool = p_ipc_free_pool->next;
+#endif
 
     return (p_msg);
 }
 
 void icom_free_ipc_buffer(ICOM_IPC_MSG *p_msg)
 {
+#if 0
     p_msg->next =  p_ipc_free_pool;
     p_ipc_free_pool = p_msg;
+#endif
 }
 
 int icom_send_ipc_buffer(int task_id, ICOM_IPC_MSG *p_msg)
 {
-    unsigned int    msg_address;
-
-    msg_address = (unsigned int)p_msg;
 
     if (task_id == ICOM_TASK_ID_MAIN) {
 
-        if (xQueueSend(main_task_queue, &msg_address, 10 / portTICK_RATE_MS) != pdTRUE) {
-            printf(" ERROR : xQueue send failed");
+        if (xQueueSend(main_task_queue, p_msg, 100) != pdTRUE) {
+            printf(" ERROR : xQueue send failed \n");
             return (1);
         }
 
     } else if (task_id == ICOM_TASK_ID_BLE_MGR ) {
 
-        if (xQueueSend(ble_config_task_queue, &msg_address, 10 / portTICK_RATE_MS) != pdTRUE) {
-            printf(" ERROR : xQueue send failed");
+        if (xQueueSend(ble_config_task_queue, p_msg, 100) != pdTRUE) {
+            printf(" ERROR : xQueue send failed \n");
             return (1);
         }
 
     } else if (task_id == ICOM_TASK_ID_MODBUS_MGR ) {
 
-        if (xQueueSend(icom_modbus_task_queue, &msg_address, 10 / portTICK_RATE_MS) != pdTRUE) {
-            printf(" ERROR : xQueue send failed");
+        if (xQueueSend(icom_modbus_task_queue, p_msg, 100) != pdTRUE) {
+            printf(" ERROR : xQueue send failed \n");
             return (1);
         }
 
-    } else if (task_id == ICOM_TASK_ID_CFG_MGR ) {
+    } else if (task_id == ICOM_TASK_ID_CLOUD_MGR ) {
 
-        if (xQueueSend(cfg_task_queue, &msg_address, 10 / portTICK_RATE_MS) != pdTRUE) {
-            printf(" ERROR : xQueue send failed");
+        if (xQueueSend(icom_cloud_task_queue, p_msg, 100) != pdTRUE) {
+            printf(" ERROR : xQueue send failed \n");
             return (1);
         }
 
@@ -145,41 +148,54 @@ int icom_send_ipc_buffer(int task_id, ICOM_IPC_MSG *p_msg)
     return (0);
 }
 
-unsigned int icom_recv_ipc_buffer(int task_id)
+int icom_recv_ipc_buffer(ICOM_IPC_MSG *p_ipc_msg, int task_id)
 {
     unsigned int    msg_address;
+    ICOM_IPC_MSG    ipc_msg;
 
     if (task_id == ICOM_TASK_ID_MAIN) {
 
-        if (pdTRUE == xQueueReceive(main_task_queue, &msg_address, (portTickType)portMAX_DELAY)) {
-            printf(" ERROR : xQueue send failed");
-            return (0);
+        if (pdPASS != xQueueReceive(main_task_queue, &msg_address,
+                                    (portTickType)portMAX_DELAY)) {
+            printf(" ERROR : xQueue receive failed in Main task \n");
+            return (1);
         }
 
     } else if (task_id == ICOM_TASK_ID_BLE_MGR ) {
 
-        if (pdTRUE == xQueueReceive(ble_config_task_queue, &msg_address, (portTickType)portMAX_DELAY)) {
-            printf(" ERROR : xQueue send failed");
-            return (0);
+        if (pdPASS != xQueueReceive(ble_config_task_queue, &msg_address,
+                                    (portTickType)portMAX_DELAY)) {
+            printf(" ERROR : xQueue receive failed in BLE task \n");
+            return (1);
         }
 
     } else if (task_id == ICOM_TASK_ID_MODBUS_MGR ) {
 
-        if (pdTRUE == xQueueReceive(icom_modbus_task_queue, &msg_address, (portTickType)portMAX_DELAY)) {
-            printf(" ERROR : xQueue send failed");
-            return (0);
+        if (pdPASS != xQueueReceive(icom_modbus_task_queue, &msg_address,
+                                    (portTickType)portMAX_DELAY)) {
+            printf(" ERROR : xQueue receive failed in Modbus task \n");
+            return (1);
         }
 
-    } else if (task_id == ICOM_TASK_ID_CFG_MGR ) {
+    } else if (task_id == ICOM_TASK_ID_CLOUD_MGR ) {
 
-        if (pdTRUE == xQueueReceive(cfg_task_queue, &msg_address, (portTickType)portMAX_DELAY)) {
-            printf(" ERROR : xQueue send failed");
-            return (0);
+        if (pdPASS != xQueueReceive(icom_cloud_task_queue, p_ipc_msg, 
+                                   (portTickType)portMAX_DELAY)) {
+            printf(" ERROR : xQueue receive failed in cloud task \n");
+            return (1);
+        }
+
+    } else if (task_id == ICOM_TASK_ID_SERIAL_MGR ) {
+
+        if (pdPASS != xQueueReceive(icom_serial_task_queue, &msg_address,
+                                   (portTickType)portMAX_DELAY)) {
+            printf(" ERROR : xQueue receive failed in serial task \n");
+            return (1);
         }
 
     }
 
-    return (msg_address);
+    return (0);
 }
 
 int icom_create_task_queue(int task_id)
@@ -187,20 +203,30 @@ int icom_create_task_queue(int task_id)
 
     if (task_id == ICOM_TASK_ID_MAIN) {
 
-        main_task_queue = xQueueCreate(10, 4);
+        main_task_queue = xQueueCreate(10, sizeof(ICOM_IPC_MSG));
+        printf(" INFO : Creating Queue : %p for Main task \n", main_task_queue);
 
     } else if (task_id == ICOM_TASK_ID_BLE_MGR ) {
 
-        ble_config_task_queue = xQueueCreate(10, 4);
+        ble_config_task_queue = xQueueCreate(10, sizeof(ICOM_IPC_MSG));
+        printf(" INFO : Creating Queue : %p for BLE task \n", ble_config_task_queue);
 
     } else if (task_id == ICOM_TASK_ID_MODBUS_MGR ) {
 
-        icom_modbus_task_queue = xQueueCreate(10, 4);
+        icom_modbus_task_queue = xQueueCreate(10, sizeof(ICOM_IPC_MSG));
+        printf(" INFO : Creating Queue : %p for Modbus task \n", icom_modbus_task_queue);
 
-    } else if (task_id == ICOM_TASK_ID_CFG_MGR ) {
+    } else if (task_id == ICOM_TASK_ID_CLOUD_MGR ) {
 
-        cfg_task_queue = xQueueCreate(10, 4);
+        icom_cloud_task_queue = xQueueCreate(10, sizeof(ICOM_IPC_MSG));
+        printf(" INFO : Creating Queue : %p for Cloud task \n", icom_cloud_task_queue);
+
+    } else if (task_id == ICOM_TASK_ID_SERIAL_MGR ) {
+
+        icom_serial_task_queue = xQueueCreate(10, sizeof(ICOM_IPC_MSG));
+        printf(" INFO : Creating Queue : %p for Serial task \n", icom_serial_task_queue);
 
     }
+
     return (0);
 }

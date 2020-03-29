@@ -38,9 +38,20 @@ typedef struct _icom_startup_config_
     char                  mqtt_broker[MQTT_BROKER_NAME_LENGTH_MAX];
     char                  mqtt_broker_username[MQTT_BROKER_USER_NAME_LENGTH_MAX];
     char                  mqtt_broker_passwd[MQTT_BROKER_USER_PASSWD_LENGTH_MAX];
-    char                  http_broker[HTTP_BROKER_NAME_LENGTH_MAX];
+    char                  http_server[HTTP_BROKER_NAME_LENGTH_MAX];
 
 } ICOM_STARTUP_CONFIG;
+
+extern int icom_get_configured_modbus_register_count(void);
+extern ICOM_MBUS_REG_INFO *icom_get_configured_modbus_register(int index);
+extern int icom_get_configured_http_server(char *p_http_server);
+extern int icom_get_configured_mqtt_broker(char *p_mqtt_broker);
+extern int icom_get_configured_mqtt_broker_username(char *p_mqtt_broker_username);
+extern int icom_get_configured_mqtt_broker_passwd(char *p_mqtt_broker_passwd);
+extern int icom_set_configured_http_server(char *p_http_server);
+extern int icom_set_configured_mqtt_broker(char *p_mqtt_broker);
+extern int icom_set_configured_mqtt_broker_username(char *p_mqtt_broker_username);
+extern int icom_set_configured_mqtt_broker_passwd(char *p_mqtt_broker_passwd);
 
 #endif
 

@@ -36,7 +36,7 @@ void populate_dummy_cfg()
 
     p_mbus_cfg = &startup_cfg;
     p_mbus_cfg->slave_address = 100;
-    p_mbus_cfg->cfg_reg_count = 10;
+    p_mbus_cfg->cfg_reg_count = 1;
 
     printf(" Slave Address : %d \n", p_mbus_cfg->slave_address);
     printf(" Reg Count     : %d \n", p_mbus_cfg->cfg_reg_count);
@@ -45,13 +45,13 @@ void populate_dummy_cfg()
 
         p_mbus_reg = &(p_mbus_cfg->mbus_reg[i]);
 
-        p_mbus_reg->reg_type = 0x01;
+        p_mbus_reg->reg_type = 0x03;
         p_mbus_reg->reg_address = i;
-        p_mbus_reg->polling_freq_msec = 100;
+        p_mbus_reg->polling_freq_sec = 5;
 
         printf(" Reg Type      : %d \n", p_mbus_reg->reg_type);
         printf(" Reg Address   : %d \n", p_mbus_reg->reg_address);
-        printf(" Polling Time  : %d \n", p_mbus_reg->polling_freq_msec);
+        printf(" Polling Time  : %d \n", p_mbus_reg->polling_freq_sec);
 
     }
 
@@ -191,7 +191,7 @@ esp_err_t icom_read_mbus_reg_config(void)
             p_mbus_reg = &(p_mbus_cfg->mbus_reg[i]);
             printf(" Reg Type      : %d \n", p_mbus_reg->reg_type);
             printf(" Reg Address   : %d \n", p_mbus_reg->reg_address);
-            printf(" Polling Time  : %d \n", p_mbus_reg->polling_freq_msec);
+            printf(" Polling Time  : %d \n", p_mbus_reg->polling_freq_sec);
 
         }
 
@@ -212,6 +212,8 @@ void icom_init_config_subsys()
     esp_err_t err;
 
     err = nvs_flash_init();
+
+    populate_dummy_cfg();
 
 #if 0
 
@@ -265,3 +267,96 @@ void icom_init_config_subsys()
 #endif
 
 }
+
+int icom_get_configured_modbus_register_count()
+{
+    return (startup_cfg.cfg_reg_count);
+}
+
+ICOM_MBUS_REG_INFO *icom_get_configured_modbus_register(int index)
+{
+    /*
+     * Do some defensive checks
+     */
+    if (index > MAX_CONFIGURABLE_REGISTERS)
+        return (NULL);
+
+    return (&startup_cfg.mbus_reg[index]);
+}
+
+int icom_get_configured_http_server(char *p_http_server)
+{
+    if (strlen(startup_cfg.http_server) == 0)
+        return (1);
+
+    strcpy(p_http_server, startup_cfg.http_server);
+    return (0);
+}
+
+int icom_get_configured_mqtt_broker(char *p_mqtt_broker)
+{
+    if (strlen(startup_cfg.mqtt_broker) == 0)
+        return (1);
+
+    strcpy(p_mqtt_broker, startup_cfg.mqtt_broker);
+    return (0);
+}
+
+int icom_get_configured_mqtt_broker_username(char *p_mqtt_broker_username)
+{
+    if (strlen(startup_cfg.mqtt_broker_username) == 0)
+        return (1);
+
+    strcpy(p_mqtt_broker_username, startup_cfg.mqtt_broker_username);
+    return (0);
+}
+
+int icom_get_configured_mqtt_broker_passwd(char *p_mqtt_broker_passwd)
+{
+    if (strlen(startup_cfg.mqtt_broker_passwd) == 0)
+        return (1);
+
+    strcpy(p_mqtt_broker_passwd, startup_cfg.mqtt_broker_passwd);
+    return (0);
+}
+
+/*
+ * All set API's are here.
+ */
+
+int icom_set_configured_http_server(char *p_http_server)
+{
+    if (strlen(p_http_server) == 0)
+        return (1);
+
+    strcpy(startup_cfg.http_server, p_http_server);
+    return (0);
+}
+
+int icom_set_configured_mqtt_broker(char *p_mqtt_broker)
+{
+    if (strlen(p_mqtt_broker) == 0)
+        return (1);
+
+    strcpy(startup_cfg.mqtt_broker, p_mqtt_broker);
+    return (0);
+}
+
+int icom_set_configured_mqtt_broker_username(char *p_mqtt_broker_username)
+{
+    if (strlen(p_mqtt_broker_username) == 0)
+        return (1);
+
+    strcpy(startup_cfg.mqtt_broker_username, p_mqtt_broker_username);
+    return (0);
+}
+
+int icom_set_configured_mqtt_broker_passwd(char *p_mqtt_broker_passwd)
+{
+    if (strlen(p_mqtt_broker_passwd) == 0)
+        return (1);
+
+    strcpy(startup_cfg.mqtt_broker_passwd, p_mqtt_broker_passwd);
+    return (0);
+}
+
