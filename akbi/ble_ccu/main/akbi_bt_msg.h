@@ -469,4 +469,10 @@ typedef struct __attribute__((__packed__)) _voice_data_details_ {
  */
  #define TLV_TYPE_WIFI_DISCONNECT_RESULT                              0x01
 
+ /*
+  * TLV types for BT_CP_OPCODE_CID_UPDATE_CCU_SW_STATUS
+  */
+  #define TLV_TYPE_UPDATE_FW_RESULT                                   0x01
+  #define TLV_TYPE_UPDATE_FW_REBOOT                                   0x02
+
 #endif
