@@ -34,7 +34,7 @@
 
 #define BT_BLE_COEX_TAG             "SERIAL"
 #define PKT_DUMP
-#define DEBUG_ENABLE
+// #define DEBUG_ENABLE
 
 #define AKBI_UART_BUFFER_SZ     ( 2 * 1024)
 

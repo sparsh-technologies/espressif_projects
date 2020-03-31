@@ -10,7 +10,7 @@
 
 
 #define MAX_RETURN_MSG_LENGTH       20
-#define DEBUG_ENABLE
+// #define DEBUG_ENABLE
 
 
 AKBI_WIFI_SCAN_REPORT  wifi_scan_report;
@@ -134,7 +134,8 @@ void akbi_process_rx_serial_data(char *ccu_msg,int length)
                 akbi_set_fsm_state(FSM_STATE_LOGIN_SUCCESS);
                 ep_return_message[BLE_RET_MSG_DATA_TYPE_OFFSET] = post_result;
                 if(post_result != 0x07){
-                   ep_return_message[BLE_RET_MSG_RC_OFFSET] = BLE_RET_POST_DATA_ERROR;
+                  ep_return_message[BLE_RET_MSG_RC_OFFSET] = BLE_RET_POST_DATA_ERROR;
+                   ep_return_message[BLE_RET_MSG_RC_OFFSET+1] = post_result;
                 }
                 else{
                     memcpy(&ep_return_message[BLE_RET_MSG_FIRMWARE_VERSION_OFFSET],firmware_version,strlen(firmware_version));
@@ -216,6 +217,9 @@ void akbi_process_rx_serial_data(char *ccu_msg,int length)
         case BT_CP_OPCODE_CID_UPDATE_CCU_SW_STATUS:
             akbi_set_fsm_state(FSM_STATE_FW_UPGRADE_COMPLETE);
             ep_return_message[BLE_RET_MSG_RC_OFFSET] = p_payload[0];
+            if(type_in_msg == TLV_TYPE_UPDATE_FW_REBOOT){
+                abort();
+            }
             break;
 
         case BT_CP_OPCODE_CID_WIFI_SET_MODE_STATUS:

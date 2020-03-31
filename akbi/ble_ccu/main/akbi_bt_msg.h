@@ -90,6 +90,7 @@
 #define DID_LOCAL_HELP_FIFTH_NUMBER        0x02
 #define DID_ACTIVATE_CCU_LATITUDE          0x01
 #define DID_ACTIVATE_CCU_LONGITUDE         0x02
+#define DID_ACTIVATE_CCU_TIMESTAMP         0x03
 
 #define FLAG_DATA_SET_CCU_PASSWORD         0x02
 #define FLAG_DATA_SET_CCU_NEW_PASSWORD     0x04
@@ -357,14 +358,17 @@ typedef struct __attribute__((__packed__)) _voice_data_details_ {
 #define TLV_TYPE_REGISTER_LAT_STRING                              0x05
 #define TLV_TYPE_REGISTER_LONG_STRING                             0x06
 #define TLV_TYPE_MOBILE_FW_VERSION                                0x07
-#define TLV_TYPE_REGISTER_DATE                                    0x08
+#define TLV_TYPE_REGISTER_TIMESTAMP                               0x08
 #define TLV_TYPE_UPLOAD_TRIP_INFO_STATUS_RESULT                   0x09
+
+#define TLV_TYPE_TIMESTAMP                                        0x01
 
 /*
  * TLV Types for BT_CP_OPCODE_CID_CCU_ACTIVATE Opcode
  */
 #define TLV_TYPE_ACTIVATE_LAT_STRING                              0x01
 #define TLV_TYPE_ACTIVATE_LONG_STRING                             0x02
+#define TLV_TYPE_ACTIVATE_TIMESTAMP_STRING                        0x03
 
 /*
  * TLV Types for BT_CP_OPCODE_CID_CCU_DEACTIVATE Opcode
@@ -389,6 +393,7 @@ typedef struct __attribute__((__packed__)) _voice_data_details_ {
  */
 #define TLV_TYPE_ADDRESS_VISITING_VOICE                           0x01
 #define TLV_TYPE_ADDRESS_VISITING_MSG_RAW_DATA                    0x02
+#define TLV_TYPE_ADDRESS_VISITING_TIMESTAMP                       0x03
 
 /*
  * TLV Types for BT_CP_OPCODE_CID_STORE_EMERGENCY_NUMBERS Opcode
@@ -463,5 +468,11 @@ typedef struct __attribute__((__packed__)) _voice_data_details_ {
  * TLV types for BT_CP_OPCODE_CID_DISCONNECT_FROM_WIFI_STATUS
  */
  #define TLV_TYPE_WIFI_DISCONNECT_RESULT                              0x01
+
+ /*
+  * TLV types for BT_CP_OPCODE_CID_UPDATE_CCU_SW_STATUS
+  */
+  #define TLV_TYPE_UPDATE_FW_RESULT                                   0x01
+  #define TLV_TYPE_UPDATE_FW_REBOOT                                   0x02
 
 #endif

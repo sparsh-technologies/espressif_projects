@@ -46,6 +46,13 @@
 #define BLE_RET_MSG_SCANNED_SSID_COUNT_OFFSET     8
 #define BLE_RET_MSG_FIRMWARE_VERSION_OFFSET       8
 #define BLE_RET_MSG_SERIAL_NUM_OFFSET             1
+#define BLE_MSG_SINGLE_DATA_TIMESTAMP_OFFSET      5
+#define BLE_MSG_MULTI_DATA_TIMESTAMP_OFFSET       6
+
+#define BLE_MSG_VOICE_RAW_DATA_AUDIO_NUM_OFFSET   3
+
+#define BLE_MSG_VOICE_DATA_TLV_LEN_OFFSET         3
+#define BLE_MSG_VOICE_DATA_AUDIO_NUM_OFFSET       4
 
 #define BLE_MSG_MULTI_DATA_LEN_OFFSET             4
 #define BLE_MSG_MULTI_DATA_DATA_OFFSET            5
@@ -70,7 +77,7 @@
 #define ERROR_MY_WIFI_STN_START                   0x0D
 #define READY_TO_SEND_REG_DATA_TO_SERIAL          0x0E
 #define WIFI_SCANNING_IN_PROGRESS                 0x77//for testing
-#define BLE_RET_POST_DATA_ERROR                   0x78
+#define BLE_RET_POST_DATA_ERROR                   0x79
 #define ERROR_INFO_NOT_UPLOADED                   0x37
 
 #define ADV_SER_NO_SIZE                           4
