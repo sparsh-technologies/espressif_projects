@@ -1,0 +1,375 @@
+
+
+ This document explains the communication protocol between the mobile phone and the device. 
+
+
+ Device Discovery
+ ----------------
+
+ The device on power up will start sending connectable beacons, which can be scanned by the mobile
+ application to detect its presense. The device emits beacons with its serial number as its name,
+ which is a unique number for a device. This will help the mobile application to uniquely connect
+ with a particular device.
+
+ Once the mobile application has created a successful connection with the device, the user can use
+ the mobile application to configure the device. In the first release of the SW, we may not be providing
+ an authentication mechanism to authenticate the user to the device. This will be addressed in a later
+ release, which is beyond the scope of this document.
+
+ Once the mobile app has established a successful connection with the device, the user can use the 
+ mobile application to configure the device and save its configuration to the device. Once a configuration
+ is saved into the device, the device will use this configuration for its regular functioning from the 
+ subsequent reboot.
+
+ The following is a timing diagram of the flow of messages across the device and the mobile application.
+
+
+
+      Mobile App                                                              Device
+     ------------------------------------------------------------------------------------
+
+         |                                                                      |
+         |                                                                      |
+         |  <-------------------- BLE-BEACONS-----------------------------------|
+         |                                                                      |
+         |                                                                      |
+         |  -------------------CONNECTION-REQUEST-----------------------------> |
+         |                                                                      |
+         |                                                                      |
+         |  -------------------CONNECTION-TERMINATE---------------------------> |
+         |                                                                      |
+         |                                                                      |
+         |  <------------------ CONNECTION-RESPONSE-----------------------------|
+         |                                                                      |
+         |                                                                      |
+         |  ------------------- DEVICE-INFO-REQUEST---------------------------> |
+         |                                                                      |
+         |                                                                      |
+         |  <------------------ DEVICE-INFO-RESPONSE--------------------------- |
+         |                                                                      |
+         |                                                                      |
+         |  ------------------- LOGIN-USERNAME--------------------------------> |
+         |                                                                      |
+         |                                                                      |
+         |  ------------------- LOGIN-PASSWD-------------------------------->   |
+         |                                                                      |
+         |                                                                      |
+         |  <--------------LOGIN-RESPONSE(ACCEPT/REJECT------------------------ |
+         |                                                                      |
+         |                                                                      |
+         |  <----------------- DEVICE-CONFIGURE/DEVICE-QUERY------------------> |
+         |                                                                      |
+         |                                                                      |
+         |  ------------------- PING-REQUEST ---------------------------------> |
+         |                                                                      |
+         |                                                                      |
+         |  ------------------- LOGOUT-REQUEST -------------------------------> |
+         |                                                                      |
+         |                                                                      |
+         |  <--------------LOGOUT-RESPONSE(ACCEPT/REJECT----------------------- |
+         |                                                                      |
+         |                                                                      |
+
+
+ The details of these packets are explained in detail below.
+
+ CONNECTION-REQUEST
+ ------------------
+
+ The mobile application after getting connected to the device should send a CONNECTION-REQUEST
+ packet to the device. This request is made to get the device capability of the firmware
+ that is running in the device. This will help the mobile application to address any compatibility
+ issues, when both the mobile application and the device firmware are running out of synchronization.
+
+ The following is the payload of the packet.
+
+
+  +--------------------+--------------+
+  |                    |              |      
+  | 2 byte random      |  0x01        | 
+  |   number           |              |
+  +--------------------+--------------+
+
+ CONNECTION-RESPONSE
+ ------------------
+
+ The device after getting CONNECTION-REQUEST from the mobile application will send a  CONNECTION-RESPONSE
+ packet back to the mobile application. This packet will contain all the relevent information that are
+ required by the mobile application to talk to the device.
+
+ The following is the payload of the packet.
+
+
+  +--------------------+--------------+-------------------+-----------------------+
+  |                    |              |                   |                       |
+  | 2 byte random      |  0x02        | 3 byte FW Version | 10 Byte Serial Number | 
+  |   number           |              |                   |                       |
+  +--------------------+--------------+-------------------+-----------------------+
+
+  Once the mobile application receive this packet, the mobile application can decide whether it needs to
+  continue the device configuration based on the version of the SW that the device is running. This will
+  help mobile application to decide whether the mobile application SW is compatibile with the firmware
+  running in the device.
+
+  Once the mobile application decide to terminate the connection, the mobile application can send a
+  CONNECTION-TERMINATE message as below to tear down the connection.
+
+  +--------------------+--------------+
+  |                    |              |      
+  | 2 byte session     |  0x03        | 
+  |   number           |              |
+  +--------------------+--------------+
+
+  Here the 2 byte session number is a number which is derived from the random number that was send by the
+  mobile application and the random number that was send back by the device back to the mobile application.
+  As the algorithm that is used to arrive at this session number from the two random numbers are known only
+  to the device and the mobile application, no other mechanism of session hijacking can be done by any other
+  applications. This will ensure end to end security as well as non repudiation of the connections.
+
+  LOGIN-USERNAME
+  -------------
+  The mobile application will use this packet to send the user name to the device. The following is the format
+  of this packet.
+
+  +--------------------+--------------+----------------+-------------------------------------------+
+  |                    |              |                |                                           |
+  | 2 byte session     |  0x04        | 1 byte length  |    User name string                       |
+  |   number           |              |  of username   |                                           |
+  +--------------------+--------------+----------------+-------------------------------------------+
+
+  LOGIN-USERPASSWD
+  ----------------
+  The mobile application will use this packet to send the user passwd to the device. The following is the format
+  of this packet.
+
+  +--------------------+--------------+----------------+-------------------------------------------+
+  |                    |              |                |                                           |
+  | 2 byte session     |  0x05        | 1 byte length  |    User passwd string                     |
+  |   number           |              |  of userpasswd |                                           |
+  +--------------------+--------------+----------------+-------------------------------------------+
+
+  LOGIN-RESPONSE
+  ----------------
+  The device will use this packet to send the status of login request from the application. The following 
+  is the format of this packet.
+
+  +--------------------+--------------+----------------+
+  |                    |              |                |
+  | 2 byte session     |  0x06        | 1 byte status  |
+  |   number           |              |                |
+  +--------------------+--------------+----------------+
+
+  The following are the valid values of status
+
+  0x00 - Login Success
+  0x01 - Invalid credentials
+
+
+  PING-REQUEST
+  ------------
+  Once the mobile application has been logged into the device, the mobile app needs to send periodic ping
+  packets to keepalive the session. If the device finds that the mobile application is not sending the
+  ping packets, once every 30 seconds, the device will clear the client session and goes back to the waiting
+  for new connection request. This also means that the secret session number will be purged and will not be 
+  valid any more. The following is the format of this packet.
+
+  +--------------------+--------------+
+  |                    |              |
+  | 2 byte session     |  0x07        |
+  |   number           |              |
+  +--------------------+--------------+
+
+  LOGOUT-REQUEST
+  --------------
+  Once the mobile application has configured the device, it can gracefully tear down the connection by sending
+  a LOGOUT-REQUEST.The following is the format of this packet.
+
+  +--------------------+--------------+
+  |                    |              |
+  | 2 byte session     |  0x08        |
+  |   number           |              |
+  +--------------------+--------------+
+
+
+  Device Configuration
+  --------------------
+
+  This session talks about the various packet formats for device configurations. The following are the various
+  options that can be configured in the device.
+
+  1.  Configuring Wifi Access Point
+  2.  Configuring cloud server protocol
+  3.  Configuring the MQTT parameters
+  4.  Configuring HTTP parameters
+  5.  Configuring MODBUS slave parameters
+  6.  Configuring MODBUS register parameters
+  7.  Configuring MODBUS register to slave association
+
+  Configuring Wifi Access Point credentials
+  -----------------------------------------
+  +--------------------+--------------+--------------------+----------------+
+  |                    |              |                    |                |
+  | 2 byte session     |  0x20        |   1 byte AP name   | AP Name        |
+  |   number           |              |      length        |                |
+  +--------------------+--------------+--------------------+----------------+
+
+  +--------------------+--------------+--------------------+----------------+
+  |                    |              |                    |                |
+  | 2 byte session     |  0x21        |   1 byte AP Passwd | AP Passwd      |
+  |   number           |              |      length        |                |
+  +--------------------+--------------+--------------------+----------------+
+
+  +--------------------+--------------+----------------------+
+  |                    |              |                      |
+  | 2 byte session     |  0x22        |   1 byte AP protocol |
+  |   number           |              |                      |
+  +--------------------+--------------+----------------------+
+
+
+
+  Configuring Cloud Server protocol
+  ----------------------------------
+  +--------------------+--------------+------------------------------------+
+  |                    |              |                                    |
+  | 2 byte session     |  0x23        |   1 byte protocol option           |
+  |   number           |              |                                    |
+  +--------------------+--------------+------------------------------------+
+
+  The valid protocol options are
+
+  0x01    - HTTP
+  0x02    - MQTT
+
+  Configuring HTTP Server parameters
+  ----------------------------------
+  +--------------------+--------------+------------------------------------+-------------------------------------+
+  |                    |              |                                    |                                     |
+  | 2 byte session     |  0x24        |   1 byte length of server          | Server URL                          |
+  |   number           |              |      URL                           |                                     |
+  +--------------------+--------------+------------------------------------+-------------------------------------+
+
+  +--------------------+--------------+------------------------------------+-------------------------------------+
+  |                    |              |                                    |                                     |
+  | 2 byte session     |  0x25        |   1 byte length of POST            | POST header                         |
+  |   number           |              |      header                        |                                     |
+  +--------------------+--------------+------------------------------------+-------------------------------------+
+
+
+  Configuring MQTT Server parameters
+  ----------------------------------
+  +--------------------+--------------+------------------------------------+-------------------------------------+
+  |                    |              |                                    |                                     |
+  | 2 byte session     |  0x26        |   1 byte length of broker          | MQTT broker URL                     |
+  |   number           |              |      URL                           |                                     |
+  +--------------------+--------------+------------------------------------+-------------------------------------+
+
+  +--------------------+--------------+------------------------------------+-------------------------------------+
+  |                    |              |                                    |                                     |
+  | 2 byte session     |  0x27        |   1 byte length of broker port     | Broker Port Number                  |
+  |   number           |              |                                    |                                     |
+  +--------------------+--------------+------------------------------------+-------------------------------------+
+
+  +--------------------+--------------+------------------------------------+-------------------------------------+
+  |                    |              |                                    |                                     |
+  | 2 byte session     |  0x28        |   1 byte length of user name       | user name                           |
+  |   number           |              |                                    |                                     |
+  +--------------------+--------------+------------------------------------+-------------------------------------+
+
+  +--------------------+--------------+------------------------------------+-------------------------------------+
+  |                    |              |                                    |                                     |
+  | 2 byte session     |  0x29        |   1 byte length of user password   | user password                       |
+  |   number           |              |                                    |                                     |
+  +--------------------+--------------+------------------------------------+-------------------------------------+
+
+  +--------------------+--------------+------------------------------------+-------------------------------------+
+  |                    |              |                                    |                                     |
+  | 2 byte session     |  0x2A        |   1 byte length of PUBLISH         | PUBLISH topic name                  |
+  |   number           |              |      topic name                    |                                     |
+  +--------------------+--------------+------------------------------------+-------------------------------------+
+
+  +--------------------+--------------+------------------------------------+-------------------------------------+
+  |                    |              |                                    |                                     |
+  | 2 byte session     |  0x2B        |   1 byte length of SUBSCRIBE       | SUBSCRIBE topic name                |
+  |   number           |              |       topic name                   |                                     |
+  +--------------------+--------------+------------------------------------+-------------------------------------+
+
+
+  Configuring MODBUS-RTU Slave parameters
+  ---------------------------------------
+
+  +--------------------+--------------+----------------+---------------------+
+  |                    |              |                |                     |
+  | 2 byte session     |  0x30        | 1 byte slave   | 1 byte Slave Index  |   
+  |   number           |              |   address      |                     |
+  +--------------------+--------------+----------------+---------------------+
+
+  Configuring MODBUS-TCP Slave parameters
+  ---------------------------------------
+
+  +--------------------+--------------+----------------+---------------------+---------------------+----------------------+
+  |                    |              |                |                     |                     |                      |
+  | 2 byte session     |  0x31        | 1 byte slave   | 1 byte Slave Index  | 1 byte length of    | Client IP/DNS        | 
+  |   number           |              |   address      |                     | client IP DNS name  |                      |
+  +--------------------+--------------+----------------+---------------------+---------------------+----------------------+
+
+  Each and every configured slave should have a slave index. For RTU slaves, the addresses can be from 0 to 99 and for
+  TCP slaves, the addresses can be from 100 till 199, both included.
+
+  Configure MODBUS Register read
+  ------------------------------
+
+  This is used to configure the MODBUS devices that needs to be read at predefined frequencies.
+
+  +--------------------+--------------+------------------+-----------------+-----------------+-------------------------+
+  |                    |              |                  |                 |                 |                         |
+  | 2 byte session     |  0x40        | 1 byte register  | 1 byte register | 2 byte register | 1 byte register read    |
+  |   number           |              |   index          |   type          |    address      |   frequency in seconds  |
+  +--------------------+--------------+------------------+-----------------+-----------------+-------------------------+
+
+  Register type values
+    0x00  - Coil register
+    0x01  - Status register
+    0x02  - Holding register
+    0x03  - Input register
+
+  Each and every register configuration should have a register index associated with it, starting with 0. This will help
+  us in associating multiple slaves to a single register.
+
+
+  Configure MODBUS register to slave association
+  ----------------------------------------------
+
+  This packet is used to associate a configured registers grouping with configured slave devices.
+
+  +--------------------+--------------+------------------+---------------------+
+  |                    |              |                  |                     |
+  | 2 byte session     |  0x45        |   1 byte slave   | 1 byte register     |
+  |   number           |              |     index        |     index           |
+  +--------------------+--------------+------------------+---------------------+
+
+  
+
+  Other Misc commands
+  -------------------
+
+  This section explains the other misc commands that are supported.
+
+  +--------------------+--------------+------------+
+  |                    |              |            |
+  | 2 byte session     |  0xA0        |   0x01     | <-- Command to clear the configuration information. Send from Mobile to Device
+  |   number           |              |            |
+  +--------------------+--------------+------------+
+
+  This will be acknowledged from the device to the mobile using the following command 
+
+  +--------------------+--------------+------------+-------------------+
+  |                    |              |            |                   |
+  | 2 byte session     |  0xA0        |   0x02     |   Status          |
+  |   number           |              |            |                   |
+  +--------------------+--------------+------------+-------------------+
+
+
+
+
+
+  

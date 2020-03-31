@@ -587,11 +587,12 @@ static void ble_gatts_init(void)
 
 void icom_bt_init()
 {
-    esp_bt_controller_config_t bt_cfg;
+    esp_err_t                  err;
 
     printf(" BT-INIT : Initializing BT subsystem \n");
 
-    bt_cfg = BT_CONTROLLER_INIT_CONFIG_DEFAULT();
+    esp_bt_controller_config_t bt_cfg = BT_CONTROLLER_INIT_CONFIG_DEFAULT();
+
     if ((err = esp_bt_controller_init(&bt_cfg)) != ESP_OK) {
         printf( " BT-INIT : %s initialize controller failed: %s\n", 
                __func__, esp_err_to_name(err));
@@ -638,7 +639,6 @@ void icom_bt_init()
     pin_code[1] = '2';
     pin_code[2] = '3';
     pin_code[3] = '4';
-
 
     esp_bt_gap_set_pin(pin_type, 4, pin_code);
 
