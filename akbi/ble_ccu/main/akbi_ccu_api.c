@@ -120,7 +120,7 @@ int ccu_send_reg_msg_new(int type, char *received_value_buffer, int data_len)
     memcpy(p, received_value_buffer, p_protocol_hdr->length);
 
     length = sizeof(BT_CP_PROTOCOL_HDR) + p_protocol_hdr->length;
-    printf(" INFO : Sending REGISTER (%s) \n", received_value_buffer);
+    // printf(" INFO : Sending REGISTER (%s) \n", received_value_buffer);
 
     send_uart_message(p_tx_buffer, length);
 
@@ -230,7 +230,7 @@ int ccu_sent_connect_to_wifi(char * timestamp)
     int                 length;
     char                *p_payload;
 
-    printf(" INFO : Sending CONNECT-TO-WIFI Message %s \n",timestamp);
+    // printf(" INFO : Sending CONNECT-TO-WIFI Message %s \n",timestamp);
     p_protocol_hdr = (BT_CP_PROTOCOL_HDR *)p_tx_buffer;
 
     p_protocol_hdr->opcode   = BT_CP_OPCODE_CID_CONNECT_TO_WIFI;
@@ -255,7 +255,7 @@ int ccu_sent_disconnect_from_wifi()
     BT_CP_PROTOCOL_HDR  *p_protocol_hdr;
     int                 length;
 
-    printf(" INFO : Sending DISCONNECT-FROM-WIFI Message \n");
+    // printf(" INFO : Sending DISCONNECT-FROM-WIFI Message \n");
     p_protocol_hdr = (BT_CP_PROTOCOL_HDR *)p_tx_buffer;
 
     p_protocol_hdr->opcode   = BT_CP_OPCODE_CID_DISCONNECT_FROM_WIFI;
@@ -276,7 +276,7 @@ int ccu_sent_user_forgot_passwd_msg()
     int                 length;
     char                p_tx_buffer[20];
 
-    printf(" INFO : Sending USER-FORGOT_PASSWD Message \n");
+    // printf(" INFO : Sending USER-FORGOT_PASSWD Message \n");
     p_protocol_hdr = (BT_CP_PROTOCOL_HDR *)p_tx_buffer;
 
     p_protocol_hdr->opcode   = BT_CP_OPCODE_CID_FORGOT_PASSWORD;
@@ -286,7 +286,7 @@ int ccu_sent_user_forgot_passwd_msg()
 
     length = sizeof(BT_CP_PROTOCOL_HDR) + p_protocol_hdr->length;
     send_uart_message(p_tx_buffer, length );
-    printf("ptx in FPpp=%s\n", p_tx_buffer);
+    // printf("ptx in FPpp=%s\n", p_tx_buffer);
 
     return (0);
 }
@@ -299,7 +299,7 @@ int ccu_sent_user_change_passwd_msg(char *p_password_current,char *p_password_ne
     char                p_tx_buffer[100];
 
     memset(p_tx_buffer,0x00,100);
-    printf(" INFO : Sending USER-CHANGE_PASSWD Message \n");
+    // printf(" INFO : Sending USER-CHANGE_PASSWD Message \n");
     p_protocol_hdr = (BT_CP_PROTOCOL_HDR *)p_tx_buffer;
 
     p_protocol_hdr->opcode   = BT_CP_OPCODE_CID_CHANGE_PASSWORD;
@@ -495,7 +495,7 @@ int ccu_sent_address_visiting(unsigned char voice_msg_index, unsigned int voice_
     get_timestamp(timestamp);
     memcpy(p_tlv_hdr->data,timestamp,TIMESTAMP_SIZE);
 
-    printf(" INFO : Sending Address visiting Message %s\n",timestamp);
+    // printf(" INFO : Sending Address visiting Message %s\n",timestamp);
 
     length = sizeof(BT_CP_PROTOCOL_HDR) + p_protocol_hdr->length + sizeof(VOICE_DATA_DETAILS)+sizeof(BT_CP_TLV_HDR)+TIMESTAMP_SIZE;
 
@@ -611,11 +611,11 @@ int ccu_sent_activate_system_msg(char *p_latitude, char *p_longitude,char *times
 
     p_tx_buffer[length] = 0x00;
 
-    printf("ptx buf =\n" );
-    for (size_t i = 0; i < length; i++) {
-        printf("%02x ",p_tx_buffer[i] );
-    }
-    printf("\n" );
+    // printf("ptx buf =\n" );
+    // for (size_t i = 0; i < length; i++) {
+    //     printf("%02x ",p_tx_buffer[i] );
+    // }
+    // printf("\n" );
 
 
     send_uart_message(p_tx_buffer, length );
@@ -630,7 +630,7 @@ int ccu_sent_update_sw_msg(char * timestamp)
     char                p_tx_buffer[20];
     char                *p_timestamp;
 
-    printf(" INFO : Sending UPGRADE-SOFTWARE Message %s\n",timestamp);
+    // printf(" INFO : Sending UPGRADE-SOFTWARE Message %s\n",timestamp);
     p_protocol_hdr = (BT_CP_PROTOCOL_HDR *)p_tx_buffer;
 
     p_protocol_hdr->opcode   = BT_CP_OPCODE_CID_UPDATE_CCU_SW;
@@ -654,7 +654,7 @@ int ccu_sent_reboot_ccu_msg()
     int                 length;
     char                p_tx_buffer[20];
 
-    printf(" INFO : Sending reboot ccu Message \n");
+    // printf(" INFO : Sending reboot ccu Message \n");
     p_protocol_hdr = (BT_CP_PROTOCOL_HDR *)p_tx_buffer;
 
     p_protocol_hdr->opcode   = BT_CP_OPCODE_CID_REQUEST_REBOOT;
@@ -676,7 +676,7 @@ int ccu_sent_wifi_set_mode(unsigned char wifi_mode)
     char                p_tx_buffer[20];
     char                *p;
 
-    printf(" INFO : Sending WIFI-SET-MODE Message = %02x  \n",wifi_mode);
+    // printf(" INFO : Sending WIFI-SET-MODE Message = %02x  \n",wifi_mode);
     p_protocol_hdr = (BT_CP_PROTOCOL_HDR *)p_tx_buffer;
 
     p_protocol_hdr->opcode   = BT_CP_OPCODE_CID_WIFI_SET_MODE;
@@ -701,7 +701,7 @@ int ccu_sent_upload_trip_info(unsigned char wifi_mode)
     int                 length;
     char                p_tx_buffer[20];
 
-    printf(" INFO : Sending TRIP_INFO Message \n");
+    // printf(" INFO : Sending TRIP_INFO Message \n");
     p_protocol_hdr = (BT_CP_PROTOCOL_HDR *)p_tx_buffer;
 
     p_protocol_hdr->opcode   = BT_CP_OPCODE_CID_UPLOAD_TRIP_INFO;

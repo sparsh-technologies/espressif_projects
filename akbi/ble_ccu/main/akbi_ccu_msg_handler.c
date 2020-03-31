@@ -10,7 +10,7 @@
 
 
 #define MAX_RETURN_MSG_LENGTH       20
-#define DEBUG_ENABLE
+// #define DEBUG_ENABLE
 
 
 AKBI_WIFI_SCAN_REPORT  wifi_scan_report;

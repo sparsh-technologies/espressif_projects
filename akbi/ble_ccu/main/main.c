@@ -51,7 +51,7 @@
 #define PROFILE_NUM                 1
 #define PROFILE_A_APP_ID            0
 #define MAX_RETURN_MSG_LENGTH       20
-#define DEBUG_ENABLE
+// #define DEBUG_ENABLE
 #define ADV_SER_NO_SIZE             4
 
 

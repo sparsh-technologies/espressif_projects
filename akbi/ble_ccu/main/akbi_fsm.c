@@ -169,7 +169,7 @@ int akbi_check_fsm_state_and_respond(char *ep_return_message)
 
 
     case FSM_STATE_WIFI_CONNECT_IN_PROGRESS :
-        printf("wifi connect in progress\n");
+        // printf("wifi connect in progress\n");
         ret = 1;
         break;
 

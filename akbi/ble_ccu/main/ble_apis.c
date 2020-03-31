@@ -545,7 +545,7 @@ int read_ble_message(char *i_msg, char *i_ret_msg)
         ((this_ccu.paired_mob1.data_status & FLAG_DATA_SET_MOB1_ID) == 0x00)) {
 
         this_ccu.paired_mob1.id = i_msg[BLE_APP_OFFSET];
-        printf("paired_mob1.id stored 1 %c\n",i_msg[BLE_APP_OFFSET] );
+        // printf("paired_mob1.id stored 1 %c\n",i_msg[BLE_APP_OFFSET] );
         this_ccu.paired_mob1.data_status = this_ccu.paired_mob1.data_status | FLAG_DATA_SET_MOB1_ID;
         is_valid_ble_msg = 1;
     }
@@ -656,7 +656,7 @@ int read_ble_message(char *i_msg, char *i_ret_msg)
             akbi_set_fsm_state(FSM_STATE_WIFI_DISCONNECT_IN_PROGRESS);
             execute_disconnect_from_wifi(i_ret_msg);
             break;
-            
+
         case CID_UPDATE_CCU_SW :
             akbi_set_fsm_state(FSM_STATE_FW_UPGRADE_IN_PROGRESS);
             memcpy(ble_command,&i_msg[BLE_CMD_OFFSET + BLE_COMMAND_ID_SIZE],BLE_COMMAND_SIZE);
