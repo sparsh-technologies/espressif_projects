@@ -6,7 +6,7 @@
 #include "akbi_ccu_api.h"
 #include "akbi_fsm.h"
 #include "akbi_serial_task.h"
-#include <esp32/rom/ets_sys.h>
+#include <rom/ets_sys.h>
 
 
 #define MAX_RETURN_MSG_LENGTH       20

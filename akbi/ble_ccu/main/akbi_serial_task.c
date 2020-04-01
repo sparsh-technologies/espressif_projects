@@ -23,14 +23,13 @@
 #include "esp_vfs.h"
 #include "esp_vfs_dev.h"
 #include "driver/uart.h"
-#include "esp_netif.h"
+//#include "esp_netif.h"
 #include "lwip/sockets.h"
 #include "lwip/netdb.h"
 #include "peripheral.h"
 #include "akbi_ccu_msg_handler.h"
 #include "esp_timer.h"
 #include "esp_log.h"
-
 
 #define TAG             "UART-DRIVER"
 #define PKT_DUMP

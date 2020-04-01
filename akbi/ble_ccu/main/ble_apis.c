@@ -19,7 +19,7 @@
 #include "akbi_msg.h"
 #include "esp_log.h"
 #include "akbi_serial_task.h"
-#include <esp32/rom/ets_sys.h>
+#include <rom/ets_sys.h>
 #include "akbi_ccu_api.h"
 #include "akbi_fsm.h"
 #define BT_BLE_COEX_TAG             "BLE_APIS"
