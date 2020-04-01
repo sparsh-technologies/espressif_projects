@@ -6,7 +6,7 @@
 #include "akbi_ccu_api.h"
 #include "akbi_fsm.h"
 #include "akbi_serial_task.h"
-#include <rom/ets_sys.h>
+#include <esp32/rom/ets_sys.h>
 
 
 #define MAX_RETURN_MSG_LENGTH       20
@@ -58,10 +58,10 @@ void akbi_process_rx_serial_data(char *ccu_msg,int length)
              * Extract the firmware version from the packet
              */
 
-            memcpy(firmware_version, p_tlv->data, p_tlv->length);
+            memcpy(firmware_version, p_tlv->data, length_in_msg);
             // printf(" INFO : FW-Version      : %s \n", firmware_version );
 
-            p = p_tlv ;
+            p = (char *)p_tlv ;
             p = p + 0x02 + p_tlv->length;
             p_tlv = (BT_CP_TLV_HDR *) p ;
 
@@ -70,7 +70,7 @@ void akbi_process_rx_serial_data(char *ccu_msg,int length)
       			// printf(" INFO : SERIAL-NO len  : %d \n", p_tlv->length );
             // printf(" INFO : SERIAL-NO      : %s \n", ccu_serial_no );
 
-            p = p_tlv ;
+            p = (char *)p_tlv ;
             p = p + 0x02 + p_tlv->length;
             p_tlv = (BT_CP_TLV_HDR *) p ;
 
@@ -126,8 +126,8 @@ void akbi_process_rx_serial_data(char *ccu_msg,int length)
                 memcpy(wifi_scan_report.ap_name[index-1], p_payload, p_protocol_hdr->length);
                 save_ssids(wifi_scan_report.ap_name[index-1],index-1,p_protocol_hdr->length);
                 wifi_scan_report.ap_count++;
-                break;
             }
+            break;
 
         case BT_CP_OPCODE_CID_LOGIN_STATUS:
             if (p_payload[0] == SUCCESS) {
@@ -143,21 +143,23 @@ void akbi_process_rx_serial_data(char *ccu_msg,int length)
                 }
                 return;
             }
+            break;
 
         case BT_CP_OPCODE_CID_SELECT_A_WIFI_RESULT:
             akbi_set_fsm_state(FSM_STATE_WIFI_CONNECT_COMPLETE);
             ep_return_message[BLE_RET_MSG_RC_OFFSET] = p_payload[0];
-            return;
+            break;
 
         case BT_CP_OPCODE_CID_WIFI_CONNECT_COMPLETED:
             akbi_set_fsm_state(FSM_STATE_WIFI_CONNECT_COMPLETE);
             ep_return_message[BLE_RET_MSG_RC_OFFSET] = p_payload[0];
             return;
+            break;
 
         case BT_CP_OPCODE_CID_DISCONNECT_FROM_WIFI_STATUS:
             akbi_set_fsm_state(FSM_STATE_WIFI_DISCONNECT_COMPLETE);
             ep_return_message[BLE_RET_MSG_RC_OFFSET] = p_payload[0];
-            return;
+            break;
 
         case BT_CP_OPCODE_CID_CFG_PARAMS_SAVE_STATUS:
             if((type_in_msg == TLV_TYPE_STORED_CFG_EMER_NUM_2)||(type_in_msg == TLV_TYPE_STORED_CFG_EMER_NUM_3)){
@@ -242,7 +244,7 @@ void akbi_process_rx_serial_data(char *ccu_msg,int length)
             ep_return_message[BLE_RET_MSG_RC_OFFSET] = p_payload[0];
             ets_delay_us(3000000);
             abort();
-            return;
+            break;
 
         case BT_CP_OPCODE_CID_UPLOAD_TRIP_INFO_STATUS:
             akbi_set_fsm_state(FSM_STATE_TRIP_INFO_UPLOAD_COMPLETE);

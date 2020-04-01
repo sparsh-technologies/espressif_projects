@@ -23,7 +23,7 @@
 #include "esp_vfs.h"
 #include "esp_vfs_dev.h"
 #include "driver/uart.h"
-#include "tcpip_adapter.h"
+#include "esp_netif.h"
 #include "lwip/sockets.h"
 #include "lwip/netdb.h"
 #include "peripheral.h"
@@ -32,10 +32,8 @@
 #include "esp_log.h"
 
 
-#define BT_BLE_COEX_TAG             "SERIAL"
+#define TAG             "UART-DRIVER"
 #define PKT_DUMP
-// #define DEBUG_ENABLE
-
 #define AKBI_UART_BUFFER_SZ     ( 2 * 1024)
 
 typedef struct {
@@ -44,13 +42,11 @@ typedef struct {
 } task_context_t;
 
 int uart_fd = -1;
-static int flag_set_ret_ptr = 0;
 char serial_rx_data[500];
 char serial_tx_data[500];
 esp_timer_handle_t oneshot_timer = NULL;
 static int serial_timer_state = -1;
 static int serial_data_bytes = 0;
-static const char* TAG = "UART-DRIVER";
 task_context_t context1;
 TaskHandle_t uart_task;
 static void oneshot_timer_callback(void* arg);
@@ -176,12 +172,12 @@ int akbi_dump_serial_pkt(const char *buffer, int length)
 
 #ifdef PKT_DUMP
 
-    int    ret;
-    int    i, j, row_cnt, size;
-    unsigned char  *p_buffer;
+    int    i, j,  size;
+    // int row_cnt;
+    const char  *p_buffer;
 
     p_buffer = buffer;
-    row_cnt = length/16;
+    // row_cnt = length/16;
     size    = length;
     j       = 0;
 
@@ -216,7 +212,7 @@ int akbi_dump_serial_pkt(const char *buffer, int length)
 
 void send_uart_message(const char* p_data, int length )
 {
-    int     ret, i;
+    int      i;
     char    data;
 
     memset(serial_tx_data, 0x00, 500);

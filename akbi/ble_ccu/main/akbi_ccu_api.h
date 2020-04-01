@@ -59,7 +59,7 @@ int ccu_sent_store_emergency_number_msg(char *received_value_buffer);
 
 int ccu_sent_store_personal_number_msg(char *received_value_buffer);
 
-int ccu_sent_address_visiting(char *received_value_buffer ,unsigned int total_len);
+int ccu_sent_address_visiting(char msg_number ,unsigned int total_len);
 
 int ccu_sent_store_local_help_number_msg(char *received_value_buffer);
 
