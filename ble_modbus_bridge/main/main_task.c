@@ -21,6 +21,7 @@
 #include "icom_gpio.h"
 #include "icom_task.h"
 #include "icom_timer_api.h"
+#include "nvs_flash.h"
 
 typedef struct {
     int handle;
@@ -79,6 +80,8 @@ void app_main(void)
 {
 
     printf(" INFO : Starting Main Task \n");
+
+    nvs_flash_init();
 
     icom_create_task_queue(ICOM_TASK_ID_MAIN);
 

@@ -748,7 +748,7 @@ void app_main(void)
 
     while(status[0] == 0){
         akbi_check_fsm_state_and_respond(status);
-        vTaskDelay(1000);;
+        vTaskDelay(1000);
     }
 
     //gatt server init
