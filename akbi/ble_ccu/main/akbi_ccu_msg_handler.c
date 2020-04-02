@@ -147,13 +147,58 @@ void akbi_process_rx_serial_data(char *ccu_msg,int length)
 
         case BT_CP_OPCODE_CID_SELECT_A_WIFI_RESULT:
             akbi_set_fsm_state(FSM_STATE_WIFI_CONNECT_COMPLETE);
-            ep_return_message[BLE_RET_MSG_RC_OFFSET] = p_payload[0];
+            // ep_return_message[BLE_RET_MSG_RC_OFFSET] = p_payload[0];
+            switch(p_payload[0]) {
+
+                case SERVER_CONNECTED:
+                    ep_return_message[BLE_RET_MSG_RC_OFFSET] = 0x00;
+                    break;
+
+                case INET_CONNECTED:
+                    ep_return_message[BLE_RET_MSG_RC_OFFSET] = 0x00;//0x30;
+                    break;
+
+                case WIFI_CONNECTED:
+                    ep_return_message[BLE_RET_MSG_RC_OFFSET] = 0x00;//0x31;
+                    break;
+
+                case NOT_CONNECTED:
+                    ep_return_message[BLE_RET_MSG_RC_OFFSET] =  0x10;//0x33;
+                    break;
+
+                default:
+                    printf("undefined wifi result code \n" );
+                    break;
+            }
+
+
             break;
 
         case BT_CP_OPCODE_CID_WIFI_CONNECT_COMPLETED:
             akbi_set_fsm_state(FSM_STATE_WIFI_CONNECT_COMPLETE);
-            ep_return_message[BLE_RET_MSG_RC_OFFSET] = p_payload[0];
-            return;
+            // ep_return_message[BLE_RET_MSG_RC_OFFSET] = p_payload[0];
+            switch(p_payload[0]) {
+
+                case SERVER_CONNECTED:
+                    ep_return_message[BLE_RET_MSG_RC_OFFSET] = 0x00;
+                    break;
+
+                case INET_CONNECTED:
+                    ep_return_message[BLE_RET_MSG_RC_OFFSET] = 0x00;//0x30;
+                    break;
+
+                case WIFI_CONNECTED:
+                    ep_return_message[BLE_RET_MSG_RC_OFFSET] = 0x00;//0x31;
+                    break;
+
+                case NOT_CONNECTED:
+                    ep_return_message[BLE_RET_MSG_RC_OFFSET] = 0x10;// 0x33;
+                    break;
+
+                default:
+                    printf("undefined wifi result code \n" );
+                    break;
+            }
             break;
 
         case BT_CP_OPCODE_CID_DISCONNECT_FROM_WIFI_STATUS:
