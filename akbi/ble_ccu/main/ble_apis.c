@@ -224,8 +224,6 @@ int execute_record_personal_voice_msg(unsigned char voice_msg_index,char * msg)
 int execute_store_emergency_number(char *i_cmd, char *i_ret_msg)
 {
     char data_type       = i_cmd[BLE_CMD_MULTI_DATA_TYPE_OFFSET];
-    int data_len_in_ble  = MOB_NO_SIZE;
-    char i_emergency_number[data_len_in_ble];
 
     akbi_set_fsm_state(FSM_STATE_SET_EMER_NUM_SENDING);
 
@@ -705,7 +703,7 @@ int store_and_send_address_visiting_audio_data(char * data, char audio_number)
          */
         ets_delay_us(200*1000);
 
-        ccu_sent_address_visiting_raw(&voice_data_buffer[buffer_number], chunk_offset,audio_number);
+        ccu_sent_address_visiting_raw((char *)&voice_data_buffer[buffer_number], chunk_offset,audio_number);
         buffer_number = 0x00;
         chunk_offset = 0x00;
         flag_sending_voice_data = 0x00;
@@ -718,7 +716,7 @@ int store_and_send_address_visiting_audio_data(char * data, char audio_number)
        * explicit delay for ccu to distinguish between packets
        */
       ets_delay_us(200*1000);
-        ccu_sent_address_visiting_raw(&voice_data_buffer[buffer_number], chunk_offset,audio_number);
+        ccu_sent_address_visiting_raw((char *)&voice_data_buffer[buffer_number], chunk_offset,audio_number);
         buffer_number ++;
         buffer_number = buffer_number%VOICE_DATA_BUFFER_NUM;
         chunk_offset = 0x00;
@@ -745,7 +743,7 @@ int store_and_send_voice_data(char * data, char audio_number)
          */
         ets_delay_us(200*1000);
 
-        ccu_sent_record_voice_msg_raw(&voice_data_buffer[buffer_number], chunk_offset,audio_number);
+        ccu_sent_record_voice_msg_raw((char *)&voice_data_buffer[buffer_number], chunk_offset,audio_number);
         buffer_number = 0x00;
         chunk_offset = 0x00;
         flag_sending_voice_data = 0x00;
@@ -758,7 +756,7 @@ int store_and_send_voice_data(char * data, char audio_number)
        * explicit delay for ccu to distinguish between packets
        */
       ets_delay_us(200*1000);
-        ccu_sent_record_voice_msg_raw(&voice_data_buffer[buffer_number], chunk_offset,audio_number);
+        ccu_sent_record_voice_msg_raw((char *)&voice_data_buffer[buffer_number], chunk_offset,audio_number);
         buffer_number ++;
         buffer_number = buffer_number%VOICE_DATA_BUFFER_NUM;
         chunk_offset = 0x00;
