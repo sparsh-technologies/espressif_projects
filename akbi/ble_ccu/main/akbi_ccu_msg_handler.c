@@ -166,6 +166,10 @@ void akbi_process_rx_serial_data(char *ccu_msg,int length)
                     ep_return_message[BLE_RET_MSG_RC_OFFSET] =  0x10;//0x33;
                     break;
 
+                case PAIRED_WIFI_UNREACHABLE:
+                    ep_return_message[BLE_RET_MSG_RC_OFFSET] =  0x10;//0x33;
+                    break;
+
                 default:
                     printf("undefined wifi result code \n" );
                     break;
@@ -193,6 +197,10 @@ void akbi_process_rx_serial_data(char *ccu_msg,int length)
 
                 case NOT_CONNECTED:
                     ep_return_message[BLE_RET_MSG_RC_OFFSET] = 0x10;// 0x33;
+                    break;
+
+                case PAIRED_WIFI_UNREACHABLE:
+                    ep_return_message[BLE_RET_MSG_RC_OFFSET] =  0x10;//0x33;
                     break;
 
                 default:

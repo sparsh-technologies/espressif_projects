@@ -155,7 +155,7 @@ typedef struct _personal_numbers_ {
 
 typedef enum {STATION = 0, ACCESS_POINT} WIFI_MODE;
 
-typedef enum {NOT_CONNECTED = 3, WIFI_CONNECTED = 2, INET_CONNECTED = 1, SERVER_CONNECTED = 0} WIFI_STATUS;
+typedef enum {PAIRED_WIFI_UNREACHABLE = 4,NOT_CONNECTED = 3, WIFI_CONNECTED = 2, INET_CONNECTED = 1, SERVER_CONNECTED = 0} WIFI_STATUS;
 
 typedef struct _wifi_ {
 
