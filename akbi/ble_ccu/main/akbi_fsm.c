@@ -85,7 +85,7 @@ int akbi_check_fsm_state_and_respond(char *ep_return_message)
         ret = 1;
         break;
 
-    case FSM_STATE_LOGIN_SUCCESS :
+    case FSM_STATE_LOGIN_STATUS :
         // printf("return login success\n" );
         this_ccu.paired_mob1.authentication_status = AUTHENTICATED;
         ret = 0;

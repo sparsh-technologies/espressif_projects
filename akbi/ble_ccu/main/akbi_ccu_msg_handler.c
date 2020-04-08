@@ -130,18 +130,23 @@ void akbi_process_rx_serial_data(char *ccu_msg,int length)
             break;
 
         case BT_CP_OPCODE_CID_LOGIN_STATUS:
+            akbi_set_fsm_state(FSM_STATE_LOGIN_STATUS);
+            
             if (p_payload[0] == SUCCESS) {
-                akbi_set_fsm_state(FSM_STATE_LOGIN_SUCCESS);
+
                 ep_return_message[BLE_RET_MSG_DATA_TYPE_OFFSET] = post_result;
                 if(post_result != 0x07){
-                  ep_return_message[BLE_RET_MSG_RC_OFFSET] = BLE_RET_POST_DATA_ERROR;
-                   ep_return_message[BLE_RET_MSG_RC_OFFSET+1] = post_result;
+                    ep_return_message[BLE_RET_MSG_RC_OFFSET] = BLE_RET_POST_DATA_ERROR;
+                    ep_return_message[BLE_RET_MSG_RC_OFFSET+1] = post_result;
                 }
                 else{
                     memcpy(&ep_return_message[BLE_RET_MSG_FIRMWARE_VERSION_OFFSET],firmware_version,strlen(firmware_version));
                     ep_return_message[BLE_RET_MSG_RC_OFFSET] = SUCCESS;
                 }
                 return;
+            }
+            else if (p_payload[0] ==ERROR_LOGIN_PASSWORD_MISMATCH){
+                ep_return_message[BLE_RET_MSG_RC_OFFSET] = ERROR_LOGIN_PASSWORD_MISMATCH;
             }
             break;
 
