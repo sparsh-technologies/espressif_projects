@@ -179,7 +179,13 @@ static void gap_event_handler(esp_gap_ble_cb_event_t event, esp_ble_gap_cb_param
     switch (event) {
 
     case ESP_GAP_BLE_ADV_DATA_RAW_SET_COMPLETE_EVT:
+
+        // while(ep_return_message[0] == 0){
+        //     akbi_check_fsm_state_and_respond(ep_return_message);
+        //     vTaskDelay(1000);
+        // }
         esp_ble_gap_start_advertising(&adv_params);
+        execute_akbi_sent_adv_started_msg();
         break;
 
     case ESP_GAP_BLE_SCAN_RSP_DATA_RAW_SET_COMPLETE_EVT:
@@ -332,6 +338,11 @@ static void gatts_profile_a_event_handler(esp_gatts_cb_event_t event, esp_gatt_i
         gl_profile_tab[PROFILE_A_APP_ID].service_id.id.uuid.uuid.uuid16 = GATTS_SERVICE_UUID_A;
         //TODO: get serial number from processor and append with BLE_ADV_NAME
         //init BLE adv data and scan response data
+
+        while(ep_return_message[0] == 0){
+            akbi_check_fsm_state_and_respond(ep_return_message);
+            vTaskDelay(1000);
+        }
         memset(adv_ser_no,0x00,ADV_SER_NO_SIZE+1);
         memcpy(adv_ser_no,ccu_serial_no+5,ADV_SER_NO_SIZE);
         memset(adv_full_name,0x00,strlen(adv_full_name));
@@ -743,13 +754,7 @@ void app_main(void)
 
     create_uart_task(NULL);
 
-    char status[2];
-    status[0] = 0x00;
 
-    while(status[0] == 0){
-        akbi_check_fsm_state_and_respond(status);
-        vTaskDelay(1000);
-    }
 
     //gatt server init
     ble_gatts_init();

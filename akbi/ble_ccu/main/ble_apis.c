@@ -500,6 +500,12 @@ int update_trip_info()
     return 0;
 
 }
+int execute_akbi_sent_adv_started_msg()
+{
+    ccu_sent_adv_started_msg();
+    return 0;
+}
+
 
 
 /*

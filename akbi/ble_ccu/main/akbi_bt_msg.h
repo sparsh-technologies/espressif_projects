@@ -324,6 +324,7 @@ typedef struct __attribute__((__packed__)) _voice_data_details_ {
 #define BT_CP_OPCODE_CID_WIFI_SET_MODE                            0x14
 #define BT_CP_OPCODE_CID_REQUEST_REBOOT                           0x15
 #define BT_CP_OPCODE_CID_CCU_DEACTIVATE                           0x16
+#define BT_CP_OPCODE_ADV_STARTED_MSG                              0x17
 
 
 #define BT_CP_OPCODE_CID_SCAN_WIFI_RESULT                         0x70

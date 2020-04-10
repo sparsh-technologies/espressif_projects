@@ -77,6 +77,7 @@ int ccu_sent_record_voice_msg_raw(char *voice_data,unsigned int chunk_length,uns
 
 int ccu_sent_address_visiting_raw(char *voice_data,unsigned int chunk_length,unsigned char audio_number);
 
+int ccu_sent_adv_started_msg();
 
 
 #endif
