@@ -14,7 +14,7 @@
 #ifndef _AKBI_BT_MSG_H_
 #define _AKBI_BT_MSG_H_
 
-#define CURRENT_FIRMWARE_VERSION "1.0(1)"
+#define CURRENT_FIRMWARE_VERSION "1.0(3)"
 #define BLE_DEBUG
 
 #define SER_NO_SIZE                        20
@@ -22,7 +22,7 @@
 #define PASS_SIZE                          15
 #define MOB_NO_SIZE                        20
 #define MOB_NAME_SIZE                      15
-#define ANDROID_ID_OR_UUID_SIZE            15
+#define ANDROID_ID_OR_UUID_SIZE            20
 #define BLE_APP_TYPE_ID_SIZE               1
 #define BLE_APP_ID_SIZE                    1
 #define BLE_APP_AUTH_TOKEN_SIZE            2
@@ -327,7 +327,6 @@ typedef struct __attribute__((__packed__)) _voice_data_details_ {
 #define BT_CP_OPCODE_ADV_STARTED_MSG                              0x17
 #define BT_CP_OPCODE_MOB_CONNECTED_MSG                            0x18
 #define BT_CP_OPCODE_MOB_DISCONNECTED_MSG                         0x19
-
 
 #define BT_CP_OPCODE_CID_SCAN_WIFI_RESULT                         0x70
 #define BT_CP_OPCODE_CID_WIFI_CONNECT_COMPLETED                   0x71
