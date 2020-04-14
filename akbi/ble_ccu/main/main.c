@@ -213,6 +213,8 @@ static void gap_event_handler(esp_gap_ble_cb_event_t event, esp_ble_gap_cb_param
         break;
 
     case ESP_GAP_BLE_UPDATE_CONN_PARAMS_EVT:
+        execute_akbi_sent_mob_connected_msg();
+
 
         #ifdef DEBUG_ENABLE
         ESP_LOGI(BT_BLE_COEX_TAG, "update connection params status = %d, min_int = %d, max_int = %d,conn_int = %d,latency = %d, timeout = %d",
@@ -529,6 +531,8 @@ static void gatts_profile_a_event_handler(esp_gatts_cb_event_t event, esp_gatt_i
     }
 
     case ESP_GATTS_DISCONNECT_EVT:
+
+        execute_akbi_sent_mob_disconnected_msg();
         #ifdef DEBUG_ENABLE
         ESP_LOGI(BT_BLE_COEX_TAG, "ESP_GATTS_DISCONNECT_EVT");
         #endif

@@ -325,6 +325,8 @@ typedef struct __attribute__((__packed__)) _voice_data_details_ {
 #define BT_CP_OPCODE_CID_REQUEST_REBOOT                           0x15
 #define BT_CP_OPCODE_CID_CCU_DEACTIVATE                           0x16
 #define BT_CP_OPCODE_ADV_STARTED_MSG                              0x17
+#define BT_CP_OPCODE_MOB_CONNECTED_MSG                            0x18
+#define BT_CP_OPCODE_MOB_DISCONNECTED_MSG                         0x19
 
 
 #define BT_CP_OPCODE_CID_SCAN_WIFI_RESULT                         0x70
@@ -343,6 +345,7 @@ typedef struct __attribute__((__packed__)) _voice_data_details_ {
 #define BT_CP_OPCODE_CID_REQUEST_REBOOT_STATUS                    0x7D
 #define BT_CP_OPCODE_CID_UPLOAD_TRIP_INFO_STATUS                  0x7E
 #define BT_CP_OPCODE_CID_CCU_ACTIVATE_STATUS                      0x7F
+#define BT_CP_OPCODE_CID_STOP_BLE_ADV_CMD                         0x80
 
 /*
  * All TVL Types are defined here.

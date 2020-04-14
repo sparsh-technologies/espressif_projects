@@ -506,6 +506,17 @@ int execute_akbi_sent_adv_started_msg()
     return 0;
 }
 
+int execute_akbi_sent_mob_connected_msg()
+{
+    ccu_sent_mob_connected_msg();
+    return 0;
+}
+
+int execute_akbi_sent_mob_disconnected_msg()
+{
+    ccu_sent_mob_disconnected_msg();
+    return 0;
+}
 
 
 /*
@@ -534,7 +545,7 @@ int read_ble_message(char *i_msg, char *i_ret_msg)
     } else {
         is_valid_ble_msg = 0;
         i_ret_msg[BLE_RET_MSG_RC_OFFSET] = ERROR_SOURCE_APP_TYPE_MISMATCH;
-        return (ERROR_SOURCE_APP_TYPE_MISMATCH);
+        // return (ERROR_SOURCE_APP_TYPE_MISMATCH);
     }
 
     ble_cmd_id                           = i_msg[BLE_CMD_OFFSET];
@@ -697,6 +708,11 @@ int store_and_send_address_visiting_audio_data(char * data, char audio_number)
     static int chunk_offset = 0x00;
     static int buffer_number = 0x00;
     static unsigned int received_audio_size = 0x00;
+//to be removed when changes are made to mobile app
+    if (audio_number == 0x00) {
+        return 0;
+    }
+//-------
 
     memcpy( &voice_data_buffer[buffer_number][chunk_offset], &data[4] , 16);
     received_audio_size += 16;

@@ -79,5 +79,9 @@ int ccu_sent_address_visiting_raw(char *voice_data,unsigned int chunk_length,uns
 
 int ccu_sent_adv_started_msg();
 
+int ccu_sent_mob_connected_msg();
+
+int ccu_sent_mob_disconnected_msg();
+
 
 #endif

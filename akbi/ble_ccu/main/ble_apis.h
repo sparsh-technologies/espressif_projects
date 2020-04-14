@@ -8,4 +8,8 @@ int read_ble_message(char *i_msg, char *i_ret_msg);
 
 int execute_akbi_sent_adv_started_msg();
 
+int execute_akbi_sent_mob_connected_msg();
+
+int execute_akbi_sent_mob_disconnected_msg();
+
 #endif

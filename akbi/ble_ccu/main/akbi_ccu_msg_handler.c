@@ -131,7 +131,7 @@ void akbi_process_rx_serial_data(char *ccu_msg,int length)
 
         case BT_CP_OPCODE_CID_LOGIN_STATUS:
             akbi_set_fsm_state(FSM_STATE_LOGIN_STATUS);
-            
+
             if (p_payload[0] == SUCCESS) {
 
                 ep_return_message[BLE_RET_MSG_DATA_TYPE_OFFSET] = post_result;
@@ -160,19 +160,19 @@ void akbi_process_rx_serial_data(char *ccu_msg,int length)
                     break;
 
                 case INET_CONNECTED:
-                    ep_return_message[BLE_RET_MSG_RC_OFFSET] = 0x00;//0x30;
+                    ep_return_message[BLE_RET_MSG_RC_OFFSET] = 0x30;
                     break;
 
                 case WIFI_CONNECTED:
-                    ep_return_message[BLE_RET_MSG_RC_OFFSET] = 0x00;//0x31;
+                    ep_return_message[BLE_RET_MSG_RC_OFFSET] = 0x31;
                     break;
 
                 case NOT_CONNECTED:
-                    ep_return_message[BLE_RET_MSG_RC_OFFSET] =  0x10;//0x33;
+                    ep_return_message[BLE_RET_MSG_RC_OFFSET] =  0x33;
                     break;
 
                 case PAIRED_WIFI_UNREACHABLE:
-                    ep_return_message[BLE_RET_MSG_RC_OFFSET] =  0x10;//0x33;
+                    ep_return_message[BLE_RET_MSG_RC_OFFSET] =  0x34;
                     break;
 
                 default:
@@ -193,19 +193,19 @@ void akbi_process_rx_serial_data(char *ccu_msg,int length)
                     break;
 
                 case INET_CONNECTED:
-                    ep_return_message[BLE_RET_MSG_RC_OFFSET] = 0x00;//0x30;
+                    ep_return_message[BLE_RET_MSG_RC_OFFSET] = 0x30;
                     break;
 
                 case WIFI_CONNECTED:
-                    ep_return_message[BLE_RET_MSG_RC_OFFSET] = 0x00;//0x31;
+                    ep_return_message[BLE_RET_MSG_RC_OFFSET] = 0x31;
                     break;
 
                 case NOT_CONNECTED:
-                    ep_return_message[BLE_RET_MSG_RC_OFFSET] = 0x10;// 0x33;
+                    ep_return_message[BLE_RET_MSG_RC_OFFSET] = 0x33;
                     break;
 
                 case PAIRED_WIFI_UNREACHABLE:
-                    ep_return_message[BLE_RET_MSG_RC_OFFSET] =  0x10;//0x33;
+                    ep_return_message[BLE_RET_MSG_RC_OFFSET] =  0x34;
                     break;
 
                 default:
@@ -318,6 +318,10 @@ void akbi_process_rx_serial_data(char *ccu_msg,int length)
         case BT_CP_OPCODE_CID_CCU_ACTIVATE_STATUS:
             akbi_set_fsm_state(FSM_STATE_ACTIVATE_COMPLETE);
             ep_return_message[BLE_RET_MSG_RC_OFFSET] = p_payload[0];
+            break;
+
+        case BT_CP_OPCODE_CID_STOP_BLE_ADV_CMD:
+            printf("Received BT_CP_OPCODE_CID_STOP_BLE_ADV_CMD\n" );
             break;
 
         /*case BT_CP_OPCODE_CID_CCU_ACTIVATE:
