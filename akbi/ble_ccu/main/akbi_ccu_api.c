@@ -22,13 +22,6 @@
 
 #define BT_BLE_COEX_TAG             "CCU_API"
 
-extern char saved_timestamp[15];
-
-int get_timestamp(char *time_stamp)
-{
-    memcpy(time_stamp,saved_timestamp,TIMESTAMP_SIZE);
-    return 0;
-}
 
 int ccu_sent_subg_clear_learning_msg(char *p_tx_buffer,char *ep_return_message)
 {
@@ -459,12 +452,12 @@ int ccu_sent_store_personal_number_msg(char *received_value_buffer)
     return (0);
 }
 
-int ccu_sent_address_visiting(unsigned char voice_msg_index, unsigned int voice_msg_length)
+int ccu_sent_address_visiting(char *timestamp, unsigned int voice_msg_length)
 {
 
     BT_CP_PROTOCOL_HDR  *p_protocol_hdr;
     int                 length;
-    char                p_tx_buffer[25],timestamp[15];
+    char                p_tx_buffer[25];
     char                *p;
     VOICE_DATA_DETAILS  *voice_details;
     BT_CP_TLV_HDR       *p_tlv_hdr;
@@ -482,20 +475,19 @@ int ccu_sent_address_visiting(unsigned char voice_msg_index, unsigned int voice_
 
     voice_details = (VOICE_DATA_DETAILS *)p;
 
-    voice_details->msg_number  = voice_msg_index;
+    voice_details->msg_number  = 0x01;
     voice_details->length = voice_msg_length;
 
     p = p + sizeof(VOICE_DATA_DETAILS);
 
     p_tlv_hdr = (BT_CP_TLV_HDR *)p;
 
-    p_tlv_hdr->type   = TLV_TYPE_TIMESTAMP;
+    p_tlv_hdr->type   = TLV_TYPE_ADDRESS_VISITING_TIMESTAMP;
     p_tlv_hdr->length = TIMESTAMP_SIZE;
 
-    get_timestamp(timestamp);
     memcpy(p_tlv_hdr->data,timestamp,TIMESTAMP_SIZE);
 
-    // printf(" INFO : Sending Address visiting Message %s\n",timestamp);
+    printf(" INFO : Sending Address visiting Message %s\n",timestamp);
 
     length = sizeof(BT_CP_PROTOCOL_HDR) + p_protocol_hdr->length + sizeof(VOICE_DATA_DETAILS)+sizeof(BT_CP_TLV_HDR)+TIMESTAMP_SIZE;
 

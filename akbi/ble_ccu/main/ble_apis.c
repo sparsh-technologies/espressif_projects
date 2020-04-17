@@ -33,14 +33,13 @@ static char saved_messages[4][21];
 static char *p_recvd_msg_full;
 static int flag_set_recvd_msg_ptr = 0;
 extern char adv_ser_no[5];
-char flag_sending_voice_data = 0;
+// char flag_sending_voice_data = 0;
 extern char ep_return_message[20];
-unsigned int voice_msg_length;
-char saved_timestamp[15];
+// unsigned int voice_msg_length;
 
 
-int store_and_send_voice_data(char * data , char audio_number);
-int store_and_send_address_visiting_audio_data(char * data, char audio_number);
+int store_and_send_voice_data(char * data, char audio_number,int voice_message_length);
+int store_and_send_address_visiting_audio_data(char * data, unsigned char audio_number,int voice_message_length);
 
 
 /*
@@ -57,11 +56,6 @@ void set_recvd_msg_pointer(char *received_value_buffer){
     flag_set_recvd_msg_ptr = 1;
 }
 
-int save_timestamp(char *time_stamp)
-{
-    memcpy(saved_timestamp,time_stamp,TIMESTAMP_SIZE);
-    return 0;
-}
 
 int save_group_messages(char *received_value_buffer,int type_id)
 {
@@ -199,25 +193,77 @@ int execute_change_password(char *i_cmd, char *i_ret_msg)
     return (int)i_ret_msg[BLE_RET_MSG_RC_OFFSET];
 }
 
-int execute_record_personal_voice_msg(unsigned char voice_msg_index,char * msg)
+// int execute_record_personal_voice_msg(unsigned char voice_msg_index,char * msg)
+// {
+//     if(msg[BLE_MSG_VOICE_DATA_TLV_LEN_OFFSET] == 0x03 ){//less than 10 kB
+//
+//         voice_msg_length = msg[5]*100 + msg[6];
+//     }
+//     else if(msg[BLE_MSG_VOICE_DATA_TLV_LEN_OFFSET] == 0x04 ){//more than 10 kB
+//
+//         voice_msg_length = (msg[5]*1000) + (msg[6]*10) + msg[7];
+//     }
+//     ep_return_message[BLE_RET_MSG_RC_OFFSET] = SUCCESS;
+//
+//     /*
+//      * explicit delay for ccu to distinguish between packets
+//      */
+//     ets_delay_us(200*1000);
+//     ccu_sent_record_voice_msg(voice_msg_index,voice_msg_length);
+//
+//     flag_sending_voice_data = 0x01;
+//     return 0;
+// }
+
+int execute_record_personal_voice_msg_new(char * msg)
 {
-    if(msg[BLE_MSG_VOICE_DATA_TLV_LEN_OFFSET] == 0x03 ){//less than 10 kB
+    static unsigned int voice_message_length = 0;
+    static char         flag_sending_voice_data = 0;
+    unsigned char       voice_msg_index;
+    unsigned char       voice_msg_tlv_length;
 
-        voice_msg_length = msg[5]*100 + msg[6];
+    voice_msg_index  = msg[BLE_MSG_VOICE_RAW_DATA_AUDIO_NUM_OFFSET];
+
+    if (flag_sending_voice_data)
+    {
+        if (voice_msg_index == 0x08) {
+            flag_sending_voice_data = 0;
+            ep_return_message[BLE_RET_MSG_RC_OFFSET] = SUCCESS;
+            akbi_set_fsm_state(FSM_STATE_VOICE_RECORDING_COMPLETE);
+            return 0;
+        }
+        store_and_send_voice_data(msg, voice_msg_index,voice_message_length);
+        return 0;
     }
-    else if(msg[BLE_MSG_VOICE_DATA_TLV_LEN_OFFSET] == 0x04 ){//more than 10 kB
-
-        voice_msg_length = (msg[5]*1000) + (msg[6]*10) + msg[7];
+    else{
+        voice_msg_tlv_length = voice_msg_index;
+        voice_msg_index = msg[BLE_MSG_VOICE_DATA_AUDIO_NUM_OFFSET];
     }
-    ep_return_message[BLE_RET_MSG_RC_OFFSET] = SUCCESS;
 
+
+    switch (voice_msg_tlv_length)
+    {
+      case 0x03:
+          voice_message_length = msg[5]*100 + msg[6];
+          flag_sending_voice_data = 1;
+          ccu_sent_record_voice_msg(voice_msg_index,voice_message_length);
+
+          break;
+
+      case 0x04:
+          voice_message_length = msg[5]*1000 + msg[6]*10 +msg[7];
+          flag_sending_voice_data = 1;
+          ccu_sent_record_voice_msg(voice_msg_index,voice_message_length);
+          break;
+
+      default:
+          printf("udefined msg byte %02x\n",voice_msg_index );
+    }
     /*
      * explicit delay for ccu to distinguish between packets
      */
     ets_delay_us(200*1000);
-    ccu_sent_record_voice_msg(voice_msg_index,voice_msg_length);
 
-    flag_sending_voice_data = 0x01;
     return 0;
 }
 
@@ -400,33 +446,6 @@ int execute_disconnect_from_wifi(char *i_ret_msg)
     return (int)i_ret_msg[BLE_RET_MSG_RC_OFFSET];
 }
 
-int execute_store_address_visiting(unsigned char voice_msg_index,char * msg)
-{
-    char time_stamp[15];
-    if (voice_msg_index == 0x00) {
-        memcpy(time_stamp,&msg[BLE_MSG_SINGLE_DATA_TIMESTAMP_OFFSET],TIMESTAMP_SIZE);
-        save_timestamp(time_stamp);
-        return 0;
-    }
-
-    if(msg[BLE_MSG_VOICE_DATA_TLV_LEN_OFFSET]==0x03){//less than 10 kb
-        voice_msg_length = msg[5]*100 + msg[6];
-    }
-    else if(msg[BLE_MSG_VOICE_DATA_TLV_LEN_OFFSET]==0x04){//more than 10 kb
-        voice_msg_length = msg[5]*1000 + msg[6]*10 +msg[7];
-    }
-    ep_return_message[BLE_RET_MSG_RC_OFFSET] = SUCCESS;
-
-    /*
-     * explicit delay for ccu to distinguish between packets
-     */
-    ccu_sent_address_visiting(voice_msg_index,voice_msg_length);
-    ets_delay_us(200*1000);
-
-    flag_sending_voice_data = 0x01;
-    return 0;
-}
-
 int execute_ccu_activate(char *i_cmd,char *i_ret_msg)
 {
   char data_type       = i_cmd[BLE_CMD_MULTI_DATA_TYPE_OFFSET];
@@ -518,6 +537,45 @@ int execute_akbi_sent_mob_disconnected_msg()
     return 0;
 }
 
+int execute_store_address_visiting_new(char *msg)
+{
+    static unsigned int voice_message_length = 0;
+    static char time_stamp[15];
+    unsigned char voice_msg_index;
+
+    voice_msg_index  = msg[BLE_MSG_VOICE_RAW_DATA_AUDIO_NUM_OFFSET];
+
+    switch (voice_msg_index) {
+      case 0x00:
+          memcpy(time_stamp,&msg[BLE_MSG_SINGLE_DATA_TIMESTAMP_OFFSET-1],TIMESTAMP_SIZE);
+          printf("timestamp saved : %s\n", time_stamp);
+          ep_return_message[BLE_RET_MSG_RC_OFFSET] = SUCCESS;
+
+          /*
+           * explicit delay for ccu to distinguish between packets
+           */
+          ccu_sent_address_visiting(time_stamp,voice_message_length);
+          ets_delay_us(200*1000);
+          break;
+
+      case 0x01:
+          store_and_send_address_visiting_audio_data(msg, voice_msg_index,voice_message_length);
+          break;
+
+      case 0x03:
+          voice_message_length = msg[5]*100 + msg[6];
+          break;
+
+      case 0x04:
+          voice_message_length = msg[5]*1000 + msg[6]*10 +msg[7];
+          break;
+
+      default:
+          printf("udefined msg offset %02x\n",voice_msg_index );
+    }
+
+    return 0;
+}
 
 /*
  * This API will read the packets from the mobile phone and process the packets.
@@ -532,7 +590,6 @@ int read_ble_message(char *i_msg, char *i_ret_msg)
     char ble_command[BLE_COMMAND_SIZE];
     source_app_type_identifier = i_msg[BLE_APP_TYPE_OFFSET];
     source_app_identifier      = i_msg[BLE_APP_OFFSET];
-    char voice_msg_index;
 
     memset(ble_command,0x00,BLE_COMMAND_SIZE);
 
@@ -599,14 +656,16 @@ int read_ble_message(char *i_msg, char *i_ret_msg)
             break;
 
         case CID_RECORD_PERSONAL_VOICE_MSG :
-            if(flag_sending_voice_data){
-                voice_msg_index  = i_msg[BLE_MSG_VOICE_RAW_DATA_AUDIO_NUM_OFFSET];
-                store_and_send_voice_data(i_msg , voice_msg_index);
-            }
-            else{
-                voice_msg_index  = i_msg[BLE_MSG_VOICE_DATA_AUDIO_NUM_OFFSET];
-                execute_record_personal_voice_msg(voice_msg_index,i_msg);
-            }
+            // if(flag_sending_voice_data){
+            //     voice_msg_index  = i_msg[BLE_MSG_VOICE_RAW_DATA_AUDIO_NUM_OFFSET];
+            //     store_and_send_voice_data(i_msg , voice_msg_index);
+            // }
+            // else{
+            //     voice_msg_index  = i_msg[BLE_MSG_VOICE_DATA_AUDIO_NUM_OFFSET];
+            //     execute_record_personal_voice_msg(voice_msg_index,i_msg);
+            // }
+            akbi_set_fsm_state(FSM_STATE_VOICE_RECORDING_IN_PROGRESS);
+            execute_record_personal_voice_msg_new(i_msg);
             break;
 
         case CID_STORE_EMERGENCY_NUMBERS :
@@ -639,14 +698,16 @@ int read_ble_message(char *i_msg, char *i_ret_msg)
 
         case CID_ADDRESS_VISITING :
 
-            if(flag_sending_voice_data){
-                voice_msg_index  = i_msg[BLE_MSG_VOICE_RAW_DATA_AUDIO_NUM_OFFSET];
-                store_and_send_address_visiting_audio_data(i_msg , voice_msg_index);
-            }
-            else{
-                voice_msg_index  = i_msg[BLE_MSG_VOICE_DATA_AUDIO_NUM_OFFSET];
-                execute_store_address_visiting(voice_msg_index,i_msg);
-            }
+            // if(flag_sending_voice_data){
+            //     voice_msg_index  = i_msg[BLE_MSG_VOICE_RAW_DATA_AUDIO_NUM_OFFSET];
+            //     store_and_send_address_visiting_audio_data(i_msg , voice_msg_index);
+            // }
+            // else{
+            //     voice_msg_index  = i_msg[BLE_MSG_VOICE_DATA_AUDIO_NUM_OFFSET];
+            //     execute_store_address_visiting(voice_msg_index,i_msg);
+            // }
+            execute_store_address_visiting_new(i_msg);
+
             break;
 
         case CID_ENTER_LOCAL_HELP_NUMBERS :
@@ -703,23 +764,17 @@ int read_ble_message(char *i_msg, char *i_ret_msg)
 
 char voice_data_buffer[VOICE_DATA_BUFFER_NUM][256];
 
-int store_and_send_address_visiting_audio_data(char * data, char audio_number)
+int store_and_send_address_visiting_audio_data(char * data, unsigned char audio_number,int voice_message_length)
 {
     static int chunk_offset = 0x00;
     static int buffer_number = 0x00;
     static unsigned int received_audio_size = 0x00;
-//to be removed when changes are made to mobile app
-    if (audio_number == 0x00) {
-        return 0;
-    }
-//-------
 
     memcpy( &voice_data_buffer[buffer_number][chunk_offset], &data[4] , 16);
     received_audio_size += 16;
     chunk_offset += 16;
-
-    if (received_audio_size >= voice_msg_length){
-        chunk_offset -= 16 - (voice_msg_length %16);
+    if (received_audio_size >= voice_message_length){
+        chunk_offset -= 16 - (voice_message_length %16);
         /*
          * explicit delay for ccu to distinguish between packets
          */
@@ -728,7 +783,6 @@ int store_and_send_address_visiting_audio_data(char * data, char audio_number)
         ccu_sent_address_visiting_raw((char *)&voice_data_buffer[buffer_number], chunk_offset,audio_number);
         buffer_number = 0x00;
         chunk_offset = 0x00;
-        flag_sending_voice_data = 0x00;
         received_audio_size = 0x00;
         return 0;
     }
@@ -748,7 +802,7 @@ int store_and_send_address_visiting_audio_data(char * data, char audio_number)
     return 0;
 }
 
-int store_and_send_voice_data(char * data, char audio_number)
+int store_and_send_voice_data(char * data, char audio_number,int voice_message_length)
 {
     static int chunk_offset = 0x00;
     static int buffer_number = 0x00;
@@ -758,8 +812,8 @@ int store_and_send_voice_data(char * data, char audio_number)
     received_audio_size += 16;
     chunk_offset += 16;
 
-    if (received_audio_size >= voice_msg_length){
-        chunk_offset -= 16 - (voice_msg_length %16);
+    if (received_audio_size >= voice_message_length){
+        chunk_offset -= 16 - (voice_message_length %16);
         /*
          * explicit delay for ccu to distinguish between packets
          */
@@ -768,7 +822,7 @@ int store_and_send_voice_data(char * data, char audio_number)
         ccu_sent_record_voice_msg_raw((char *)&voice_data_buffer[buffer_number], chunk_offset,audio_number);
         buffer_number = 0x00;
         chunk_offset = 0x00;
-        flag_sending_voice_data = 0x00;
+        // flag_sending_voice_data = 0x00;
         received_audio_size = 0x00;
         return 0;
     }

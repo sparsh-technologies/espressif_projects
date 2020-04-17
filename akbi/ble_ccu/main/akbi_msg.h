@@ -14,8 +14,6 @@
 #ifndef _AKBI_MSG_H_
 #define _AKBI_MSG_H_
 
-#define CURRENT_FIRMWARE_VERSION "1.0(1)"
-
 #define BLE_DEBUG
 
 #define  NEWLINE                                 '\n'
