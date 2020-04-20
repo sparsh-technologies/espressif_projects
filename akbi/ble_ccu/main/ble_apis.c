@@ -570,6 +570,11 @@ int execute_store_address_visiting_new(char *msg)
           voice_message_length = msg[5]*1000 + msg[6]*10 +msg[7];
           break;
 
+      case 0x08:
+          ep_return_message[BLE_RET_MSG_RC_OFFSET] = SUCCESS;
+          akbi_set_fsm_state(FSM_STATE_VOICE_RECORDING_COMPLETE);
+          break;
+
       default:
           printf("udefined msg offset %02x\n",voice_msg_index );
     }
