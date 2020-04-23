@@ -37,7 +37,7 @@ int ccu_sent_subg_learning_msg(char *p_tx_buffer);
 
 int ccu_send_reg_msg(char *received_value_buffer ,char *ret_msg);
 
-int ccu_send_login_msg(char * password, int data_len);
+int ccu_send_login_msg(char * password, int data_len,char * time_stamp);
 
 int ccu_sent_scan_all_wifi_msg(char *ret_msg);
 

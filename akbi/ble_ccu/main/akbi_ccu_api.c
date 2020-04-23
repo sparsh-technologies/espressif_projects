@@ -120,14 +120,15 @@ int ccu_send_reg_msg_new(int type, char *received_value_buffer, int data_len)
     return 0;
 }
 
-int ccu_send_login_msg(char * password, int data_len)
+int ccu_send_login_msg(char * password, int data_len,char * time_stamp)
 {
     BT_CP_PROTOCOL_HDR  *p_protocol_hdr;
     int                 length;
     char                p_tx_buffer[25];
     char                *p;
+    BT_CP_TLV_HDR       *p_tlv_hdr;
 
-    //printf(" INFO : Sending LOGIN Message \n");
+    // printf(" INFO : Sending LOGIN Message %s %s\n",password,time_stamp);
     p_protocol_hdr = (BT_CP_PROTOCOL_HDR *)p_tx_buffer;
 
     p_protocol_hdr->opcode   = BT_CP_OPCODE_CID_LOGIN;
@@ -138,7 +139,15 @@ int ccu_send_login_msg(char * password, int data_len)
     p = p_tx_buffer + sizeof(BT_CP_PROTOCOL_HDR);
     memcpy(p, password, p_protocol_hdr->length);
 
-    length = sizeof(BT_CP_PROTOCOL_HDR) + p_protocol_hdr->length;
+    p = p + p_protocol_hdr->length;
+    p_tlv_hdr = (BT_CP_TLV_HDR*)p;
+
+    p_tlv_hdr->type = TLV_TYPE_LOGIN_TIMESTAMP;
+    p_tlv_hdr->length = TIMESTAMP_SIZE;
+
+    memcpy(p_tlv_hdr->data,time_stamp,TIMESTAMP_SIZE);
+
+    length = sizeof(BT_CP_PROTOCOL_HDR) + p_protocol_hdr->length + sizeof(BT_CP_TLV_HDR) + TIMESTAMP_SIZE;
     send_uart_message(p_tx_buffer, length );
 
     return 0;

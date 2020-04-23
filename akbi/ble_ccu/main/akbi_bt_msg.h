@@ -51,6 +51,8 @@
 #define ACTIVATIONS_COUNT                  10
 #define WIFI_CONNECTIONS_COUNT             10
 
+#define ALL_SUCCESS_POST_VALUE             0x07
+
 #define CID_REGISTER                       0x01
 #define CID_LOGIN                          0x02
 #define CID_FORGOT_PASSWORD                0x03
@@ -365,6 +367,11 @@ typedef struct __attribute__((__packed__)) _voice_data_details_ {
 #define TLV_TYPE_UPLOAD_TRIP_INFO_STATUS_RESULT                   0x09
 
 #define TLV_TYPE_TIMESTAMP                                        0x01
+
+/*
+ * TLV Types for BT_CP_OPCODE_CID_LOGIN Opcode
+ */
+#define TLV_TYPE_LOGIN_TIMESTAMP                                  0x02
 
 /*
  * TLV Types for BT_CP_OPCODE_CID_CCU_ACTIVATE Opcode

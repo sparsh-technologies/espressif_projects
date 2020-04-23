@@ -132,12 +132,26 @@ int execute_register(char *i_cmd, char *i_ret_msg)
  */
 int execute_login(char *i_cmd, char *i_ret_msg)
 {
-    int data_len_in_ble  = (int)i_cmd[BLE_CMD_SINGLE_DATA_LEN_OFFSET];
-    char i_pwd[data_len_in_ble];
+    char data_type       = i_cmd[BLE_CMD_MULTI_DATA_TYPE_OFFSET];
+    int data_len_in_ble  = (int)i_cmd[BLE_CMD_MULTI_DATA_LEN_OFFSET];
+    static char i_pwd[20];
+    static char timestamp[15];
 
-    memcpy(i_pwd,&i_cmd[BLE_CMD_SINGLE_DATA_VALUE_OFFSET],data_len_in_ble);
-    akbi_set_fsm_state(FSM_STATE_LOGIN);
-    ccu_send_login_msg(i_pwd,data_len_in_ble);
+    switch (data_type)
+    {
+        case 0x01:
+            memset(i_pwd,0x00,20);
+            i_ret_msg[BLE_RET_MSG_RC_OFFSET] = SUCCESS;
+            memcpy(i_pwd,&i_cmd[BLE_CMD_MULTI_DATA_VALUE_OFFSET],data_len_in_ble);
+            break;
+
+        case 0x02:
+            memset(timestamp,0x00,15);
+            memcpy(timestamp,&i_cmd[BLE_CMD_MULTI_DATA_VALUE_OFFSET],data_len_in_ble);
+            akbi_set_fsm_state(FSM_STATE_LOGIN);
+            ccu_send_login_msg(i_pwd,strlen(i_pwd),timestamp);
+            break;
+    }
     return 0;
 }
 
@@ -647,6 +661,7 @@ int read_ble_message(char *i_msg, char *i_ret_msg)
 
         case CID_LOGIN :
             memcpy(ble_command,&i_msg[BLE_CMD_OFFSET + BLE_COMMAND_ID_SIZE],BLE_COMMAND_SIZE);
+            akbi_set_fsm_state(FSM_STATE_INIT);
             execute_login(ble_command,i_ret_msg);
             break;
 

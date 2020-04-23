@@ -70,7 +70,7 @@ int akbi_check_fsm_state_and_respond(char *ep_return_message)
 
     case FSM_STATE_CCU_READY:
         ep_return_message[0] = 0x47;
-        ret = 1;
+        ret = 0;
         break;
 
     case FSM_STATE_INIT :
