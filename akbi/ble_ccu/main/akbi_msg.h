@@ -78,6 +78,7 @@
 #define BLE_RET_POST_DATA_ERROR                   0x79
 #define ERROR_INFO_NOT_UPLOADED                   0x37
 #define ERROR_ACTIVATE_CCU                        0x80
+#define ERROR_CCU_LOCKED                          0x81
 
 #define ADV_SER_NO_SIZE                           4
 #define BLE_RETURN_MAX_SIZE                       20

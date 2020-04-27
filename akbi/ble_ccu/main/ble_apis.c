@@ -94,7 +94,7 @@ int execute_register(char *i_cmd, char *i_ret_msg)
 
     case DID_REGISTER_ANDROID_ID_OR_UUID :
         i_ret_msg[BLE_RET_MSG_RC_OFFSET] = SUCCESS;
-        ccu_send_reg_msg_new(TLV_TYPE_REGISTER_UNIQUE_ID,&i_cmd[BLE_CMD_MULTI_DATA_VALUE_OFFSET],data_len_in_ble);
+        ccu_send_reg_msg_new(TLV_TYPE_REGISTER_UNIQUE_ID,&i_cmd[BLE_CMD_MULTI_DATA_VALUE_OFFSET],15);
         break;
 
     case DID_REGISTER_LAT :
@@ -136,6 +136,8 @@ int execute_login(char *i_cmd, char *i_ret_msg)
     int data_len_in_ble  = (int)i_cmd[BLE_CMD_MULTI_DATA_LEN_OFFSET];
     static char i_pwd[20];
     static char timestamp[15];
+    static char latitude[15];
+    static char longitude[15];
 
     switch (data_type)
     {
@@ -147,9 +149,26 @@ int execute_login(char *i_cmd, char *i_ret_msg)
 
         case 0x02:
             memset(timestamp,0x00,15);
+            i_ret_msg[BLE_RET_MSG_RC_OFFSET] = SUCCESS;
             memcpy(timestamp,&i_cmd[BLE_CMD_MULTI_DATA_VALUE_OFFSET],data_len_in_ble);
+            // akbi_set_fsm_state(FSM_STATE_LOGIN);
+            // ccu_send_login_msg(i_pwd,strlen(i_pwd),timestamp);
+            break;
+
+        case 0x03:
+            memset(latitude,0x00,15);
+            i_ret_msg[BLE_RET_MSG_RC_OFFSET] = SUCCESS;
+            memcpy(latitude,&i_cmd[BLE_CMD_MULTI_DATA_VALUE_OFFSET],data_len_in_ble);
+            // akbi_set_fsm_state(FSM_STATE_LOGIN);
+            // ccu_send_login_msg(i_pwd,strlen(i_pwd),timestamp);
+            break;
+
+        case 0x04:
+            memset(longitude,0x00,15);
+            memcpy(longitude,&i_cmd[BLE_CMD_MULTI_DATA_VALUE_OFFSET],data_len_in_ble);
             akbi_set_fsm_state(FSM_STATE_LOGIN);
             ccu_send_login_msg(i_pwd,strlen(i_pwd),timestamp);
+            // ccu_send_login_msg(i_pwd,strlen(i_pwd),timestamp,latitude,longitude);
             break;
     }
     return 0;
@@ -562,7 +581,6 @@ int execute_store_address_visiting_new(char *msg)
     switch (voice_msg_index) {
       case 0x00:
           memcpy(time_stamp,&msg[BLE_MSG_SINGLE_DATA_TIMESTAMP_OFFSET-1],TIMESTAMP_SIZE);
-          printf("timestamp saved : %s\n", time_stamp);
           ep_return_message[BLE_RET_MSG_RC_OFFSET] = SUCCESS;
 
           /*

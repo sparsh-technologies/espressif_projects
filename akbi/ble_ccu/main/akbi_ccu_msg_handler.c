@@ -133,7 +133,7 @@ void akbi_process_rx_serial_data(char *ccu_msg,int length)
             akbi_set_fsm_state(FSM_STATE_LOGIN_STATUS);
 
             if (p_payload[0] == SUCCESS) {
-              
+
                 ep_return_message[BLE_RET_MSG_DATA_TYPE_OFFSET] = post_result;
                 if(post_result != ALL_SUCCESS_POST_VALUE){
                     ep_return_message[BLE_RET_MSG_RC_OFFSET] = BLE_RET_POST_DATA_ERROR;
@@ -147,6 +147,10 @@ void akbi_process_rx_serial_data(char *ccu_msg,int length)
             }
             else if (p_payload[0] ==ERROR_LOGIN_PASSWORD_MISMATCH){
                 ep_return_message[BLE_RET_MSG_RC_OFFSET] = ERROR_LOGIN_PASSWORD_MISMATCH;
+            }
+            else if (p_payload[0] ==ERROR_CCU_LOCKED)
+            {
+                ep_return_message[BLE_RET_MSG_RC_OFFSET] = ERROR_CCU_LOCKED;
             }
             break;
 
