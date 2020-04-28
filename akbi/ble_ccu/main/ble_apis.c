@@ -94,7 +94,7 @@ int execute_register(char *i_cmd, char *i_ret_msg)
 
     case DID_REGISTER_ANDROID_ID_OR_UUID :
         i_ret_msg[BLE_RET_MSG_RC_OFFSET] = SUCCESS;
-        ccu_send_reg_msg_new(TLV_TYPE_REGISTER_UNIQUE_ID,&i_cmd[BLE_CMD_MULTI_DATA_VALUE_OFFSET],15);
+        ccu_send_reg_msg_new(TLV_TYPE_REGISTER_UNIQUE_ID,&i_cmd[BLE_CMD_MULTI_DATA_VALUE_OFFSET-1],ANDROID_ID_OR_UUID_SIZE);
         break;
 
     case DID_REGISTER_LAT :

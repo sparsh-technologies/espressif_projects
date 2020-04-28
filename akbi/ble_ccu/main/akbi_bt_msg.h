@@ -22,7 +22,7 @@
 #define PASS_SIZE                          15
 #define MOB_NO_SIZE                        20
 #define MOB_NAME_SIZE                      15
-#define ANDROID_ID_OR_UUID_SIZE            20
+#define ANDROID_ID_OR_UUID_SIZE            16
 #define BLE_APP_TYPE_ID_SIZE               1
 #define BLE_APP_ID_SIZE                    1
 #define BLE_APP_AUTH_TOKEN_SIZE            2
