@@ -1,0 +1,12 @@
+
+ This branch Indus_Master has been created to commit all the changes of the MODBUS-Wifi-BLE bridge
+project. If there are any releases, then we will create another branch based on this and use that
+to track a specific customer or release.
+
+ The naming convention for a specific customer release in that case should be as follows.
+
+ Indus_<Customer-Name>_Rel_<major>_<minor>_<release>
+
+ For example, for Delta, this will be something like
+
+ Indus_Delta_Rel_1_0_1
