@@ -242,6 +242,22 @@ int akbi_check_fsm_state_and_respond(char *ep_return_message)
         ret = 0;
         break;
 
+    case FSM_STATE_TEST_REMOTE_IN_PROGRESS :
+        ret = 1;
+        break;
+
+    case FSM_STATE_TEST_REMOTE_COMPLETE :
+        ret = 0;
+        break;
+
+    case FSM_STATE_PROGRAM_NEW_REMOTE_IN_PROGRESS :
+        ret = 1;
+        break;
+
+    case FSM_STATE_PROGRAM_NEW_REMOTE_COMPLETE :
+        ret = 0;
+        break;
+
     }
     return ret;
 }

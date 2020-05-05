@@ -23,19 +23,20 @@
 #define BT_BLE_COEX_TAG             "CCU_API"
 
 
-int ccu_sent_subg_clear_learning_msg(char *p_tx_buffer,char *ep_return_message)
+int ccu_send_program_new_remote_msg(char data_type)
 {
     BT_CP_PROTOCOL_HDR  *p_protocol_hdr;
     int                 length;
+    char                p_tx_buffer[25];
 
     p_protocol_hdr = (BT_CP_PROTOCOL_HDR *)p_tx_buffer;
 
-    p_protocol_hdr->opcode   = BT_CP_OPCODE_CID_CLEAR_SUB_G_LEARN;
+    p_protocol_hdr->opcode   = BT_CP_OPCODE_CID_PROGRAM_NEW_REMOTE;
     p_protocol_hdr->trans_id = 44;
-    p_protocol_hdr->type     = 0;
+    p_protocol_hdr->type     = data_type;
     p_protocol_hdr->length   = 0;
 
-    //printf(" INFO : Sent CLEAR_SUB_G_LEARN Cmd \n");
+    printf(" INFO : Sent BT_CP_OPCODE_CID_PROGRAM_NEW_REMOTE Cmd \n");
 
     length = sizeof(BT_CP_PROTOCOL_HDR) + p_protocol_hdr->length;
 
@@ -44,19 +45,20 @@ int ccu_sent_subg_clear_learning_msg(char *p_tx_buffer,char *ep_return_message)
     return (0);
 }
 
-int ccu_sent_subg_learning_msg(char *p_tx_buffer,char *ep_return_message)
+int ccu_send_test_remote_msg(char data_type)
 {
     BT_CP_PROTOCOL_HDR  *p_protocol_hdr;
     int                 length;
+    char                p_tx_buffer[25];
 
     p_protocol_hdr = (BT_CP_PROTOCOL_HDR *)p_tx_buffer;
 
-    p_protocol_hdr->opcode   = BT_CP_OPCODE_CID_START_SUB_G_LEARN;
+    p_protocol_hdr->opcode   = BT_CP_OPCODE_CID_TEST_CURRENT_REMOTE;
     p_protocol_hdr->trans_id = 44;
-    p_protocol_hdr->type     = 0;
+    p_protocol_hdr->type     = data_type;
     p_protocol_hdr->length   = 0;
 
-    //printf(" INFO : Sent START_SUB_G_LEARN Cmd \n");
+    printf(" INFO : Sent BT_CP_OPCODE_CID_TEST_CURRENT_REMOTE Cmd \n");
 
     length = sizeof(BT_CP_PROTOCOL_HDR) + p_protocol_hdr->length;
     send_uart_message(p_tx_buffer, length );

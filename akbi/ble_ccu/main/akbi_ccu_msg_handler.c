@@ -318,7 +318,6 @@ void akbi_process_rx_serial_data(char *ccu_msg,int length)
             }
             break;
 
-
         case BT_CP_OPCODE_CID_CCU_ACTIVATE_STATUS:
             akbi_set_fsm_state(FSM_STATE_ACTIVATE_COMPLETE);
             ep_return_message[BLE_RET_MSG_RC_OFFSET] = p_payload[0];
@@ -326,6 +325,16 @@ void akbi_process_rx_serial_data(char *ccu_msg,int length)
 
         case BT_CP_OPCODE_CID_STOP_BLE_ADV_CMD:
             printf("Received BT_CP_OPCODE_CID_STOP_BLE_ADV_CMD\n" );
+            break;
+
+        case BT_CP_OPCODE_CID_PROGRAM_NEW_REMOTE_STATUS:
+            akbi_set_fsm_state(FSM_STATE_PROGRAM_NEW_REMOTE_COMPLETE);
+            ep_return_message[BLE_RET_MSG_RC_OFFSET] = SUCCESS;
+            break;
+
+        case BT_CP_OPCODE_CID_TEST_CURRENT_REMOTE_STATUS:
+            akbi_set_fsm_state(FSM_STATE_TEST_REMOTE_COMPLETE);
+            ep_return_message[BLE_RET_MSG_RC_OFFSET] = SUCCESS;
             break;
 
         /*case BT_CP_OPCODE_CID_CCU_ACTIVATE:

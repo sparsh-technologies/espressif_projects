@@ -52,6 +52,7 @@
 #define WIFI_CONNECTIONS_COUNT             10
 
 #define ALL_SUCCESS_POST_VALUE             0x07
+#define ERROR_CCU_LOCKED                   0x81
 
 #define CID_REGISTER                       0x01
 #define CID_LOGIN                          0x02
@@ -69,8 +70,10 @@
 #define CID_DISCONNECT_FROM_WIFI           0x0E
 #define CID_UPDATE_CCU_SW                  0x0F
 #define CID_UPLOAD_TRIP_INFO               0x10
-#define CID_SET_CCU_WIFI_MODE              0x11
-#define CID_SET_CCU_REBOOT                 0x12
+#define CID_TEST_REMOTE_PAIRING            0x11
+#define CID_PROGRAM_NEW_REMOTE             0x12
+#define CID_SET_CCU_WIFI_MODE              0x13
+#define CID_SET_CCU_REBOOT                 0x14
 
 #define DID_REGISTER_PASSWORD              0x01
 #define DID_REGISTER_MOB_NO                0x02
@@ -300,6 +303,13 @@ typedef struct __attribute__((__packed__)) _voice_data_details_ {
 
 } VOICE_DATA_DETAILS;
 
+typedef struct __attribute__((__packed__)) _ccu_lock_status_ {
+
+    unsigned char       lock_status;
+    short int           login_error_count;
+
+} LOCK_CCU_STATUS;
+
 /*
  * Various Opcodes are defined here.
  */
@@ -317,8 +327,8 @@ typedef struct __attribute__((__packed__)) _voice_data_details_ {
 #define BT_CP_OPCODE_CID_ENTER_LOCAL_HELP_NUMBERS                 0x0B
 #define BT_CP_OPCODE_CID_CCU_ACTIVATE                             0x0C
 #define BT_CP_OPCODE_CID_CONNECT_TO_WIFI                          0x0D
-#define BT_CP_OPCODE_CID_CLEAR_SUB_G_LEARN                        0x0E
-#define BT_CP_OPCODE_CID_START_SUB_G_LEARN                        0x0F
+#define BT_CP_OPCODE_CID_PROGRAM_NEW_REMOTE                       0x0E
+#define BT_CP_OPCODE_CID_TEST_CURRENT_REMOTE                      0x0F
 #define BT_CP_OPCODE_CID_DISCONNECT_FROM_WIFI                     0x10
 #define BT_CP_OPCODE_CID_UPDATE_CCU_SW                            0x11
 #define BT_CP_OPCODE_CID_UPLOAD_TRIP_INFO                         0x12
@@ -347,6 +357,18 @@ typedef struct __attribute__((__packed__)) _voice_data_details_ {
 #define BT_CP_OPCODE_CID_UPLOAD_TRIP_INFO_STATUS                  0x7E
 #define BT_CP_OPCODE_CID_CCU_ACTIVATE_STATUS                      0x7F
 #define BT_CP_OPCODE_CID_STOP_BLE_ADV_CMD                         0x80
+#define BT_CP_OPCODE_CID_PROGRAM_NEW_REMOTE_STATUS                0x81
+#define BT_CP_OPCODE_CID_TEST_CURRENT_REMOTE_STATUS               0x82
+
+/*
+ * All Remote trigger data Types are defined here.
+ */
+#define MSG_TYPE_START_CURRENT_REMOTE_TESTING               0x01
+#define MSG_TYPE_START_NEW_PAIRING                          0x01
+#define MSG_TYPE_LED_BLINK_CONFIRMED_STEP_1                 0x02
+#define MSG_TYPE_LED_BLINK_UNSEEN_STEP_1                    0x03
+#define MSG_TYPE_LED_BLINK_CONFIRMED_STEP_2                 0x04
+#define MSG_TYPE_LED_BLINK_UNSEEN_STEP_2                    0x05
 
 /*
  * All TVL Types are defined here.

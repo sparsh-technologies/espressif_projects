@@ -486,6 +486,7 @@ int execute_ccu_activate(char *i_cmd,char *i_ret_msg)
   char i_data_value[data_len_in_ble];
   char act_latitude[20];
   char act_longitude[20];
+  char time_stamp[15];
 
   memcpy(i_data_value,&i_cmd[BLE_CMD_MULTI_DATA_VALUE_OFFSET],data_len_in_ble);
   memcpy(&i_ret_msg[BLE_RET_MSG_DATA_TYPE_OFFSET],&data_type,BLE_COMMAND_DATA_TYPE_SIZE);
@@ -502,9 +503,9 @@ int execute_ccu_activate(char *i_cmd,char *i_ret_msg)
           break;
       }
       case DID_ACTIVATE_CCU_TIMESTAMP : {
-          char time_stamp[15];
           memset(act_latitude , 0x00, 20);
           memset(act_longitude , 0x00, 20);
+          memset(time_stamp , 0x00, 15);
           memcpy(time_stamp,&p_recvd_msg_full[BLE_MSG_SINGLE_DATA_TIMESTAMP_OFFSET],TIMESTAMP_SIZE);
           memcpy(act_latitude ,&saved_messages[0][BLE_MSG_MULTI_DATA_DATA_OFFSET],saved_messages[1][BLE_MSG_MULTI_DATA_LEN_OFFSET]);
           memcpy(act_longitude ,&saved_messages[1][BLE_MSG_MULTI_DATA_DATA_OFFSET],saved_messages[1][BLE_MSG_MULTI_DATA_LEN_OFFSET]);
@@ -611,6 +612,20 @@ int execute_store_address_visiting_new(char *msg)
           printf("udefined msg offset %02x\n",voice_msg_index );
     }
 
+    return 0;
+}
+
+int execute_test_remote_pairing(char * i_msg)
+{
+    char data_type = i_msg[BLE_MSG_MULTI_DATA_TYPE_OFFSET];
+    ccu_send_test_remote_msg(data_type);
+    return 0;
+}
+
+int execute_program_new_remote(char * i_msg)
+{
+    char data_type = i_msg[BLE_MSG_MULTI_DATA_TYPE_OFFSET];
+    ccu_send_program_new_remote_msg(data_type);
     return 0;
 }
 
@@ -791,6 +806,17 @@ int read_ble_message(char *i_msg, char *i_ret_msg)
             akbi_set_fsm_state(FSM_STATE_TRIP_INFO_UPLOAD_IN_PROGRESS);
             update_trip_info(i_ret_msg);
             break;
+
+        case CID_TEST_REMOTE_PAIRING:
+            akbi_set_fsm_state(FSM_STATE_TEST_REMOTE_IN_PROGRESS);
+            execute_test_remote_pairing(i_msg);
+            break;
+
+        case CID_PROGRAM_NEW_REMOTE:
+            akbi_set_fsm_state(FSM_STATE_PROGRAM_NEW_REMOTE_IN_PROGRESS);
+            execute_program_new_remote(i_msg);
+            break;
+
         default :
             i_ret_msg[BLE_RET_MSG_RC_OFFSET] = ERROR_UNRECOGNIZED_COMMAND;
             break;
