@@ -14,7 +14,7 @@
 #ifndef _AKBI_BT_MSG_H_
 #define _AKBI_BT_MSG_H_
 
-#define CURRENT_FIRMWARE_VERSION "1.0(3)"
+#define CURRENT_FIRMWARE_VERSION "1.0(4)"
 #define BLE_DEBUG
 
 #define SER_NO_SIZE                        20
