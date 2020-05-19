@@ -74,6 +74,7 @@
 #define CID_PROGRAM_NEW_REMOTE             0x12
 #define CID_SET_CCU_WIFI_MODE              0x13
 #define CID_SET_CCU_REBOOT                 0x14
+#define CID_SITE_SPECIFIC_DATA_STATUS      0x15
 
 #define DID_REGISTER_PASSWORD              0x01
 #define DID_REGISTER_MOB_NO                0x02
@@ -339,6 +340,7 @@ typedef struct __attribute__((__packed__)) _ccu_lock_status_ {
 #define BT_CP_OPCODE_ADV_STARTED_MSG                              0x17
 #define BT_CP_OPCODE_MOB_CONNECTED_MSG                            0x18
 #define BT_CP_OPCODE_MOB_DISCONNECTED_MSG                         0x19
+#define BT_CP_OPCODE_SITE_SPECIFIC_STATUS_CHECK                   0x1A
 
 #define BT_CP_OPCODE_CID_SCAN_WIFI_RESULT                         0x70
 #define BT_CP_OPCODE_CID_WIFI_CONNECT_COMPLETED                   0x71
@@ -359,6 +361,7 @@ typedef struct __attribute__((__packed__)) _ccu_lock_status_ {
 #define BT_CP_OPCODE_CID_STOP_BLE_ADV_CMD                         0x80
 #define BT_CP_OPCODE_CID_PROGRAM_NEW_REMOTE_STATUS                0x81
 #define BT_CP_OPCODE_CID_TEST_CURRENT_REMOTE_STATUS               0x82
+#define BT_CP_OPCODE_SITE_SPECIFIC_STATUS_CHECK_RESULT            0x83
 
 /*
  * All Remote trigger data Types are defined here.

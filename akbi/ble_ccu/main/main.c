@@ -1,4 +1,4 @@
-﻿/*
+/*
  ****************************************************************************************
  * main.c
  *
@@ -36,6 +36,10 @@
 #include "akbi_fsm.h"
 #include "esp_int_wdt.h"
 
+#define AKBI_SW_MAJOR         0x01
+#define AKBI_SW_MINOR         0x00
+#define AKBI_SW_RELEASE       0x02
+
 #define BT_BLE_COEX_TAG             "BT_BLE_COEX"
 #define BLE_ADV_NAME                "Guardian"
 #define BLE_LOCAL_NAME              "lcln"
@@ -53,7 +57,7 @@
 #define MAX_RETURN_MSG_LENGTH       20
 #define ADV_SER_NO_SIZE             4
 
-#define DEBUG_ENABLE
+// #define DEBUG_ENABLE
 
 extern uint8_t return_data[15];
 char ep_return_message[MAX_RETURN_MSG_LENGTH];
@@ -692,6 +696,7 @@ void app_main(void)
 {
 
     printf(" AKBI Security Systems Application Initialization \n");
+    printf(" Version  : %d.%d(%d) \n", AKBI_SW_MAJOR, AKBI_SW_MINOR, AKBI_SW_RELEASE);
 
     /*
      * Initialize NVS — it is used to store PHY calibration data

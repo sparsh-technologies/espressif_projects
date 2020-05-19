@@ -222,6 +222,13 @@ void send_uart_message(const char* p_data, int length )
         data =  serial_tx_data[i];
         uart_write_bytes(UART_NUM_2, &data, 1);
     }
+
+
+#ifdef DEBUG_ENABLE
+    ESP_LOGI(TAG, " Serial Tx-Log: %d ", length);
+    esp_log_buffer_hex(TAG, p_data, length);
+#endif
+
 }
 
 void akbi_uart_thread(void *param)

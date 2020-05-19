@@ -629,6 +629,12 @@ int execute_program_new_remote(char * i_msg)
     return 0;
 }
 
+int execute_check_site_specific_status()
+{
+    ccu_send_check_site_specific_status();
+    return 0;
+}
+
 /*
  * This API will read the packets from the mobile phone and process the packets.
  */
@@ -815,6 +821,11 @@ int read_ble_message(char *i_msg, char *i_ret_msg)
         case CID_PROGRAM_NEW_REMOTE:
             akbi_set_fsm_state(FSM_STATE_PROGRAM_NEW_REMOTE_IN_PROGRESS);
             execute_program_new_remote(i_msg);
+            break;
+
+        case CID_SITE_SPECIFIC_DATA_STATUS:
+            akbi_set_fsm_state(FSM_STATE_SITE_SPECIFIC_STATUS_IN_PROGRESS);
+            execute_check_site_specific_status();
             break;
 
         default :

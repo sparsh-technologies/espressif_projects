@@ -26,7 +26,7 @@ typedef struct _akbi_wifi_scan_report_
 /*****************************************************
 *function to send 'test current remote' command to ccu
 *****************************************************/
-int ccu_send_test_remote_msg(char *p_tx_buffer);
+int ccu_send_test_remote_msg(char p_tx_buffer);
 
 /*****************************************************
 *function to send 'program new remote' command to ccu
@@ -80,6 +80,8 @@ int ccu_sent_adv_started_msg();
 int ccu_sent_mob_connected_msg();
 
 int ccu_sent_mob_disconnected_msg();
+
+int ccu_send_check_site_specific_status();
 
 
 #endif
