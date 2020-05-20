@@ -31,14 +31,12 @@
 
 typedef struct _icom_startup_config_
 {
-    int                   slave_address;
-    int                   cfg_reg_count;
-    ICOM_MBUS_REG_INFO    mbus_reg[MAX_CONFIGURABLE_REGISTERS];
-    unsigned char         cloud_protocol_flag;
-    char                  mqtt_broker[MQTT_BROKER_NAME_LENGTH_MAX];
-    char                  mqtt_broker_username[MQTT_BROKER_USER_NAME_LENGTH_MAX];
-    char                  mqtt_broker_passwd[MQTT_BROKER_USER_PASSWD_LENGTH_MAX];
-    char                  http_server[HTTP_BROKER_NAME_LENGTH_MAX];
+    ICOM_MBUS_CONFIG_INFO    mbus_cfg;
+    unsigned char            cloud_protocol_flag;
+    char                     mqtt_broker[MQTT_BROKER_NAME_LENGTH_MAX];
+    char                     mqtt_broker_username[MQTT_BROKER_USER_NAME_LENGTH_MAX];
+    char                     mqtt_broker_passwd[MQTT_BROKER_USER_PASSWD_LENGTH_MAX];
+    char                     http_server[HTTP_BROKER_NAME_LENGTH_MAX];
 
 } ICOM_STARTUP_CONFIG;
 
