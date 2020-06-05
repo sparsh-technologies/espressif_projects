@@ -16,7 +16,6 @@
 #include <string.h>
 #include <time.h>
 #include "esp_log.h"
-#include "msdt_serial_task.h"
 #include <rom/ets_sys.h>
 #define BT_BLE_COEX_TAG             "MSDT_APIS"
 

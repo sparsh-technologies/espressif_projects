@@ -31,8 +31,8 @@
 #include "esp_gatts_api.h"
 #include "esp_bt_defs.h"
 #include "esp_gatt_common_api.h"
-#include "msdt_serial_task.h"
 #include "esp_int_wdt.h"
+#include "drivers/i2c_driver_api.h"
 
 #define MSDT_SW_MAJOR         0x01
 #define MSDT_SW_MINOR         0x00
@@ -57,7 +57,7 @@
 
 #define DEBUG_ENABLE
 
-extern uint8_t return_data[15];
+extern void i2c_app_main(void);
 char ep_return_message[MAX_RETURN_MSG_LENGTH];
 char adv_ser_no[5];
 char adv_full_name[20];
@@ -736,7 +736,7 @@ void app_main(void)
     esp_bt_gap_set_pin(pin_type, 4, pin_code);
 
 
-    create_uart_task(NULL);
+    i2c_app_main();
 
 
 
