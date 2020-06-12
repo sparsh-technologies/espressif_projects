@@ -35,7 +35,7 @@ int ccu_send_program_new_remote_msg(char type) ;
 
 int ccu_send_reg_msg(char *received_value_buffer ,char *ret_msg);
 
-int ccu_send_login_msg(char * password, int data_len,char * time_stamp);
+int ccu_send_login_msg(char * password, int data_len,char * time_stamp,char* latitude,char* longitude);
 
 int ccu_sent_scan_all_wifi_msg(char *ret_msg);
 
@@ -82,6 +82,10 @@ int ccu_sent_mob_connected_msg();
 int ccu_sent_mob_disconnected_msg();
 
 int ccu_send_check_site_specific_status();
+
+int ccu_send_check_trip_info_status();
+
+int ccu_send_src_app_id(int type,char source_app_identifier,int data_len);
 
 
 #endif

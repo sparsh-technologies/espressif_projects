@@ -36,7 +36,7 @@ int ccu_send_program_new_remote_msg(char data_type)
     p_protocol_hdr->type     = data_type;
     p_protocol_hdr->length   = 0;
 
-    printf(" INFO : Sent BT_CP_OPCODE_CID_PROGRAM_NEW_REMOTE Cmd \n");
+    // printf(" INFO : Sent BT_CP_OPCODE_CID_PROGRAM_NEW_REMOTE Cmd \n");
 
     length = sizeof(BT_CP_PROTOCOL_HDR) + p_protocol_hdr->length;
 
@@ -58,7 +58,7 @@ int ccu_send_test_remote_msg(char data_type)
     p_protocol_hdr->type     = data_type;
     p_protocol_hdr->length   = 0;
 
-    printf(" INFO : Sent BT_CP_OPCODE_CID_TEST_CURRENT_REMOTE Cmd \n");
+    // printf(" INFO : Sent BT_CP_OPCODE_CID_TEST_CURRENT_REMOTE Cmd \n");
 
     length = sizeof(BT_CP_PROTOCOL_HDR) + p_protocol_hdr->length;
     send_uart_message(p_tx_buffer, length );
@@ -119,14 +119,52 @@ int ccu_send_reg_msg_new(int type, char *received_value_buffer, int data_len)
 
     send_uart_message(p_tx_buffer, length);
 
+    /*
+     * explicit delay for ccu to distinguish between packets
+     */
+    ets_delay_us(200*1000);
+
     return 0;
 }
 
-int ccu_send_login_msg(char * password, int data_len,char * time_stamp)
+int ccu_send_src_app_id(int type,char source_app_identifier,int data_len)
+{
+    BT_CP_PROTOCOL_HDR  *p_protocol_hdr;
+    char                *p;
+    char                p_tx_buffer[25];
+
+    int                 length;
+
+    memset(p_tx_buffer, 0x00, 25);
+    p_protocol_hdr = (BT_CP_PROTOCOL_HDR *)p_tx_buffer;
+
+    p_protocol_hdr->opcode   = BT_CP_OPCODE_CID_REGISTER;
+    p_protocol_hdr->trans_id = 44;
+    p_protocol_hdr->type     = type;
+    p_protocol_hdr->length   = data_len;
+
+    p = p_tx_buffer + sizeof(BT_CP_PROTOCOL_HDR);
+    memcpy(p, &source_app_identifier, p_protocol_hdr->length);
+
+    length = sizeof(BT_CP_PROTOCOL_HDR) + p_protocol_hdr->length;
+    // printf(" INFO : Sending REGISTER (%s) \n", received_value_buffer);
+
+    send_uart_message(p_tx_buffer, length);
+
+    /*
+     * explicit delay for ccu to distinguish between packets
+     */
+    ets_delay_us(200*1000);
+
+    return 0;
+}
+
+
+int ccu_send_login_msg(char * password, int data_len,char * time_stamp,char* latitude,char* longitude)
 {
     BT_CP_PROTOCOL_HDR  *p_protocol_hdr;
     int                 length;
-    char                p_tx_buffer[25];
+    char                p_tx_buffer[60];
     char                *p;
     BT_CP_TLV_HDR       *p_tlv_hdr;
 
@@ -142,14 +180,28 @@ int ccu_send_login_msg(char * password, int data_len,char * time_stamp)
     memcpy(p, password, p_protocol_hdr->length);
 
     p = p + p_protocol_hdr->length;
-    p_tlv_hdr = (BT_CP_TLV_HDR*)p;
 
+    p_tlv_hdr = (BT_CP_TLV_HDR*)p;
     p_tlv_hdr->type = TLV_TYPE_LOGIN_TIMESTAMP;
     p_tlv_hdr->length = TIMESTAMP_SIZE;
-
     memcpy(p_tlv_hdr->data,time_stamp,TIMESTAMP_SIZE);
 
-    length = sizeof(BT_CP_PROTOCOL_HDR) + p_protocol_hdr->length + sizeof(BT_CP_TLV_HDR) + TIMESTAMP_SIZE;
+    p = p + p_tlv_hdr->length + sizeof(BT_CP_TLV_HDR);
+
+    p_tlv_hdr = (BT_CP_TLV_HDR*)p;
+    p_tlv_hdr->type   = TLV_TYPE_LOGIN_LATITUDE;
+    p_tlv_hdr->length = strlen(latitude);
+    memcpy(p_tlv_hdr->data,latitude,strlen(latitude));
+
+    p = p + p_tlv_hdr->length + sizeof(BT_CP_TLV_HDR);
+
+    p_tlv_hdr = (BT_CP_TLV_HDR*)p;
+    p_tlv_hdr->type   = TLV_TYPE_LOGIN_LONGITUDE;
+    p_tlv_hdr->length = strlen(longitude);
+    memcpy(p_tlv_hdr->data,longitude,strlen(longitude));
+
+    length = sizeof(BT_CP_PROTOCOL_HDR) + p_protocol_hdr->length + sizeof(BT_CP_TLV_HDR) + TIMESTAMP_SIZE +
+                     sizeof(BT_CP_TLV_HDR) + strlen(latitude) + sizeof(BT_CP_TLV_HDR) + strlen(longitude);
     send_uart_message(p_tx_buffer, length );
 
     return 0;
@@ -498,7 +550,7 @@ int ccu_sent_address_visiting(char *timestamp, unsigned int voice_msg_length)
 
     memcpy(p_tlv_hdr->data,timestamp,TIMESTAMP_SIZE);
 
-    printf(" INFO : Sending Address visiting Message %s\n",timestamp);
+    // printf(" INFO : Sending Address visiting Message %s\n",timestamp);
 
     length = sizeof(BT_CP_PROTOCOL_HDR) + p_protocol_hdr->length + sizeof(VOICE_DATA_DETAILS)+sizeof(BT_CP_TLV_HDR)+TIMESTAMP_SIZE;
 
@@ -788,10 +840,31 @@ int ccu_send_check_site_specific_status()
     int                 length;
     char                p_tx_buffer[20];
 
-    printf(" INFO : Sending BT_CP_OPCODE_SITE_SPECIFIC_STATUS_CHECK Message \n");
+    // printf(" INFO : Sending BT_CP_OPCODE_SITE_SPECIFIC_STATUS_CHECK Message \n");
     p_protocol_hdr = (BT_CP_PROTOCOL_HDR *)p_tx_buffer;
 
     p_protocol_hdr->opcode   = BT_CP_OPCODE_SITE_SPECIFIC_STATUS_CHECK;
+    p_protocol_hdr->trans_id = 44;
+    p_protocol_hdr->type     = 0;
+    p_protocol_hdr->length   = 0;
+
+
+    length = sizeof(BT_CP_PROTOCOL_HDR) + p_protocol_hdr->length;
+    send_uart_message(p_tx_buffer, length );
+
+    return (0);
+}
+
+int ccu_send_check_trip_info_status()
+{
+    BT_CP_PROTOCOL_HDR  *p_protocol_hdr;
+    int                 length;
+    char                p_tx_buffer[20];
+
+    // printf(" INFO : Sending BT_CP_OPCODE_TRIP_INFO_STATUS_CHECK Message \n");
+    p_protocol_hdr = (BT_CP_PROTOCOL_HDR *)p_tx_buffer;
+
+    p_protocol_hdr->opcode   = BT_CP_OPCODE_TRIP_INFO_STATUS_CHECK;
     p_protocol_hdr->trans_id = 44;
     p_protocol_hdr->type     = 0;
     p_protocol_hdr->length   = 0;

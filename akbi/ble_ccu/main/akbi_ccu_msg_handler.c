@@ -20,6 +20,8 @@ extern char ccu_serial_no[20];
 unsigned char post_result = 0;
 extern char   ccu_ap_ssid[20];
 extern char   ccu_ap_passwd[20];
+extern char ccu_source_app_identifier;
+
 
 void akbi_process_rx_serial_data(char *ccu_msg,int length)
 {
@@ -77,6 +79,14 @@ void akbi_process_rx_serial_data(char *ccu_msg,int length)
             memcpy(&post_result, p_tlv->data, p_tlv->length);
             // printf(" INFO : length           : %02x\n",  p_tlv->length );
             // printf(" INFO : POST result      : %02x \n", post_result );
+
+            p = (char *)p_tlv ;
+            p = p + 0x02 + p_tlv->length;
+            p_tlv = (BT_CP_TLV_HDR *) p ;
+
+            memcpy(&ccu_source_app_identifier, p_tlv->data, p_tlv->length);
+            // printf(" INFO : length           : %02x\n",  p_tlv->length );
+            // printf(" INFO : src app id      : %02x \n", ccu_source_app_identifier );
 
 
 
@@ -269,13 +279,9 @@ void akbi_process_rx_serial_data(char *ccu_msg,int length)
             }
             break;
 
-        case BT_CP_OPCODE_CID_FORGOT_PASSWORD:
-            if (p_payload[0] == 0x07) {
+        case BT_CP_OPCODE_CID_FORGOT_PASSWORD_RESULT:
               akbi_set_fsm_state(FSM_STATE_FORGOT_PASSWD_RESULT);
-              ep_return_message[BLE_RET_MSG_RC_OFFSET] = 0x07;
-              return;
-            }
-
+              ep_return_message[BLE_RET_MSG_RC_OFFSET] = SUCCESS;
               break;
 
         case BT_CP_OPCODE_CID_UPDATE_CCU_SW_STATUS:
@@ -338,8 +344,14 @@ void akbi_process_rx_serial_data(char *ccu_msg,int length)
             break;
 
         case BT_CP_OPCODE_SITE_SPECIFIC_STATUS_CHECK_RESULT:
-            printf("Received BT_CP_OPCODE_SITE_SPECIFIC_STATUS_CHECK_RESULT %02x\n",p_payload[0]);
+            // printf("Received BT_CP_OPCODE_SITE_SPECIFIC_STATUS_CHECK_RESULT %02x\n",p_payload[0]);
             akbi_set_fsm_state(FSM_STATE_SITE_SPECIFIC_STATUS_COMPLETE);
+            ep_return_message[BLE_RET_MSG_RC_OFFSET] = p_payload[0];
+            break;
+
+        case BT_CP_OPCODE_TRIP_INFO_STATUS_CHECK_RESULT:
+            // printf("Received BT_CP_OPCODE_TRIP_INFO_STATUS_CHECK_RESULT %02x\n",p_payload[0]);
+            akbi_set_fsm_state(FSM_STATE_TRIP_INFO_STATUS_COMPLETE);
             ep_return_message[BLE_RET_MSG_RC_OFFSET] = p_payload[0];
             break;
 

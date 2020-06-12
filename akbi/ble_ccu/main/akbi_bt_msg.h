@@ -14,7 +14,8 @@
 #ifndef _AKBI_BT_MSG_H_
 #define _AKBI_BT_MSG_H_
 
-#define CURRENT_FIRMWARE_VERSION "1.0(4)"
+#define CURRENT_FIRMWARE_VERSION     "0001.4"
+#define ESP_CURRENT_FIRMWARE_VERSION "0001.3"
 #define BLE_DEBUG
 
 #define SER_NO_SIZE                        20
@@ -52,7 +53,6 @@
 #define WIFI_CONNECTIONS_COUNT             10
 
 #define ALL_SUCCESS_POST_VALUE             0x07
-#define ERROR_CCU_LOCKED                   0x81
 
 #define CID_REGISTER                       0x01
 #define CID_LOGIN                          0x02
@@ -75,6 +75,7 @@
 #define CID_SET_CCU_WIFI_MODE              0x13
 #define CID_SET_CCU_REBOOT                 0x14
 #define CID_SITE_SPECIFIC_DATA_STATUS      0x15
+#define CID_TRIP_INFO_DATA_STATUS          0x16
 
 #define DID_REGISTER_PASSWORD              0x01
 #define DID_REGISTER_MOB_NO                0x02
@@ -341,6 +342,7 @@ typedef struct __attribute__((__packed__)) _ccu_lock_status_ {
 #define BT_CP_OPCODE_MOB_CONNECTED_MSG                            0x18
 #define BT_CP_OPCODE_MOB_DISCONNECTED_MSG                         0x19
 #define BT_CP_OPCODE_SITE_SPECIFIC_STATUS_CHECK                   0x1A
+#define BT_CP_OPCODE_TRIP_INFO_STATUS_CHECK                       0x1B
 
 #define BT_CP_OPCODE_CID_SCAN_WIFI_RESULT                         0x70
 #define BT_CP_OPCODE_CID_WIFI_CONNECT_COMPLETED                   0x71
@@ -362,6 +364,8 @@ typedef struct __attribute__((__packed__)) _ccu_lock_status_ {
 #define BT_CP_OPCODE_CID_PROGRAM_NEW_REMOTE_STATUS                0x81
 #define BT_CP_OPCODE_CID_TEST_CURRENT_REMOTE_STATUS               0x82
 #define BT_CP_OPCODE_SITE_SPECIFIC_STATUS_CHECK_RESULT            0x83
+#define BT_CP_OPCODE_CID_FORGOT_PASSWORD_RESULT                   0x84
+#define BT_CP_OPCODE_TRIP_INFO_STATUS_CHECK_RESULT                0x85
 
 /*
  * All Remote trigger data Types are defined here.
@@ -390,13 +394,16 @@ typedef struct __attribute__((__packed__)) _ccu_lock_status_ {
 #define TLV_TYPE_MOBILE_FW_VERSION                                0x07
 #define TLV_TYPE_REGISTER_TIMESTAMP                               0x08
 #define TLV_TYPE_UPLOAD_TRIP_INFO_STATUS_RESULT                   0x09
+#define TLV_TYPE_REGISTER_SRC_ID                                  0x0A
 
 #define TLV_TYPE_TIMESTAMP                                        0x01
 
 /*
  * TLV Types for BT_CP_OPCODE_CID_LOGIN Opcode
  */
-#define TLV_TYPE_LOGIN_TIMESTAMP                                  0x02
+#define TLV_TYPE_LOGIN_TIMESTAMP                                  0x01
+#define TLV_TYPE_LOGIN_LATITUDE                                   0x02
+#define TLV_TYPE_LOGIN_LONGITUDE                                  0x03
 
 /*
  * TLV Types for BT_CP_OPCODE_CID_CCU_ACTIVATE Opcode
@@ -483,6 +490,7 @@ typedef struct __attribute__((__packed__)) _ccu_lock_status_ {
 #define TLV_TYPE_CCU_READY_SW_VER                                 0x01
 #define TLV_TYPE_CCU_READY_SERIAL_NUM                             0x02
 #define TLV_TYPE_CCU_READY_POST_RESULT                            0x03
+#define TLV_TYPE_CCU_READY_SRC_APP_ID                             0x04
 
 /*
  * TLV Types for BT_CP_OPCODE_CID_SELECT_A_WIFI_RESULT  &

@@ -266,6 +266,14 @@ int akbi_check_fsm_state_and_respond(char *ep_return_message)
         ret = 0;
         break;
 
+    case FSM_STATE_TRIP_INFO_STATUS_IN_PROGRESS :
+        ret = 1;
+        break;
+
+    case FSM_STATE_TRIP_INFO_STATUS_COMPLETE :
+        ret = 0;
+        break;
+
     }
     return ret;
 }

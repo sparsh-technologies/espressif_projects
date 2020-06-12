@@ -35,6 +35,7 @@
 #include "akbi_serial_task.h"
 #include "akbi_fsm.h"
 #include "esp_int_wdt.h"
+#include "akbi_bt_msg.h"
 
 #define AKBI_SW_MAJOR         0x01
 #define AKBI_SW_MINOR         0x00
@@ -65,6 +66,7 @@ char adv_ser_no[5];
 char adv_full_name[20];
 char firmware_version[10];
 char ccu_serial_no[20];
+esp_ble_conn_update_params_t conn_params = {0};
 
 
 typedef struct {
@@ -530,7 +532,6 @@ static void gatts_profile_a_event_handler(esp_gatts_cb_event_t event, esp_gatt_i
         break;
 
     case ESP_GATTS_CONNECT_EVT: {
-        esp_ble_conn_update_params_t conn_params = {0};
         memcpy(conn_params.bda, param->connect.remote_bda, sizeof(esp_bd_addr_t));
         break;
     }
@@ -538,6 +539,9 @@ static void gatts_profile_a_event_handler(esp_gatts_cb_event_t event, esp_gatt_i
     case ESP_GATTS_DISCONNECT_EVT:
 
         execute_akbi_sent_mob_disconnected_msg();
+        if (akbi_get_fsm_state()== FSM_STATE_VOICE_RECORDING_IN_PROGRESS) {
+            sent_end_of_audio_packet();
+        }
         #ifdef DEBUG_ENABLE
         ESP_LOGI(BT_BLE_COEX_TAG, "ESP_GATTS_DISCONNECT_EVT");
         #endif
@@ -696,7 +700,7 @@ void app_main(void)
 {
 
     printf(" AKBI Security Systems Application Initialization \n");
-    printf(" Version  : %d.%d(%d) \n", AKBI_SW_MAJOR, AKBI_SW_MINOR, AKBI_SW_RELEASE);
+    printf(" Version  : %s \n", ESP_CURRENT_FIRMWARE_VERSION);
 
     /*
      * Initialize NVS — it is used to store PHY calibration data
