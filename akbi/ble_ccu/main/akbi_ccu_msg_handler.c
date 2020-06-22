@@ -22,6 +22,25 @@ extern char   ccu_ap_ssid[20];
 extern char   ccu_ap_passwd[20];
 extern char ccu_source_app_identifier;
 
+int akbi_slice_wifi_names(char *wifiname,char *namepart)
+{
+    static int current_packet_num = 0;
+    int position = 0;
+
+    position = current_packet_num * 11;
+    memcpy(namepart, &wifiname[position], 11 );
+    current_packet_num++ ;
+    if ((current_packet_num * 11) >= strlen(wifiname) )
+    {
+        current_packet_num = 0;
+        return 1;
+    }
+    else
+    {
+        return 0;
+    }
+
+}
 
 void akbi_process_rx_serial_data(char *ccu_msg,int length)
 {
@@ -97,11 +116,13 @@ void akbi_process_rx_serial_data(char *ccu_msg,int length)
             * Now check whether this is the last packet. If so, just mark the scanning as completed.
             */
             if (p_protocol_hdr->type == 0) {
-              akbi_set_fsm_state(FSM_STATE_WIFI_SCAN_COMPLETE);
-              ep_return_message[BLE_RET_MSG_RC_OFFSET] = SUCCESS;
-              memcpy(&ep_return_message[BLE_RET_MSG_SCANNED_SSID_COUNT_OFFSET],
+                akbi_set_fsm_state(FSM_STATE_WIFI_SCAN_COMPLETE);
+                ep_return_message[BLE_RET_MSG_RC_OFFSET] = SUCCESS;
+                memcpy(&ep_return_message[BLE_RET_MSG_SCANNED_SSID_COUNT_OFFSET],
                      &wifi_scan_report.ap_count,SCANNED_WIFI_COUNT_SIZE);
-              return ;
+
+                // akbi_slice_wifi_names();
+                return ;
             }
             else {
                 if (p_protocol_hdr->type == 1 ) {
@@ -134,7 +155,7 @@ void akbi_process_rx_serial_data(char *ccu_msg,int length)
                      }
                  }
                 memcpy(wifi_scan_report.ap_name[index-1], p_payload, p_protocol_hdr->length);
-                save_ssids(wifi_scan_report.ap_name[index-1],index-1,p_protocol_hdr->length);
+                // save_ssids(wifi_scan_report.ap_name[index-1],index-1,p_protocol_hdr->length);
                 wifi_scan_report.ap_count++;
             }
             break;
@@ -155,12 +176,8 @@ void akbi_process_rx_serial_data(char *ccu_msg,int length)
                 }
                 return;
             }
-            else if (p_payload[0] ==ERROR_LOGIN_PASSWORD_MISMATCH){
-                ep_return_message[BLE_RET_MSG_RC_OFFSET] = ERROR_LOGIN_PASSWORD_MISMATCH;
-            }
-            else if (p_payload[0] ==ERROR_CCU_LOCKED)
-            {
-                ep_return_message[BLE_RET_MSG_RC_OFFSET] = ERROR_CCU_LOCKED;
+            else {
+                ep_return_message[BLE_RET_MSG_RC_OFFSET] = p_payload[0];
             }
             break;
 
@@ -353,6 +370,11 @@ void akbi_process_rx_serial_data(char *ccu_msg,int length)
             // printf("Received BT_CP_OPCODE_TRIP_INFO_STATUS_CHECK_RESULT %02x\n",p_payload[0]);
             akbi_set_fsm_state(FSM_STATE_TRIP_INFO_STATUS_COMPLETE);
             ep_return_message[BLE_RET_MSG_RC_OFFSET] = p_payload[0];
+            break;
+
+        case BT_CP_OPCODE_REBOOT_ESP:
+            printf("Received BT_CP_OPCODE_REBOOT_ESP \n");
+            abort();
             break;
 
         default:

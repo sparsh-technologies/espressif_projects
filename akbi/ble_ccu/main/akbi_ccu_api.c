@@ -665,6 +665,7 @@ int ccu_sent_activate_system_msg(char *p_latitude, char *p_longitude,char *times
     length = sizeof(BT_CP_PROTOCOL_HDR) + strlen(p_latitude) + sizeof(BT_CP_TLV_HDR) + strlen(p_longitude) + sizeof(BT_CP_TLV_HDR) + TIMESTAMP_SIZE;
 
     p_tx_buffer[length] = 0x00;
+    printf("timestamp in ccu_api :%s\n", timestamp);
 
     // printf("ptx buf =\n" );
     // for (size_t i = 0; i < length; i++) {

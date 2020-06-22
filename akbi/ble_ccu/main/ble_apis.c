@@ -437,8 +437,9 @@ int execute_select_a_wifi(char *i_cmd, char *i_ret_msg)
     char data_type       = i_cmd[BLE_CMD_MULTI_DATA_TYPE_OFFSET];
     int  data_len_in_ble = (int)i_cmd[BLE_CMD_MULTI_DATA_LEN_OFFSET];
     char i_data_value[data_len_in_ble];
-    char p_password[20];
+    static char p_password[50];
     int  selected_ap_id ;
+    static unsigned char pwd_part_num = 0;
 
     memcpy(i_data_value,&i_cmd[BLE_CMD_MULTI_DATA_VALUE_OFFSET],data_len_in_ble);
     memcpy(&i_ret_msg[BLE_RET_MSG_DATA_TYPE_OFFSET],&data_type,BLE_COMMAND_DATA_TYPE_SIZE);
@@ -452,19 +453,49 @@ int execute_select_a_wifi(char *i_cmd, char *i_ret_msg)
             break;
         }
         case DID_SELECT_A_WIFI_NETWORK_KEY : {
-            memcpy(this_ccu.conf_wifi.network_key,i_data_value,data_len_in_ble);
+            // if (data_len_in_ble > 0x0f) {
+            memcpy(&p_password[pwd_part_num*15] ,&p_recvd_msg_full[BLE_MSG_MULTI_DATA_DATA_OFFSET],strlen(&p_recvd_msg_full[BLE_MSG_MULTI_DATA_DATA_OFFSET]));
             memset(&i_ret_msg[BLE_RET_MSG_RC_OFFSET], SUCCESS, BLE_RETURN_RC_SIZE);
-            this_ccu.conf_wifi.data_status |= FLAG_DATA_SET_SEL_WIFI_NETWORK_KEY;
-            save_group_messages(p_recvd_msg_full,DID_SELECT_A_WIFI_NETWORK_KEY);
-
-            memset(p_password , 0x00, 20);
-            selected_ap_id = saved_messages[0][BLE_MSG_MULTI_DATA_DATA_OFFSET];
-            memcpy(p_password ,&saved_messages[1][BLE_MSG_MULTI_DATA_DATA_OFFSET],saved_messages[1][BLE_MSG_MULTI_DATA_LEN_OFFSET]);
-            akbi_set_fsm_state(FSM_STATE_WIFI_CONNECT_IN_PROGRESS);
-            ccu_sent_configure_wifi_credentials(selected_ap_id+1, p_password, 4 );
-
+            pwd_part_num++;
+            // }
+            // else{
+                // pwd_part_num++;
+            // }
+            // if ((pwd_part_num*15) >= data_len_in_ble) {
+            //     pwd_part_num = 0;
+            //
+            //     // memcpy(this_ccu.conf_wifi.network_key,i_data_value,data_len_in_ble);
+            //     memset(&i_ret_msg[BLE_RET_MSG_RC_OFFSET], SUCCESS, BLE_RETURN_RC_SIZE);
+            //     // this_ccu.conf_wifi.data_status |= FLAG_DATA_SET_SEL_WIFI_NETWORK_KEY;
+            //     // save_group_messages(p_recvd_msg_full,DID_SELECT_A_WIFI_NETWORK_KEY);
+            //
+            //     selected_ap_id = saved_messages[0][BLE_MSG_MULTI_DATA_DATA_OFFSET];
+            //     // memcpy(p_password ,&saved_messages[1][BLE_MSG_MULTI_DATA_DATA_OFFSET],saved_messages[1][BLE_MSG_MULTI_DATA_LEN_OFFSET]);
+            //     akbi_set_fsm_state(FSM_STATE_WIFI_CONNECT_IN_PROGRESS);
+            //     ccu_sent_configure_wifi_credentials(selected_ap_id+1, p_password, 4 );
+            //     printf("selected password %s\n", p_password);
+            //     memset(p_password , 0x00, 50);
+            // }
             break;
         }
+
+        case 0x03 : {
+            akbi_set_fsm_state(FSM_STATE_WIFI_CONNECT_IN_PROGRESS);
+            pwd_part_num = 0;
+
+            // memcpy(this_ccu.conf_wifi.network_key,i_data_value,data_len_in_ble);
+            // memset(&i_ret_msg[BLE_RET_MSG_RC_OFFSET], SUCCESS, BLE_RETURN_RC_SIZE);
+            // this_ccu.conf_wifi.data_status |= FLAG_DATA_SET_SEL_WIFI_NETWORK_KEY;
+            // save_group_messages(p_recvd_msg_full,DID_SELECT_A_WIFI_NETWORK_KEY);
+
+            selected_ap_id = saved_messages[0][BLE_MSG_MULTI_DATA_DATA_OFFSET];
+            // memcpy(p_password ,&saved_messages[1][BLE_MSG_MULTI_DATA_DATA_OFFSET],saved_messages[1][BLE_MSG_MULTI_DATA_LEN_OFFSET]);
+            ccu_sent_configure_wifi_credentials(selected_ap_id+1, p_password, 4 );
+            printf("selected password %s\n", p_password);
+            memset(p_password , 0x00, 50);
+            break;
+        }
+
         default: {
             memset(&i_ret_msg[BLE_RET_MSG_RC_OFFSET], ERROR_UNRECOGNIZED_DATA,
                    BLE_RETURN_RC_SIZE);
@@ -521,8 +552,9 @@ int execute_ccu_activate(char *i_cmd,char *i_ret_msg)
           memcpy(time_stamp,&p_recvd_msg_full[BLE_MSG_SINGLE_DATA_TIMESTAMP_OFFSET],TIMESTAMP_SIZE);
           memcpy(act_latitude ,&saved_messages[0][BLE_MSG_MULTI_DATA_DATA_OFFSET],saved_messages[1][BLE_MSG_MULTI_DATA_LEN_OFFSET]);
           memcpy(act_longitude ,&saved_messages[1][BLE_MSG_MULTI_DATA_DATA_OFFSET],saved_messages[1][BLE_MSG_MULTI_DATA_LEN_OFFSET]);
-          // akbi_set_fsm_state(FSM_STATE_ACTIVATE_IN_PROGRESS);
+          akbi_set_fsm_state(FSM_STATE_ACTIVATE_IN_PROGRESS);
           ccu_sent_activate_system_msg(act_latitude,act_longitude,time_stamp,4);
+          printf("timestamp in bleapis :%s\n", time_stamp);
           break;
       }
       default: {

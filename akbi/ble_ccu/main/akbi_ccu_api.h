@@ -15,11 +15,12 @@
 #define _AKBI_CCU_API_H_
 
 #define MAX_AP_NAME_LENGTH                 100
+#define MAX_AP_COUNT                       50
 
 typedef struct _akbi_wifi_scan_report_
 {
     int    ap_count;
-    char   ap_name[20][MAX_AP_NAME_LENGTH];
+    char   ap_name[MAX_AP_COUNT][MAX_AP_NAME_LENGTH];
 
 } AKBI_WIFI_SCAN_REPORT;
 

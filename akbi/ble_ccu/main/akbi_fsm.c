@@ -18,6 +18,7 @@
 #include "akbi_fsm.h"
 #include "akbi_msg.h"
 #include "akbi_bt_msg.h"
+#include "akbi_ccu_api.h"
 
 
 extern CCU this_ccu;
@@ -29,16 +30,26 @@ int akbi_get_fsm_state()
     return bt_state;
 }
 
-static char wifi_report[50][50];
-static int  wifi_report_length[50];
+// static char wifi_report[50][50];
+// static int  wifi_report_length[50];
 char        ccu_ap_ssid[20];
 char        ccu_ap_passwd[20];
+extern      AKBI_WIFI_SCAN_REPORT  wifi_scan_report;
+
 
 static int ssid_index = 0;
 static int no_of_stored_ssids = 0;
 
+extern int akbi_slice_wifi_names();
+
+// void akbi_clear_ssids(){
+//     memset(wifi_report,0x00,sizeof(wifi_report));
+//     no_of_stored_ssids = 0 ;
+//     ssid_index = 0 ;
+// }
+
 void akbi_clear_ssids(){
-    memset(wifi_report,0x00,sizeof(wifi_report));
+    memset(&wifi_scan_report,0x00,sizeof(wifi_scan_report));
     no_of_stored_ssids = 0 ;
     ssid_index = 0 ;
 }
@@ -48,18 +59,19 @@ void akbi_set_fsm_state(CCU_FSM_STATES state)
     bt_state = state;
 }
 
-void save_ssids(char *ssid,int indx,int length){
-    memcpy(wifi_report[indx],ssid,length);
-    if(no_of_stored_ssids<(indx+1)){
-        no_of_stored_ssids = indx + 1;
-    }
-    wifi_report_length[indx] = length;
-}
+// void save_ssids(char *ssid,int indx,int length){
+//     memcpy(wifi_report[indx],ssid,length);
+//     if(no_of_stored_ssids<(indx+1)){
+//         no_of_stored_ssids = indx + 1;
+//     }
+//     wifi_report_length[indx] = length;
+// }
 
 int akbi_check_fsm_state_and_respond(char *ep_return_message)
 {
     CCU_FSM_STATES    current_state;
-    int               ret = 0;
+    int               ret = 0,add_factor = 0;
+    char              wifi_name_part[15];
 
     current_state = akbi_get_fsm_state();
     /*
@@ -145,16 +157,22 @@ int akbi_check_fsm_state_and_respond(char *ep_return_message)
 
     case FSM_STATE_WIFI_NAME_SEND_IN_PROGRESS :
 
-        memcpy(ep_return_message+RETURN_MSG_DATA_OFFSET,&wifi_report[ssid_index],strlen(wifi_report[ssid_index]));
+        memcpy(ep_return_message+RETURN_MSG_DATA_OFFSET,wifi_scan_report.ap_name[ssid_index],
+                                                       strlen(wifi_scan_report.ap_name[ssid_index]));
 
-        if (wifi_report_length[ssid_index]>12) {
-            memcpy(ep_return_message+RETURN_MSG_DATA_OFFSET,&wifi_report[ssid_index],10);
-            memset(ep_return_message+RETURN_MSG_DATA_OFFSET+10,'~',1);
-            memset(ep_return_message+RETURN_MSG_DATA_OFFSET+11,49,1);
-            ssid_index++;
+        if (strlen(wifi_scan_report.ap_name[ssid_index])>11) {
+            // memcpy(ep_return_message+RETURN_MSG_DATA_OFFSET,wifi_scan_report.ap_name[ssid_index],10);
+            // memset(ep_return_message+RETURN_MSG_DATA_OFFSET+10,'~',1);
+            // memset(ep_return_message+RETURN_MSG_DATA_OFFSET+11,49,1);
+            memset(wifi_name_part,0x00,15);
+            add_factor = akbi_slice_wifi_names(wifi_scan_report.ap_name[ssid_index] ,wifi_name_part);
+            ep_return_message[RETURN_MSG_DATA_OFFSET] = strlen (wifi_scan_report.ap_name[ssid_index]);
+            memcpy(ep_return_message+RETURN_MSG_DATA_OFFSET+1,wifi_name_part,11);
+            ssid_index += add_factor;
         }
         else{
-            memcpy(ep_return_message+RETURN_MSG_DATA_OFFSET,&wifi_report[ssid_index],12);
+            ep_return_message[RETURN_MSG_DATA_OFFSET] = strlen(wifi_scan_report.ap_name[ssid_index]);
+            memcpy(ep_return_message+RETURN_MSG_DATA_OFFSET+1,wifi_scan_report.ap_name[ssid_index],11);
             ssid_index++;
         }
         ret = 0;

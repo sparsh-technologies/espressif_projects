@@ -58,7 +58,7 @@
 #define MAX_RETURN_MSG_LENGTH       20
 #define ADV_SER_NO_SIZE             4
 
-// #define DEBUG_ENABLE
+#define DEBUG_ENABLE
 
 extern uint8_t return_data[15];
 char ep_return_message[MAX_RETURN_MSG_LENGTH];
