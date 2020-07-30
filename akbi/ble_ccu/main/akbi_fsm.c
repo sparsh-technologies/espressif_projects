@@ -19,7 +19,9 @@
 #include "akbi_msg.h"
 #include "akbi_bt_msg.h"
 #include "akbi_ccu_api.h"
+#include "esp_log.h"
 
+#define BT_BLE_COEX_TAG             "AKBI_FSM"
 
 extern CCU this_ccu;
 
@@ -70,7 +72,7 @@ void akbi_set_fsm_state(CCU_FSM_STATES state)
 int akbi_check_fsm_state_and_respond(char *ep_return_message)
 {
     CCU_FSM_STATES    current_state;
-    int               ret = 0,add_factor = 0;
+    int               ret = 0,end_of_name = 0;
     char              wifi_name_part[15];
 
     current_state = akbi_get_fsm_state();
@@ -157,18 +159,12 @@ int akbi_check_fsm_state_and_respond(char *ep_return_message)
 
     case FSM_STATE_WIFI_NAME_SEND_IN_PROGRESS :
 
-        memcpy(ep_return_message+RETURN_MSG_DATA_OFFSET,wifi_scan_report.ap_name[ssid_index],
-                                                       strlen(wifi_scan_report.ap_name[ssid_index]));
-
         if (strlen(wifi_scan_report.ap_name[ssid_index])>11) {
-            // memcpy(ep_return_message+RETURN_MSG_DATA_OFFSET,wifi_scan_report.ap_name[ssid_index],10);
-            // memset(ep_return_message+RETURN_MSG_DATA_OFFSET+10,'~',1);
-            // memset(ep_return_message+RETURN_MSG_DATA_OFFSET+11,49,1);
             memset(wifi_name_part,0x00,15);
-            add_factor = akbi_slice_wifi_names(wifi_scan_report.ap_name[ssid_index] ,wifi_name_part);
+            end_of_name = akbi_slice_wifi_names(wifi_scan_report.ap_name[ssid_index] ,wifi_name_part);
             ep_return_message[RETURN_MSG_DATA_OFFSET] = strlen (wifi_scan_report.ap_name[ssid_index]);
             memcpy(ep_return_message+RETURN_MSG_DATA_OFFSET+1,wifi_name_part,11);
-            ssid_index += add_factor;
+            ssid_index += end_of_name;
         }
         else{
             ep_return_message[RETURN_MSG_DATA_OFFSET] = strlen(wifi_scan_report.ap_name[ssid_index]);
@@ -177,8 +173,6 @@ int akbi_check_fsm_state_and_respond(char *ep_return_message)
         }
         ret = 0;
         break;
-
-
 
 
     case FSM_STATE_WIFI_SELECT_IN_PROGRESS :

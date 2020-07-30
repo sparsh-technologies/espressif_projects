@@ -55,12 +55,10 @@
 #define PREPARE_BUF_MAX_SIZE        1024
 #define PROFILE_NUM                 1
 #define PROFILE_A_APP_ID            0
-#define MAX_RETURN_MSG_LENGTH       20
 #define ADV_SER_NO_SIZE             4
 
-#define DEBUG_ENABLE
+// #define DEBUG_ENABLE
 
-extern uint8_t return_data[15];
 char ep_return_message[MAX_RETURN_MSG_LENGTH];
 char adv_ser_no[5];
 char adv_full_name[20];
@@ -371,7 +369,7 @@ static void gatts_profile_a_event_handler(esp_gatts_cb_event_t event, esp_gatt_i
         esp_gatt_rsp_t rsp;
 
         #ifdef DEBUG_ENABLE
-        ESP_LOGI(BT_BLE_COEX_TAG, "GATT_READ_EVT, conn_id %d, trans_id %d, handle %d\n",
+        ESP_LOGI(BT_BLE_COEX_TAG, "GATT_READ_EVT, conn_id %d, trans_id %d, handle %d",
                  param->read.conn_id, param->read.trans_id, param->read.handle);
         #endif
 
@@ -394,6 +392,7 @@ static void gatts_profile_a_event_handler(esp_gatts_cb_event_t event, esp_gatt_i
         }
         #ifdef DEBUG_ENABLE
         esp_log_buffer_hex(BT_BLE_COEX_TAG, &rsp,rsp.attr_value.len );
+        ESP_LOGI(BT_BLE_COEX_TAG, "");
         // esp_log_buffer_char(BT_BLE_COEX_TAG, &rsp,rsp.attr_value.len );
         #endif
 
@@ -425,6 +424,7 @@ static void gatts_profile_a_event_handler(esp_gatts_cb_event_t event, esp_gatt_i
             ESP_LOGI(BT_BLE_COEX_TAG, "GATT_WRITE_EVT, value len %d, value :", param->write.len);
             // esp_log_buffer_char(BT_BLE_COEX_TAG, param->write.value, param->write.len);
             esp_log_buffer_hex(BT_BLE_COEX_TAG, param->write.value, param->write.len);
+            ESP_LOGI(BT_BLE_COEX_TAG, "");
             #endif
 
             memcpy(rx_pkt_buffer, param->write.value, param->write.len);

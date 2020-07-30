@@ -9,7 +9,6 @@
 #include <rom/ets_sys.h>
 
 
-#define MAX_RETURN_MSG_LENGTH       20
 // #define DEBUG_ENABLE
 
 

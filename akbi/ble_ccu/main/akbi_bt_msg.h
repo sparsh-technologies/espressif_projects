@@ -14,9 +14,11 @@
 #ifndef _AKBI_BT_MSG_H_
 #define _AKBI_BT_MSG_H_
 
-#define CURRENT_FIRMWARE_VERSION     "0001.5"
-#define ESP_CURRENT_FIRMWARE_VERSION "0001.4"
+#define CURRENT_FIRMWARE_VERSION     "0001.6"
+#define ESP_CURRENT_FIRMWARE_VERSION "0001.5"
 #define BLE_DEBUG
+
+#define MAX_RETURN_MSG_LENGTH              20
 
 #define SER_NO_SIZE                        20
 #define DEFAULT_PASSWORD_SIZE              12
