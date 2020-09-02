@@ -26,7 +26,6 @@
 #define BT_BLE_COEX_TAG             "BLE_APIS"
 
 
-CCU this_ccu;
 
 int return_msg_len                                = BLE_RETURN_MAX_SIZE;
 int searched_ssid_count_index                     = 0;
@@ -350,17 +349,14 @@ int execute_store_personal_number(char *i_cmd, char *i_ret_msg)
     memcpy(i_personal_number,&i_cmd[BLE_CMD_MULTI_DATA_VALUE_FIXED_LEN_OFFSET],data_len_in_ble);
     memcpy(&i_ret_msg[BLE_RET_MSG_DATA_TYPE_OFFSET],&data_type,BLE_COMMAND_DATA_TYPE_SIZE);
 
-    memcpy(this_ccu.conf_personal_nos.mob1_mobile_number,this_ccu.paired_mob1.mobile_number,data_len_in_ble);
 
     switch (data_type) {
         case DID_PERSONAL_SECOND_NUMBER : {
-            memcpy(this_ccu.conf_personal_nos.second_number,i_personal_number,data_len_in_ble);
             memset(&i_ret_msg[BLE_RET_MSG_RC_OFFSET], SUCCESS, BLE_RETURN_RC_SIZE);
             ccu_sent_store_personal_number_msg(p_recvd_msg_full);
             break;
         }
         case DID_PERSONAL_THIRD_NUMBER : {
-            memcpy(this_ccu.conf_personal_nos.third_number,i_personal_number,data_len_in_ble);
             memset(&i_ret_msg[BLE_RET_MSG_RC_OFFSET], SUCCESS, BLE_RETURN_RC_SIZE);
             ccu_sent_store_personal_number_msg(p_recvd_msg_full);
             break;
@@ -379,19 +375,16 @@ int execute_enter_local_help_number(char *i_cmd, char *i_ret_msg)
     char data_type       = i_cmd[BLE_CMD_MULTI_DATA_TYPE_OFFSET];
     int  data_len_in_ble = MOB_NO_SIZE;
     char i_local_help_number[data_len_in_ble];
-    unsigned char i_visited_locations_count = this_ccu.visited_locations_count;
 
     memcpy(i_local_help_number,&i_cmd[BLE_CMD_MULTI_DATA_VALUE_FIXED_LEN_OFFSET],data_len_in_ble);
     memcpy(&i_ret_msg[BLE_RET_MSG_DATA_TYPE_OFFSET],&data_type,BLE_COMMAND_DATA_TYPE_SIZE);
 
     switch (data_type) {
         case DID_LOCAL_HELP_FOURTH_NUMBER : {
-            memcpy(this_ccu.visited_locations[i_visited_locations_count].fourth_phone_number,i_local_help_number,data_len_in_ble);
             ccu_sent_store_local_help_number_msg(p_recvd_msg_full);
             break;
         }
         case DID_LOCAL_HELP_FIFTH_NUMBER : {
-            memcpy(this_ccu.visited_locations[i_visited_locations_count].fifth_phone_number,i_local_help_number,data_len_in_ble);
             ccu_sent_store_local_help_number_msg(p_recvd_msg_full);
             break;
         }
@@ -446,36 +439,14 @@ int execute_select_a_wifi(char *i_cmd, char *i_ret_msg)
 
     switch (data_type) {
         case DID_SELECT_A_WIFI_SSID : {
-            memcpy(this_ccu.conf_wifi.ssid,i_data_value,data_len_in_ble);
             memset(&i_ret_msg[BLE_RET_MSG_RC_OFFSET], SUCCESS, BLE_RETURN_RC_SIZE);
-            this_ccu.conf_wifi.data_status |= FLAG_DATA_SET_SEL_WIFI_SSID;
             save_group_messages(p_recvd_msg_full,DID_SELECT_A_WIFI_SSID);
             break;
         }
         case DID_SELECT_A_WIFI_NETWORK_KEY : {
-            // if (data_len_in_ble > 0x0f) {
             memcpy(&p_password[pwd_part_num*15] ,&p_recvd_msg_full[BLE_MSG_MULTI_DATA_DATA_OFFSET],strlen(&p_recvd_msg_full[BLE_MSG_MULTI_DATA_DATA_OFFSET]));
             memset(&i_ret_msg[BLE_RET_MSG_RC_OFFSET], SUCCESS, BLE_RETURN_RC_SIZE);
             pwd_part_num++;
-            // }
-            // else{
-                // pwd_part_num++;
-            // }
-            // if ((pwd_part_num*15) >= data_len_in_ble) {
-            //     pwd_part_num = 0;
-            //
-            //     // memcpy(this_ccu.conf_wifi.network_key,i_data_value,data_len_in_ble);
-            //     memset(&i_ret_msg[BLE_RET_MSG_RC_OFFSET], SUCCESS, BLE_RETURN_RC_SIZE);
-            //     // this_ccu.conf_wifi.data_status |= FLAG_DATA_SET_SEL_WIFI_NETWORK_KEY;
-            //     // save_group_messages(p_recvd_msg_full,DID_SELECT_A_WIFI_NETWORK_KEY);
-            //
-            //     selected_ap_id = saved_messages[0][BLE_MSG_MULTI_DATA_DATA_OFFSET];
-            //     // memcpy(p_password ,&saved_messages[1][BLE_MSG_MULTI_DATA_DATA_OFFSET],saved_messages[1][BLE_MSG_MULTI_DATA_LEN_OFFSET]);
-            //     akbi_set_fsm_state(FSM_STATE_WIFI_CONNECT_IN_PROGRESS);
-            //     ccu_sent_configure_wifi_credentials(selected_ap_id+1, p_password, 4 );
-            //     printf("selected password %s\n", p_password);
-            //     memset(p_password , 0x00, 50);
-            // }
             break;
         }
 
@@ -483,13 +454,7 @@ int execute_select_a_wifi(char *i_cmd, char *i_ret_msg)
             akbi_set_fsm_state(FSM_STATE_WIFI_CONNECT_IN_PROGRESS);
             pwd_part_num = 0;
 
-            // memcpy(this_ccu.conf_wifi.network_key,i_data_value,data_len_in_ble);
-            // memset(&i_ret_msg[BLE_RET_MSG_RC_OFFSET], SUCCESS, BLE_RETURN_RC_SIZE);
-            // this_ccu.conf_wifi.data_status |= FLAG_DATA_SET_SEL_WIFI_NETWORK_KEY;
-            // save_group_messages(p_recvd_msg_full,DID_SELECT_A_WIFI_NETWORK_KEY);
-
             selected_ap_id = saved_messages[0][BLE_MSG_MULTI_DATA_DATA_OFFSET];
-            // memcpy(p_password ,&saved_messages[1][BLE_MSG_MULTI_DATA_DATA_OFFSET],saved_messages[1][BLE_MSG_MULTI_DATA_LEN_OFFSET]);
             ccu_sent_configure_wifi_credentials(selected_ap_id+1, p_password, 4 );
             printf("selected password %s\n", p_password);
             memset(p_password , 0x00, 50);
@@ -810,14 +775,6 @@ int read_ble_message(char *i_msg, char *i_ret_msg)
 
         case CID_ADDRESS_VISITING :
 
-            // if(flag_sending_voice_data){
-            //     voice_msg_index  = i_msg[BLE_MSG_VOICE_RAW_DATA_AUDIO_NUM_OFFSET];
-            //     store_and_send_address_visiting_audio_data(i_msg , voice_msg_index);
-            // }
-            // else{
-            //     voice_msg_index  = i_msg[BLE_MSG_VOICE_DATA_AUDIO_NUM_OFFSET];
-            //     execute_store_address_visiting(voice_msg_index,i_msg);
-            // }
             akbi_set_fsm_state(FSM_STATE_VOICE_RECORDING_IN_PROGRESS);
             execute_store_address_visiting_new(i_msg);
 
@@ -832,7 +789,6 @@ int read_ble_message(char *i_msg, char *i_ret_msg)
         case CID_CCU_ACTIVATE :
             memcpy(ble_command,&i_msg[BLE_CMD_OFFSET + BLE_COMMAND_ID_SIZE],BLE_COMMAND_SIZE);
             // esp_log_buffer_hex(BT_BLE_COEX_TAG, i_msg,20 );
-            // akbi_set_fsm_state(FSM_STATE_ACTIVATE_IN_PROGRESS);
             execute_ccu_activate(ble_command,i_ret_msg);
             break;
 
@@ -991,90 +947,3 @@ int store_and_send_voice_data(char * data, char audio_number,int voice_message_l
 
     return 0;
 }
-
-#if 0
-int populate_serial_no_from_eeprom(char *i_ser)
-{
-    //TODO - access EEPROM
-    memset(i_ser,0x00,SER_NO_SIZE);
-    memcpy(i_ser,&SER_NO_TEST,SER_NO_SIZE);
-    return 0;
-}
-
-void print_bytes(char *const_text, char *message, int size_of_msg)
-{
-    printf("%s",const_text);
-    for (int i = 0; i<size_of_msg; i++) {
-        printf("_%2x_",message[i]);
-    }
-    printf("#\n");
-}
-
-void print_chars(char *const_text,char *message, int size_of_msg)
-{
-    printf("%s",const_text);
-    for (int i = 0; i<size_of_msg; i++) {
-        printf("_%c_",message[i]);
-    }
-    printf("#\n");
-}
-
-void print_ccu()
-{
-    char buf[20];
-    printf("******** CCU DATA START ********\n\n\n");
-    print_chars("Serial Number #",this_ccu.serial_number, SER_NO_SIZE);
-    print_chars("Password #",this_ccu.password, PASS_SIZE);
-    print_bytes("Paired Mob1 ID #",&this_ccu.paired_mob1.id, BLE_APP_ID_SIZE);
-    print_chars("Paired Mob1 Number #",this_ccu.paired_mob1.mobile_number, MOB_NO_SIZE);
-    print_chars("Paired Mob1 Name #",this_ccu.paired_mob1.mobile_name, MOB_NAME_SIZE);
-    print_chars("Paired Mob1 Android ID/UUID #",this_ccu.paired_mob1.android_id_or_uuid, ANDROID_ID_OR_UUID_SIZE);
-    printf("Paired Mob1 Authentication Status #%d#\n",this_ccu.paired_mob1.authentication_status);
-    printf("PERSONAL VOICE MESSAGES COUNT #%d#\n",PERSONAL_VOICE_MESSAGES_COUNT);
-    for (int i = 0; i < PERSONAL_VOICE_MESSAGES_COUNT; i++) {
-        sprintf(buf,"%d #",i);
-        print_chars(buf,(this_ccu.personal_voice_messages[i]).message_file_name,FILE_NAME_SIZE);
-    }
-    print_chars("Configured Emergency Default #",this_ccu.conf_emergency_nos.default_emergency_number,DEFAULT_EMERGENCY_NUMBER_SIZE);
-    print_chars("Configured Emergency First Responder #",this_ccu.conf_emergency_nos.first_responder,MOB_NO_SIZE);
-    print_chars("Configured Emergency Close Relative #",this_ccu.conf_emergency_nos.close_relative,MOB_NO_SIZE);
-    print_chars("Configured Personal Default #",this_ccu.conf_personal_nos.mob1_mobile_number,MOB_NO_SIZE);
-    print_chars("Configured Personal Second #",this_ccu.conf_personal_nos.second_number,MOB_NO_SIZE);
-    print_chars("Configured Personal Third #",this_ccu.conf_personal_nos.third_number,MOB_NO_SIZE);
-    printf("\nInterface Wifi Mode #%d#\n",this_ccu.interface_wifi.mode);
-    printf("Interface Wifi Status #%d#\n",this_ccu.interface_wifi.status);
-    print_chars("Interface WiFi SSID#",this_ccu.interface_wifi.ssid, SSID_SIZE);
-    print_chars("Interface WiFi Network Key#",this_ccu.interface_wifi.network_key, NETWORK_KEY_SIZE);
-    printf("\nConfigured Wifi Mode #%d#\n",this_ccu.conf_wifi.mode);
-    printf("Configured Wifi Status #%d#\n",this_ccu.conf_wifi.status);
-    print_chars("Configured WiFi SSID#",this_ccu.conf_wifi.ssid, SSID_SIZE);
-    print_chars("Configured WiFi Network Key#",this_ccu.conf_wifi.network_key, NETWORK_KEY_SIZE);
-    printf("Scanned WiFis #%d#\n",this_ccu.scanned_wifi_count);
-
-    for (int i = 0; i < this_ccu.scanned_wifi_count; i++) {
-        printf("\nScanned Wifi No. %d Mode #%d#\n",i,this_ccu.scanned_wifis[i].mode);
-        printf("Scanned Wifi No. %d Status #%d#\n",i,this_ccu.scanned_wifis[i].status);
-        print_chars("Scanned WiFi SSID#",this_ccu.scanned_wifis[i].ssid, SSID_SIZE);
-        print_chars("Scanned WiFi Network Key#",this_ccu.scanned_wifis[i].network_key, NETWORK_KEY_SIZE);
-    }
-    printf("Visited locations #%d#\n",this_ccu.visited_locations_count);
-    for (int i = 0; i < this_ccu.visited_locations_count + 1; i++) {
-        printf("Location #%d# Latitude is #%d#%d#%d#%d#\n",i,this_ccu.visited_locations[i].latitude.degree,this_ccu.visited_locations[i].latitude.minute,this_ccu.visited_locations[i].latitude.second,this_ccu.visited_locations[i].lat_dir);
-        printf("Location #%d# Longitude is #%d#%d#%d#%d#\n",i,this_ccu.visited_locations[i].longitude.degree,this_ccu.visited_locations[i].longitude.minute,this_ccu.visited_locations[i].longitude.second,this_ccu.visited_locations[i].long_dir);
-        print_chars("Fourth Number is #",this_ccu.visited_locations[i].fourth_phone_number, MOB_NO_SIZE);
-        print_chars("Fifth Number is #",this_ccu.visited_locations[i].fifth_phone_number, MOB_NO_SIZE);
-    }
-    printf("CCU mode is #%d#\n", this_ccu.mode);
-    printf("Activations #%d#\n",this_ccu.activations_count);
-    for (int i = 0; i < this_ccu.activations_count + 1; i++) {
-        printf("Location #%d# Latitude is #%d#%d#%d#%d#\n",i,this_ccu.activations[i].latitude.degree,this_ccu.activations[i].latitude.minute,this_ccu.activations[i].latitude.second,this_ccu.activations[i].lat_dir);
-        printf("Location #%d# Longitude is #%d#%d#%d#%d#\n",i,this_ccu.activations[i].longitude.degree,this_ccu.activations[i].longitude.minute,this_ccu.activations[i].longitude.second,this_ccu.activations[i].long_dir);
-        printf("Activated time is #%s#\n",this_ccu.activations[i].time);
-    }
-    time_t time_value = time(NULL);
-    struct tm tv = *gmtime(&time_value);
-    printf("Time #%ld#%d#%d#%d#%d#%d#%d#\n",time_value,tv.tm_year+1900,tv.tm_mon+1,tv.tm_mday,tv.tm_hour,tv.tm_min,tv.tm_sec);
-
-    printf("\n\n******** CCU DATA END ********\n");
-}
-#endif

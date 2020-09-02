@@ -23,7 +23,6 @@
 
 #define BT_BLE_COEX_TAG             "AKBI_FSM"
 
-extern CCU this_ccu;
 
 static CCU_FSM_STATES bt_state = FSM_STATE_INIT;
 
@@ -101,7 +100,6 @@ int akbi_check_fsm_state_and_respond(char *ep_return_message)
 
     case FSM_STATE_LOGIN_STATUS :
         // printf("return login success\n" );
-        this_ccu.paired_mob1.authentication_status = AUTHENTICATED;
         ret = 0;
         break;
 
