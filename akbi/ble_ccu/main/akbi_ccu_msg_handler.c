@@ -7,19 +7,25 @@
 #include "akbi_fsm.h"
 #include "akbi_serial_task.h"
 #include <rom/ets_sys.h>
+#include "esp_log.h"
+#include "akbi_esp_update.h"
 
+#define BT_BLE_COEX_TAG             "akbi_ccu_msg_handler"
 
-// #define DEBUG_ENABLE
+#define DEBUG_ENABLE
 
 
 AKBI_WIFI_SCAN_REPORT  wifi_scan_report;
-extern char ep_return_message[MAX_RETURN_MSG_LENGTH];
-extern char firmware_version[10];
-extern char ccu_serial_no[20];
+extern char   ep_return_message[MAX_RETURN_MSG_LENGTH];
+extern char   firmware_version[10];
+extern char   ccu_serial_no[20];
 unsigned char post_result = 0;
 extern char   ccu_ap_ssid[20];
 extern char   ccu_ap_passwd[20];
-extern char ccu_source_app_identifier;
+extern char   ccu_source_app_identifier;
+unsigned char     wifi_ssid[50],wifi_password[50],upgrade_url[200];
+
+extern int               ccu_sent_esp_update_completed_msg();
 
 int akbi_slice_wifi_names(char *wifiname,char *namepart)
 {
@@ -53,12 +59,14 @@ void akbi_process_rx_serial_data(char *ccu_msg,int length)
     BT_CP_PROTOCOL_HDR  *p_protocol_hdr;
 
     p_protocol_hdr = (BT_CP_PROTOCOL_HDR *)ccu_msg;
-    #ifdef DEBUG_ENABLE
+#ifdef DEBUG_ENABLE
+    esp_log_buffer_hex(BT_BLE_COEX_TAG, ccu_msg, length);
+
     printf(" Opcode      :  %02x\n",p_protocol_hdr->opcode );
     printf(" Trans ID    :  %02x\n", p_protocol_hdr->trans_id);
     printf(" Type        :  %02x\n", p_protocol_hdr->type);
     printf(" Length      :  %02x\n", p_protocol_hdr->length);
-    #endif
+#endif
 
     p_payload     = ccu_msg + sizeof(BT_CP_PROTOCOL_HDR);
     p_tlv         = (BT_CP_TLV_HDR *) (ccu_msg + 0x03);
@@ -302,9 +310,54 @@ void akbi_process_rx_serial_data(char *ccu_msg,int length)
 
         case BT_CP_OPCODE_CID_UPDATE_CCU_SW_STATUS:
             akbi_set_fsm_state(FSM_STATE_FW_UPGRADE_COMPLETE);
-            ep_return_message[BLE_RET_MSG_RC_OFFSET] = p_payload[0];
             if(type_in_msg == TLV_TYPE_UPDATE_FW_REBOOT){
                 abort();
+            }
+            else if(type_in_msg == TLV_TYPE_UPDATE_FW_RESULT){
+                ep_return_message[BLE_RET_MSG_RC_OFFSET] = p_payload[0];
+                break;
+            }
+            else if(type_in_msg == TLV_TYPE_WIFI_SSID){
+                memset(wifi_ssid, 0x00, 50);
+                memset(wifi_password, 0x00, 50);
+                memset(upgrade_url, 0x00, 200);
+
+                memcpy(wifi_ssid, p_tlv->data, p_tlv->length);
+                printf(" INFO : WIFI SSID     : %s \n", wifi_ssid );
+
+                p = (char *)p_tlv ;
+                p = p + 0x02 + p_tlv->length;
+                p_tlv = (BT_CP_TLV_HDR *) p ;
+
+                if (p_tlv->type != TLV_TYPE_WIFI_PASSWORD) {
+                    printf(" ERROR : WIFI password TLV error \n" );
+                    break;
+                }
+
+                length_in_msg = p_tlv->length;
+                memcpy(wifi_password, p_tlv->data, length_in_msg);
+                printf(" INFO : WIFI Password    : %s \n", wifi_password );
+
+                p = (char *)p_tlv ;
+                p = p + 0x02 + p_tlv->length;
+                p_tlv = (BT_CP_TLV_HDR *) p ;
+
+                if (p_tlv->type != TLV_TYPE_UPDATE_URL) {
+                    printf(" ERROR : WIFI URL TLV error \n" );
+                    break;
+                }
+
+                length_in_msg = p_tlv->length;
+                memcpy(upgrade_url, p_tlv->data, length_in_msg);
+                printf(" INFO : Upgrade URL    : %s \n", upgrade_url );
+
+#ifdef UPDATE_ESP_FOTA
+                printf(" About to start upgrade procedures \n" );
+                update_app_main();
+#else
+                ccu_sent_esp_update_completed_msg();
+#endif
+
             }
             break;
 

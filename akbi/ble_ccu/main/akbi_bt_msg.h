@@ -346,6 +346,7 @@ typedef struct __attribute__((__packed__)) _ccu_lock_status_ {
 #define BT_CP_OPCODE_SITE_SPECIFIC_STATUS_CHECK                   0x1A
 #define BT_CP_OPCODE_TRIP_INFO_STATUS_CHECK                       0x1B
 #define BT_CP_OPCODE_REBOOT_ESP                                   0x1C
+#define BT_CP_OPCODE_ESP_UPDATED                                  0x1D
 
 #define BT_CP_OPCODE_CID_SCAN_WIFI_RESULT                         0x70
 #define BT_CP_OPCODE_CID_WIFI_CONNECT_COMPLETED                   0x71
@@ -520,5 +521,8 @@ typedef struct __attribute__((__packed__)) _ccu_lock_status_ {
   */
   #define TLV_TYPE_UPDATE_FW_RESULT                                   0x01
   #define TLV_TYPE_UPDATE_FW_REBOOT                                   0x02
+  #define TLV_TYPE_WIFI_SSID                                          0x03
+  #define TLV_TYPE_WIFI_PASSWORD                                      0x04
+  #define TLV_TYPE_UPDATE_URL                                         0x05
 
 #endif
