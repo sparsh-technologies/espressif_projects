@@ -401,6 +401,7 @@ typedef struct __attribute__((__packed__)) _ccu_lock_status_ {
 #define TLV_TYPE_REGISTER_SRC_ID                                  0x0A
 
 #define TLV_TYPE_TIMESTAMP                                        0x01
+#define TLV_TYPE_ESP_FW_VERSION                                   0x02
 
 /*
  * TLV Types for BT_CP_OPCODE_CID_LOGIN Opcode

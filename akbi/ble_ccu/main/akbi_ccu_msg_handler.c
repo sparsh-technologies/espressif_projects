@@ -13,7 +13,7 @@
 #define BT_BLE_COEX_TAG             "akbi_ccu_msg_handler"
 
 #define DEBUG_ENABLE
-
+#define UPDATE_ESP_FOTA
 
 AKBI_WIFI_SCAN_REPORT  wifi_scan_report;
 extern char   ep_return_message[MAX_RETURN_MSG_LENGTH];

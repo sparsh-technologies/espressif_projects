@@ -30,7 +30,7 @@
 #define EXAMPLE_ESP_WIFI_SSID      "Hotspot"
 #define EXAMPLE_ESP_WIFI_PASS      "1y2y3y4y5y7y"
 #define EXAMPLE_ESP_MAXIMUM_RETRY  10
-#define FIRMWARE_UPGRADE_URL       "https://192.168.43.240:8070/simple_ota.bin"
+#define FIRMWARE_UPGRADE_URL       "https://192.168.43.207:8070/akbi_esp32.bin"
 
 extern unsigned char     wifi_ssid[50],wifi_password[50],upgrade_url[200];
 extern int               ccu_sent_esp_update_completed_msg();
@@ -52,10 +52,11 @@ static int s_retry_num = 0;
 esp_err_t do_firmware_upgrade()
 {
     const char* p_url = (const char *) upgrade_url;
-    ESP_LOGI(TAG," Upgrading firmware");
+    ESP_LOGI(TAG," Upgrading firmware from url: %s",p_url);
 
     esp_http_client_config_t config = {
-        .url = p_url,
+        //TODO:this url to be changed
+        .url = FIRMWARE_UPGRADE_URL,
         .cert_pem = (char *)server_cert_pem_start,
         /*
          * increase this timeout if it takes much time to download
@@ -124,10 +125,14 @@ void wifi_init_sta(void)
     ESP_ERROR_CHECK(esp_event_handler_register(WIFI_EVENT, ESP_EVENT_ANY_ID, &event_handler, NULL));
     ESP_ERROR_CHECK(esp_event_handler_register(IP_EVENT, IP_EVENT_STA_GOT_IP, &event_handler, NULL));
 
-    wifi_config_t wifi_config;
+    wifi_config_t wifi_config = {
+        .sta = {
+            .ssid = EXAMPLE_ESP_WIFI_SSID,
+            .password = EXAMPLE_ESP_WIFI_PASS
+        },
+    };
 
-    memcpy(wifi_config.sta.ssid, p_wifi_ssid, strlen(p_wifi_ssid));
-    memcpy(wifi_config.sta.password, p_wifi_password, strlen(p_wifi_password));
+
 
     ESP_ERROR_CHECK(esp_wifi_set_mode(WIFI_MODE_STA) );
     ESP_ERROR_CHECK(esp_wifi_set_config(ESP_IF_WIFI_STA, &wifi_config) );
