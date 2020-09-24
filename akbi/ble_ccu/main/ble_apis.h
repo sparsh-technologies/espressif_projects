@@ -14,4 +14,7 @@ int execute_akbi_sent_mob_disconnected_msg();
 
 int sent_end_of_audio_packet();
 
+int execute_akbi_sent_adv_failed_msg();
+
+
 #endif

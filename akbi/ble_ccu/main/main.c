@@ -184,13 +184,7 @@ static void gap_event_handler(esp_gap_ble_cb_event_t event, esp_ble_gap_cb_param
     switch (event) {
 
     case ESP_GAP_BLE_ADV_DATA_RAW_SET_COMPLETE_EVT:
-
-        // while(ep_return_message[0] == 0){
-        //     akbi_check_fsm_state_and_respond(ep_return_message);
-        //     vTaskDelay(1000);
-        // }
         esp_ble_gap_start_advertising(&adv_params);
-        execute_akbi_sent_adv_started_msg();
         break;
 
     case ESP_GAP_BLE_SCAN_RSP_DATA_RAW_SET_COMPLETE_EVT:
@@ -199,13 +193,19 @@ static void gap_event_handler(esp_gap_ble_cb_event_t event, esp_ble_gap_cb_param
 
     case ESP_GAP_BLE_ADV_START_COMPLETE_EVT:
         //advertising start complete event to indicate advertising start successfully or failed
-        #ifdef DEBUG_ENABLE
         if (param->adv_start_cmpl.status != ESP_BT_STATUS_SUCCESS) {
+            #ifdef DEBUG_ENABLE
             ESP_LOGE(BT_BLE_COEX_TAG, "Advertising start failed\n");
+            #endif
+            execute_akbi_sent_adv_failed_msg();
+
         }else {
+            #ifdef DEBUG_ENABLE
             ESP_LOGI(BT_BLE_COEX_TAG, "Start adv successfully\n");
+            #endif
+            execute_akbi_sent_adv_started_msg();
         }
-        #endif
+
         break;
 
     case ESP_GAP_BLE_ADV_STOP_COMPLETE_EVT:
@@ -215,6 +215,12 @@ static void gap_event_handler(esp_gap_ble_cb_event_t event, esp_ble_gap_cb_param
         else {
             ESP_LOGI(BT_BLE_COEX_TAG, "Stop adv successfully\n");
         }
+
+        while(ep_return_message[0] == 0){
+            akbi_check_fsm_state_and_respond(ep_return_message);
+            vTaskDelay(1000);
+        }
+        esp_ble_gap_start_advertising(&adv_params);
         break;
 
     case ESP_GAP_BLE_UPDATE_CONN_PARAMS_EVT:
@@ -343,8 +349,6 @@ static void gatts_profile_a_event_handler(esp_gatts_cb_event_t event, esp_gatt_i
         gl_profile_tab[PROFILE_A_APP_ID].service_id.id.inst_id = 0x00;
         gl_profile_tab[PROFILE_A_APP_ID].service_id.id.uuid.len = ESP_UUID_LEN_16;
         gl_profile_tab[PROFILE_A_APP_ID].service_id.id.uuid.uuid.uuid16 = GATTS_SERVICE_UUID_A;
-        //TODO: get serial number from processor and append with BLE_ADV_NAME
-        //init BLE adv data and scan response data
 
         while(ep_return_message[0] == 0){
             akbi_check_fsm_state_and_respond(ep_return_message);

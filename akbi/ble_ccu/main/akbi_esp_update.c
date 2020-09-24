@@ -36,7 +36,6 @@ extern unsigned char     wifi_ssid[50],wifi_password[50],upgrade_url[200];
 extern int               ccu_sent_esp_update_completed_msg();
 
 
-extern const uint8_t server_cert_pem_start[] asm("_binary_ca_cert_pem_start");
 
 /* FreeRTOS event group to signal when we are connected*/
 static EventGroupHandle_t s_wifi_event_group;
@@ -57,7 +56,6 @@ esp_err_t do_firmware_upgrade()
     esp_http_client_config_t config = {
         //TODO:this url to be changed
         .url = FIRMWARE_UPGRADE_URL,
-        .cert_pem = (char *)server_cert_pem_start,
         /*
          * increase this timeout if it takes much time to download
          */

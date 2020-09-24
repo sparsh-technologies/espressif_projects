@@ -12,8 +12,8 @@
 
 #define BT_BLE_COEX_TAG             "akbi_ccu_msg_handler"
 
-#define DEBUG_ENABLE
-#define UPDATE_ESP_FOTA
+// #define DEBUG_ENABLE
+// #define UPDATE_ESP_FOTA
 
 AKBI_WIFI_SCAN_REPORT  wifi_scan_report;
 extern char   ep_return_message[MAX_RETURN_MSG_LENGTH];
@@ -214,7 +214,7 @@ void akbi_process_rx_serial_data(char *ccu_msg,int length)
                     break;
 
                 default:
-                    printf("undefined wifi result code \n" );
+                    // printf("undefined wifi result code \n" );
                     break;
             }
 
@@ -247,7 +247,7 @@ void akbi_process_rx_serial_data(char *ccu_msg,int length)
                     break;
 
                 default:
-                    printf("undefined wifi result code \n" );
+                    // printf("undefined wifi result code \n" );
                     break;
             }
             break;
@@ -323,36 +323,36 @@ void akbi_process_rx_serial_data(char *ccu_msg,int length)
                 memset(upgrade_url, 0x00, 200);
 
                 memcpy(wifi_ssid, p_tlv->data, p_tlv->length);
-                printf(" INFO : WIFI SSID     : %s \n", wifi_ssid );
+                // printf(" INFO : WIFI SSID     : %s \n", wifi_ssid );
 
                 p = (char *)p_tlv ;
                 p = p + 0x02 + p_tlv->length;
                 p_tlv = (BT_CP_TLV_HDR *) p ;
 
                 if (p_tlv->type != TLV_TYPE_WIFI_PASSWORD) {
-                    printf(" ERROR : WIFI password TLV error \n" );
+                    // printf(" ERROR : WIFI password TLV error \n" );
                     break;
                 }
 
                 length_in_msg = p_tlv->length;
                 memcpy(wifi_password, p_tlv->data, length_in_msg);
-                printf(" INFO : WIFI Password    : %s \n", wifi_password );
+                // printf(" INFO : WIFI Password    : %s \n", wifi_password );
 
                 p = (char *)p_tlv ;
                 p = p + 0x02 + p_tlv->length;
                 p_tlv = (BT_CP_TLV_HDR *) p ;
 
                 if (p_tlv->type != TLV_TYPE_UPDATE_URL) {
-                    printf(" ERROR : WIFI URL TLV error \n" );
+                    // printf(" ERROR : WIFI URL TLV error \n" );
                     break;
                 }
 
                 length_in_msg = p_tlv->length;
                 memcpy(upgrade_url, p_tlv->data, length_in_msg);
-                printf(" INFO : Upgrade URL    : %s \n", upgrade_url );
+                // printf(" INFO : Upgrade URL    : %s \n", upgrade_url );
 
 #ifdef UPDATE_ESP_FOTA
-                printf(" About to start upgrade procedures \n" );
+                printf(" About to start fota upgrade procedures \n" );
                 update_app_main();
 #else
                 ccu_sent_esp_update_completed_msg();

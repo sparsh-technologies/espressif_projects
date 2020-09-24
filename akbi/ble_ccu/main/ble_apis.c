@@ -568,6 +568,12 @@ int execute_akbi_sent_adv_started_msg()
     return 0;
 }
 
+int execute_akbi_sent_adv_failed_msg()
+{
+    ccu_sent_adv_failed_msg();
+    return 0;
+}
+
 int execute_akbi_sent_mob_connected_msg()
 {
     ccu_sent_mob_connected_msg();

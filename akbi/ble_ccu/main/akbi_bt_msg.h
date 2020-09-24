@@ -14,8 +14,8 @@
 #ifndef _AKBI_BT_MSG_H_
 #define _AKBI_BT_MSG_H_
 
-#define CURRENT_FIRMWARE_VERSION     "0001.8"
-#define ESP_CURRENT_FIRMWARE_VERSION "0001.6"
+#define CURRENT_FIRMWARE_VERSION     "0001.9"
+#define ESP_CURRENT_FIRMWARE_VERSION "0001.7"
 #define BLE_DEBUG
 
 #define MAX_RETURN_MSG_LENGTH              20
@@ -347,6 +347,7 @@ typedef struct __attribute__((__packed__)) _ccu_lock_status_ {
 #define BT_CP_OPCODE_TRIP_INFO_STATUS_CHECK                       0x1B
 #define BT_CP_OPCODE_REBOOT_ESP                                   0x1C
 #define BT_CP_OPCODE_ESP_UPDATED                                  0x1D
+#define BT_CP_OPCODE_ADV_FAILED_MSG                               0x1E
 
 #define BT_CP_OPCODE_CID_SCAN_WIFI_RESULT                         0x70
 #define BT_CP_OPCODE_CID_WIFI_CONNECT_COMPLETED                   0x71

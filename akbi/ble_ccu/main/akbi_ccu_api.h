@@ -88,5 +88,6 @@ int ccu_send_check_trip_info_status();
 
 int ccu_send_src_app_id(int type,char source_app_identifier,int data_len);
 
+int ccu_sent_adv_failed_msg();
 
 #endif
