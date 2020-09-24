@@ -13,7 +13,7 @@
 #define BT_BLE_COEX_TAG             "akbi_ccu_msg_handler"
 
 // #define DEBUG_ENABLE
-// #define UPDATE_ESP_FOTA
+#define UPDATE_ESP_FOTA
 
 AKBI_WIFI_SCAN_REPORT  wifi_scan_report;
 extern char   ep_return_message[MAX_RETURN_MSG_LENGTH];
@@ -23,7 +23,7 @@ unsigned char post_result = 0;
 extern char   ccu_ap_ssid[20];
 extern char   ccu_ap_passwd[20];
 extern char   ccu_source_app_identifier;
-unsigned char     wifi_ssid[50],wifi_password[50],upgrade_url[200];
+char          wifi_ssid[50],wifi_password[50],upgrade_url[200];
 
 extern int               ccu_sent_esp_update_completed_msg();
 

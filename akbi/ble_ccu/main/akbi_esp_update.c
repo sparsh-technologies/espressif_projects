@@ -32,7 +32,7 @@
 #define EXAMPLE_ESP_MAXIMUM_RETRY  10
 #define FIRMWARE_UPGRADE_URL       "https://192.168.43.207:8070/akbi_esp32.bin"
 
-extern unsigned char     wifi_ssid[50],wifi_password[50],upgrade_url[200];
+extern char              wifi_ssid[50],wifi_password[50],upgrade_url[200];
 extern int               ccu_sent_esp_update_completed_msg();
 
 
@@ -55,7 +55,8 @@ esp_err_t do_firmware_upgrade()
 
     esp_http_client_config_t config = {
         //TODO:this url to be changed
-        .url = FIRMWARE_UPGRADE_URL,
+        // .url = FIRMWARE_UPGRADE_URL,
+        .url = p_url,
         /*
          * increase this timeout if it takes much time to download
          */
@@ -107,9 +108,11 @@ static void event_handler(void* arg, esp_event_base_t event_base,
 
 void wifi_init_sta(void)
 {
+    wifi_config_t wifi_config;
+
     s_wifi_event_group = xEventGroupCreate();
-    const char* p_wifi_ssid = (const char*)wifi_ssid;
-    const char* p_wifi_password = (const char*)wifi_password;
+    // const char* p_wifi_ssid = (const char*)wifi_ssid;
+    // const char* p_wifi_password = (const char*)wifi_password;
 
     esp_netif_init();
 
@@ -123,13 +126,15 @@ void wifi_init_sta(void)
     ESP_ERROR_CHECK(esp_event_handler_register(WIFI_EVENT, ESP_EVENT_ANY_ID, &event_handler, NULL));
     ESP_ERROR_CHECK(esp_event_handler_register(IP_EVENT, IP_EVENT_STA_GOT_IP, &event_handler, NULL));
 
-    wifi_config_t wifi_config = {
-        .sta = {
-            .ssid = EXAMPLE_ESP_WIFI_SSID,
-            .password = EXAMPLE_ESP_WIFI_PASS
-        },
-    };
-
+    // wifi_config_t wifi_config = {
+    //     .sta = {
+    //         .ssid = EXAMPLE_ESP_WIFI_SSID,
+    //         .password = EXAMPLE_ESP_WIFI_PASS
+    //     },
+    // };
+    memset(&wifi_config, 0x00, sizeof(wifi_config_t));
+    strcpy((char*)wifi_config.sta.ssid, wifi_ssid);
+    strcpy((char*)wifi_config.sta.password, wifi_password);
 
 
     ESP_ERROR_CHECK(esp_wifi_set_mode(WIFI_MODE_STA) );
@@ -137,8 +142,7 @@ void wifi_init_sta(void)
     ESP_ERROR_CHECK(esp_wifi_start() );
 
     ESP_LOGI(TAG, "wifi_init_sta finished.");
-    ESP_LOGI(TAG, "connect to ap SSID:%s password:%s",
-             p_wifi_ssid, p_wifi_password);
+    ESP_LOGI(TAG, "connect to ap SSID:%s password:%s",wifi_ssid, wifi_password);
 }
 
 void update_app_main(void)
