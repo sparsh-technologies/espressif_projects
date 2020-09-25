@@ -54,7 +54,8 @@
 #define ACTIVATIONS_COUNT                  10
 #define WIFI_CONNECTIONS_COUNT             10
 
-#define ALL_SUCCESS_POST_VALUE             0x1F
+#define ALL_SUCCESS_POST_VALUE_BLE         0x1F
+#define ALL_SUCCESS_POST_VALUE_CCU         0x3F
 
 #define CID_REGISTER                       0x01
 #define CID_LOGIN                          0x02

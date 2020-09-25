@@ -27,15 +27,10 @@
  #include "lwip/sys.h"
 
 
-#define EXAMPLE_ESP_WIFI_SSID      "Hotspot"
-#define EXAMPLE_ESP_WIFI_PASS      "1y2y3y4y5y7y"
 #define EXAMPLE_ESP_MAXIMUM_RETRY  10
-#define FIRMWARE_UPGRADE_URL       "https://192.168.43.207:8070/akbi_esp32.bin"
 
 extern char              wifi_ssid[50],wifi_password[50],upgrade_url[200];
 extern int               ccu_sent_esp_update_completed_msg();
-
-
 
 /* FreeRTOS event group to signal when we are connected*/
 static EventGroupHandle_t s_wifi_event_group;
@@ -54,8 +49,6 @@ esp_err_t do_firmware_upgrade()
     ESP_LOGI(TAG," Upgrading firmware from url: %s",p_url);
 
     esp_http_client_config_t config = {
-        //TODO:this url to be changed
-        // .url = FIRMWARE_UPGRADE_URL,
         .url = p_url,
         /*
          * increase this timeout if it takes much time to download
@@ -64,7 +57,7 @@ esp_err_t do_firmware_upgrade()
     };
     esp_err_t ret = esp_https_ota(&config);
     if (ret == ESP_OK) {
-        ESP_LOGI(TAG," Upgrade SUCCESS");
+        // ESP_LOGI(TAG," Upgrade SUCCESS");
         ccu_sent_esp_update_completed_msg();
     } else {
         return ESP_FAIL;
@@ -92,9 +85,9 @@ static void event_handler(void* arg, esp_event_base_t event_base,
             esp_wifi_connect();
             xEventGroupClearBits(s_wifi_event_group, WIFI_CONNECTED_BIT);
             s_retry_num++;
-            ESP_LOGI(TAG, "retry to connect to the AP");
+            // ESP_LOGI(TAG, "retry to connect to the AP");
         }
-        ESP_LOGI(TAG,"connect to the AP fail");
+        // ESP_LOGI(TAG,"connect to the AP fail");
     } else if (event_base == IP_EVENT && event_id == IP_EVENT_STA_GOT_IP) {
         ip_event_got_ip_t* event = (ip_event_got_ip_t*) event_data;
         ESP_LOGI(TAG, "got ip:" IPSTR, IP2STR(&event->ip_info.ip));
@@ -111,8 +104,6 @@ void wifi_init_sta(void)
     wifi_config_t wifi_config;
 
     s_wifi_event_group = xEventGroupCreate();
-    // const char* p_wifi_ssid = (const char*)wifi_ssid;
-    // const char* p_wifi_password = (const char*)wifi_password;
 
     esp_netif_init();
 
@@ -126,12 +117,6 @@ void wifi_init_sta(void)
     ESP_ERROR_CHECK(esp_event_handler_register(WIFI_EVENT, ESP_EVENT_ANY_ID, &event_handler, NULL));
     ESP_ERROR_CHECK(esp_event_handler_register(IP_EVENT, IP_EVENT_STA_GOT_IP, &event_handler, NULL));
 
-    // wifi_config_t wifi_config = {
-    //     .sta = {
-    //         .ssid = EXAMPLE_ESP_WIFI_SSID,
-    //         .password = EXAMPLE_ESP_WIFI_PASS
-    //     },
-    // };
     memset(&wifi_config, 0x00, sizeof(wifi_config_t));
     strcpy((char*)wifi_config.sta.ssid, wifi_ssid);
     strcpy((char*)wifi_config.sta.password, wifi_password);
@@ -141,12 +126,12 @@ void wifi_init_sta(void)
     ESP_ERROR_CHECK(esp_wifi_set_config(ESP_IF_WIFI_STA, &wifi_config) );
     ESP_ERROR_CHECK(esp_wifi_start() );
 
-    ESP_LOGI(TAG, "wifi_init_sta finished.");
-    ESP_LOGI(TAG, "connect to ap SSID:%s password:%s",wifi_ssid, wifi_password);
+    // ESP_LOGI(TAG, "wifi_init_sta finished.");
+    // ESP_LOGI(TAG, "connect to ap SSID:%s password:%s",wifi_ssid, wifi_password);
 }
 
 void update_app_main(void)
 {
-    ESP_LOGI(TAG, "ESP_WIFI_MODE_STA");
+    // ESP_LOGI(TAG, "ESP_WIFI_MODE_STA");
     wifi_init_sta();
 }
